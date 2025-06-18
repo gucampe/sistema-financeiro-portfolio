@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>app_fin</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
+    
+    {% include "app_fin/partials/header.html" %}
+
+    {% include "app_fin/partials/cadastro.html" %}
+  </body>
+</html>
