@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,10 +8,13 @@
     <title>app_fin</title>
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
   </head>
-  <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
+  <body class="bg-[#F4F5F7] min-h-screen flex flex-col">
     
-    {% include "app_fin/partials/header.html" %}
+    {% include "base/header.html" %}
+    {% include 'base/sidebar.html' %}
 
-    {% include "app_fin/partials/cadastro.html" %}
+
+
+    <script src="{% static 'js/sidebar.js' %}"></script>
   </body>
 </html>
