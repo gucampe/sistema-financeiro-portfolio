@@ -1,28 +1,19 @@
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
-from .models import Usuario
-from django import forms
+from django.contrib import messages
 
-# Create your views here.
+def login_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        senha = request.POST.get('senha')
 
-class UsuarioForm(forms.ModelForm):
-    class Meta:
-        model = Usuario
-        fields = ['nome', 'email', 'data_nascimento']
-        widgets = {
-            'nome': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'email': forms.EmailInput(attrs={'class': 'input input-bordered w-full'}),
-            'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'input input-bordered w-full'}),
-        }
+        usuario = authenticate(request, email=email, password=senha)
 
-def cadastro_usuario(request):
-    if request.method == 'POST':
-        form = UsuarioForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('cadastro_usuario')
-    else:
-        form = UsuarioForm()
-    return render(request, 'usuarios/partials/cadastro.html', {'form': form})
+        if usuario is not None:
+            login(request, usuario)
+            return redirect('home')  # substitua 'home' pelo nome da sua URL da página principal
+        else:
+            messages.error(request, "E-mail ou senha inválidos.")
+            return redirect('usuarios:login')  # substitua se necessário
 
-def login(request):
     return render(request, 'usuarios/partials/login.html')
