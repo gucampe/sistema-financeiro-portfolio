@@ -11,7 +11,7 @@ def login_view(request):
 
         if usuario is not None:
             login(request, usuario)
-            return redirect('home')  # substitua 'home' pelo nome da sua URL da página principal
+            return redirect('dashboard:home')  # substitua 'home' pelo nome da sua URL da página principal
         else:
             messages.error(request, "E-mail ou senha inválidos.")
             return redirect('usuarios:login')  # substitua se necessário

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'usuarios:login'
+LOGIN_REDIRECT_URL = 'home'          # onde redirecionar após login
+LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
+# settings.py
+SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # True se quiser que expire ao fechar o navegador
