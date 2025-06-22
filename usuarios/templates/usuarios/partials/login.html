@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block show_header_sidebar %}{% endblock %}
+
+{% block title %}Login - GranaGo{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[#F4F5F7] px-4">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+    
+    <!-- Logo -->
+    <div class="flex items-center justify-center mb-6">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="Logo" class="h-8 mr-2">
+      <span class="text-xl font-bold text-[#2ECC71]">GranaGo</span>
+    </div>
+
+    <!-- Título -->
+    <h2 class="text-2xl font-semibold text-gray-800 text-center mb-2">Bem-vindo de volta</h2>
+    <p class="text-sm text-gray-500 text-center mb-6">Faça login para acessar sua conta</p>
+
+    <!-- Formulário -->
+    <form method="POST" action="{% url 'usuarios:login' %}">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Usuário ou Email</label>
+        <input type="text" id="username" name="username" required
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2ECC71] bg-white">
+      </div>
+
+      <div class="mb-6">
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+        <input type="password" id="password" name="password" required
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2ECC71] bg-white">
+      </div>
+
+      <button type="submit"
+        class="w-full py-2 px-4 bg-[#2ECC71] text-white font-semibold rounded-md hover:bg-green-600 transition">
+        Entrar
+      </button>
+    </form>
+
+    <!-- Rodapé -->
+    <p class="text-sm text-center text-gray-500 mt-6">
+    Esqueceu a senha?
+    <a href="#" class="text-[#2ECC71] hover:underline">Redefinir</a>
+    </p>
+    <p class="text-sm text-center text-gray-500 mt-2">
+      Novo por aqui?
+      <a href="#" class="text-[#2ECC71] hover:underline">Assine agora</a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}

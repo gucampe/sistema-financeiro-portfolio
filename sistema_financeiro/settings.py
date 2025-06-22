@@ -100,6 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'usuarios.Usuario'  # Substitua 'nome_do_app' pelo nome real do seu app
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

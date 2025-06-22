@@ -23,3 +23,6 @@ def cadastro_usuario(request):
     else:
         form = UsuarioForm()
     return render(request, 'usuarios/partials/cadastro.html', {'form': form})
+
+def login(request):
+    return render(request, 'usuarios/partials/login.html')

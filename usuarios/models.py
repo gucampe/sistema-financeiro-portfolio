@@ -1,12 +1,26 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from .managers import UsuarioManager  # Manager customizado
 
-# Create your models here.
+class Usuario(AbstractUser):
+    username = None  # remove o campo username
+    first_name = None  # remove first_name herdado
+    last_name = None   # remove last_name herdado
+    date_joined = None # substituído por 'criado_em'
+    
 
-class Usuario(models.Model):
-    nome = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    data_nascimento = models.DateField()
-    criado_em = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField(_('E-mail'), unique=True)
+    nome = models.CharField(_('Nome completo'), max_length=100)
+    data_nascimento = models.DateField(_('Data de nascimento'), null=True, blank=True)
+    criado_em = models.DateTimeField(_('Criado em'), auto_now_add=True)
+    atualizado_em = models.DateTimeField(_('Atualizado em'), auto_now=True)
+    ativo = models.BooleanField(_('Usuário ativo'), default=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nome']
+
+    objects = UsuarioManager()
 
     def __str__(self):
-        return self.nome
+        return f'{self.nome} <{self.email}>'
