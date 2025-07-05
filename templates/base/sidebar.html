@@ -11,7 +11,7 @@
     <nav class="flex-1 overflow-y-auto">
       <ul class="space-y-2 text-gray-700">
         <li>
-          <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+          <a href="{% url 'dashboard:home' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
             <!-- Ícone Dashboard -->
             
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-[#2ECC71]">
@@ -23,13 +23,13 @@
           </a>
         </li>
         <li>
-          <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+          <a href="{% url 'financeiro:adicionar' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
             <!-- Ícone Metas -->
             <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
               <circle cx="12" cy="12" r="10" />
             </svg>
-            Metas
+            Transações
             <span class="ml-auto bg-[#F1C40F] text-xs font-bold text-white px-2 py-1 rounded-full">3</span>
           </a>
         </li>

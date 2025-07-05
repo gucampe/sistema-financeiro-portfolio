@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'usuarios',
     'dashboard',
+    'financeiro',  # Certifique-se de que este é o nome correto do seu app financeiro
 ]
 
 MIDDLEWARE = [

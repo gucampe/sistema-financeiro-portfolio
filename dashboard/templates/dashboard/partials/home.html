@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto p-2 max-w-7xl">
+  <!-- Balanço Mensal -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+    <div>
+      <h2 class="text-xl font-semibold mb-1">Balanço Mensal</h2>
+      <div class="flex gap-1">
+        <select class="border rounded-xl px-2 py-1 text-sm">
+          <option>2025</option>
+          <option>Janeiro</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-4 mt-3 md:mt-0 text-gray-700 text-sm">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-green-600 font-bold text-base md:text-lg">R$ 11.290,00</span>
+        <span class="text-[10px] md:text-xs">Receitas</span>
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-red-600 font-bold text-base md:text-lg">R$ 8.322,45</span>
+        <span class="text-[10px] md:text-xs">Despesas</span>
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-blue-600 font-bold text-base md:text-lg">R$ 2.967,55</span>
+        <span class="text-[10px] md:text-xs">Saldo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Gráfico Receitas e Despesas -->
+    <div class="bg-white rounded-xl shadow p-4 flex flex-col">
+      <h3 class="font-semibold mb-2 text-base md:text-lg">Receitas e Despesas</h3>
+      <canvas id="grafico-receitas-despesas" class="w-full" height="160"></canvas>
+    </div>
+
+    <!-- Despesas: Realizado vs Planejado -->
+    <div class="bg-white rounded-xl shadow p-4 flex flex-col gap-4">
+      <h3 class="font-semibold text-base md:text-lg">Despesas: Realizado vs Planejado</h3>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1 flex flex-col gap-3">
+          {% for item in '123'|make_list %}
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between text-xs md:text-sm">
+              <span>Categoria {{ item }}</span>
+              <span class="text-gray-500">R$ 100 / R$ 200</span>
+            </div>
+            <div class="w-full h-2 md:h-3 bg-gray-200 rounded">
+              <div class="h-2 md:h-3 bg-amber-500 rounded" style="width: {{ item|stringformat:"d" }}0%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="flex justify-center items-center">
+          <div class="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px]">
+            <canvas id="grafico-donut" width="100" height="100"></canvas>
+            <span class="absolute inset-0 flex items-center justify-center text-sm sm:text-base font-bold text-primary-600">74%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs md:text-sm text-gray-400 italic mt-1">
+        Dados simulados – em breve você poderá cadastrar seus planejamentos.
+      </div>
+    </div>
+
+    <!-- % por categoria -->
+    <div class="bg-white rounded-xl shadow p-4">
+      <h3 class="font-semibold mb-2 text-base md:text-lg">% por categoria de gasto</h3>
+      <canvas id="grafico-categorias" height="150"></canvas>
+    </div>
+
+    <!-- Cartões de crédito -->
+    <div class="bg-white rounded-xl shadow p-4">
+      <h3 class="font-semibold mb-2 text-base md:text-lg">Gastos com cartões</h3>
+      <div class="space-y-3 max-h-[200px] overflow-y-auto text-sm md:text-base">
+        {% for cartao in cartoes %}
+        <div>
+          <div class="flex justify-between mb-0.5">
+            <span>{{ cartao.nome }}</span>
+            <span class="text-xs md:text-sm">{{ cartao.porcentagem }} {{ cartao.valor }}</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 md:h-3">
+            <div class="bg-indigo-600 h-2 md:h-3 rounded-full" style="width: {{ cartao.porcentagem }}"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  window.urlGraficoReceitasDespesas = "{% url 'financeiro:grafico_receitas_despesas' %}";
+</script>
+<script src="{% static 'dashboard/js/dash.js' %}"></script>
+{% endblock %}
