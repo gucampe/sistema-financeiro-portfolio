@@ -44,4 +44,6 @@ def dashboard_view(request):
         'dados_entradas': dados_entradas,
         'dados_saidas': dados_saidas,
         'ultimas_transacoes': ultimas_transacoes,
+        'ano_atual': str(ano_atual),
+        'mes_atual': str(mes_atual),
     })

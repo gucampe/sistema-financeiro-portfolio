@@ -1,30 +1,46 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load moeda %}
 
 {% block content %}
 <div class="container mx-auto p-2 max-w-7xl">
   <!-- Balanço Mensal -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-    <div>
-      <h2 class="text-xl font-semibold mb-1">Balanço Mensal</h2>
-      <div class="flex gap-1">
-        <select class="border rounded-xl px-2 py-1 text-sm">
-          <option>2025</option>
-          <option>Janeiro</option>
-        </select>
-      </div>
+    <div class="flex items-center gap-4">
+      <h2 class="text-xl font-semibold">Balanço Mensal</h2>
+      <select class="border rounded-xl px-2 py-1 text-sm">
+        <option value="2025" {% if "2025" == ano_atual %}selected{% endif %}>2025</option>
+        <option value="2024" {% if "2024" == ano_atual %}selected{% endif %}>2024</option>
+        <option value="2023" {% if "2023" == ano_atual %}selected{% endif %}>2023</option>
+        <option value="2022" {% if "2022" == ano_atual %}selected{% endif %}>2022</option>
+      </select>
+      <select class="border rounded-xl px-2 py-1 text-sm">
+        <option value="0" {% if "0" == mes_atual %}selected{% endif %}>Tudo</option>
+        <option value="1" {% if "1" == mes_atual %}selected{% endif %}>Janeiro</option>
+        <option value="2" {% if "2" == mes_atual %}selected{% endif %}>Fevereiro</option>
+        <option value="3" {% if "3" == mes_atual %}selected{% endif %}>Março</option>
+        <option value="4" {% if "4" == mes_atual %}selected{% endif %}>Abril</option>
+        <option value="5" {% if "5" == mes_atual %}selected{% endif %}>Maio</option>
+        <option value="6" {% if "6" == mes_atual %}selected{% endif %}>Junho</option>
+        <option value="7" {% if "7" == mes_atual %}selected{% endif %}>Julho</option>
+        <option value="8" {% if "8" == mes_atual %}selected{% endif %}>Agosto</option>
+        <option value="9" {% if "9" == mes_atual %}selected{% endif %}>Setembro</option>
+        <option value="10" {% if "10" == mes_atual %}selected{% endif %}>Outubro</option>
+        <option value="11" {% if "11" == mes_atual %}selected{% endif %}>Novembro</option>
+        <option value="12" {% if "12" == mes_atual %}selected{% endif %}>Dezembro</option>
+      </select>
     </div>
     <div class="flex gap-4 mt-3 md:mt-0 text-gray-700 text-sm">
       <div class="flex flex-col items-center gap-0.5">
-        <span class="text-green-600 font-bold text-base md:text-lg">R$ 11.290,00</span>
+        <span class="text-green-600 font-bold text-base md:text-lg"> {{ entradas_mes|moeda }}</span>
         <span class="text-[10px] md:text-xs">Receitas</span>
       </div>
       <div class="flex flex-col items-center gap-0.5">
-        <span class="text-red-600 font-bold text-base md:text-lg">R$ 8.322,45</span>
+        <span class="text-red-600 font-bold text-base md:text-lg"> {{ saidas_mes|moeda }}</span>
         <span class="text-[10px] md:text-xs">Despesas</span>
       </div>
       <div class="flex flex-col items-center gap-0.5">
-        <span class="text-blue-600 font-bold text-base md:text-lg">R$ 2.967,55</span>
+        <span class="text-blue-600 font-bold text-base md:text-lg"> {{ saldo_total|moeda }}</span>
         <span class="text-[10px] md:text-xs">Saldo</span>
       </div>
     </div>

@@ -10,6 +10,11 @@ from datetime import datetime, timedelta
 
 @login_required
 def adicionar_transacao(request):
+
+    transacoes = (
+        Transacao.objects.filter(usuario=request.user).order_by('-id')
+    )
+
     if request.method == 'POST':
         form = TransacaoForm(request.POST)
         if form.is_valid():
@@ -20,7 +25,7 @@ def adicionar_transacao(request):
     else:
         form = TransacaoForm()
 
-    return render(request, 'financeiro/partials/adicionar_transacao.html', {'form': form})
+    return render(request, 'financeiro/partials/adicionar_transacao.html', {'form': form, 'transacoes_recentes': transacoes})
 
 
 @login_required

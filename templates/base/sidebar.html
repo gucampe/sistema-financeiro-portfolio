@@ -2,62 +2,109 @@
 <!-- sidebar.html -->
 <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#F4F5F7] to-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
   <div class="p-6 flex flex-col h-full">
+    
     <!-- Logo + nome -->
     <div class="flex items-center space-x-3 mb-8">
       <img src="{% static 'img/icons/logo.svg' %}" alt="Logo" class="h-8">
       <span class="text-lg font-semibold text-gray-700">GranaGo</span>
     </div>
+    
     <!-- Menu -->
     <nav class="flex-1 overflow-y-auto">
       <ul class="space-y-2 text-gray-700">
+
+        <!-- VISÃO GERAL -->
         <li>
-          <a href="{% url 'dashboard:home' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <!-- Ícone Dashboard -->
-            
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-[#2ECC71]">
-              <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"/>
-              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+          <a href="{% url 'dashboard:home' %}" 
+             class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+            <span class="flex items-center">
+              <!-- Ícone Dashboard -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" 
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                   class="mr-3 text-[#2ECC71]">
+                <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"/>
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+              </svg>
+              Visão Geral
+            </span>
+            <!-- seta -->
+            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-           
-            Dashboard
           </a>
+          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Resumo Mensal</a></li>
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Metas e Planejamento</a></li>
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Carteira de Ativos</a></li>
+          </ul>
         </li>
+
+        <!-- CONTROLE FINANCEIRO -->
         <li>
-          <a href="{% url 'financeiro:adicionar' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <!-- Ícone Metas -->
-            <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-              <circle cx="12" cy="12" r="10" />
+          <a href="{% url 'financeiro:adicionar' %}" 
+             class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+            <span class="flex items-center">
+              <!-- Ícone Cifrão ($) -->
+              <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <text x="6" y="17" font-size="20" font-weight="bold" fill="currentColor">$</text>
+              </svg>
+              Transações
+            </span>
+            <!-- seta -->
+            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-            Transações
-            <span class="ml-auto bg-[#F1C40F] text-xs font-bold text-white px-2 py-1 rounded-full">3</span>
           </a>
+          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Organização e Fluxo</a></li>
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Registro de Movimentações</a></li>
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Relatórios Detalhados</a></li>
+          </ul>
         </li>
+
+        <!-- OBJETIVOS -->
         <li>
-          <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <!-- Ícone Investimentos -->
-            <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" />
+          <button class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+            <span class="flex items-center">
+              <!-- Ícone Relatórios -->
+              <svg class="mr-3 text-[#2ECC71]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                   stroke-linejoin="round">
+                <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+              </svg>
+              Objetivos
+            </span>
+            <!-- seta -->
+            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-            Investimentos
-            <span class="ml-auto bg-[#F1C40F] text-xs font-bold text-white px-2 py-1 rounded-full">!</span>
-          </a>
+          </button>
+          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Meus Objetivos</a></li>
+          </ul>
         </li>
+
+        <!-- INVESTIMENTOS -->
         <li>
-          <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <!-- Ícone Relatórios -->
-            <svg class="mr-3 text-[#2ECC71]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-table2-icon lucide-table-2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-            Relatórios
-          </a>
+          <button class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
+            <span class="flex items-center">
+              <!-- Ícone Investimentos -->
+              <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" />
+              </svg>
+              Investimentos
+            </span>
+            <!-- seta -->
+            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
+            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Carteira Atual</a></li>
+          </ul>
         </li>
-        <li>
-          <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <!-- Ícone Configurações -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-[#2ECC71] lucide lucide-settings-icon lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            Configurações
-          </a>
-        </li>
+
       </ul>
     </nav>
 
