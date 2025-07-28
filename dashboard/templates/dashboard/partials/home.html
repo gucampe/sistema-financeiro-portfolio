@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mx-auto p-2 max-w-7xl">
-  <!-- Balanço Mensal -->
+  <!-- Header + Botão -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
     <div class="flex items-center gap-4">
       <h2 class="text-xl font-semibold">Balanço Mensal</h2>
@@ -30,22 +30,39 @@
         <option value="12" {% if "12" == mes_atual %}selected{% endif %}>Dezembro</option>
       </select>
     </div>
-    <div class="flex gap-4 mt-3 md:mt-0 text-gray-700 text-sm">
-      <div class="flex flex-col items-center gap-0.5">
-        <span class="text-green-600 font-bold text-base md:text-lg"> {{ entradas_mes|moeda }}</span>
-        <span class="text-[10px] md:text-xs">Receitas</span>
+
+    <div class="flex items-center gap-4 mt-3 md:mt-0">
+      <!-- Resumo -->
+      <div class="flex gap-4 text-gray-700 text-sm">
+        <div class="flex flex-col items-center gap-0.5">
+          <span class="text-green-600 font-bold text-base md:text-lg">{{ entradas_mes|moeda }}</span>
+          <span class="text-[10px] md:text-xs">Receitas</span>
+        </div>
+        <div class="flex flex-col items-center gap-0.5">
+          <span class="text-red-600 font-bold text-base md:text-lg">{{ saidas_mes|moeda }}</span>
+          <span class="text-[10px] md:text-xs">Despesas</span>
+        </div>
+        <div class="flex flex-col items-center gap-0.5">
+          <span class="text-blue-600 font-bold text-base md:text-lg">{{ saldo_total|moeda }}</span>
+          <span class="text-[10px] md:text-xs">Saldo</span>
+        </div>
       </div>
-      <div class="flex flex-col items-center gap-0.5">
-        <span class="text-red-600 font-bold text-base md:text-lg"> {{ saidas_mes|moeda }}</span>
-        <span class="text-[10px] md:text-xs">Despesas</span>
-      </div>
-      <div class="flex flex-col items-center gap-0.5">
-        <span class="text-blue-600 font-bold text-base md:text-lg"> {{ saldo_total|moeda }}</span>
-        <span class="text-[10px] md:text-xs">Saldo</span>
-      </div>
+
+      <!-- Botão adicionar -->
+      <button
+        type="button"
+        id="btn-adicionar"
+        class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Adicionar
+      </button>
     </div>
   </div>
 
+  <!-- GRID DE CARDS -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <!-- Gráfico Receitas e Despesas -->
     <div class="bg-white rounded-xl shadow p-4 flex flex-col">
@@ -56,7 +73,6 @@
     <!-- Despesas: Realizado vs Planejado -->
     <div class="bg-white rounded-xl shadow p-4 flex flex-col gap-4">
       <h3 class="font-semibold text-base md:text-lg">Despesas: Realizado vs Planejado</h3>
-
       <div class="flex flex-col sm:flex-row gap-4">
         <div class="flex-1 flex flex-col gap-3">
           {% for item in '123'|make_list %}
@@ -71,7 +87,6 @@
           </div>
           {% endfor %}
         </div>
-
         <div class="flex justify-center items-center">
           <div class="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px]">
             <canvas id="grafico-donut" width="100" height="100"></canvas>
@@ -79,7 +94,6 @@
           </div>
         </div>
       </div>
-
       <div class="text-xs md:text-sm text-gray-400 italic mt-1">
         Dados simulados – em breve você poderá cadastrar seus planejamentos.
       </div>
@@ -111,9 +125,43 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- MODAL -->
+<div id="overlay-adicionar" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300">
+  <div class="bg-white rounded-2xl shadow-md p-8 w-full max-w-md relative transform scale-95 transition-all duration-300">
+    <button id="btn-fechar" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✕</button>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Nova Transação</h2>
+
+    <form id="form-adicionar" action="{% url 'financeiro:adicionar' %}">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+        <select name="tipo" id="tipo" required class="w-full px-4 py-2 border rounded-md">
+          <option value="">-------</option>
+          <option value="receita">Receita</option>
+          <option value="despesa">Despesa</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label for="valor" class="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+        <input type="number" step="0.01" name="valor" id="valor" required class="w-full px-4 py-2 border rounded-md">
+      </div>
+      <div class="mb-4">
+        <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+        <input type="text" name="descricao" id="descricao" required class="w-full px-4 py-2 border rounded-md">
+      </div>
+      <div class="mb-6">
+        <label for="data" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+        <input type="date" name="data" id="data" required class="w-full px-4 py-2 border rounded-md">
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700">Salvar</button>
+    </form>
+  </div>
+</div>
+
 <script>
   window.urlGraficoReceitasDespesas = "{% url 'financeiro:grafico_receitas_despesas' %}";
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'dashboard/js/dash.js' %}"></script>
+<script src="{% static 'dashboard/js/adicionar_transacao.js' %}"></script>
 {% endblock %}

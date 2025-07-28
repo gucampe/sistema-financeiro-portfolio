@@ -1,19 +1,17 @@
-# financeiro/views.py
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from .forms import TransacaoForm
 from .models import Transacao
+from django.shortcuts import redirect, render
 from django.db.models import Sum
-from django.http import JsonResponse
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
 
+
 @login_required
 def adicionar_transacao(request):
-
-    transacoes = (
-        Transacao.objects.filter(usuario=request.user).order_by('-id')
-    )
+    transacoes = Transacao.objects.filter(usuario=request.user).order_by('-id')
 
     if request.method == 'POST':
         form = TransacaoForm(request.POST)
@@ -21,12 +19,17 @@ def adicionar_transacao(request):
             transacao = form.save(commit=False)
             transacao.usuario = request.user
             transacao.save()
-            return redirect('dashboard:home')  # ou outro nome da sua URL principal
-    else:
-        form = TransacaoForm()
 
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'ok'})
+
+            return redirect('dashboard:home')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+    form = TransacaoForm()
     return render(request, 'financeiro/partials/adicionar_transacao.html', {'form': form, 'transacoes_recentes': transacoes})
-
 
 @login_required
 def dados_grafico_receitas_despesas(request):
