@@ -29,7 +29,7 @@ def adicionar_transacao(request):
                 return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
     form = TransacaoForm()
-    return render(request, 'financeiro/partials/adicionar_transacao.html', {'form': form, 'transacoes_recentes': transacoes})
+    return render(request, 'financeiro/partials/historico.html', {'form': form, 'transacoes_recentes': transacoes})
 
 @login_required
 def dados_grafico_receitas_despesas(request):
