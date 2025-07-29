@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'usuarios',
     'dashboard',
     'financeiro',  # Certifique-se de que este é o nome correto do seu app financeiro
+    'categorias',
 ]
 
 MIDDLEWARE = [

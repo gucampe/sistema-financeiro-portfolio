@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Categorias - GranaGo{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4 max-w-5xl">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">Categorias</h2>
+    <button id="btn-adicionar-categoria" 
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm font-semibold">
+      + Adicionar Categoria
+    </button>
+  </div>
+
+  <!-- Lista de categorias -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <table class="w-full text-sm text-left text-gray-700">
+      <thead class="border-b text-gray-500 uppercase text-xs">
+        <tr>
+          <th class="py-2">Nome</th>
+          <th class="py-2 text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for categoria in categorias %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-2">{{ categoria.nome }}</td>
+          <td class="py-2 text-right">
+            <a href="#" class="text-blue-600 hover:underline text-sm">Editar</a>
+            <a href="#" class="text-red-600 hover:underline text-sm ml-4">Excluir</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="py-4 text-center text-gray-500">Nenhuma categoria cadastrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Include do modal -->
+{% include 'categorias/partials/adicionar_categoria_modal.html' %}
+
+<script src="{% static 'categorias/js/adicionar_categoria.js' %}"></script>
+{% endblock %}
