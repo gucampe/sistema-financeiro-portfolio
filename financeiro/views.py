@@ -14,23 +14,40 @@ def adicionar_transacao(request):
     transacoes = Transacao.objects.filter(usuario=request.user).order_by('-id')
 
     if request.method == 'POST':
-        form = TransacaoForm(request.POST)
+        form = TransacaoForm(request.POST, usuario=request.user)  # <-- passa o usuário para o form
         if form.is_valid():
             transacao = form.save(commit=False)
             transacao.usuario = request.user
             transacao.save()
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'ok'})
+                return JsonResponse({
+                    'status': 'ok',
+                    'id': transacao.id,
+                    'tipo': transacao.tipo,
+                    'descricao': transacao.descricao,
+                    'valor': str(transacao.valor),
+                    'data': transacao.data.strftime('%Y-%m-%d'),
+                    'categoria': {
+                        'id': transacao.categoria.id,
+                        'nome': transacao.categoria.nome,
+                        'icone': transacao.categoria.icone,
+                        'cor': transacao.categoria.cor,
+                    }
+                })
 
             return redirect('dashboard:home')
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
-    form = TransacaoForm()
-    return render(request, 'financeiro/partials/historico.html', {'form': form, 'transacoes_recentes': transacoes})
+    else:
+        form = TransacaoForm(usuario=request.user)  # <-- para GET também passar usuário
 
+    return render(request, 'financeiro/partials/historico.html', {
+        'form': form,
+        'transacoes_recentes': transacoes
+    })
 @login_required
 def dados_grafico_receitas_despesas(request):
     transacoes = (
