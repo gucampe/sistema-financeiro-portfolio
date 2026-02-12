@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from financeiro.models import Transacao
+from financeiro.forms import TransacaoForm
 from django.db.models import Sum
+from categorias.models import Categoria
+from django.db.models import Q
 
 from datetime import date
-from collections import defaultdict
 import calendar
+
 
 @login_required
 def dashboard_view(request):
@@ -14,8 +17,18 @@ def dashboard_view(request):
     mes_atual = hoje.month
     ano_atual = hoje.year
 
-    entradas_mes = transacoes.filter(tipo='receita', data__month=mes_atual, data__year=ano_atual).aggregate(total=Sum('valor'))['total'] or 0
-    saidas_mes = transacoes.filter(tipo='despesa', data__month=mes_atual, data__year=ano_atual).aggregate(total=Sum('valor'))['total'] or 0
+    entradas_mes = transacoes.filter(
+        tipo='receita',
+        data__month=mes_atual,
+        data__year=ano_atual
+    ).aggregate(total=Sum('valor'))['total'] or 0
+
+    saidas_mes = transacoes.filter(
+        tipo='despesa',
+        data__month=mes_atual,
+        data__year=ano_atual
+    ).aggregate(total=Sum('valor'))['total'] or 0
+
     saldo_total = entradas_mes - saidas_mes
 
     # Gráfico dos últimos 6 meses
@@ -27,14 +40,31 @@ def dashboard_view(request):
         mes = (hoje.month - i - 1) % 12 + 1
         ano = hoje.year if hoje.month - i > 0 else hoje.year - 1
 
-        total_entrada = transacoes.filter(tipo='receita', data__month=mes, data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
-        total_saida = transacoes.filter(tipo='despesa', data__month=mes, data__year=ano).aggregate(Sum('valor'))['valor__sum'] or 0
+        total_entrada = transacoes.filter(
+            tipo='receita',
+            data__month=mes,
+            data__year=ano
+        ).aggregate(Sum('valor'))['valor__sum'] or 0
+
+        total_saida = transacoes.filter(
+            tipo='despesa',
+            data__month=mes,
+            data__year=ano
+        ).aggregate(Sum('valor'))['valor__sum'] or 0
 
         dados_entradas.append(float(total_entrada))
         dados_saidas.append(float(total_saida))
         labels.append(calendar.month_abbr[mes])
 
     ultimas_transacoes = transacoes[:5]
+
+    # ✅ Categorias do usuário + padrões (para o modal)
+    categorias = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True)
+    ).order_by("nome").distinct()
+
+    # ✅ Form do modal (importante passar usuario pro queryset do campo categoria)
+    form = TransacaoForm(usuario=request.user)
 
     return render(request, 'dashboard/partials/home.html', {
         'saldo_total': saldo_total,
@@ -46,4 +76,8 @@ def dashboard_view(request):
         'ultimas_transacoes': ultimas_transacoes,
         'ano_atual': str(ano_atual),
         'mes_atual': str(mes_atual),
+
+        # ✅ novos
+        'categorias': categorias,
+        'form': form,
     })

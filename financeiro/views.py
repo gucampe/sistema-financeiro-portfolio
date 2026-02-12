@@ -8,13 +8,18 @@ from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
 
+from categorias.models import Categoria  # <-- ADICIONE ISSO
+
 
 @login_required
 def adicionar_transacao(request):
     transacoes = Transacao.objects.filter(usuario=request.user).order_by('-id')
 
+    # categorias do usuário + padrões
+    categorias = (Categoria.objects.filter(usuario=request.user) | Categoria.objects.filter(padrao=True)).order_by("nome")
+
     if request.method == 'POST':
-        form = TransacaoForm(request.POST, usuario=request.user)  # <-- passa o usuário para o form
+        form = TransacaoForm(request.POST, usuario=request.user)
         if form.is_valid():
             transacao = form.save(commit=False)
             transacao.usuario = request.user
@@ -42,12 +47,15 @@ def adicionar_transacao(request):
                 return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
     else:
-        form = TransacaoForm(usuario=request.user)  # <-- para GET também passar usuário
+        form = TransacaoForm(usuario=request.user)
 
     return render(request, 'financeiro/partials/historico.html', {
         'form': form,
+        'categorias': categorias,  # <-- ADICIONE ISSO
         'transacoes_recentes': transacoes
     })
+
+
 @login_required
 def dados_grafico_receitas_despesas(request):
     transacoes = (
