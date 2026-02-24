@@ -64,6 +64,7 @@ class Categoria(models.Model):
     )
 
     padrao = models.BooleanField(default=False)
+    ativa = models.BooleanField(default=True, db_index=True)
     criada_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:

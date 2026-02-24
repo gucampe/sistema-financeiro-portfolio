@@ -3,11 +3,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnFechar = document.getElementById("btn-fechar");
   const overlay = document.getElementById("overlay-adicionar");
   const form = document.getElementById("form-adicionar");
+  const selectTipo = document.getElementById("tipo");
+  const selectCategoria = document.getElementById("categoria");
 
   if (!overlay) return;
 
-  // Abrir modal
+  function popularCategorias(tipo) {
+    if (!selectCategoria) return;
+    fetch(`/categorias/listar-ativas/?tipo=${tipo || "despesa"}`, {
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        selectCategoria.innerHTML = '<option value="">Selecione uma categoria</option>';
+        if (data.status === "ok" && data.categorias?.length) {
+          data.categorias.forEach((c) => {
+            const opt = document.createElement("option");
+            opt.value = c.id;
+            opt.textContent = c.nome;
+            selectCategoria.appendChild(opt);
+          });
+        }
+      })
+      .catch(() => {});
+  }
+
+  selectTipo?.addEventListener("change", () => {
+    const tipo = selectTipo.value || "despesa";
+    popularCategorias(tipo);
+  });
+
   btnAbrir?.addEventListener("click", () => {
+    const tipo = selectTipo?.value || "despesa";
+    if (!tipo) return;
+    popularCategorias(tipo);
     overlay.classList.remove("hidden");
     setTimeout(() => overlay.classList.remove("opacity-0"), 10);
   });

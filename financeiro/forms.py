@@ -13,12 +13,15 @@ class TransacaoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.usuario = kwargs.pop("usuario", None)
+        self.tipo_inicial = kwargs.pop("tipo_inicial", "despesa")
         super().__init__(*args, **kwargs)
 
         if self.usuario is not None:
-            self.fields["categoria"].queryset = (
-                Categoria.objects.filter(usuario=self.usuario) |
-                Categoria.objects.filter(padrao=True)
+            from django.db.models import Q
+            self.fields["categoria"].queryset = Categoria.objects.filter(
+                Q(usuario=self.usuario) | Q(padrao=True),
+                tipo=self.tipo_inicial,
+                ativa=True
             ).order_by("nome")
         else:
             self.fields["categoria"].queryset = Categoria.objects.none()
@@ -36,7 +39,11 @@ class TransacaoForm(forms.ModelForm):
         if not cat:
             raise forms.ValidationError("Selecione uma categoria.")
 
-        # segurança: a categoria deve ser do usuário ou padrão
+        tipo_transacao = self.cleaned_data.get("tipo") or self.tipo_inicial
         if self.usuario and not (cat.padrao or cat.usuario_id == self.usuario.id):
             raise forms.ValidationError("Categoria inválida.")
+        if cat.tipo != tipo_transacao:
+            raise forms.ValidationError("Categoria deve ser do mesmo tipo da transação.")
+        if not cat.ativa:
+            raise forms.ValidationError("Categoria inválida ou arquivada.")
         return cat

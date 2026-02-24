@@ -58,13 +58,19 @@ def dashboard_view(request):
 
     ultimas_transacoes = transacoes[:5]
 
-    # ✅ Categorias do usuário + padrões (para o modal)
-    categorias = Categoria.objects.filter(
-        Q(usuario=request.user) | Q(padrao=True)
-    ).order_by("nome").distinct()
+    # Categorias ativas por tipo (usuário + padrão)
+    categorias_despesa = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="despesa",
+        ativa=True
+    ).order_by("nome")
+    categorias_receita = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="receita",
+        ativa=True
+    ).order_by("nome")
 
-    # ✅ Form do modal (importante passar usuario pro queryset do campo categoria)
-    form = TransacaoForm(usuario=request.user)
+    form = TransacaoForm(usuario=request.user, tipo_inicial="despesa")
 
     return render(request, 'dashboard/partials/home.html', {
         'saldo_total': saldo_total,
@@ -77,7 +83,7 @@ def dashboard_view(request):
         'ano_atual': str(ano_atual),
         'mes_atual': str(mes_atual),
 
-        # ✅ novos
-        'categorias': categorias,
+        'categorias_despesa': categorias_despesa,
+        'categorias_receita': categorias_receita,
         'form': form,
     })

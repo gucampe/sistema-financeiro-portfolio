@@ -15,8 +15,17 @@ from categorias.models import Categoria  # <-- ADICIONE ISSO
 def adicionar_transacao(request):
     transacoes = Transacao.objects.filter(usuario=request.user).order_by('-id')
 
-    # categorias do usuário + padrões
-    categorias = (Categoria.objects.filter(usuario=request.user) | Categoria.objects.filter(padrao=True)).order_by("nome")
+    from django.db.models import Q
+    categorias_despesa = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="despesa",
+        ativa=True
+    ).order_by("nome")
+    categorias_receita = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="receita",
+        ativa=True
+    ).order_by("nome")
 
     if request.method == 'POST':
         form = TransacaoForm(request.POST, usuario=request.user)
@@ -51,7 +60,8 @@ def adicionar_transacao(request):
 
     return render(request, 'financeiro/partials/historico.html', {
         'form': form,
-        'categorias': categorias,  # <-- ADICIONE ISSO
+        'categorias_despesa': categorias_despesa,
+        'categorias_receita': categorias_receita,
         'transacoes_recentes': transacoes
     })
 

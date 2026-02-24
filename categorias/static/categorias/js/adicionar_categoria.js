@@ -16,9 +16,18 @@ const form = document.getElementById("form-adicionar-categoria");
 const erroBox = document.getElementById("erro-categoria");
 const tituloModal = overlay ? overlay.querySelector("h2") : null;
 
-const overlayExcluir = document.getElementById("overlay-excluir-categoria");
-const btnCancelarExcluir = document.getElementById("btn-cancelar-excluir");
-const btnConfirmarExcluir = document.getElementById("btn-confirmar-excluir");
+const overlayAcao = document.getElementById("overlay-acao-categoria");
+const btnCancelarAcao = document.getElementById("btn-cancelar-acao");
+const btnConfirmarAcao = document.getElementById("btn-confirmar-acao");
+const modalAcaoTitulo = document.getElementById("modal-acao-titulo");
+const modalAcaoMsg = document.getElementById("modal-acao-msg");
+
+const overlayMigracao = document.getElementById("overlay-migracao-categoria");
+const btnCancelarMigracao = document.getElementById("btn-cancelar-migracao");
+const btnConfirmarMigracao = document.getElementById("btn-confirmar-migracao");
+const selectMigracao = document.getElementById("select-migracao-categoria");
+const migracaoCountEl = document.getElementById("migracao-count");
+const erroMigracao = document.getElementById("erro-migracao");
 
 const toast = document.getElementById("toast");
 const toastMsg = document.getElementById("toast-msg");
@@ -27,11 +36,13 @@ let toastTimeout;
 
 const tbodyDespesa = document.getElementById("tbody-despesa");
 const tbodyReceita = document.getElementById("tbody-receita");
+const tbodyDespesaArquivadas = document.getElementById("tbody-despesa-arquivadas");
+const tbodyReceitaArquivadas = document.getElementById("tbody-receita-arquivadas");
+const tabelaCategorias = document.querySelector(".container table");
 
-const tabelaCategorias = document.querySelector("table");
-
-// Guarda o tr selecionado
-let categoriaParaExcluir = null;
+// Guarda o tr e a ação pendente: "arquivar" | "excluir"
+let categoriaParaAcao = null;
+let acaoPendente = null;
 
 // Guarda o ID da categoria sendo editada (null se for nova)
 let categoriaEditandoId = null;
@@ -108,6 +119,42 @@ function getCsrfToken() {
 
 function safeText(s) {
   return String(s ?? "").trim();
+}
+
+function abrirModalMigracao(categoriaId, tipo, count) {
+  if (!overlayMigracao || !migracaoCountEl || !selectMigracao) return;
+  migracaoCountEl.textContent = count;
+  if (erroMigracao) erroMigracao.classList.add("hidden");
+  selectMigracao.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+  fetch(`/categorias/listar-ativas/?tipo=${tipo}`, {
+    headers: { "X-Requested-With": "XMLHttpRequest" },
+  })
+    .then((r) => r.json())
+    .then((result) => {
+      if (result.status !== "ok" || !result.categorias?.length) {
+        showToast("Não há categorias ativas disponíveis. Crie uma nova categoria primeiro.", "erro");
+        return;
+      }
+      const opts = result.categorias.filter((c) => parseInt(c.id, 10) !== parseInt(categoriaId, 10));
+      if (!opts.length) {
+        showToast("Não há outras categorias ativas deste tipo. Crie uma nova categoria primeiro.", "erro");
+        return;
+      }
+      opts.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nome;
+        selectMigracao.appendChild(opt);
+      });
+      overlayMigracao.classList.remove("hidden");
+      categoriaParaAcao = document.querySelector(`tr[data-id="${categoriaId}"]`);
+      acaoPendente = "migracao";
+    })
+    .catch((err) => {
+      console.error(err);
+      showToast("Erro ao carregar categorias.", "erro");
+    });
 }
 
 // =====================
@@ -208,8 +255,23 @@ if (colorGrid) {
 // =====================
 // Render helpers (linha da tabela)
 // =====================
-function renderActionsButtons(result, tipo) {
-  // Botões bonitos (mesma estética que você colocou no template)
+function renderActionsButtons(result, tipo, isArquivada = false) {
+  if (isArquivada) {
+    return `
+      <div class="inline-flex items-center gap-2">
+        <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white transition text-sm"
+                style="border-color: rgba(46,204,113,.4); color:#2ECC71;" data-id="${result.id}" title="Restaurar">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+          <span class="hidden sm:inline">Restaurar</span>
+        </button>
+        <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300 transition text-sm"
+          data-id="${result.id}" title="Excluir definitivamente">
+          <i class="fa-solid fa-trash text-xs"></i>
+          <span class="hidden sm:inline">Excluir definitivamente</span>
+        </button>
+      </div>
+    `;
+  }
   return `
     <div class="inline-flex items-center gap-2">
       <button
@@ -228,12 +290,12 @@ function renderActionsButtons(result, tipo) {
 
       <button
         type="button"
-        class="excluir-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300 transition text-sm"
+        class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-200 text-amber-600 bg-white hover:bg-amber-50 hover:border-amber-300 transition text-sm"
         data-id="${result.id}"
-        title="Excluir"
+        title="Arquivar"
       >
-        <i class="fa-solid fa-trash text-xs"></i>
-        <span class="hidden sm:inline">Excluir</span>
+        <i class="fa-solid fa-archive text-xs"></i>
+        <span class="hidden sm:inline">Arquivar</span>
       </button>
     </div>
   `;
@@ -365,88 +427,343 @@ if (form) {
   });
 }
 
-// =====================
-// Clique em Editar/Excluir (delegação no TABLE inteiro)
-// - usa closest() para funcionar ao clicar no ícone dentro do botão
-// =====================
-if (tabelaCategorias) {
-  tabelaCategorias.addEventListener("click", (e) => {
-    const btnEditar = e.target.closest(".editar-categoria");
-    if (btnEditar) {
-      e.preventDefault();
+function renderRowArquivada(result, tipo) {
+  return `
+    <td class="py-2 px-6 flex items-center gap-2">
+      <i class="fas ${result.icone}" style="color:${result.cor};"></i>
+      <span class="nome-categoria">${result.nome}</span>
+      <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Arquivada</span>
+    </td>
+    <td class="py-2 text-right px-6">
+      ${renderActionsButtons({ id: result.id, nome: result.nome, icone: result.icone, cor: result.cor }, tipo, true)}
+    </td>
+  `;
+}
 
-      const tr = btnEditar.closest("tr");
-      if (!tr) return;
-
-      const id = tr.dataset.id;
+// Delegação em document para cobrir tabela ativas e seção arquivadas
+document.addEventListener("click", (e) => {
+  const btnEditar = e.target.closest(".editar-categoria");
+  if (btnEditar) {
+    e.preventDefault();
+    const tr = btnEditar.closest("tr");
+    if (!tr) return;
+    if (tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
+    const id = tr.dataset.id;
       const nome = btnEditar.dataset.nome || safeText(tr.querySelector(".nome-categoria")?.textContent);
       const icone = btnEditar.dataset.icone || "fa-ellipsis-h";
       const cor = btnEditar.dataset.cor || "#4F46E5";
       const tipo =
         btnEditar.dataset.tipo ||
         (tr.parentElement && tr.parentElement.id === "tbody-receita" ? "receita" : "despesa");
+    preencherModal(nome, icone, cor, tipo, id);
+    return;
+  }
 
-      preencherModal(nome, icone, cor, tipo, id);
-      return;
-    }
+  const btnArquivar = e.target.closest(".arquivar-categoria");
+  if (btnArquivar) {
+    e.preventDefault();
+    const tr = btnArquivar.closest("tr");
+    if (!tr) return;
+    if (tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
+    categoriaParaAcao = tr;
+    acaoPendente = "arquivar";
+      if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Arquivar categoria?";
+      if (modalAcaoMsg)
+        modalAcaoMsg.textContent =
+          "A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.";
+      if (btnConfirmarAcao) {
+        btnConfirmarAcao.textContent = "Arquivar";
+        btnConfirmarAcao.style.background = "#F59E0B";
+      }
+    if (overlayAcao) overlayAcao.classList.remove("hidden");
+    return;
+  }
 
-    const btnExcluir = e.target.closest(".excluir-categoria");
-    if (btnExcluir) {
-      e.preventDefault();
+  const btnExcluirDef = e.target.closest(".excluir-definitivamente");
+  if (btnExcluirDef) {
+    e.preventDefault();
+    const tr = btnExcluirDef.closest("tr");
+    if (!tr) return;
+    categoriaParaAcao = tr;
+    const id = tr.dataset.id;
+    const tipo = tr.dataset.tipo || "despesa";
 
-      const tr = btnExcluir.closest("tr");
-      if (!tr) return;
+    fetch(`/categorias/verificar-exclusao/${id}/`, {
+      method: "GET",
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+    })
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.status === "ok" && result.count === 0) {
+          acaoPendente = "excluir";
+          if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Excluir definitivamente?";
+          if (modalAcaoMsg)
+            modalAcaoMsg.textContent =
+              "Tem certeza? Esta ação não pode ser desfeita. Só é permitido excluir categorias arquivadas sem transações vinculadas.";
+          if (btnConfirmarAcao) {
+            btnConfirmarAcao.textContent = "Excluir";
+            btnConfirmarAcao.style.background = "#DC2626";
+          }
+          if (overlayAcao) overlayAcao.classList.remove("hidden");
+        } else if (result.status === "ok" && result.count > 0) {
+          abrirModalMigracao(id, tipo, result.count);
+        } else {
+          showToast(result.errors || "Erro ao verificar exclusão.", "erro");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast("Erro ao verificar exclusão.", "erro");
+      });
+    return;
+  }
 
-      categoriaParaExcluir = tr;
-      if (overlayExcluir) overlayExcluir.classList.remove("hidden");
-      return;
-    }
+  const btnRestaurar = e.target.closest(".restaurar-categoria");
+  if (btnRestaurar) {
+    e.preventDefault();
+    const tr = btnRestaurar.closest("tr");
+    if (!tr || !tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
+    const id = tr.dataset.id;
+    const tipo = tr.dataset.tipo || "despesa";
+    const nome = safeText(tr.querySelector(".nome-categoria")?.textContent);
+    const iconEl = tr.querySelector("i.fas");
+    const icone = [...(iconEl?.classList || [])].find((c) =>
+      c.startsWith("fa-") && !["fas", "far", "fab"].includes(c)
+    ) || "fa-ellipsis-h";
+    const cor = iconEl?.getAttribute("style")?.match(/color:\s*([^;]+)/)?.[1]?.trim() || "#4F46E5";
+
+    const formData = new FormData();
+    formData.append("categoria_id", id);
+    formData.append("csrfmiddlewaretoken", getCsrfToken());
+
+    fetch("/categorias/restaurar/", {
+      method: "POST",
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+    })
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.status === "ok") {
+          const targetAtivas = getTargetTbodyByTipo(result.tipo || tipo);
+          const emptyRow = targetAtivas?.querySelector("tr td[colspan]")?.closest("tr");
+          if (emptyRow) emptyRow.remove();
+          tr.remove();
+          const newTr = document.createElement("tr");
+          newTr.dataset.id = id;
+          newTr.dataset.tipo = result.tipo || tipo;
+          newTr.className = "border-b transition";
+          newTr.style.borderColor = "rgba(189,195,199,.4)";
+          newTr.innerHTML = renderRow(
+            { id, nome, icone, cor },
+            result.tipo || tipo
+          );
+          if (targetAtivas) targetAtivas.appendChild(newTr);
+          const parentArq = tr.closest("tbody");
+          const restantesArq = parentArq?.querySelectorAll("tr[data-id]")?.length ?? 0;
+          if (restantesArq === 0 && parentArq) {
+            const emptyTr = document.createElement("tr");
+            emptyTr.id = parentArq.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
+            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
+            parentArq.appendChild(emptyTr);
+          }
+          showToast("Categoria restaurada com sucesso!", "sucesso");
+          if (typeof window.atualizarContadorArquivadas === "function") {
+            window.atualizarContadorArquivadas(result.tipo || tipo, -1);
+          }
+        } else {
+          showToast(result.errors || "Erro ao restaurar categoria!", "erro");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        showToast("Erro inesperado ao restaurar!", "erro");
+      });
+  }
+});
+
+// =====================
+// Modal Migração
+// =====================
+if (btnCancelarMigracao) {
+  btnCancelarMigracao.addEventListener("click", () => {
+    categoriaParaAcao = null;
+    acaoPendente = null;
+    if (overlayMigracao) overlayMigracao.classList.add("hidden");
   });
 }
 
-// =====================
-// Exclusão
-// =====================
-if (btnCancelarExcluir) {
-  btnCancelarExcluir.addEventListener("click", () => {
-    categoriaParaExcluir = null;
-    if (overlayExcluir) overlayExcluir.classList.add("hidden");
-  });
-}
+if (btnConfirmarMigracao) {
+  btnConfirmarMigracao.addEventListener("click", async () => {
+    if (!categoriaParaAcao || acaoPendente !== "migracao") return;
+    const novaId = selectMigracao?.value;
+    if (!novaId) {
+      if (erroMigracao) {
+        erroMigracao.textContent = "Selecione uma categoria.";
+        erroMigracao.classList.remove("hidden");
+      }
+      return;
+    }
+    if (erroMigracao) erroMigracao.classList.add("hidden");
 
-if (btnConfirmarExcluir) {
-  btnConfirmarExcluir.addEventListener("click", async () => {
-    if (!categoriaParaExcluir) return;
-
-    const id = categoriaParaExcluir.dataset.id;
+    const formData = new FormData();
+    formData.append("categoria_id", categoriaParaAcao.dataset.id);
+    formData.append("nova_categoria_id", novaId);
+    formData.append("csrfmiddlewaretoken", getCsrfToken());
 
     try {
-      const response = await fetch(`/categorias/excluir/${id}/`, {
+      const response = await fetch("/categorias/excluir-com-migracao/", {
         method: "POST",
-        headers: {
-          "X-CSRFToken": getCsrfToken(),
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
       });
-
       const result = await response.json();
 
       if (result.status === "ok") {
-        categoriaParaExcluir.remove();
-        showToast("Categoria excluída com sucesso!", "sucesso");
-
-        if (typeof window.atualizarContador === "function") {
-          window.atualizarContador();
+        const parent = categoriaParaAcao.parentElement;
+        const tipo = categoriaParaAcao.dataset.tipo || "despesa";
+        categoriaParaAcao.remove();
+        if (parent?.querySelectorAll("tr[data-id]").length === 0 && parent) {
+          const emptyTr = document.createElement("tr");
+          emptyTr.id = parent.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
+          emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
+          parent.appendChild(emptyTr);
+        }
+        showToast("Transações transferidas e categoria excluída com sucesso!", "sucesso");
+        if (typeof window.atualizarContadorArquivadas === "function") {
+          window.atualizarContadorArquivadas(tipo, -1);
         }
       } else {
-        showToast(result.error || "Erro ao excluir categoria!", "erro");
+        if (erroMigracao) {
+          erroMigracao.textContent = result.errors || "Erro ao processar.";
+          erroMigracao.classList.remove("hidden");
+        } else {
+          showToast(result.errors || "Erro ao processar.", "erro");
+        }
       }
     } catch (err) {
       console.error(err);
-      showToast("Erro inesperado ao excluir categoria!", "erro");
+      showToast("Erro inesperado!", "erro");
     } finally {
-      if (overlayExcluir) overlayExcluir.classList.add("hidden");
-      categoriaParaExcluir = null;
+      if (overlayMigracao) overlayMigracao.classList.add("hidden");
+      categoriaParaAcao = null;
+      acaoPendente = null;
+    }
+  });
+}
+
+// =====================
+// Modal: Arquivar / Excluir definitivamente
+// =====================
+if (btnCancelarAcao) {
+  btnCancelarAcao.addEventListener("click", () => {
+    categoriaParaAcao = null;
+    acaoPendente = null;
+    if (overlayAcao) overlayAcao.classList.add("hidden");
+  });
+}
+
+if (btnConfirmarAcao) {
+  btnConfirmarAcao.addEventListener("click", async () => {
+    if (!categoriaParaAcao || !acaoPendente) return;
+    const id = categoriaParaAcao.dataset.id;
+
+    try {
+      if (acaoPendente === "arquivar") {
+        const formData = new FormData();
+        formData.append("categoria_id", id);
+        formData.append("csrfmiddlewaretoken", getCsrfToken());
+
+        const response = await fetch("/categorias/arquivar/", {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const result = await response.json();
+
+        if (result.status === "ok") {
+          const parentTbody = categoriaParaAcao.closest("tbody");
+          const tipo = categoriaParaAcao.dataset.tipo || (parentTbody?.id === "tbody-despesa" ? "despesa" : "receita");
+          const nome = safeText(categoriaParaAcao.querySelector(".nome-categoria")?.textContent);
+          const iconeEl = categoriaParaAcao.querySelector("i.fas");
+          const icone = iconeEl?.className?.match(/fa-[a-z0-9-]+/)?.[0] || "fa-ellipsis-h";
+          const cor = iconeEl?.style?.color || "#4F46E5";
+
+          const tbodyAtivas = parentTbody;
+          const emptyRow = tbodyAtivas?.querySelector("tr td[colspan]");
+          if (emptyRow) emptyRow.closest("tr")?.remove();
+          categoriaParaAcao.remove();
+          const restantes = tbodyAtivas?.querySelectorAll("tr[data-id]")?.length ?? 0;
+          if (restantes === 0 && tbodyAtivas) {
+            const msg = tipo === "despesa" ? "Nenhuma categoria de despesa." : "Nenhuma categoria de receita.";
+            const trEmpty = document.createElement("tr");
+            trEmpty.innerHTML = `<td colspan="2" class="py-4 text-center" style="color: rgba(52,73,94,.6);">${msg}</td>`;
+            tbodyAtivas.appendChild(trEmpty);
+          }
+
+          const targetArquivadas = tipo === "receita" ? tbodyReceitaArquivadas : tbodyDespesaArquivadas;
+          if (targetArquivadas) {
+            const emptyArq = targetArquivadas.querySelector("tr[id^='empty']");
+            if (emptyArq) emptyArq.remove();
+            const newTr = document.createElement("tr");
+            newTr.className = "border-b transition";
+            newTr.style.borderColor = "rgba(189,195,199,.4)";
+            newTr.dataset.id = id;
+            newTr.dataset.tipo = tipo;
+            newTr.innerHTML = renderRowArquivada({ id, nome, icone, cor }, tipo);
+            targetArquivadas.appendChild(newTr);
+          }
+          showToast("Categoria arquivada com sucesso!", "sucesso");
+          if (typeof window.atualizarContadorArquivadas === "function") {
+            window.atualizarContadorArquivadas(tipo, 1);
+          }
+        } else {
+          showToast(result.errors || "Erro ao arquivar categoria!", "erro");
+        }
+      } else {
+        const response = await fetch(`/categorias/excluir/${id}/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCsrfToken(),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+        const result = await response.json();
+
+        if (result.status === "ok") {
+          const parentTbodyExcluir = categoriaParaAcao.closest("tbody");
+          const tipo = categoriaParaAcao.dataset.tipo ||
+            (parentTbodyExcluir?.id === "tbody-receita-arquivadas" ? "receita" : "despesa");
+          const parent = categoriaParaAcao.parentElement;
+          const wasEmpty = parent && parent.querySelectorAll("tr").length <= 1;
+          categoriaParaAcao.remove();
+          if (wasEmpty && (parent?.id === "tbody-despesa-arquivadas" || parent?.id === "tbody-receita-arquivadas")) {
+            const emptyTr = document.createElement("tr");
+            emptyTr.id = parent.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
+            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
+            parent.appendChild(emptyTr);
+          }
+          showToast("Categoria excluída definitivamente!", "sucesso");
+          if (typeof window.atualizarContadorArquivadas === "function") {
+            window.atualizarContadorArquivadas(tipo, -1);
+          }
+        } else if (result.status === "blocked") {
+          const msg =
+            result.message ||
+            (result.reason === "in_use"
+              ? `Categoria possui ${result.count || 0} transação(ões) e não pode ser excluída.`
+              : result.message);
+          showToast(msg, "erro");
+        } else {
+          showToast(result.error || "Erro ao excluir categoria!", "erro");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Erro inesperado!", "erro");
+    } finally {
+      if (overlayAcao) overlayAcao.classList.add("hidden");
+      categoriaParaAcao = null;
+      acaoPendente = null;
     }
   });
 }
