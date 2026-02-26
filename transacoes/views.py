@@ -58,7 +58,7 @@ def adicionar_transacao(request):
     else:
         form = TransacaoForm(usuario=request.user)
 
-    return render(request, 'financeiro/partials/historico.html', {
+    return render(request, 'transacoes/partials/historico.html', {
         'form': form,
         'categorias_despesa': categorias_despesa,
         'categorias_receita': categorias_receita,

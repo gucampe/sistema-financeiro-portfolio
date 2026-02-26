@@ -127,13 +127,13 @@
   </div>
 </div>
 
-{% include 'financeiro/partials/adicionar_transacao.html' with form=form categorias_despesa=categorias_despesa categorias_receita=categorias_receita %}
+{% include 'transacoes/partials/adicionar_transacao.html' with form=form categorias_despesa=categorias_despesa categorias_receita=categorias_receita %}
 
 
 <script>
-  window.urlGraficoReceitasDespesas = "{% url 'financeiro:grafico_receitas_despesas' %}";
+  window.urlGraficoReceitasDespesas = "{% url 'transacoes:grafico_receitas_despesas' %}";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'dashboard/js/dash.js' %}"></script>
-<script src="{% static 'financeiro/js/adicionar_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 {% endblock %}

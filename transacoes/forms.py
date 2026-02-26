@@ -1,4 +1,4 @@
-# financeiro/forms.py
+# transacoes/forms.py
 from django import forms
 from .models import Transacao
 from categorias.models import Categoria

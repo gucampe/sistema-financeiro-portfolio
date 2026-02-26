@@ -134,7 +134,7 @@ def excluir_categoria(request, id):
             "message": "Arquive a categoria antes de excluir definitivamente."
         }, status=400)
 
-    from financeiro.models import Transacao
+    from transacoes.models import Transacao
     count = Transacao.objects.filter(categoria=categoria).count()
     if count > 0:
         return JsonResponse({
@@ -157,7 +157,7 @@ def verificar_exclusao_categoria(request, id):
     if categoria.ativa:
         return JsonResponse({"status": "erro", "errors": "Categoria não está arquivada"}, status=400)
 
-    from financeiro.models import Transacao
+    from transacoes.models import Transacao
     count = Transacao.objects.filter(categoria=categoria).count()
     return JsonResponse({"status": "ok", "count": count})
 
@@ -199,7 +199,7 @@ def excluir_categoria_com_migracao(request):
     if not nova_categoria.ativa:
         return JsonResponse({"status": "erro", "errors": "Nova categoria deve estar ativa"}, status=400)
 
-    from financeiro.models import Transacao
+    from transacoes.models import Transacao
     Transacao.objects.filter(usuario=request.user, categoria=categoria).update(categoria=nova_categoria)
     categoria.delete()
     return JsonResponse({"status": "ok"})
