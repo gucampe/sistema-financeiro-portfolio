@@ -7,5 +7,6 @@ urlpatterns = [
     path('', include('usuarios.urls')),
     path('', include('dashboard.urls')),
     path('transacoes/', include(('transacoes.urls', 'transacoes'), namespace='transacoes')),
-    path('', include(('categorias.urls', 'categorias')))
+    path('', include(('categorias.urls', 'categorias'))),
+    path('contas/', include(('contas.urls', 'contas'), namespace='contas')),
 ]

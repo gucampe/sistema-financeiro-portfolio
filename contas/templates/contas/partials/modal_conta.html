@@ -1,0 +1,141 @@
+{% load static %}
+<div id="overlay-modal-conta"
+     class="fixed inset-0 hidden z-50 opacity-0 transition-opacity duration-200"
+     style="background: rgba(0,0,0,.55);">
+
+  <!-- clique fora pra fechar (opcional: seu JS pode usar overlay click) -->
+  <div class="absolute inset-0"></div>
+
+  <div class="relative mx-auto w-full max-w-lg p-4 sm:p-6 flex items-center justify-center min-h-screen">
+    <div class="w-full bg-white rounded-2xl shadow-xl border overflow-hidden transform transition-all duration-200 scale-[.98]"
+         style="border-color: rgba(189,195,199,.65);">
+
+      <!-- Header -->
+      <div class="px-6 py-5 border-b flex items-start justify-between gap-4"
+           style="border-color: rgba(189,195,199,.35);">
+        <div class="min-w-0">
+          <h2 id="titulo-modal-conta" class="text-xl sm:text-2xl font-semibold leading-tight" style="color:#34495E;">
+            Nova conta
+          </h2>
+          <p class="text-sm mt-1" style="color: rgba(52,73,94,.70);">
+            Onde está o seu dinheiro: conta corrente, poupança, carteira, cartão ou investimento.
+          </p>
+        </div>
+
+        <button id="btn-fechar-modal-conta"
+                type="button"
+                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition active:scale-[.98]"
+                style="border-color: rgba(189,195,199,.55); color:#34495E; background: rgba(189,195,199,.15);"
+                onmouseover="this.style.background='rgba(189,195,199,.25)'"
+                onmouseout="this.style.background='rgba(189,195,199,.15)'"
+                aria-label="Fechar modal">
+          ✕
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6">
+        <div id="erro-modal-conta"
+             class="hidden mb-4 rounded-xl text-sm border px-4 py-3"
+             style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
+        </div>
+
+        <form id="form-modal-conta" method="post" action="{% url 'contas:salvar' %}" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="conta_id" id="conta_id" value="">
+          <input type="hidden" name="icone" id="conta_icone" value="bank">
+
+          <!-- Nome -->
+          <div>
+            <label for="conta_nome" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+              Nome
+            </label>
+            <input type="text" name="nome" id="conta_nome" required
+                   class="w-full px-4 py-2.5 rounded-xl border outline-none transition focus:ring-4"
+                   style="border-color:#BDC3C7; color:#34495E;"
+                   placeholder="Ex.: Conta Corrente Nubank">
+            <p class="text-xs mt-1" style="color: rgba(52,73,94,.55);">
+              Um nome curto facilita no dia a dia (ex.: “Nubank”, “Carteira”, “Investimentos”).
+            </p>
+          </div>
+
+          <!-- Tipo -->
+          <div>
+            <label for="conta_tipo" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+              Tipo
+            </label>
+            <select name="tipo" id="conta_tipo" required
+                    class="w-full px-4 py-2.5 rounded-xl border bg-white outline-none transition focus:ring-4"
+                    style="border-color:#BDC3C7; color:#34495E;">
+              {% for value, label in tipo_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Ícone -->
+          <div>
+            <label class="block text-sm font-semibold mb-2" style="color:#34495E;">
+              Ícone
+            </label>
+            <div id="grid-icones-conta" class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {% for icon_name in icone_choices %}
+              <button type="button"
+                      class="btn-icone-conta w-full aspect-square rounded-2xl border flex items-center justify-center p-2 transition hover:shadow-sm"
+                      style="border-color:#BDC3C7; color:#34495E; background: rgba(189,195,199,.08);"
+                      data-icone="{{ icon_name }}"
+                      aria-label="Ícone {{ icon_name }}">
+                <img src="{% static 'contas/icons/' %}{{ icon_name }}.svg" alt="" class="w-6 h-6 pointer-events-none" style="color: inherit;">
+              </button>
+              {% endfor %}
+            </div>
+            <style>
+              .btn-icone-conta.icone-selecionado { border-width: 2px; border-color: #2ECC71; background: rgba(46,204,113,.12); }
+            </style>
+          </div>
+
+          <!-- Saldo inicial (apenas na criação; oculto na edição via JS) -->
+          <div id="grupo-saldo-inicial">
+            <label for="conta_saldo_inicial" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+              Saldo inicial
+            </label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold"
+                    style="color: rgba(52,73,94,.65);">
+                R$
+              </span>
+              <input type="text" name="saldo_inicial" id="conta_saldo_inicial" value="0"
+                     class="w-full pl-12 pr-4 py-2.5 rounded-xl border outline-none transition focus:ring-4"
+                     style="border-color:#BDC3C7; color:#34495E;"
+                     placeholder="0,00">
+            </div>
+            <p class="text-xs mt-1" style="color: rgba(52,73,94,.55);">
+              Se preferir, deixe 0 e ajuste depois com uma transação de “ajuste de saldo”.
+            </p>
+          </div>
+
+          <!-- Footer buttons -->
+          <div class="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl text-white font-semibold transition shadow-sm active:scale-[.99]"
+                    style="background:#2ECC71;"
+                    onmouseover="this.style.background='#27AE60'"
+                    onmouseout="this.style.background='#2ECC71'">
+              Salvar
+            </button>
+
+            <button type="button"
+                    id="btn-cancelar-modal-conta"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl border font-semibold transition active:scale-[.99]"
+                    style="border-color:#BDC3C7; color:#34495E; background: rgba(189,195,199,.10);"
+                    onmouseover="this.style.background='rgba(189,195,199,.18)'"
+                    onmouseout="this.style.background='rgba(189,195,199,.10)'">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

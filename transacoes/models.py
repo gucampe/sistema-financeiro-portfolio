@@ -1,20 +1,31 @@
 # transacoes/models.py
 
-from django.db import models
 from django.conf import settings
+from django.db import models
+
 from categorias.models import Categoria
+from contas.models import Conta
 
 
 class Transacao(models.Model):
     TIPO_CHOICES = (
         ("receita", "Receita"),
         ("despesa", "Despesa"),
+        ("ajuste", "Ajuste"),
     )
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="transacoes",
+    )
+
+    conta = models.ForeignKey(
+        Conta,
+        on_delete=models.PROTECT,
+        related_name="transacoes",
+        blank=True,
+        null=True,
     )
 
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
