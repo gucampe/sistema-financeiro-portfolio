@@ -2,11 +2,13 @@
 from django import forms
 from .models import Transacao
 from categorias.models import Categoria
+from contas.models import Conta
+
 
 class TransacaoForm(forms.ModelForm):
     class Meta:
         model = Transacao
-        fields = ["tipo", "categoria", "descricao", "valor", "data"]
+        fields = ["tipo", "conta", "categoria", "descricao", "valor", "data"]
         widgets = {
             "data": forms.DateInput(attrs={"type": "date"}),
         }
@@ -18,14 +20,20 @@ class TransacaoForm(forms.ModelForm):
 
         if self.usuario is not None:
             from django.db.models import Q
+            self.fields["conta"].queryset = Conta.objects.filter(
+                usuario=self.usuario, ativa=True
+            ).order_by("nome")
             self.fields["categoria"].queryset = Categoria.objects.filter(
                 Q(usuario=self.usuario) | Q(padrao=True),
                 tipo=self.tipo_inicial,
                 ativa=True
             ).order_by("nome")
         else:
+            self.fields["conta"].queryset = Conta.objects.none()
             self.fields["categoria"].queryset = Categoria.objects.none()
 
+        self.fields["conta"].empty_label = "Selecione uma conta"
+        self.fields["conta"].required = True
         self.fields["categoria"].empty_label = "Selecione uma categoria"
         self.fields["categoria"].required = True
 
@@ -33,6 +41,16 @@ class TransacaoForm(forms.ModelForm):
             field.widget.attrs.update({
                 "class": "w-full px-4 py-2 border rounded-md"
             })
+
+    def clean_conta(self):
+        conta = self.cleaned_data.get("conta")
+        if not conta:
+            raise forms.ValidationError("Selecione uma conta.")
+        if self.usuario and conta.usuario_id != self.usuario.id:
+            raise forms.ValidationError("Conta inválida.")
+        if not conta.ativa:
+            raise forms.ValidationError("Conta inválida ou inativa.")
+        return conta
 
     def clean_categoria(self):
         cat = self.cleaned_data.get("categoria")

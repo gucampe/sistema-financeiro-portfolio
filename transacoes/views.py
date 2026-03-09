@@ -8,7 +8,8 @@ from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
 
-from categorias.models import Categoria  # <-- ADICIONE ISSO
+from categorias.models import Categoria
+from contas.models import Conta
 
 
 @login_required
@@ -26,6 +27,7 @@ def adicionar_transacao(request):
         tipo="receita",
         ativa=True
     ).order_by("nome")
+    contas = Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome")
 
     if request.method == 'POST':
         form = TransacaoForm(request.POST, usuario=request.user)
@@ -35,7 +37,7 @@ def adicionar_transacao(request):
             transacao.save()
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
+                resp = {
                     'status': 'ok',
                     'id': transacao.id,
                     'tipo': transacao.tipo,
@@ -48,7 +50,14 @@ def adicionar_transacao(request):
                         'icone': transacao.categoria.icone,
                         'cor': transacao.categoria.cor,
                     }
-                })
+                }
+                if transacao.conta_id:
+                    resp['conta'] = {
+                        'id': transacao.conta.id,
+                        'nome': transacao.conta.nome,
+                        'icone': transacao.conta.icone,
+                    }
+                return JsonResponse(resp)
 
             return redirect('dashboard:home')
         else:
@@ -62,6 +71,7 @@ def adicionar_transacao(request):
         'form': form,
         'categorias_despesa': categorias_despesa,
         'categorias_receita': categorias_receita,
+        'contas': contas,
         'transacoes_recentes': transacoes
     })
 

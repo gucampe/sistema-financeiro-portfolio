@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.status === "ok") {
         fecharModal();
         form.reset();
+        // data.conta (id, nome, icone) disponível para exibição na lista sem reload, se desejar
         window.location.reload();
       } else {
         alert("Erro ao salvar: " + JSON.stringify(data.errors));
