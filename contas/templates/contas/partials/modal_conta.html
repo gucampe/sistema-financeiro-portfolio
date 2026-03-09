@@ -40,10 +40,33 @@
              style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
         </div>
 
-        <form id="form-modal-conta" method="post" action="{% url 'contas:salvar' %}" class="space-y-4">
+        <form id="form-modal-conta" method="post" action="{% url 'contas:salvar' %}" class="space-y-4"
+              data-url-instituicoes="{% static 'contas/icons/instituicoes/' %}"
+              data-url-genericos="{% static 'contas/icons/genericos/' %}"
+              data-instituicoes="{{ icone_choices_instituicoes|join:',' }}"
+              data-genericos="{{ icone_choices_genericos|join:',' }}">
           {% csrf_token %}
           <input type="hidden" name="conta_id" id="conta_id" value="">
           <input type="hidden" name="icone" id="conta_icone" value="bank">
+
+          <!-- Preview do ícone (clicável; seleção em modal secundário depois) -->
+          <div id="preview-icone-conta-wrapper"
+               class="flex flex-col items-center justify-center py-3 px-3 sm:py-4 sm:px-4 rounded-2xl border-2 border-dashed cursor-pointer transition hover:bg-opacity-80"
+               style="border-color: rgba(189,195,199,.6); background: rgba(189,195,199,.06);"
+               role="button"
+               tabindex="0"
+               aria-label="Escolha um ícone">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 mb-2">
+              <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
+                <img id="preview-icone-conta-img"
+                     src="{% static 'contas/icons/genericos/bank.svg' %}"
+                     alt=""
+                     class="w-full h-full object-contain pointer-events-none rounded-lg">
+              </div>
+            </div>
+            <span class="text-sm font-semibold" style="color:#34495E;">Escolha um ícone</span>
+            <span class="text-xs mt-0.5" style="color: rgba(52,73,94,.55);">Instituição ou genérico</span>
+          </div>
 
           <!-- Nome -->
           <div>
@@ -71,27 +94,6 @@
                 <option value="{{ value }}">{{ label }}</option>
               {% endfor %}
             </select>
-          </div>
-
-          <!-- Ícone -->
-          <div>
-            <label class="block text-sm font-semibold mb-2" style="color:#34495E;">
-              Ícone
-            </label>
-            <div id="grid-icones-conta" class="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {% for icon_name in icone_choices %}
-              <button type="button"
-                      class="btn-icone-conta w-full aspect-square rounded-2xl border flex items-center justify-center p-2 transition hover:shadow-sm"
-                      style="border-color:#BDC3C7; color:#34495E; background: rgba(189,195,199,.08);"
-                      data-icone="{{ icon_name }}"
-                      aria-label="Ícone {{ icon_name }}">
-                <img src="{% static 'contas/icons/' %}{{ icon_name }}.svg" alt="" class="w-6 h-6 pointer-events-none" style="color: inherit;">
-              </button>
-              {% endfor %}
-            </div>
-            <style>
-              .btn-icone-conta.icone-selecionado { border-width: 2px; border-color: #2ECC71; background: rgba(46,204,113,.12); }
-            </style>
           </div>
 
           <!-- Saldo inicial (apenas na criação; oculto na edição via JS) -->
@@ -139,3 +141,96 @@
     </div>
   </div>
 </div>
+
+<!-- Modal secundário: escolha de ícone (z-index maior que o modal principal) -->
+<div id="overlay-modal-icone"
+     class="fixed inset-0 hidden z-[60] opacity-0 transition-opacity duration-200"
+     style="background: rgba(0,0,0,.55);">
+
+  <div class="absolute inset-0" id="overlay-modal-icone-backdrop"></div>
+
+  <div class="relative mx-auto w-full max-w-lg p-4 sm:p-6 flex items-center justify-center min-h-screen">
+    <div class="w-full max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border"
+         style="border-color: rgba(189,195,199,.65);">
+
+      <!-- Header -->
+      <div class="px-6 py-5 border-b flex items-start justify-between gap-4 sticky top-0 bg-white z-10"
+           style="border-color: rgba(189,195,199,.35);">
+        <div class="min-w-0">
+          <h3 class="text-xl font-semibold leading-tight" style="color:#34495E;">Escolha um ícone</h3>
+          <p class="text-sm mt-1" style="color: rgba(52,73,94,.70);">
+            Instituição financeira ou ícone genérico para identificar a conta.
+          </p>
+        </div>
+        <button id="btn-fechar-modal-icone"
+                type="button"
+                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition active:scale-[.98]"
+                style="border-color: rgba(189,195,199,.55); color:#34495E; background: rgba(189,195,199,.15);"
+                onmouseover="this.style.background='rgba(189,195,199,.25)'"
+                onmouseout="this.style.background='rgba(189,195,199,.15)'"
+                aria-label="Fechar">
+          ✕
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-5 space-y-6">
+        <!-- Instituições financeiras -->
+        <div>
+          <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Instituições financeiras</h4>
+          <div id="grid-icones-instituicoes" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {% for slug, label, filename in icon_list_instituicoes %}
+            <button type="button"
+                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
+                    style="border-color: rgba(189,195,199,.5); background: rgba(189,195,199,.06); color:#34495E;"
+                    data-icone="{{ slug }}"
+                    data-tipo="instituicao"
+                    aria-label="Ícone {{ label }}">
+              <div class="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 mb-2">
+                <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
+                  <img src="{% static 'contas/icons/instituicoes/' %}{{ filename }}.png" alt="" class="w-full h-full object-contain pointer-events-none rounded-lg">
+                </div>
+              </div>
+              <span class="text-xs font-medium text-center leading-tight">{{ label }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Ícones genéricos -->
+        <div>
+          <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Ícones genéricos</h4>
+          <div id="grid-icones-genericos" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {% for slug, label, filename in icon_list_genericos %}
+            <button type="button"
+                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
+                    style="border-color: rgba(189,195,199,.5); background: rgba(189,195,199,.06); color:#34495E;"
+                    data-icone="{{ slug }}"
+                    data-tipo="generico"
+                    aria-label="Ícone {{ label }}">
+              <div class="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 mb-2">
+                <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
+                  <img src="{% static 'contas/icons/genericos/' %}{{ filename }}.svg" alt="" class="w-full h-full object-contain pointer-events-none">
+                </div>
+              </div>
+              <span class="text-xs font-medium text-center leading-tight">{{ label }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .item-icone-conta.icone-selecionado {
+    border-width: 2px;
+    border-color: #2ECC71;
+    background: rgba(46,204,113,.12);
+  }
+  .item-icone-conta:hover {
+    background: rgba(189,195,199,.12);
+    border-color: rgba(189,195,199,.7);
+  }
+</style>

@@ -57,15 +57,22 @@
               data-id="{{ conta.id }}">
             <div class="min-w-0">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
+                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center border shrink-0"
                      style="border-color: rgba(189,195,199,.55); background: rgba(189,195,199,.18); color:#34495E;">
+                  <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
                   {% if conta.icone %}
-                  <img src="{% static 'contas/icons/' %}{{ conta.icone }}.svg" class="w-6 h-6" alt=""
+                  {% if conta.icone in icone_choices_instituicoes %}
+                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="w-full h-full object-contain rounded-lg" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+                  {% else %}
+                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="w-full h-full object-contain" alt=""
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+                  {% endif %}
                   <span class="conta-avatar-inicial text-sm font-semibold" style="display:none;">{{ conta.nome|slice:":1"|upper }}</span>
                   {% else %}
                   <span class="text-sm font-semibold">{{ conta.nome|slice:":1"|upper }}</span>
                   {% endif %}
+                  </div>
                 </div>
 
                 <div class="min-w-0">
@@ -157,15 +164,22 @@
               data-id="{{ conta.id }}">
             <div class="min-w-0">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
+                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center border shrink-0"
                      style="border-color: rgba(189,195,199,.55); background: rgba(189,195,199,.12); color: rgba(52,73,94,.75);">
+                  <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
                   {% if conta.icone %}
-                  <img src="{% static 'contas/icons/' %}{{ conta.icone }}.svg" class="w-6 h-6" alt=""
+                  {% if conta.icone in icone_choices_instituicoes %}
+                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="w-full h-full object-contain rounded-lg" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+                  {% else %}
+                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="w-full h-full object-contain" alt=""
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+                  {% endif %}
                   <span class="conta-avatar-inicial text-sm font-semibold opacity-80" style="display:none;">{{ conta.nome|slice:":1"|upper }}</span>
                   {% else %}
                   <span class="text-sm font-semibold opacity-80">{{ conta.nome|slice:":1"|upper }}</span>
                   {% endif %}
+                  </div>
                 </div>
 
                 <div class="min-w-0">

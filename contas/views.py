@@ -47,6 +47,37 @@ def _contas_queryset_com_saldo(usuario, *, ativa=None):
 def contas_home(request):
     contas_ativas = _contas_queryset_com_saldo(request.user, ativa=True)
     contas_arquivadas = _contas_queryset_com_saldo(request.user, ativa=False)
+    icone_choices_instituicoes = [
+        "nubank", "itau", "santander", "bradesco", "bb", "caixa",
+        "inter", "sicredi", "sicoob", "picpay", "mercadopago",
+    ]
+    icone_choices_genericos = ["bank", "wallet", "cash", "piggy", "building", "briefcase"]
+    icon_display_names = {
+        "nubank": "Nubank",
+        "itau": "Itaú",
+        "santander": "Santander",
+        "bradesco": "Bradesco",
+        "bb": "Banco do Brasil",
+        "caixa": "Caixa",
+        "inter": "Inter",
+        "sicredi": "Sicredi",
+        "sicoob": "Sicoob",
+        "picpay": "PicPay",
+        "mercadopago": "Mercado Pago",
+        "bank": "Banco",
+        "wallet": "Carteira",
+        "cash": "Dinheiro",
+        "piggy": "Cofrinho",
+        "building": "Empresa",
+        "briefcase": "Maleta",
+    }
+    # slug -> nome do arquivo (quando diferente do slug, ex.: inter -> intermedium.png)
+    icon_filename_instituicoes = {"inter": "intermedium"}
+    icon_list_instituicoes = [
+        (s, icon_display_names.get(s, s), icon_filename_instituicoes.get(s, s))
+        for s in icone_choices_instituicoes
+    ]
+    icon_list_genericos = [(s, icon_display_names.get(s, s), s) for s in icone_choices_genericos]
     return render(
         request,
         "contas/home.html",
@@ -54,7 +85,10 @@ def contas_home(request):
             "contas_ativas": contas_ativas,
             "contas_arquivadas": contas_arquivadas,
             "tipo_choices": Conta.TIPO_CHOICES,
-            "icone_choices": ["bank", "wallet", "cash", "piggy", "building", "briefcase"],
+            "icone_choices_instituicoes": icone_choices_instituicoes,
+            "icone_choices_genericos": icone_choices_genericos,
+            "icon_list_instituicoes": icon_list_instituicoes,
+            "icon_list_genericos": icon_list_genericos,
         },
     )
 

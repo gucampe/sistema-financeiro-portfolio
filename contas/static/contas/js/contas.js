@@ -12,7 +12,7 @@
   const emptyAtivas = document.getElementById("empty-contas-ativas");
   const grupoSaldoInicial = document.getElementById("grupo-saldo-inicial");
   const inputIcone = document.getElementById("conta_icone");
-  const gridIcones = document.getElementById("grid-icones-conta");
+  const previewIconeImg = document.getElementById("preview-icone-conta-img");
 
   const toastEl = document.getElementById("toast-contas");
   const toastMsg = document.getElementById("toast-contas-msg");
@@ -47,17 +47,56 @@
     });
   }
 
+  const overlayModalIcone = document.getElementById("overlay-modal-icone");
+  const btnFecharModalIcone = document.getElementById("btn-fechar-modal-icone");
+  const previewIconeWrapper = document.getElementById("preview-icone-conta-wrapper");
+
+  function getPreviewIconeUrl(icone) {
+    const slug = (icone || "bank").trim() || "bank";
+    if (!form) return "";
+    const instituicoes = (form.dataset.instituicoes || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const genericos = (form.dataset.genericos || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const baseInst = form.dataset.urlInstituicoes || "";
+    const baseGen = form.dataset.urlGenericos || "";
+    const filenameInst = slug === "inter" ? "intermedium" : slug;
+    if (instituicoes.includes(slug)) return baseInst + filenameInst + ".png";
+    if (genericos.includes(slug)) return baseGen + slug + ".svg";
+    return baseGen + "bank.svg";
+  }
+
   function selecionarIcone(icone) {
     if (!inputIcone) return;
     inputIcone.value = icone || "bank";
-    if (gridIcones) {
-      gridIcones.querySelectorAll(".btn-icone-conta").forEach((btn) => {
-        if (btn.dataset.icone === (icone || "bank")) {
-          btn.classList.add("icone-selecionado");
-        } else {
-          btn.classList.remove("icone-selecionado");
-        }
-      });
+    if (previewIconeImg) {
+      previewIconeImg.src = getPreviewIconeUrl(icone || "bank");
+    }
+    syncSelecionadoModalIcone();
+  }
+
+  function syncSelecionadoModalIcone() {
+    const current = (inputIcone && inputIcone.value) ? inputIcone.value.trim() : "bank";
+    document.querySelectorAll(".item-icone-conta").forEach((btn) => {
+      if (btn.dataset.icone === current) {
+        btn.classList.add("icone-selecionado");
+      } else {
+        btn.classList.remove("icone-selecionado");
+      }
+    });
+  }
+
+  function abrirModalIcone() {
+    syncSelecionadoModalIcone();
+    if (overlayModalIcone) {
+      overlayModalIcone.classList.remove("hidden", "opacity-0");
+      overlayModalIcone.classList.add("opacity-100");
+    }
+  }
+
+  function fecharModalIcone() {
+    if (overlayModalIcone) {
+      overlayModalIcone.classList.add("hidden");
+      overlayModalIcone.classList.remove("opacity-100");
+      overlayModalIcone.classList.add("opacity-0");
     }
   }
 
@@ -93,6 +132,8 @@
   }
 
   function fecharModal() {
+    if (erroBox) erroBox.classList.add("hidden");
+    fecharModalIcone();
     overlay.classList.add("hidden");
     form.reset();
     inputContaId.value = "";
@@ -100,8 +141,35 @@
     selecionarIcone("bank");
   }
 
+  const btnCancelar = document.getElementById("btn-cancelar-modal-conta");
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
   if (btnFechar) btnFechar.addEventListener("click", fecharModal);
+  if (btnCancelar) btnCancelar.addEventListener("click", fecharModal);
+
+  if (previewIconeWrapper) {
+    previewIconeWrapper.addEventListener("click", (e) => {
+      e.preventDefault();
+      abrirModalIcone();
+    });
+    previewIconeWrapper.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        abrirModalIcone();
+      }
+    });
+  }
+  if (btnFecharModalIcone) btnFecharModalIcone.addEventListener("click", fecharModalIcone);
+  const backdropIcone = document.getElementById("overlay-modal-icone-backdrop");
+  if (backdropIcone) backdropIcone.addEventListener("click", fecharModalIcone);
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".item-icone-conta");
+    if (btn) {
+      e.preventDefault();
+      selecionarIcone(btn.dataset.icone);
+      fecharModalIcone();
+    }
+  });
 
   function getSalvarUrl() {
     return form ? form.action : "/contas/salvar/";
@@ -178,16 +246,6 @@
         } else {
           showToast("Erro inesperado. Tente novamente.", "erro");
         }
-      }
-    });
-  }
-
-  if (gridIcones) {
-    gridIcones.addEventListener("click", (e) => {
-      const btn = e.target.closest(".btn-icone-conta");
-      if (btn) {
-        e.preventDefault();
-        selecionarIcone(btn.dataset.icone);
       }
     });
   }
