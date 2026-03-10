@@ -1,6 +1,7 @@
 # transacoes/models.py
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from categorias.models import Categoria
@@ -24,8 +25,6 @@ class Transacao(models.Model):
         Conta,
         on_delete=models.PROTECT,
         related_name="transacoes",
-        blank=True,
-        null=True,
     )
 
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
@@ -45,6 +44,20 @@ class Transacao(models.Model):
 
     class Meta:
         ordering = ["-data", "-id"]
+
+    def clean(self):
+        errors = {}
+        if self.conta_id and self.usuario_id and self.conta.usuario_id != self.usuario_id:
+            errors["conta"] = "A conta deve pertencer ao usuário da transação."
+        if self.categoria_id and self.usuario_id:
+            if not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
+                errors["categoria"] = "A categoria deve ser padrão ou pertencer ao usuário da transação."
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.tipo} - {self.categoria.nome} - {self.valor}"

@@ -33,9 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
     popularCategorias(tipo);
   });
 
+  function limparErroContaAjax() {
+    const el = document.getElementById("erro-conta-ajax");
+    if (el) {
+      el.textContent = "";
+      el.classList.add("hidden");
+    }
+  }
+
   btnAbrir?.addEventListener("click", () => {
     const tipo = selectTipo?.value || "despesa";
     if (!tipo) return;
+    limparErroContaAjax();
     popularCategorias(tipo);
     overlay.classList.remove("hidden");
     setTimeout(() => overlay.classList.remove("opacity-0"), 10);
@@ -74,12 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (data.status === "ok") {
+        limparErroContaAjax();
         fecharModal();
         form.reset();
         // data.conta (id, nome, icone) disponível para exibição na lista sem reload, se desejar
         window.location.reload();
       } else {
-        alert("Erro ao salvar: " + JSON.stringify(data.errors));
+        const erroContaEl = document.getElementById("erro-conta-ajax");
+        if (erroContaEl && data.errors && data.errors.conta && data.errors.conta.length) {
+          erroContaEl.textContent = data.errors.conta[0];
+          erroContaEl.classList.remove("hidden");
+        }
+        if (data.errors && Object.keys(data.errors).length) {
+          alert("Erro ao salvar: " + JSON.stringify(data.errors));
+        }
       }
     } catch (error) {
       alert("Erro de comunicação.");

@@ -8,8 +8,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from categorias.models import Categoria
 from transacoes.models import Transacao
+from transacoes.services import criar_transacao_saldo_inicial
 from .models import Conta
 
 
@@ -140,29 +140,12 @@ def salvar_conta(request):
                 icone=icone,
             )
             if saldo_inicial != Decimal("0.00"):
-                # cria transação de ajuste automática
                 hoje = timezone.now().date()
-                # tenta achar/ criar categoria padrão para ajustes
-                categoria_ajuste, _ = Categoria.objects.get_or_create(
-                    usuario=None,
-                    padrao=True,
-                    tipo="receita",
-                    nome="Ajustes de saldo",
-                    defaults={
-                        "descricao": "Ajustes automáticos de saldo de contas",
-                        "cor": "#6B7280",
-                        "icone": "fa-ellipsis-h",
-                        "ativa": True,
-                    },
-                )
-                Transacao.objects.create(
+                criar_transacao_saldo_inicial(
                     usuario=request.user,
                     conta=conta,
-                    tipo="ajuste",
                     valor=saldo_inicial,
-                    descricao="Saldo inicial",
                     data=hoje,
-                    categoria=categoria_ajuste,
                 )
         return JsonResponse(
             {

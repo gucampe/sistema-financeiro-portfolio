@@ -14,7 +14,7 @@ from contas.models import Conta
 
 @login_required
 def adicionar_transacao(request):
-    transacoes = Transacao.objects.filter(usuario=request.user).order_by('-id')
+    transacoes = Transacao.objects.filter(usuario=request.user).select_related("categoria", "conta").order_by('-id')
 
     from django.db.models import Q
     categorias_despesa = Categoria.objects.filter(

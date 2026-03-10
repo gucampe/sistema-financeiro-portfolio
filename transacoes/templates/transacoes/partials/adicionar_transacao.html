@@ -22,6 +22,7 @@
         {% if form.conta.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.conta.errors|striptags }}</p>
         {% endif %}
+        <p id="erro-conta-ajax" class="mt-1 text-sm text-red-600 hidden" aria-live="polite"></p>
       </div>
       <div class="mb-4">
         <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>

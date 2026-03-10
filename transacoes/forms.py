@@ -34,6 +34,7 @@ class TransacaoForm(forms.ModelForm):
 
         self.fields["conta"].empty_label = "Selecione uma conta"
         self.fields["conta"].required = True
+        self.fields["conta"].error_messages["required"] = "Selecione uma conta."
         self.fields["categoria"].empty_label = "Selecione uma categoria"
         self.fields["categoria"].required = True
 
