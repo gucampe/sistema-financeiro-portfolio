@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load icon_filters %}
+{% load moeda %}
 
 {% block title %}Lançamentos{% endblock %}
 
@@ -8,19 +10,17 @@
   <div class="max-w-5xl mx-auto">
 
     <!-- Topo -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-5 py-4 mb-5">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 class="text-2xl font-semibold text-[#2f3a35]">Lançamentos</h1>
-          <p class="text-sm text-gray-500 mt-1">Acompanhe suas movimentações recentes</p>
-        </div>
-
-        <button id="btn-adicionar"
-                class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 bg-[#2f7cf6] hover:bg-[#1f6ae0] text-white font-medium shadow-sm transition">
-          <span class="text-lg leading-none">+</span>
-          <span>Adicionar transação</span>
-        </button>
+    <div class="flex items-center justify-between gap-4 flex-wrap mb-5 px-5">
+      <div>
+        <h1 class="text-2xl font-semibold text-[#2f3a35]">Lançamentos</h1>
+        <p class="text-sm text-gray-500 mt-1">Acompanhe suas movimentações recentes</p>
       </div>
+
+      <button id="btn-adicionar"
+              class="inline-flex items-center gap-2 rounded-xl px-4 py-2 bg-[#2f7cf6] hover:bg-[#1f6ae0] text-white text-sm font-medium shadow-sm transition">
+        <span class="text-base leading-none">+</span>
+        <span>Adicionar transação</span>
+      </button>
     </div>
 
     <!-- Lista -->
@@ -29,113 +29,82 @@
         <h2 class="text-base font-semibold text-[#2f3a35]">Histórico recente</h2>
       </div>
 
+      {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
+
       <ul class="divide-y divide-gray-100">
         {% for transacao in transacoes_recentes %}
-          <li class="px-5 py-4 hover:bg-[#fafbfa] transition">
-            <div class="flex items-center justify-between gap-4">
+        <li class="relative px-5 py-2.5 hover:bg-[#fafbfa] transition">
+          <div class="flex items-center justify-between gap-4 min-w-0">
 
-              <!-- Esquerda -->
-              <div class="flex items-center gap-4 min-w-0 flex-1">
-
-                <!-- Ícone / bolinha -->
-                <div class="shrink-0">
-                  {% if transacao.tipo == 'despesa' %}
-                    <div class="w-11 h-11 rounded-2xl bg-red-50 flex items-center justify-center border border-red-100">
-                      <span class="text-red-500 text-lg">−</span>
-                    </div>
-                  {% elif transacao.tipo == 'receita' %}
-                    <div class="w-11 h-11 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100">
-                      <span class="text-green-600 text-lg">+</span>
-                    </div>
-                  {% else %}
-                    <div class="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                      <span class="text-gray-600 text-sm font-bold">±</span>
-                    </div>
-                  {% endif %}
-                </div>
-
-                <!-- Conteúdo -->
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2 mb-1 flex-wrap">
-                    <p class="text-[15px] font-semibold text-[#2f3a35] truncate">
-                      {{ transacao.descricao }}
-                    </p>
-
-                    {% if transacao.tipo == 'despesa' %}
-                      <span class="inline-flex items-center rounded-full bg-red-50 text-red-600 text-[11px] font-semibold px-2.5 py-1 border border-red-100">
-                        Despesa
-                      </span>
-                    {% elif transacao.tipo == 'receita' %}
-                      <span class="inline-flex items-center rounded-full bg-green-50 text-green-600 text-[11px] font-semibold px-2.5 py-1 border border-green-100">
-                        Receita
-                      </span>
-                    {% else %}
-                      <span class="inline-flex items-center rounded-full bg-gray-100 text-gray-600 text-[11px] font-semibold px-2.5 py-1 border border-gray-200">
-                        Ajuste
-                      </span>
-                    {% endif %}
-                  </div>
-
-                  <div class="flex items-center gap-2 flex-wrap text-sm text-gray-500">
-                    <span class="truncate">
-                      {{ transacao.categoria.nome|default:transacao.categoria }}
-                    </span>
-
-                    <span class="text-gray-300">•</span>
-
-                    <span class="truncate">
-                      {{ transacao.data|date:"d/m/Y" }}
-                    </span>
-
-                    <span class="text-gray-300">•</span>
-
-                    <span class="inline-flex items-center gap-2 rounded-full bg-[#f4f6f5] px-2.5 py-1 border border-gray-200 max-w-full">
-                      <span class="w-2 h-2 rounded-full bg-[#8aa399] shrink-0"></span>
-                      <span class="truncate text-gray-600">
-                        {% if transacao.conta %}
-                          {{ transacao.conta.nome }}
-                        {% else %}
-                          Sem conta
-                        {% endif %}
-                      </span>
-                    </span>
-                  </div>
-                </div>
+            <!-- Esquerda -->
+            <div class="flex items-center gap-2.5 min-w-0 flex-1 pr-40">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+                   style="background-color: {{ transacao.categoria.cor }}20; border-color: {{ transacao.categoria.cor }}40;">
+                <i class="{% with icon_raw=transacao.categoria.icone|default:'fa-tag' %}{% if ' ' in icon_raw %}{{ icon_raw }}{% else %}fa-solid {{ icon_raw }}{% endif %}{% endwith %} text-[15px]"
+                   style="color: {{ transacao.categoria.cor }}"></i>
               </div>
 
-              <!-- Direita -->
-              <div class="shrink-0 text-right">
-                <p class="text-lg font-semibold tracking-tight
-                  {% if transacao.tipo == 'despesa' %}
-                    text-red-500
-                  {% elif transacao.tipo == 'receita' %}
-                    text-green-600
-                  {% else %}
-                    text-gray-700
-                  {% endif %}
-                ">
-                  {% if transacao.tipo == 'despesa' %}
-                    - R$ {{ transacao.valor|floatformat:2 }}
-                  {% elif transacao.tipo == 'receita' %}
-                    + R$ {{ transacao.valor|floatformat:2 }}
-                  {% else %}
-                    R$ {{ transacao.valor|floatformat:2 }}
-                  {% endif %}
+              <div class="min-w-0">
+                <p class="text-[14px] font-semibold text-[#2f3a35] truncate leading-tight">
+                  {{ transacao.descricao }}
+                </p>
+                <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
+                  {{ transacao.categoria.nome|default:transacao.categoria }} · {{ transacao.data|date:"d/m/Y" }}
                 </p>
               </div>
+            </div>
 
-            </div>
-          </li>
-        {% empty %}
-          <li class="px-5 py-12 text-center">
-            <div class="max-w-sm mx-auto">
-              <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
-                <span class="text-gray-400 text-xl">≋</span>
+            <!-- Centro -->
+            <div class="absolute left-[54%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 pointer-events-none">
+              <div class="flex items-center justify-start gap-2 w-44 mx-auto min-w-0">
+                {% if transacao.conta %}
+                <img src="{% static transacao.conta.icone|conta_icon_path %}"
+                     alt=""
+                     class="w-7 h-7 object-contain rounded-md shrink-0"
+                     onerror="this.src='{{ icon_fallback_url }}';">
+                  <span class="text-[13px] font-medium text-gray-700 truncate max-w-[130px]">
+                    {{ transacao.conta.nome }}
+                  </span>
+                {% else %}
+                  <img src="{% static 'contas/icons/genericos/bank.svg' %}"
+                       alt=""
+                       class="w-7 h-7 object-contain opacity-60 shrink-0">
+                  <span class="text-[13px] text-gray-500 truncate max-w-[130px]">
+                    Sem conta
+                  </span>
+                {% endif %}
               </div>
-              <p class="text-gray-600 font-medium">Nenhuma transação recente</p>
-              <p class="text-sm text-gray-400 mt-1">Seus lançamentos aparecerão aqui.</p>
             </div>
-          </li>
+
+            <!-- Direita -->
+            <div class="shrink-0 w-28 text-right">
+              <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap
+                {% if transacao.tipo == 'despesa' %}text-red-500
+                {% elif transacao.tipo == 'receita' %}text-green-600
+                {% else %}text-gray-700{% endif %}">
+                {% if transacao.tipo == 'despesa' %}
+                  - {{ transacao.valor|moeda }}
+                {% elif transacao.tipo == 'receita' %}
+                  + {{ transacao.valor|moeda }}
+                {% else %}
+                  {{ transacao.valor|moeda }}
+                {% endif %}
+              </p>
+            </div>
+
+          </div>
+        </li>
+
+        {% empty %}
+        <li class="px-5 py-12 text-center">
+          <div class="max-w-sm mx-auto">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-receipt text-gray-400"></i>
+            </div>
+            <p class="text-gray-600 font-medium">Nenhuma transação recente</p>
+            <p class="text-sm text-gray-400 mt-1">Seus lançamentos aparecerão aqui.</p>
+          </div>
+        </li>
         {% endfor %}
       </ul>
     </div>

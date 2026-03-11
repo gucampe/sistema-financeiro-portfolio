@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'transacoes',  # Certifique-se de que este é o nome correto do seu app financeiro
     'categorias.apps.CategoriasConfig',
     'contas.apps.ContasConfig',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -113,14 +114,17 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
+DECIMAL_SEPARATOR = ","
+THOUSAND_SEPARATOR = "."
+NUMBER_GROUPING = 3
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
