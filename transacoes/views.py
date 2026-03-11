@@ -30,7 +30,8 @@ def adicionar_transacao(request):
     contas = Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome")
 
     if request.method == 'POST':
-        form = TransacaoForm(request.POST, usuario=request.user)
+        tipo_inicial = request.POST.get('tipo', 'despesa')
+        form = TransacaoForm(request.POST, usuario=request.user, tipo_inicial=tipo_inicial)
         if form.is_valid():
             transacao = form.save(commit=False)
             transacao.usuario = request.user
