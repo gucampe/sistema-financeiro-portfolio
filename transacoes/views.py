@@ -1,6 +1,7 @@
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 from .forms import TransacaoForm
 from .models import Transacao
 from django.shortcuts import redirect, render
@@ -14,7 +15,10 @@ from contas.models import Conta
 
 @login_required
 def adicionar_transacao(request):
-    transacoes = Transacao.objects.filter(usuario=request.user).select_related("categoria", "conta").order_by('-id')
+    qs_transacoes = Transacao.objects.filter(usuario=request.user).select_related("categoria", "conta").order_by('-id')
+    paginator = Paginator(qs_transacoes, 20)
+    page_number = request.GET.get("page")
+    transacoes = paginator.get_page(page_number)
 
     from django.db.models import Q
     categorias_despesa = Categoria.objects.filter(
@@ -73,7 +77,7 @@ def adicionar_transacao(request):
         'categorias_despesa': categorias_despesa,
         'categorias_receita': categorias_receita,
         'contas': contas,
-        'transacoes_recentes': transacoes
+        'transacoes': transacoes
     })
 
 
