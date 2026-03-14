@@ -6,7 +6,8 @@ from .models import Transacao
 from django.shortcuts import redirect, render
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
-from datetime import datetime, timedelta
+from itertools import groupby
+from datetime import date, datetime, timedelta
 
 from categorias.models import Categoria
 from contas.models import Conta
@@ -14,9 +15,42 @@ from contas.models import Conta
 
 @login_required
 def adicionar_transacao(request):
+    ano = request.GET.get("ano")
+    mes = request.GET.get("mes")
+    hoje = date.today()
+    ano = ano or hoje.year
+    mes = mes or hoje.month
+    ano = int(ano)
+    mes = int(mes)
+
+    if mes == 1:
+        mes_anterior = 12
+        ano_anterior = ano - 1
+    else:
+        mes_anterior = mes - 1
+        ano_anterior = ano
+
+    if mes == 12:
+        mes_proximo = 1
+        ano_proximo = ano + 1
+    else:
+        mes_proximo = mes + 1
+        ano_proximo = ano
+
     transacoes = Transacao.objects.filter(
-        usuario=request.user
+        usuario=request.user,
+        data__year=ano,
+        data__month=mes
     ).select_related("categoria", "conta").order_by("-data", "-id")
+
+    transacoes_list = list(transacoes)
+    transacoes_por_dia = [
+        {"data": data, "transacoes": list(grupo)}
+        for data, grupo in groupby(
+            transacoes_list,
+            key=lambda t: t.data if isinstance(t.data, date) else t.data.date(),
+        )
+    ]
 
     from django.db.models import Q
     categorias_despesa = Categoria.objects.filter(
@@ -71,7 +105,13 @@ def adicionar_transacao(request):
         form = TransacaoForm(usuario=request.user)
 
     context = {
-        "transacoes": transacoes,
+        "transacoes_por_dia": transacoes_por_dia,
+        "ano": ano,
+        "mes": mes,
+        "mes_anterior": mes_anterior,
+        "ano_anterior": ano_anterior,
+        "mes_proximo": mes_proximo,
+        "ano_proximo": ano_proximo,
         "form": form,
         "categorias_despesa": categorias_despesa,
         "categorias_receita": categorias_receita,

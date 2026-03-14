@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
             valor = random.randint(10, 500)
 
-            data = timezone.now().date() - timedelta(days=random.randint(0, 300))
+            data = timezone.now().date() - timedelta(days=random.randint(0, 60))
 
             Transacao.objects.create(
                 usuario=usuario,
