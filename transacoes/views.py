@@ -22,6 +22,7 @@ def adicionar_transacao(request):
     mes = mes or hoje.month
     ano = int(ano)
     mes = int(mes)
+    data_mes = date(ano, mes, 1)
 
     if mes == 1:
         mes_anterior = 12
@@ -104,10 +105,17 @@ def adicionar_transacao(request):
     else:
         form = TransacaoForm(usuario=request.user)
 
+    hoje = date.today()
+    ano_hoje = hoje.year
+    mes_hoje = hoje.month
+
     context = {
         "transacoes_por_dia": transacoes_por_dia,
         "ano": ano,
         "mes": mes,
+        "ano_hoje": ano_hoje,
+        "mes_hoje": mes_hoje,
+        "data_mes": data_mes,
         "mes_anterior": mes_anterior,
         "ano_anterior": ano_anterior,
         "mes_proximo": mes_proximo,
