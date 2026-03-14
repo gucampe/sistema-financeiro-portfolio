@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
         usuario = Usuario.objects.last()
-        conta = Conta.objects.filter(usuario=usuario).first()
+        conta = Conta.objects.filter(usuario__email="campelogustavo@gmail.com").first()
 
         categorias = list(Categoria.objects.filter(usuario=usuario))
 
@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
             valor = random.randint(10, 500)
 
-            data = timezone.now().date() - timedelta(days=random.randint(0, 60))
+            data = timezone.now().date() - timedelta(days=random.randint(0, 300))
 
             Transacao.objects.create(
                 usuario=usuario,
@@ -44,3 +44,4 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS("100 transações de teste criadas com sucesso."))
+        
