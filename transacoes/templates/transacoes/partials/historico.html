@@ -141,20 +141,17 @@
           <ul class="divide-y divide-gray-50">
             {% for transacao in dia.transacoes %}
             <li class="relative py-2.5 hover:bg-[#fafbfa] transition -mx-5 px-5">
-              <div class="flex items-center justify-between gap-4 min-w-0">
-
-                <!-- Esquerda -->
-                <div class="flex items-center gap-2.5 min-w-0 flex-1 pr-40">
+              <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 min-w-0">
+      
+                <!-- Esquerda: categoria -->
+                <div class="flex items-center gap-2.5 min-w-0">
                   <div class="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
                        style="background-color: {{ transacao.categoria.cor }}20; border-color: {{ transacao.categoria.cor }}40;">
-                
                     {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
                       <i class="fa-solid {{ icon_raw }} text-[15px]"
                          style="color: {{ transacao.categoria.cor }}"></i>
                     {% endwith %}
-                
                   </div>
-                
                   <div class="min-w-0">
                     <p class="text-[14px] font-semibold text-[#2f3a35] truncate leading-tight">
                       {{ transacao.descricao }}
@@ -164,31 +161,31 @@
                     </p>
                   </div>
                 </div>
-
-                <!-- Centro -->
-                <div class="absolute left-[54%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 pointer-events-none">
-                  <div class="flex items-center justify-start gap-2 w-44 mx-auto min-w-0">
+      
+                <!-- Centro: banco -->
+                <div class="flex justify-center">
+                  <div class="flex items-center gap-2 min-w-[130px]">
                     {% if transacao.conta %}
-                    <img src="{% static transacao.conta.icone|conta_icon_path %}"
-                         alt=""
-                         class="w-7 h-7 object-contain rounded-md shrink-0"
-                         onerror="this.src='{{ icon_fallback_url }}';">
-                    <span class="text-[13px] font-medium text-gray-700 truncate max-w-[130px]">
-                      {{ transacao.conta.nome }}
-                    </span>
+                      <img src="{% static transacao.conta.icone|conta_icon_path %}"
+                           alt=""
+                           class="w-7 h-7 object-contain rounded-md shrink-0"
+                           onerror="this.src='{{ icon_fallback_url }}';">
+                      <span class="text-[13px] font-medium text-gray-700 truncate">
+                        {{ transacao.conta.nome }}
+                      </span>
                     {% else %}
-                    <img src="{% static 'contas/icons/genericos/bank.svg' %}"
-                         alt=""
-                         class="w-7 h-7 object-contain opacity-60 shrink-0">
-                    <span class="text-[13px] text-gray-500 truncate max-w-[130px]">
-                      Sem conta
-                    </span>
+                      <img src="{% static 'contas/icons/genericos/bank.svg' %}"
+                           alt=""
+                           class="w-7 h-7 object-contain opacity-60 shrink-0">
+                      <span class="text-[13px] text-gray-500 truncate">
+                        Sem conta
+                      </span>
                     {% endif %}
                   </div>
                 </div>
-
-                <!-- Direita -->
-                <div class="shrink-0 w-28 text-right">
+      
+                <!-- Direita: valor + ações -->
+                <div class="flex flex-col items-end gap-1 min-w-[110px]">
                   <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap
                     {% if transacao.tipo == 'despesa' %}text-red-500
                     {% elif transacao.tipo == 'receita' %}text-green-600
@@ -201,17 +198,21 @@
                       {{ transacao.valor|moeda }}
                     {% endif %}
                   </p>
-                  <a href="/transacoes/{{ transacao.id }}/editar/" class="text-gray-400 hover:text-gray-600 transition">
-                    <i class="fa-solid fa-pen"></i>
-                  </a>
-                  <form method="post" action="/transacoes/{{ transacao.id }}/excluir/" class="inline">
-                    {% csrf_token %}
-                    <button type="submit" class="text-gray-400 hover:text-red-500 transition">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  </form>
+                  <div class="inline-flex items-center gap-2">
+                    <a href="/transacoes/{{ transacao.id }}/editar/" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white transition text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-100" title="Editar">
+                      <i class="fa-solid fa-pen text-xs"></i>
+                      <span class="hidden sm:inline">Editar</span>
+                    </a>
+                    <form method="post" action="/transacoes/{{ transacao.id }}/excluir/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white transition text-sm text-gray-400 hover:text-red-500 hover:bg-red-50" title="Excluir">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                        <span class="hidden sm:inline">Excluir</span>
+                      </button>
+                    </form>
+                  </div>
                 </div>
-
+      
               </div>
             </li>
             {% endfor %}
