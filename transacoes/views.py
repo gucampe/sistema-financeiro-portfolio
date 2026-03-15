@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .forms import TransacaoForm
 from .models import Transacao
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.db import transaction
 from django.db.models import Q, Sum
 from django.db.models.functions import TruncMonth
 from itertools import groupby
@@ -38,11 +39,52 @@ def adicionar_transacao(request):
         mes_proximo = mes + 1
         ano_proximo = ano
 
-    transacoes = Transacao.objects.filter(
-        usuario=request.user,
-        data__year=ano,
-        data__month=mes
-    ).select_related("categoria", "conta").order_by("-data", "-id")
+    data_inicial = None
+    data_fim = None
+    inicio_str = request.GET.get("inicio")
+    fim_str = request.GET.get("fim")
+    if inicio_str and fim_str:
+        try:
+            data_inicial = datetime.strptime(inicio_str, "%Y-%m-%d").date()
+            data_fim = datetime.strptime(fim_str, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            data_inicial = None
+            data_fim = None
+
+    if data_inicial is None:
+        periodo = request.GET.get("periodo")
+        if periodo == "hoje":
+            data_inicial = hoje
+            data_fim = hoje
+        elif periodo == "semana":
+            # segunda-feira da semana atual (weekday: 0=segunda, 6=domingo)
+            data_inicial = hoje - timedelta(days=hoje.weekday())
+        elif periodo == "mes":
+            data_inicial = date(hoje.year, hoje.month, 1)
+        elif periodo == "ano":
+            data_inicial = date(hoje.year, 1, 1)
+        elif periodo == "3m":
+            total_meses = hoje.year * 12 + (hoje.month - 1) - 3
+            data_inicial = date(total_meses // 12, (total_meses % 12) + 1, 1)
+        elif periodo == "12m":
+            total_meses = hoje.year * 12 + (hoje.month - 1) - 12
+            data_inicial = date(total_meses // 12, (total_meses % 12) + 1, 1)
+        else:
+            data_inicial = None
+
+    if data_inicial is not None:
+        filtro_periodo = {"usuario": request.user, "data__gte": data_inicial}
+        if data_fim is not None:
+            filtro_periodo["data__lte"] = data_fim
+        transacoes = Transacao.objects.filter(
+            **filtro_periodo
+        ).select_related("categoria", "conta").order_by("-data", "-id")
+    else:
+        transacoes = Transacao.objects.filter(
+            usuario=request.user,
+            data__year=ano,
+            data__month=mes,
+        ).select_related("categoria", "conta").order_by("-data", "-id")
 
     transacoes_list = list(transacoes)
     transacoes_por_dia = [
@@ -53,14 +95,25 @@ def adicionar_transacao(request):
         )
     ]
 
-    totais = Transacao.objects.filter(
-        usuario=request.user,
-        data__year=ano,
-        data__month=mes,
-    ).aggregate(
-        total_receitas=Sum("valor", filter=Q(tipo="receita")),
-        total_despesas=Sum("valor", filter=Q(tipo="despesa")),
-    )
+    if data_inicial is not None:
+        filtro_totais = {"usuario": request.user, "data__gte": data_inicial}
+        if data_fim is not None:
+            filtro_totais["data__lte"] = data_fim
+        totais = Transacao.objects.filter(
+            **filtro_totais
+        ).aggregate(
+            total_receitas=Sum("valor", filter=Q(tipo="receita")),
+            total_despesas=Sum("valor", filter=Q(tipo="despesa")),
+        )
+    else:
+        totais = Transacao.objects.filter(
+            usuario=request.user,
+            data__year=ano,
+            data__month=mes,
+        ).aggregate(
+            total_receitas=Sum("valor", filter=Q(tipo="receita")),
+            total_despesas=Sum("valor", filter=Q(tipo="despesa")),
+        )
     total_receitas = totais["total_receitas"] or 0
     total_despesas = totais["total_despesas"] or 0
     saldo_mes = total_receitas - total_despesas
@@ -120,17 +173,13 @@ def adicionar_transacao(request):
     ano_hoje = hoje.year
     mes_hoje = hoje.month
 
-    meses_dropdown = []
-    for i in range(24):
-        total_meses = hoje.year * 12 + (hoje.month - 1) - i
-        ano_item = total_meses // 12
-        mes_item = (total_meses % 12) + 1
-        data_mes_item = date(ano_item, mes_item, 1)
-        meses_dropdown.append({
-            "ano": ano_item,
-            "mes": mes_item,
-            "data_mes": data_mes_item,
-        })
+    datas_distintas = Transacao.objects.filter(
+        usuario=request.user
+    ).dates("data", "month", order="DESC")
+    meses_dropdown = [
+        {"ano": d.year, "mes": d.month, "data_mes": d}
+        for d in datas_distintas
+    ]
 
     context = {
         "transacoes_por_dia": transacoes_por_dia,
@@ -153,6 +202,38 @@ def adicionar_transacao(request):
         "meses_dropdown": meses_dropdown,
     }
     return render(request, 'transacoes/partials/historico.html', context)
+
+
+@login_required
+def editar_transacao(request, pk):
+    transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
+    if request.method == "POST":
+        form = TransacaoForm(
+            request.POST, instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo
+        )
+        if form.is_valid():
+            with transaction.atomic():
+                form.save()
+            ano_atual = transacao.data.year
+            mes_atual = transacao.data.month
+            return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
+    else:
+        form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)
+    return render(request, "transacoes/editar_transacao.html", {"form": form, "transacao": transacao})
+
+
+@login_required
+def excluir_transacao(request, pk):
+    transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
+    if request.method == "POST":
+        ano_atual = transacao.data.year
+        mes_atual = transacao.data.month
+        with transaction.atomic():
+            transacao.delete()
+        return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
+    ano_atual = transacao.data.year
+    mes_atual = transacao.data.month
+    return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
 
 
 @login_required

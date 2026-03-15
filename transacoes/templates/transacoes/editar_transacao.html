@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Editar transação{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-[#f6f8f7] py-8 px-4">
+  <div class="max-w-md mx-auto">
+    <h1 class="text-2xl font-semibold text-[#2f3a35] mb-6">Editar transação</h1>
+    <form method="post" action="">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="w-full py-2 px-4 bg-[#2f7cf6] text-white rounded-lg hover:bg-[#1f6ae0]">Salvar</button>
+    </form>
+    <p class="mt-4">
+      <a href="/transacoes/" class="text-sm text-gray-600 hover:text-gray-800">← Voltar ao histórico</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
