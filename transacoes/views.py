@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from .forms import TransacaoForm
 from .models import Transacao
 from django.shortcuts import redirect, render
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.db.models.functions import TruncMonth
 from itertools import groupby
 from datetime import date, datetime, timedelta
@@ -53,7 +53,18 @@ def adicionar_transacao(request):
         )
     ]
 
-    from django.db.models import Q
+    totais = Transacao.objects.filter(
+        usuario=request.user,
+        data__year=ano,
+        data__month=mes,
+    ).aggregate(
+        total_receitas=Sum("valor", filter=Q(tipo="receita")),
+        total_despesas=Sum("valor", filter=Q(tipo="despesa")),
+    )
+    total_receitas = totais["total_receitas"] or 0
+    total_despesas = totais["total_despesas"] or 0
+    saldo_mes = total_receitas - total_despesas
+
     categorias_despesa = Categoria.objects.filter(
         Q(usuario=request.user) | Q(padrao=True),
         tipo="despesa",
@@ -109,6 +120,18 @@ def adicionar_transacao(request):
     ano_hoje = hoje.year
     mes_hoje = hoje.month
 
+    meses_dropdown = []
+    for i in range(24):
+        total_meses = hoje.year * 12 + (hoje.month - 1) - i
+        ano_item = total_meses // 12
+        mes_item = (total_meses % 12) + 1
+        data_mes_item = date(ano_item, mes_item, 1)
+        meses_dropdown.append({
+            "ano": ano_item,
+            "mes": mes_item,
+            "data_mes": data_mes_item,
+        })
+
     context = {
         "transacoes_por_dia": transacoes_por_dia,
         "ano": ano,
@@ -124,6 +147,10 @@ def adicionar_transacao(request):
         "categorias_despesa": categorias_despesa,
         "categorias_receita": categorias_receita,
         "contas": contas,
+        "total_receitas": total_receitas,
+        "total_despesas": total_despesas,
+        "saldo_mes": saldo_mes,
+        "meses_dropdown": meses_dropdown,
     }
     return render(request, 'transacoes/partials/historico.html', context)
 
