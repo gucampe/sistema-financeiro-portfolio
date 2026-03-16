@@ -245,23 +245,7 @@
 </div>
 
 {% include 'transacoes/partials/adicionar_transacao.html' %}
-<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
-<script>
-(function() {
-  var dropdown = document.getElementById('dropdown-meses');
-  if (!dropdown) return;
-  document.addEventListener('click', function(e) {
-    if (!dropdown.contains(e.target)) dropdown.removeAttribute('open');
-  });
-})();
-document.addEventListener("click", function(event) {
-  const dropdown = document.getElementById("dropdown-personalizado");
-  if (!dropdown) return;
-  if (!dropdown.contains(event.target)) {
-    dropdown.removeAttribute("open");
-  }
-});
-</script>
+{% include 'transacoes/partials/confirmar_exclusao.html' %}
 
 {# Barra fixa resumo do mês #}
 <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
@@ -280,4 +264,25 @@ document.addEventListener("click", function(event) {
     </div>
   </div>
 </div>
+
+<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
+
+<script>
+(function() {
+  var dropdown = document.getElementById('dropdown-meses');
+  if (!dropdown) return;
+  document.addEventListener('click', function(e) {
+    if (!dropdown.contains(e.target)) dropdown.removeAttribute('open');
+  });
+})();
+document.addEventListener("click", function(event) {
+  const dropdown = document.getElementById("dropdown-personalizado");
+  if (!dropdown) return;
+  if (!dropdown.contains(event.target)) {
+    dropdown.removeAttribute("open");
+  }
+});
+</script>
 {% endblock %}

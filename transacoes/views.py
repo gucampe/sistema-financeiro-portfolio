@@ -207,6 +207,7 @@ def adicionar_transacao(request):
 @login_required
 def editar_transacao(request, pk):
     transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
+
     if request.method == "POST":
         form = TransacaoForm(
             request.POST, instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo
@@ -214,14 +215,41 @@ def editar_transacao(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 form.save()
+
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({'status': 'ok'})
+            
             ano_atual = transacao.data.year
             mes_atual = transacao.data.month
             return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
+        else:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
     else:
-        form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)
+        if request.GET.get("ajax"):
+            # Retornar JSON com os dados da transação
+            return JsonResponse({
+                "id": transacao.id,
+                "tipo": transacao.tipo,
+                "valor": str(transacao.valor),
+                "descricao": transacao.descricao,
+                "data": transacao.data.strftime("%Y-%m-%d"),
+                "categoria": {
+                    "id": transacao.categoria.id,
+                    "nome": transacao.categoria.nome
+                },
+                "conta": {
+                    "id": transacao.conta.id,
+                    "nome": transacao.conta.nome
+                } if transacao.conta else None
+            })
+
+    form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)
     return render(request, "transacoes/editar_transacao.html", {"form": form, "transacao": transacao})
 
 
+@require_POST
 @login_required
 def excluir_transacao(request, pk):
     transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
