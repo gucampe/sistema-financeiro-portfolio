@@ -17,7 +17,7 @@
       </div>
 
       <button id="btn-adicionar"
-        class="inline-flex items-center gap-2 rounded-lg px-4 py-2 bg-[#2ECC71] hover:bg-[#27AE60] text-white text-sm font-semibold shadow-sm transition">
+        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
         <span class="text-base leading-none">+</span>
         <span>Adicionar transação</span>
       </button>
@@ -41,10 +41,7 @@
           <!-- botão mês anterior -->
           <a 
             href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
-            class="flex items-center justify-center w-9 h-9 rounded-full 
-                   bg-gray-100 text-gray-600
-                   hover:bg-gray-200 hover:scale-105
-                   transition"
+            class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             ‹
           </a>
@@ -52,13 +49,13 @@
           <!-- mês atual + dropdown -->
           <div class="text-center relative">
             <details id="dropdown-meses" class="group">
-              <summary class="text-lg font-semibold text-gray-800 inline-flex items-center gap-1.5 hover:text-[#2f7cf6] transition cursor-pointer list-none">
+              <summary class="inline-flex cursor-pointer list-none items-center gap-1.5 text-lg font-semibold text-gray-800 transition hover:text-blue-600">
                 {{ data_mes|date:"F Y" }}
                 <span class="text-xs opacity-70 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
               </summary>
               <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-50 min-w-[10rem] py-1.5 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200 max-h-72 overflow-y-auto">
                 {% for item in meses_dropdown %}
-                <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-[#2f7cf6]/10 text-[#2f7cf6] font-medium{% endif %}">
+                <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-blue-50 font-medium text-blue-600{% endif %}">
                   {{ item.data_mes|date:"F Y" }}
                 </a>
                 {% endfor %}
@@ -69,10 +66,7 @@
           <!-- botão próximo mês -->
           <a 
             href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
-            class="flex items-center justify-center w-9 h-9 rounded-full 
-                   bg-gray-100 text-gray-600
-                   hover:bg-gray-200 hover:scale-105
-                   transition"
+            class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             ›
           </a>
@@ -80,10 +74,7 @@
           {% if ano != ano_hoje or mes != mes_hoje %}
           <a 
             href="?ano={% now 'Y' %}&mes={% now 'm' %}"
-            class="flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-medium
-                   bg-gray-100 text-gray-600
-                   hover:bg-gray-200 hover:scale-105
-                   transition"
+            class="inline-flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             Ir pra hoje
           </a>
@@ -95,15 +86,15 @@
       <!-- Filtro rápido de período -->
       <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center gap-2">
         <div class="flex flex-wrap gap-2 items-center">
-          <a href="?periodo=hoje" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == 'hoje' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Hoje</a>
-          <a href="?periodo=semana" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == 'semana' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Essa semana</a>
-          <a href="?periodo=mes" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == 'mes' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Este mês</a>
-          <a href="?periodo=3m" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == '3m' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">3 meses</a>
-          <a href="?periodo=12m" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == '12m' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">12 meses</a>
-          <a href="?periodo=ano" class="px-3 py-1.5 rounded-lg text-sm font-medium transition {% if request.GET.periodo == 'ano' %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">Ano atual</a>
+          <a href="?periodo=hoje" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'hoje' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Hoje</a>
+          <a href="?periodo=semana" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'semana' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Essa semana</a>
+          <a href="?periodo=mes" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'mes' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Este mês</a>
+          <a href="?periodo=3m" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == '3m' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">3 meses</a>
+          <a href="?periodo=12m" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == '12m' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">12 meses</a>
+          <a href="?periodo=ano" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'ano' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Ano atual</a>
           <div class="relative">
             <details id="dropdown-personalizado" class="group">
-              <summary class="px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer list-none inline-flex items-center gap-1 {% if request.GET.inicio and request.GET.fim %}bg-[#2f7cf6] text-white hover:bg-[#1f6ae0]{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+              <summary class="inline-flex cursor-pointer list-none items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.inicio and request.GET.fim %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">
                 Personalizado
                 <span class="text-xs opacity-70 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
               </summary>
@@ -111,13 +102,13 @@
                 <form method="get" action="" class="space-y-3">
                   <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">De:</label>
-                    <input type="date" name="inicio" value="{{ request.GET.inicio }}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm">
+                    <input type="date" name="inicio" value="{{ request.GET.inicio }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
                   <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Até:</label>
-                    <input type="date" name="fim" value="{{ request.GET.fim }}" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm">
+                    <input type="date" name="fim" value="{{ request.GET.fim }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
-                  <button type="submit" class="w-full px-3 py-1.5 rounded-lg text-sm font-medium bg-[#2f7cf6] text-white hover:bg-[#1f6ae0] transition">Aplicar</button>
+                  <button type="submit" class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">Aplicar</button>
                 </form>
               </div>
             </details>
@@ -125,7 +116,7 @@
         </div>
         <div>
           {% if request.GET.periodo or request.GET.inicio or request.GET.fim %}
-          <a href="?ano={{ ano }}&mes={{ mes }}" class="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition">
+          <a href="?ano={{ ano }}&mes={{ mes }}" class="inline-flex items-center gap-1 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300">
             <i class="fa-solid fa-xmark text-xs"></i>
             Limpar filtro
           </a>
@@ -135,7 +126,7 @@
 
       {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
 
-      <ul class="divide-y divide-gray-100">
+      <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
         {% for dia in transacoes_por_dia %}
         <li class="px-5 py-2 pt-4 border-t border-gray-100 first:border-t-0 first:pt-2">
           <p class="text-[12px] font-medium text-gray-500 mb-2">{{ dia.data|date:"d/m/Y" }}</p>
@@ -146,11 +137,9 @@
       
                 <!-- Esquerda: categoria -->
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
-                       style="background-color: {{ transacao.categoria.cor }}20; border-color: {{ transacao.categoria.cor }}40;">
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ transacao.categoria.cor }}20] border-[{{ transacao.categoria.cor }}40]">
                     {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
-                      <i class="fa-solid {{ icon_raw }} text-[15px]"
-                         style="color: {{ transacao.categoria.cor }}"></i>
+                      <i class="fa-solid {{ icon_raw }} text-[15px] text-[{{ transacao.categoria.cor }}]"></i>
                     {% endwith %}
                   </div>
                   <div class="min-w-0">
@@ -169,8 +158,7 @@
                     {% if transacao.conta %}
                       <img src="{% static transacao.conta.icone|conta_icon_path %}"
                            alt=""
-                           class="w-7 h-7 object-contain rounded-md shrink-0"
-                           onerror="this.src='{{ icon_fallback_url }}';">
+                           class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
                       <span class="text-[13px] font-medium text-gray-700 truncate">
                         {{ transacao.conta.nome }}
                       </span>
@@ -202,20 +190,14 @@
                   </p>
                   <div class="inline-flex items-center gap-2">
                     <!-- Botão Editar -->
-                    <button type="button" class="editar-transacao inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white transition text-sm"
-                            style="border-color:#BDC3C7; color:#34495E;"
-                            onmouseover="this.style.background='rgba(189,195,199,.20)'"
-                            onmouseout="this.style.background='#FFFFFF'"
+                    <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
                             data-id="{{ transacao.id }}" title="Editar">
-                      <i class="fa-solid fa-pen-to-square text-xs" style="color:#2ECC71;"></i>
+                      <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
                       <span class="hidden sm:inline">Editar</span>
                     </button>
 
                     <!-- Botão Excluir -->
-                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white transition text-sm"
-                            style="border-color: rgba(229,62,62,.4); color:#E53E3E;"
-                            onmouseover="this.style.background='rgba(229,62,62,.1)'"
-                            onmouseout="this.style.background='#FFFFFF'"
+                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
                             data-id="{{ transacao.id }}" title="Excluir">
                     <i class="fa-solid fa-trash text-xs"></i>
                     <span class="hidden sm:inline">Excluir</span>
@@ -266,24 +248,8 @@
   </div>
 </div>
 
+<script src="{% static 'transacoes/js/historico.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
-
-<script>
-(function() {
-  var dropdown = document.getElementById('dropdown-meses');
-  if (!dropdown) return;
-  document.addEventListener('click', function(e) {
-    if (!dropdown.contains(e.target)) dropdown.removeAttribute('open');
-  });
-})();
-document.addEventListener("click", function(event) {
-  const dropdown = document.getElementById("dropdown-personalizado");
-  if (!dropdown) return;
-  if (!dropdown.contains(event.target)) {
-    dropdown.removeAttribute("open");
-  }
-});
-</script>
 {% endblock %}
