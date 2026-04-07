@@ -1,3 +1,6 @@
+{% load static %}
+{% load icon_filters %}
+
 <div id="overlay-adicionar" 
      class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50">
 
@@ -36,27 +39,70 @@
         </select>
       </div>
 
-      <!-- Conta -->
-      <div class="mb-4">
+      <!-- Conta (select nativo + combobox visual) -->
+      <div class="mb-4" data-combobox-root="conta">
         <label for="id_conta" class="block text-sm font-medium mb-1 text-[#34495E]">Conta</label>
-        {{ form.conta }}
+        <div class="relative mt-1">
+          <select name="conta" id="id_conta" required
+                  class="sr-only focus:outline-none">
+            <option value="">Selecione uma conta</option>
+            {% for c in form.conta.field.queryset %}
+              <option value="{{ c.pk }}"
+                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-conta">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione uma conta</span>
+            <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
+          </button>
+          <div id="cb-list-conta"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
         {% if form.conta.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.conta.errors|striptags }}</p>
         {% endif %}
       </div>
 
-      <!-- Categoria -->
-      <div class="mb-4">
+      <!-- Categoria (select nativo + combobox visual) -->
+      <div class="mb-4" data-combobox-root="categoria">
         <label for="categoria" class="block text-sm font-medium mb-1 text-[#34495E]">Categoria</label>
-        <select name="categoria" id="categoria" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">Selecione uma categoria</option>
-          {% if categorias_despesa %}
-            {% for cat in categorias_despesa %}
-              <option value="{{ cat.id }}">{{ cat.nome }}</option>
-            {% endfor %}
-          {% endif %}
-        </select>
+        <div class="relative mt-1">
+          <select name="categoria" id="categoria" required
+                  class="sr-only focus:outline-none">
+            <option value="">Selecione uma categoria</option>
+            {% if categorias_despesa %}
+              {% for cat in categorias_despesa %}
+                <option value="{{ cat.id }}"
+                        data-icone="{{ cat.icone }}"
+                        data-cor="{{ cat.cor }}">{{ cat.nome }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-categoria">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione uma categoria</span>
+            <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
+          </button>
+          <div id="cb-list-categoria"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
         {% if form.categoria.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.categoria.errors|striptags }}</p>
         {% endif %}
