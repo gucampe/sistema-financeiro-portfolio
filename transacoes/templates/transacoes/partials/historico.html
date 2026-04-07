@@ -132,7 +132,7 @@
           <p class="text-[12px] font-medium text-gray-500 mb-2">{{ dia.data|date:"d/m/Y" }}</p>
           <ul class="divide-y divide-gray-50">
             {% for transacao in dia.transacoes %}
-            <li class="relative py-2.5 hover:bg-[#fafbfa] transition -mx-5 px-5">
+            <li class="group relative py-2.5 hover:bg-[#fafbfa] transition -mx-5 px-5">
               <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 min-w-0">
       
                 <!-- Esquerda: categoria -->
@@ -173,10 +173,21 @@
                   </div>
                 </div>
       
-                <!-- Direita: valor + ações -->
-                <!-- Direita -->
-                <div class="shrink-0 min-w-0 text-right flex flex-col items-end gap-1">
-                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap
+                <!-- Direita: ações + valor (mesma linha, alinhado ao centro vertical) -->
+                <div class="shrink-0 min-w-0 flex flex-row items-center justify-end gap-3">
+                  <div class="inline-flex items-center gap-2 transition-opacity duration-150 opacity-100 pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:pointer-events-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:pointer-events-auto">
+                    <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
+                            data-id="{{ transacao.id }}" title="Editar">
+                      <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
+                      <span class="hidden sm:inline">Editar</span>
+                    </button>
+                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
+                            data-id="{{ transacao.id }}" title="Excluir">
+                      <i class="fa-solid fa-trash text-xs"></i>
+                      <span class="hidden sm:inline">Excluir</span>
+                    </button>
+                  </div>
+                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap text-right
                     {% if transacao.tipo == 'despesa' %}text-red-500
                     {% elif transacao.tipo == 'receita' %}text-green-600
                     {% else %}text-gray-700{% endif %}">
@@ -188,21 +199,6 @@
                       {{ transacao.valor|moeda }}
                     {% endif %}
                   </p>
-                  <div class="inline-flex items-center gap-2">
-                    <!-- Botão Editar -->
-                    <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
-                            data-id="{{ transacao.id }}" title="Editar">
-                      <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
-                      <span class="hidden sm:inline">Editar</span>
-                    </button>
-
-                    <!-- Botão Excluir -->
-                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
-                            data-id="{{ transacao.id }}" title="Excluir">
-                    <i class="fa-solid fa-trash text-xs"></i>
-                    <span class="hidden sm:inline">Excluir</span>
-                    </button>
-                  </div>
                 </div>
       
               </div>
