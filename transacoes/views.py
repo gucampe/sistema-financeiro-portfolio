@@ -1,17 +1,71 @@
-from django.views.decorators.http import require_POST
+import json
+from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from itertools import groupby
+
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from .forms import TransacaoForm
-from .models import Transacao
-from django.shortcuts import get_object_or_404, redirect, render
-from django.db import transaction
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
 from django.db.models.functions import TruncMonth
-from itertools import groupby
-from datetime import date, datetime, timedelta
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
 from contas.models import Conta
+
+from .forms import TransacaoForm
+from .models import Transacao
+from .ofx_duplicatas import avaliar_duplicatas_importacao
+from .ofx_parse import parse_ofx_bytes
+
+# Limite simples para OFX em memória (MVP síncrono).
+_MAX_OFX_BYTES = 6 * 1024 * 1024
+_MAX_LINHAS_IMPORT_OFX = 2000
+
+
+def _normalizar_fitid_confirmacao(val):
+    if val is None:
+        return None
+    s = str(val).strip()
+    return s if s else None
+
+
+def _categoria_compativel_com_tipo_transacao(categoria, tipo_transacao):
+    """Alinhado ao TransacaoForm para receita/despesa; ajuste usa categoria tipo receita (saldo inicial)."""
+    if tipo_transacao in ("receita", "despesa"):
+        return categoria.tipo == tipo_transacao
+    if tipo_transacao == "ajuste":
+        return categoria.tipo == "receita"
+    return False
+
+
+def _validation_error_para_json(exc: ValidationError):
+    if hasattr(exc, "message_dict") and exc.message_dict:
+        out = {}
+        for k, v in exc.message_dict.items():
+            out[k] = list(v) if isinstance(v, (list, tuple)) else [str(v)]
+        return out
+    return {"__all__": [m for m in exc.messages]}
+
+
+def _categorias_importacao_preview_payload(usuario):
+    """Listas de categorias ativas (usuário + padrão) para montar selects no preview."""
+    qs = Categoria.objects.filter(
+        Q(usuario=usuario) | Q(padrao=True),
+        ativa=True,
+    )
+    receita = [
+        {"id": c.id, "nome": c.nome, "tipo": c.tipo}
+        for c in qs.filter(tipo="receita").order_by("nome")
+    ]
+    despesa = [
+        {"id": c.id, "nome": c.nome, "tipo": c.tipo}
+        for c in qs.filter(tipo="despesa").order_by("nome")
+    ]
+    return {"receita": receita, "despesa": despesa}
 
 
 @login_required
@@ -298,3 +352,287 @@ def dados_grafico_receitas_despesas(request):
         'receitas': receitas,
         'despesas': despesas,
     })
+
+
+@login_required
+@require_POST
+def importar_ofx_preview(request):
+    """
+    Multipart: conta_id, arquivo (campo `arquivo` ou `file`).
+    Retorna JSON com linhas parseadas, flags de duplicata e categorias para o preview.
+    """
+    conta_id = request.POST.get("conta_id")
+    upload = request.FILES.get("arquivo") or request.FILES.get("file")
+
+    if not conta_id:
+        return JsonResponse(
+            {"status": "error", "message": "Informe a conta."},
+            status=400,
+        )
+    if not upload:
+        return JsonResponse(
+            {"status": "error", "message": "Envie um arquivo OFX."},
+            status=400,
+        )
+
+    try:
+        conta_pk = int(conta_id)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"status": "error", "message": "Conta inválida."},
+            status=400,
+        )
+
+    conta = get_object_or_404(Conta, pk=conta_pk, usuario=request.user, ativa=True)
+
+    raw = upload.read()
+    if len(raw) > _MAX_OFX_BYTES:
+        return JsonResponse(
+            {"status": "error", "message": "Arquivo muito grande."},
+            status=400,
+        )
+
+    try:
+        linhas_parse = parse_ofx_bytes(raw)
+    except ValueError as exc:
+        return JsonResponse({"status": "error", "message": str(exc)}, status=400)
+    except OfxParserException:
+        return JsonResponse(
+            {"status": "error", "message": "OFX inválido ou não suportado."},
+            status=400,
+        )
+
+    dup_flags = avaliar_duplicatas_importacao(request.user, conta, linhas_parse)
+    por_indice = {d.indice: d for d in dup_flags}
+
+    linhas_json = []
+    for i, linha in enumerate(linhas_parse):
+        d = por_indice[i]
+        linhas_json.append(
+            {
+                "indice": i,
+                "data": linha.data.isoformat(),
+                "valor": str(linha.valor),
+                "tipo": linha.tipo,
+                "descricao": linha.descricao,
+                "ofx_fitid": linha.ofx_fitid,
+                "duplicata_por_fitid": d.duplicata_por_fitid,
+                "duplicata_por_heuristica": d.duplicata_por_heuristica,
+            }
+        )
+
+    categorias = _categorias_importacao_preview_payload(request.user)
+    return JsonResponse(
+        {
+            "status": "ok",
+            "conta_id": conta.pk,
+            "linhas": linhas_json,
+            "categorias": categorias,
+            # Transacao tipo "ajuste" no projeto usa categoria com tipo "receita" (ex.: saldo inicial).
+            "categorias_chave_por_tipo_transacao": {
+                "receita": "receita",
+                "despesa": "despesa",
+                "ajuste": "receita",
+            },
+        }
+    )
+
+
+@login_required
+@require_POST
+def importar_ofx_confirmar(request):
+    """
+    JSON: { "conta_id": int, "linhas": [ { data, valor, tipo, descricao, categoria_id, ofx_fitid? }, ... ] }
+    Cria transações com bulk_create dentro de transaction.atomic().
+    """
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse(
+            {"status": "error", "message": "JSON inválido."},
+            status=400,
+        )
+
+    conta_id = payload.get("conta_id")
+    linhas = payload.get("linhas")
+
+    if conta_id is None:
+        return JsonResponse(
+            {"status": "error", "message": "Informe conta_id."},
+            status=400,
+        )
+    if not isinstance(linhas, list):
+        return JsonResponse(
+            {"status": "error", "message": "linhas deve ser uma lista."},
+            status=400,
+        )
+    if len(linhas) > _MAX_LINHAS_IMPORT_OFX:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": f"Limite de {_MAX_LINHAS_IMPORT_OFX} linhas por importação.",
+            },
+            status=400,
+        )
+
+    try:
+        conta_pk = int(conta_id)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"status": "error", "message": "Conta inválida."},
+            status=400,
+        )
+
+    conta = get_object_or_404(Conta, pk=conta_pk, usuario=request.user, ativa=True)
+
+    if len(linhas) == 0:
+        return JsonResponse({"status": "ok", "criadas": 0})
+
+    erros_por_chave: dict[str, dict] = {}
+    instancias: list[Transacao] = []
+    fitids_no_lote: set[str] = set()
+
+    tipos_validos = {c[0] for c in Transacao.TIPO_CHOICES}
+
+    for pos, row in enumerate(linhas):
+        if not isinstance(row, dict):
+            erros_por_chave[str(pos)] = {"__all__": ["Item inválido (objeto esperado)."]}
+            continue
+
+        chave_erro = str(row.get("indice", pos))
+
+        erros_linha: dict[str, list[str]] = {}
+
+        tipo = row.get("tipo")
+        if tipo not in tipos_validos:
+            erros_linha.setdefault("tipo", []).append("Tipo de transação inválido.")
+
+        try:
+            data_tx = datetime.strptime(str(row.get("data", "")), "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            erros_linha.setdefault("data", []).append("Data inválida (use YYYY-MM-DD).")
+
+        try:
+            valor = Decimal(str(row.get("valor")))
+        except (InvalidOperation, TypeError, ValueError):
+            erros_linha.setdefault("valor", []).append("Valor inválido.")
+
+        if "valor" not in erros_linha:
+            if valor < 0:
+                erros_linha.setdefault("valor", []).append("Valor não pode ser negativo.")
+            if abs(valor) >= Decimal("1000000000"):
+                erros_linha.setdefault("valor", []).append("Valor fora do limite permitido.")
+
+        descricao = row.get("descricao", "")
+        if descricao is None:
+            descricao = ""
+        descricao = str(descricao).strip()
+        if not descricao:
+            erros_linha.setdefault("descricao", []).append("Informe a descrição.")
+        elif len(descricao) > 255:
+            erros_linha.setdefault("descricao", []).append("Descrição muito longa.")
+
+        cat_id = row.get("categoria_id")
+        categoria = None
+        try:
+            cat_pk = int(cat_id)
+        except (TypeError, ValueError):
+            erros_linha.setdefault("categoria_id", []).append("Categoria inválida.")
+            cat_pk = None
+
+        if cat_pk is not None:
+            categoria = (
+                Categoria.objects.filter(
+                    pk=cat_pk,
+                    ativa=True,
+                )
+                .filter(Q(usuario=request.user) | Q(padrao=True))
+                .first()
+            )
+            if categoria is None:
+                erros_linha.setdefault("categoria_id", []).append("Categoria não encontrada.")
+            elif tipo in tipos_validos and not _categoria_compativel_com_tipo_transacao(
+                categoria, tipo
+            ):
+                erros_linha.setdefault("categoria_id", []).append(
+                    "Categoria incompatível com o tipo da transação."
+                )
+
+        if erros_linha:
+            erros_por_chave[chave_erro] = erros_linha
+            continue
+
+        fitid = _normalizar_fitid_confirmacao(row.get("ofx_fitid"))
+        if fitid:
+            if fitid in fitids_no_lote:
+                erros_por_chave[chave_erro] = {
+                    "ofx_fitid": ["FITID repetido no mesmo envio."],
+                }
+                continue
+            if Transacao.objects.filter(conta=conta, ofx_fitid=fitid).exists():
+                erros_por_chave[chave_erro] = {
+                    "ofx_fitid": ["Já existe lançamento com este FITID nesta conta."],
+                }
+                continue
+            fitids_no_lote.add(fitid)
+
+        assert categoria is not None
+        t = Transacao(
+            usuario=request.user,
+            conta=conta,
+            categoria=categoria,
+            tipo=tipo,
+            valor=valor,
+            data=data_tx,
+            descricao=descricao,
+            ofx_fitid=fitid,
+        )
+        try:
+            t.full_clean()
+        except ValidationError as exc:
+            erros_por_chave[chave_erro] = _validation_error_para_json(exc)
+            continue
+
+        instancias.append(t)
+
+    if erros_por_chave:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Corrija os erros nas linhas indicadas.",
+                "erros": erros_por_chave,
+            },
+            status=400,
+        )
+
+    fitids_inserir = [t.ofx_fitid for t in instancias if t.ofx_fitid]
+    if fitids_inserir:
+        existentes = set(
+            Transacao.objects.filter(
+                conta=conta,
+                ofx_fitid__in=fitids_inserir,
+            ).values_list("ofx_fitid", flat=True)
+        )
+        if existentes:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "Já existem lançamentos com um ou mais FITID informados.",
+                    "fitids_em_conflito": sorted(existentes),
+                },
+                status=400,
+            )
+
+    try:
+        with transaction.atomic():
+            Transacao.objects.bulk_create(instancias)
+    except IntegrityError:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Conflito ao gravar (ex.: FITID duplicado). Tente novamente.",
+            },
+            status=400,
+        )
+
+    return JsonResponse({"status": "ok", "criadas": len(instancias)})

@@ -40,12 +40,24 @@ class Transacao(models.Model):
     descricao = models.CharField(max_length=255)
     data = models.DateField()
 
+    # Identificador OFX (FITID), quando existir no extrato — usado para deduplicação forte.
+    ofx_fitid = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+
     criada_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-data", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["conta", "ofx_fitid"],
+                condition=models.Q(ofx_fitid__isnull=False) & ~models.Q(ofx_fitid=""),
+                name="transacoes_transacao_uniq_conta_ofx_fitid",
+            ),
+        ]
 
     def clean(self):
+        if self.ofx_fitid is not None and not str(self.ofx_fitid).strip():
+            self.ofx_fitid = None
         errors = {}
         if self.conta_id and self.usuario_id and self.conta.usuario_id != self.usuario_id:
             errors["conta"] = "A conta deve pertencer ao usuário da transação."
