@@ -169,9 +169,16 @@ document.addEventListener("DOMContentLoaded", () => {
       tdData.textContent = d && m && y ? `${d}/${m}/${y}` : linha.data;
 
       const tdDesc = document.createElement("td");
-      tdDesc.className = "px-2 py-2 align-top text-gray-800 max-w-[12rem] truncate";
-      tdDesc.title = linha.descricao;
-      tdDesc.textContent = linha.descricao;
+      tdDesc.className = "px-2 py-2 align-top min-w-[12rem] max-w-[22rem]";
+      const inpDesc = document.createElement("input");
+      inpDesc.type = "text";
+      inpDesc.className =
+        "import-ofx-descricao w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500";
+      inpDesc.value = linha.descricao ?? "";
+      inpDesc.maxLength = 255;
+      inpDesc.setAttribute("autocomplete", "off");
+      inpDesc.dataset.indice = String(linha.indice);
+      tdDesc.appendChild(inpDesc);
 
       const tdValor = document.createElement("td");
       tdValor.className =
@@ -330,12 +337,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const linha = state.linhas.find((l) => String(l.indice) === indice);
       if (!linha) continue;
 
+      const inpDesc = tr.querySelector(".import-ofx-descricao");
+      const descricao = (inpDesc instanceof HTMLInputElement ? inpDesc.value : linha.descricao ?? "")
+        .trim();
+      if (!descricao) {
+        showErrPreview("Preencha a descrição em todas as linhas marcadas.");
+        return;
+      }
+
       linhasPayload.push({
         indice: linha.indice,
         data: linha.data,
         valor: linha.valor,
         tipo: linha.tipo,
-        descricao: linha.descricao,
+        descricao,
         categoria_id: Number(catId),
         ofx_fitid: linha.ofx_fitid,
       });
