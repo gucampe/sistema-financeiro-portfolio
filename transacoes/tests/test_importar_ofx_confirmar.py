@@ -172,7 +172,8 @@ class ImportarOfxConfirmarViewTests(TestCase):
         t = Transacao.objects.get(conta=self.conta, tipo="ajuste")
         self.assertEqual(t.categoria_id, self.cat_r.id)
 
-    def test_fitid_repetido_no_envio_400(self):
+    def test_fitid_repetido_no_envio_chave_diferente_importa_segunda_sem_fitid(self):
+        """Mesmo FITID com lançamentos distintos: primeira mantém FITID, segunda grava sem FITID."""
         self.client.force_login(self.user)
         linha = {
             "data": "2024-01-01",
@@ -188,9 +189,43 @@ class ImportarOfxConfirmarViewTests(TestCase):
                 "linhas": [linha, {**linha, "descricao": "B"}],
             }
         )
-        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["criadas"], 2)
+        com_fitid = Transacao.objects.get(ofx_fitid="dup")
+        self.assertEqual(com_fitid.descricao, "A")
+        sem_fitid = Transacao.objects.filter(conta=self.conta, ofx_fitid__isnull=True).get(
+            descricao="B"
+        )
+        self.assertIsNone(sem_fitid.ofx_fitid)
 
-    def test_fitid_ja_existe_no_banco_400(self):
+    def test_fitid_repetido_no_envio_mesma_chave_importa_com_segunda_sem_fitid(self):
+        self.client.force_login(self.user)
+        linha = {
+            "data": "2024-01-01",
+            "valor": "1.00",
+            "tipo": "despesa",
+            "descricao": "Igual",
+            "categoria_id": self.cat_d.id,
+            "ofx_fitid": "dup-exato",
+        }
+        r = self._post_json(
+            {
+                "conta_id": self.conta.pk,
+                "linhas": [linha, {**linha, "indice": 1}],
+            }
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["criadas"], 2)
+        self.assertEqual(
+            Transacao.objects.filter(conta=self.conta, ofx_fitid="dup-exato").count(),
+            1,
+        )
+        self.assertEqual(
+            Transacao.objects.filter(conta=self.conta, descricao="Igual", ofx_fitid__isnull=True).count(),
+            1,
+        )
+
+    def test_fitid_no_banco_chave_diferente_importa_sem_conflito(self):
         Transacao.objects.create(
             usuario=self.user,
             conta=self.conta,
@@ -217,10 +252,49 @@ class ImportarOfxConfirmarViewTests(TestCase):
                 ],
             }
         )
-        self.assertEqual(r.status_code, 400)
-        data = r.json()
-        self.assertIn("erros", data)
-        self.assertIn("ofx_fitid", data["erros"]["0"])
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["criadas"], 1)
+        nova = Transacao.objects.get(conta=self.conta, descricao="Outra descrição")
+        self.assertIsNone(nova.ofx_fitid)
+        self.assertTrue(
+            Transacao.objects.filter(conta=self.conta, ofx_fitid="sample-fitid-1").exists()
+        )
+
+    def test_fitid_ja_existe_no_banco_mesma_chave_importa_sem_fitid(self):
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_d,
+            tipo="despesa",
+            valor=Decimal("99.00"),
+            descricao="Pix igual",
+            data="2024-02-01",
+            ofx_fitid="fit-exato",
+        )
+        self.client.force_login(self.user)
+        r = self._post_json(
+            {
+                "conta_id": self.conta.pk,
+                "linhas": [
+                    {
+                        "data": "2024-02-01",
+                        "valor": "99.00",
+                        "tipo": "despesa",
+                        "descricao": "Pix igual",
+                        "categoria_id": self.cat_d.id,
+                        "ofx_fitid": "fit-exato",
+                    }
+                ],
+            }
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["criadas"], 1)
+        nova = Transacao.objects.get(conta=self.conta, descricao="Pix igual", ofx_fitid__isnull=True)
+        self.assertIsNone(nova.ofx_fitid)
+        self.assertEqual(
+            Transacao.objects.filter(conta=self.conta, ofx_fitid="fit-exato").count(),
+            1,
+        )
 
     def test_linha_invalida_nao_reserva_fitid_para_proxima(self):
         """

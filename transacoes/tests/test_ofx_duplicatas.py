@@ -108,7 +108,7 @@ class AvaliarDuplicatasImportacaoTests(TestCase):
         res = avaliar_duplicatas_importacao(self.user, self.conta, linhas)
         self.assertEqual(
             res,
-            [ResultadoDuplicata(0, True, False)],
+            [ResultadoDuplicata(0, True, True)],
         )
 
     def test_fitid_novo_nao_duplica(self):
@@ -143,7 +143,8 @@ class AvaliarDuplicatasImportacaoTests(TestCase):
         res = avaliar_duplicatas_importacao(self.user, self.conta, linhas)
         self.assertEqual(res, [ResultadoDuplicata(0, False, True)])
 
-    def test_com_fitid_nao_usa_heuristica_mesmo_igual_manual(self):
+    def test_com_fitid_heuristica_igual_manual_no_banco(self):
+        """Mesmo lançamento manual (sem FITID no BD) é detectado pela heurística."""
         self._criar_transacao(
             data=date(2024, 5, 1),
             valor=Decimal("15.00"),
@@ -160,9 +161,10 @@ class AvaliarDuplicatasImportacaoTests(TestCase):
             )
         ]
         res = avaliar_duplicatas_importacao(self.user, self.conta, linhas)
-        self.assertEqual(res, [ResultadoDuplicata(0, False, False)])
+        self.assertEqual(res, [ResultadoDuplicata(0, False, True)])
 
-    def test_duplicata_no_lote_mesmo_fitid(self):
+    def test_mesmo_fitid_no_lote_dados_diferentes_nao_e_dup_fitid(self):
+        """Bancos repetem FITID; só é duplicata se data+valor+descrição coincidirem."""
         linhas = [
             LinhaOfx(
                 data=date(2024, 6, 1),
@@ -184,9 +186,54 @@ class AvaliarDuplicatasImportacaoTests(TestCase):
             res,
             [
                 ResultadoDuplicata(0, False, False),
-                ResultadoDuplicata(1, True, False),
+                ResultadoDuplicata(1, False, False),
             ],
         )
+
+    def test_duplicata_no_lote_mesmo_fitid_e_mesma_chave(self):
+        linhas = [
+            LinhaOfx(
+                data=date(2024, 6, 10),
+                valor=Decimal("5.00"),
+                tipo="despesa",
+                descricao="Loja",
+                ofx_fitid="same-twice",
+            ),
+            LinhaOfx(
+                data=date(2024, 6, 10),
+                valor=Decimal("5.00"),
+                tipo="despesa",
+                descricao="LOJA",
+                ofx_fitid="same-twice",
+            ),
+        ]
+        res = avaliar_duplicatas_importacao(self.user, self.conta, linhas)
+        self.assertEqual(
+            res,
+            [
+                ResultadoDuplicata(0, False, False),
+                ResultadoDuplicata(1, True, True),
+            ],
+        )
+
+    def test_fitid_no_banco_chave_diferente_nao_e_dup_fitid(self):
+        self._criar_transacao(
+            data=date(2024, 9, 1),
+            valor=Decimal("10.00"),
+            descricao="Original",
+            ofx_fitid="fit-shared",
+        )
+        linhas = [
+            LinhaOfx(
+                data=date(2024, 9, 2),
+                valor=Decimal("20.00"),
+                tipo="despesa",
+                descricao="Outro",
+                ofx_fitid="fit-shared",
+            )
+        ]
+        res = avaliar_duplicatas_importacao(self.user, self.conta, linhas)
+        self.assertEqual(res, [ResultadoDuplicata(0, False, False)])
 
     def test_duplicata_no_lote_heuristica_sem_fitid(self):
         linhas = [

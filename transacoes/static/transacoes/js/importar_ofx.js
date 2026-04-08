@@ -181,10 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
         : "—";
 
       const tdCat = document.createElement("td");
-      tdCat.className = "px-2 py-2 align-top";
+      tdCat.className = "px-2 py-2 align-top min-w-[17rem] w-[17rem]";
       const sel = document.createElement("select");
       sel.className =
-        "import-ofx-categoria w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
+        "import-ofx-categoria w-full min-w-[15rem] max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
       sel.dataset.indice = String(linha.indice);
       const opt0 = document.createElement("option");
       opt0.value = "";

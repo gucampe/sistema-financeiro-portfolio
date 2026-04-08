@@ -18,7 +18,7 @@ from contas.models import Conta
 
 from .forms import TransacaoForm
 from .models import Transacao
-from .ofx_duplicatas import avaliar_duplicatas_importacao
+from .ofx_duplicatas import avaliar_duplicatas_importacao, chave_fingerprint_linha
 from .ofx_parse import parse_ofx_bytes
 
 # Limite simples para OFX em memória (MVP síncrono).
@@ -490,7 +490,7 @@ def importar_ofx_confirmar(request):
 
     erros_por_chave: dict[str, dict] = {}
     instancias: list[Transacao] = []
-    fitids_no_lote: set[str] = set()
+    fitids_no_lote: dict[str, tuple[date, Decimal, str]] = {}
 
     tipos_validos = {c[0] for c in Transacao.TIPO_CHOICES}
 
@@ -562,19 +562,25 @@ def importar_ofx_confirmar(request):
             erros_por_chave[chave_erro] = erros_linha
             continue
 
+        fingerprint = chave_fingerprint_linha(data_tx, valor, descricao)
+
         fitid = _normalizar_fitid_confirmacao(row.get("ofx_fitid"))
         if fitid:
-            if fitid in fitids_no_lote:
-                erros_por_chave[chave_erro] = {
-                    "ofx_fitid": ["FITID repetido no mesmo envio."],
-                }
-                continue
-            if Transacao.objects.filter(conta=conta, ofx_fitid=fitid).exists():
-                erros_por_chave[chave_erro] = {
-                    "ofx_fitid": ["Já existe lançamento com este FITID nesta conta."],
-                }
-                continue
-            fitids_no_lote.add(fitid)
+            existente = (
+                Transacao.objects.filter(conta=conta, ofx_fitid=fitid)
+                .only("data", "valor", "descricao")
+                .first()
+            )
+            if existente is not None:
+                # Permite manter linhas marcadas como duplicadas no preview:
+                # em conflito de FITID com registro existente, grava sem FITID.
+                fitid = None
+            elif fitid in fitids_no_lote:
+                # Mesmo FITID no lote (chave igual ou diferente): mantém a primeira
+                # com FITID e salva as próximas sem FITID para evitar conflito único.
+                fitid = None
+            else:
+                fitids_no_lote[fitid] = fingerprint
 
         assert categoria is not None
         t = Transacao(
