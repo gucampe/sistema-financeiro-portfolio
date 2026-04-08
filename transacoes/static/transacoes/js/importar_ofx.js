@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnVoltar = document.getElementById("btn-import-ofx-voltar");
   const btnConfirmar = document.getElementById("btn-import-ofx-confirmar");
   const tbody = document.getElementById("import-ofx-tbody");
+  const cbToggleAll = document.getElementById("import-ofx-toggle-all");
   const errUpload = document.getElementById("import-ofx-erro-upload");
   const errPreview = document.getElementById("import-ofx-erro-preview");
   const loading = document.getElementById("import-ofx-loading");
@@ -86,6 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
     stepPreview?.classList.add("hidden");
     if (inputArquivo) inputArquivo.value = "";
     if (tbody) tbody.innerHTML = "";
+    if (cbToggleAll) {
+      cbToggleAll.checked = false;
+      cbToggleAll.indeterminate = false;
+    }
     showErrUpload("");
     showErrPreview("");
     showLoading(false);
@@ -116,6 +121,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const n = Number.parseFloat(str);
     if (Number.isNaN(n)) return str;
     return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function atualizarEstadoToggleAll() {
+    if (!cbToggleAll || !tbody) return;
+    const checkboxes = [...tbody.querySelectorAll(".import-ofx-incluir")];
+    if (!checkboxes.length) {
+      cbToggleAll.checked = false;
+      cbToggleAll.indeterminate = false;
+      return;
+    }
+    const marcados = checkboxes.filter((cb) => cb.checked).length;
+    cbToggleAll.checked = marcados === checkboxes.length;
+    cbToggleAll.indeterminate = marcados > 0 && marcados < checkboxes.length;
   }
 
   function montarTabela(data) {
@@ -204,6 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.append(tdCheck, tdData, tdDesc, tdValor, tdTipo, tdAvisos, tdCat);
       tbody.appendChild(tr);
     });
+    atualizarEstadoToggleAll();
   }
 
   btnAbrir.addEventListener("click", () => abrirModal());
@@ -218,6 +237,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   btnVoltar?.addEventListener("click", irParaUpload);
+
+  cbToggleAll?.addEventListener("change", () => {
+    if (!tbody) return;
+    const marcar = cbToggleAll.checked;
+    tbody.querySelectorAll(".import-ofx-incluir").forEach((cb) => {
+      cb.checked = marcar;
+    });
+    cbToggleAll.indeterminate = false;
+  });
+
+  tbody?.addEventListener("change", (e) => {
+    const alvo = e.target;
+    if (!(alvo instanceof HTMLInputElement)) return;
+    if (!alvo.classList.contains("import-ofx-incluir")) return;
+    atualizarEstadoToggleAll();
+  });
 
   btnPreview?.addEventListener("click", async () => {
     showErrUpload("");
