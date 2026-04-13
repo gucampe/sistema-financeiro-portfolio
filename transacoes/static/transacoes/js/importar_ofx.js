@@ -117,10 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return t;
   }
 
-  function formatarValor(str) {
-    const n = Number.parseFloat(str);
-    if (Number.isNaN(n)) return str;
-    return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const inputCellClass =
+    "w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
+
+  /** Normaliza string digitada (vírgula → ponto) e devolve número finito ou NaN. */
+  function parseValorDigitado(raw) {
+    if (raw === undefined || raw === null) return Number.NaN;
+    const s = String(raw).trim().replace(/\s/g, "").replace(",", ".");
+    if (s === "") return Number.NaN;
+    return Number.parseFloat(s);
   }
 
   function atualizarEstadoToggleAll() {
@@ -164,9 +169,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tdCheck.appendChild(cb);
 
       const tdData = document.createElement("td");
-      tdData.className = "px-2 py-2 align-top whitespace-nowrap text-gray-800";
-      const [y, m, d] = linha.data.split("-");
-      tdData.textContent = d && m && y ? `${d}/${m}/${y}` : linha.data;
+      tdData.className = "px-2 py-2 align-top whitespace-nowrap min-w-[10.5rem]";
+      const inpData = document.createElement("input");
+      inpData.type = "date";
+      inpData.className = `import-ofx-data ${inputCellClass} text-gray-800`;
+      const iso = linha.data && String(linha.data).slice(0, 10);
+      inpData.value = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso : "";
+      inpData.dataset.indice = String(linha.indice);
+      tdData.appendChild(inpData);
 
       const tdDesc = document.createElement("td");
       tdDesc.className = "px-2 py-2 align-top min-w-[12rem] max-w-[22rem]";
@@ -182,15 +192,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const tdValor = document.createElement("td");
       tdValor.className =
-        "px-2 py-2 align-top text-right font-medium whitespace-nowrap " +
+        "px-2 py-2 align-top text-right font-medium whitespace-nowrap min-w-[7.5rem] " +
         (linha.tipo === "despesa"
           ? "text-red-600"
           : linha.tipo === "receita"
             ? "text-emerald-600"
             : "text-gray-700");
-      tdValor.textContent =
-        (linha.tipo === "despesa" ? "-" : linha.tipo === "receita" ? "+" : "") +
-        formatarValor(linha.valor);
+      const inpValor = document.createElement("input");
+      inpValor.type = "number";
+      inpValor.step = "any";
+      inpValor.min = "0";
+      inpValor.inputMode = "decimal";
+      inpValor.className =
+        "import-ofx-valor w-full max-w-[11rem] ml-auto text-right font-medium " +
+        inputCellClass +
+        " " +
+        (linha.tipo === "despesa"
+          ? "text-red-600"
+          : linha.tipo === "receita"
+            ? "text-emerald-600"
+            : "text-gray-700");
+      inpValor.value =
+        linha.valor != null && linha.valor !== "" ? String(linha.valor).trim() : "";
+      inpValor.dataset.indice = String(linha.indice);
+      tdValor.appendChild(inpValor);
 
       const tdTipo = document.createElement("td");
       tdTipo.className = "px-2 py-2 align-top text-gray-600";
@@ -345,10 +370,36 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      const inpData = tr.querySelector(".import-ofx-data");
+      const dataStr =
+        inpData instanceof HTMLInputElement ? inpData.value.trim() : String(linha.data || "").slice(0, 10);
+      if (!dataStr) {
+        showErrPreview("Preencha a data em todas as linhas marcadas.");
+        return;
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+        showErrPreview("Use uma data válida em todas as linhas marcadas.");
+        return;
+      }
+
+      const inpValor = tr.querySelector(".import-ofx-valor");
+      const valorDigitado =
+        inpValor instanceof HTMLInputElement ? inpValor.value : String(linha.valor ?? "");
+      const valorNorm = valorDigitado.trim().replace(/\s/g, "").replace(",", ".");
+      const vNum = parseValorDigitado(valorNorm);
+      if (valorNorm === "" || Number.isNaN(vNum)) {
+        showErrPreview("Preencha um valor numérico válido em todas as linhas marcadas.");
+        return;
+      }
+      if (vNum < 0) {
+        showErrPreview("O valor não pode ser negativo.");
+        return;
+      }
+
       linhasPayload.push({
         indice: linha.indice,
-        data: linha.data,
-        valor: linha.valor,
+        data: dataStr,
+        valor: valorNorm,
         tipo: linha.tipo,
         descricao,
         categoria_id: Number(catId),

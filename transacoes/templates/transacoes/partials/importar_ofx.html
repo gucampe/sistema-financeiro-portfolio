@@ -13,7 +13,7 @@
 
     <div class="p-6 pb-4 border-b border-gray-100 shrink-0">
       <h2 class="text-xl font-semibold text-[#34495E] pr-10">Importar OFX</h2>
-      <p class="text-sm text-gray-500 mt-1">Envie o extrato, revise as linhas, ajuste as descrições se quiser e escolha a categoria de cada lançamento.</p>
+      <p class="text-sm text-gray-500 mt-1">Envie o extrato, revise as linhas, ajuste datas, valores e descrições se quiser e escolha a categoria de cada lançamento.</p>
     </div>
 
     <form id="form-csrf-import-ofx" class="hidden">{% csrf_token %}</form>
@@ -43,10 +43,10 @@
 
     <div id="import-ofx-step-preview" class="hidden flex flex-col flex-1 min-h-0">
       <div class="px-6 py-2 text-xs text-gray-500 shrink-0">
-        Linhas marcadas serão importadas. Edite a descrição direto na tabela, desmarque duplicatas ou linhas indesejadas.
+        Linhas marcadas serão importadas. Edite data, valor e descrição na tabela; desmarque duplicatas ou linhas indesejadas.
       </div>
       <div class="px-4 sm:px-6 overflow-x-auto overflow-y-auto flex-1 min-h-[220px] max-h-[min(62vh,calc(100dvh-13rem))] border-y border-gray-100">
-        <table class="w-full min-w-[52rem] text-sm text-left table-auto">
+        <table class="w-full min-w-[58rem] text-sm text-left table-auto">
           <thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky top-0 z-[1]">
             <tr>
               <th class="px-2 py-2 w-10 shrink-0">
@@ -55,9 +55,9 @@
                        class="rounded border-gray-300"
                        aria-label="Selecionar ou desmarcar todas as linhas" />
               </th>
-              <th class="px-2 py-2 whitespace-nowrap shrink-0">Data</th>
+              <th class="px-2 py-2 min-w-[10.5rem] whitespace-nowrap shrink-0">Data</th>
               <th class="px-2 py-2 min-w-[14rem] max-w-[24rem]">Descrição</th>
-              <th class="px-2 py-2 text-right whitespace-nowrap shrink-0">Valor</th>
+              <th class="px-2 py-2 min-w-[7.5rem] text-right whitespace-nowrap shrink-0">Valor</th>
               <th class="px-2 py-2 whitespace-nowrap shrink-0">Tipo</th>
               <th class="px-2 py-2 min-w-[7.5rem]">Avisos</th>
               <th class="px-2 py-2 min-w-[17rem] w-[17rem]">Categoria</th>
