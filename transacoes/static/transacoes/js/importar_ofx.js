@@ -25,6 +25,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewUrl = overlay.dataset.previewUrl;
   const confirmUrl = overlay.dataset.confirmUrl;
 
+  const rootImportConta = selectConta?.closest("[data-combobox-root]");
+  let contaComboboxOfx = null;
+  if (selectConta && typeof window.initIconCombobox === "function") {
+    contaComboboxOfx = window.initIconCombobox(selectConta, "account");
+  }
+
+  document.addEventListener("click", (e) => {
+    if (overlay.classList.contains("hidden")) return;
+    if (rootImportConta?.contains(e.target)) return;
+    contaComboboxOfx?.close();
+  });
+
   let state = {
     contaId: null,
     categorias: null,
@@ -63,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function fecharModal() {
+    contaComboboxOfx?.close();
     panel?.classList.add("scale-95", "opacity-90");
     overlay.classList.add("opacity-0");
     setTimeout(() => {
@@ -82,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resetModal() {
+    contaComboboxOfx?.close();
     state = { contaId: null, categorias: null, chavePorTipo: null, linhas: [] };
     stepUpload?.classList.remove("hidden");
     stepPreview?.classList.add("hidden");
@@ -224,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const tdAvisos = document.createElement("td");
       tdAvisos.className = "px-2 py-2 align-top text-xs";
       const avisos = [];
-      if (linha.duplicata_por_fitid) avisos.push("Possível dup. (FITID)");
       if (linha.duplicata_por_heuristica) avisos.push("Possível dup. (dados)");
       tdAvisos.innerHTML = avisos.length
         ? `<span class="text-amber-700">${avisos.join("<br>")}</span>`
@@ -353,12 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const sel = tr.querySelector(".import-ofx-categoria");
       if (!cb?.checked) continue;
 
-      const catId = sel?.value;
-      if (!catId) {
-        showErrPreview("Selecione a categoria em todas as linhas marcadas.");
-        return;
-      }
-
       const linha = state.linhas.find((l) => String(l.indice) === indice);
       if (!linha) continue;
 
@@ -396,15 +403,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      linhasPayload.push({
+      const linhaPayload = {
         indice: linha.indice,
         data: dataStr,
         valor: valorNorm,
         tipo: linha.tipo,
         descricao,
-        categoria_id: Number(catId),
         ofx_fitid: linha.ofx_fitid,
-      });
+      };
+      const catId = sel?.value?.trim();
+      if (catId) linhaPayload.categoria_id = Number(catId);
+      linhasPayload.push(linhaPayload);
     }
 
     if (!linhasPayload.length) {

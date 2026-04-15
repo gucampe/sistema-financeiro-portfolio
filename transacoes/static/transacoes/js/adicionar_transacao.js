@@ -131,6 +131,8 @@ function initIconCombobox(selectEl, kind) {
   };
 }
 
+window.initIconCombobox = initIconCombobox;
+
 document.addEventListener("DOMContentLoaded", () => {
   const btnAbrir = document.getElementById("btn-adicionar");
   const btnFechar = document.getElementById("btn-fechar");

@@ -42,6 +42,31 @@ def _categoria_compativel_com_tipo_transacao(categoria, tipo_transacao):
     return False
 
 
+def _categoria_fallback_import_ofx(usuario, tipo_transacao: str) -> Categoria | None:
+    """
+    Categoria quando o import OFX não envia categoria_id: despesa → "Diversos";
+    receita ou ajuste → "Diversos" ou "Receitas diversas" (cadastro padrão do app).
+    """
+    if tipo_transacao == "despesa":
+        tipo_c = "despesa"
+        nomes = ("Diversos",)
+    elif tipo_transacao in ("receita", "ajuste"):
+        tipo_c = "receita"
+        nomes = ("Diversos", "Receitas diversas")
+    else:
+        return None
+    qs = Categoria.objects.filter(
+        Q(usuario=usuario) | Q(padrao=True),
+        ativa=True,
+        tipo=tipo_c,
+    )
+    for nome in nomes:
+        hit = qs.filter(nome=nome).first()
+        if hit:
+            return hit
+    return None
+
+
 def _validation_error_para_json(exc: ValidationError):
     if hasattr(exc, "message_dict") and exc.message_dict:
         out = {}
@@ -442,7 +467,8 @@ def importar_ofx_preview(request):
 @require_POST
 def importar_ofx_confirmar(request):
     """
-    JSON: { "conta_id": int, "linhas": [ { data, valor, tipo, descricao, categoria_id, ofx_fitid? }, ... ] }
+    JSON: { "conta_id": int, "linhas": [ { data, valor, tipo, descricao, categoria_id?, ofx_fitid? }, ... ] }
+    categoria_id opcional: se omitido ou vazio, usa "Diversos" (despesa) ou "Diversos"/"Receitas diversas" (receita/ajuste).
     Cria transações com bulk_create dentro de transaction.atomic().
     """
     try:
@@ -491,6 +517,7 @@ def importar_ofx_confirmar(request):
     erros_por_chave: dict[str, dict] = {}
     instancias: list[Transacao] = []
     fitids_no_lote: dict[str, tuple[date, Decimal, str]] = {}
+    fallback_categoria_por_tipo: dict[str, Categoria | None] = {}
 
     tipos_validos = {c[0] for c in Transacao.TIPO_CHOICES}
 
@@ -534,11 +561,20 @@ def importar_ofx_confirmar(request):
 
         cat_id = row.get("categoria_id")
         categoria = None
-        try:
-            cat_pk = int(cat_id)
-        except (TypeError, ValueError):
-            erros_linha.setdefault("categoria_id", []).append("Categoria inválida.")
-            cat_pk = None
+        cat_pk = None
+        cat_omitida = cat_id is None or cat_id == "" or (
+            isinstance(cat_id, str) and not str(cat_id).strip()
+        )
+
+        if not cat_omitida:
+            try:
+                cat_pk = int(cat_id)
+            except (TypeError, ValueError):
+                erros_linha.setdefault("categoria_id", []).append("Categoria inválida.")
+            else:
+                if cat_pk <= 0:
+                    cat_pk = None
+                    cat_omitida = True
 
         if cat_pk is not None:
             categoria = (
@@ -556,6 +592,17 @@ def importar_ofx_confirmar(request):
             ):
                 erros_linha.setdefault("categoria_id", []).append(
                     "Categoria incompatível com o tipo da transação."
+                )
+
+        if categoria is None and "categoria_id" not in erros_linha and tipo in tipos_validos:
+            if tipo not in fallback_categoria_por_tipo:
+                fallback_categoria_por_tipo[tipo] = _categoria_fallback_import_ofx(
+                    request.user, tipo
+                )
+            categoria = fallback_categoria_por_tipo[tipo]
+            if categoria is None:
+                erros_linha.setdefault("categoria_id", []).append(
+                    'Sem categoria: cadastre "Diversos" (despesa) ou "Receitas diversas"/"Diversos" (receita).'
                 )
 
         if erros_linha:

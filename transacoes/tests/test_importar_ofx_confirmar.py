@@ -330,3 +330,48 @@ class ImportarOfxConfirmarViewTests(TestCase):
         self.assertEqual(r.status_code, 400)
         self.assertIn("0", r.json()["erros"])
         self.assertNotIn("1", r.json().get("erros", {}))
+
+    def test_sem_categoria_id_usa_diversos_despesa(self):
+        self.client.force_login(self.user)
+        cat_div = Categoria.objects.get(usuario=self.user, nome="Diversos", tipo="despesa")
+        r = self._post_json(
+            {
+                "conta_id": self.conta.pk,
+                "linhas": [
+                    {
+                        "indice": 0,
+                        "data": "2024-05-01",
+                        "valor": "7.00",
+                        "tipo": "despesa",
+                        "descricao": "Sem cat",
+                        "ofx_fitid": "fit-sem-cat",
+                    },
+                ],
+            }
+        )
+        self.assertEqual(r.status_code, 200)
+        t = Transacao.objects.get(conta=self.conta, ofx_fitid="fit-sem-cat")
+        self.assertEqual(t.categoria_id, cat_div.id)
+
+    def test_sem_categoria_id_receita_usa_receitas_diversas(self):
+        self.client.force_login(self.user)
+        cat_rd = Categoria.objects.get(
+            usuario=self.user, nome="Receitas diversas", tipo="receita"
+        )
+        r = self._post_json(
+            {
+                "conta_id": self.conta.pk,
+                "linhas": [
+                    {
+                        "indice": 0,
+                        "data": "2024-05-02",
+                        "valor": "50.00",
+                        "tipo": "receita",
+                        "descricao": "Entrada sem cat",
+                    },
+                ],
+            }
+        )
+        self.assertEqual(r.status_code, 200)
+        t = Transacao.objects.get(conta=self.conta, descricao="Entrada sem cat")
+        self.assertEqual(t.categoria_id, cat_rd.id)

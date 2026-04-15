@@ -1,3 +1,5 @@
+{% load static %}
+{% load icon_filters %}
 <div id="overlay-importar-ofx"
      class="fixed inset-0 hidden z-[60] transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50 p-4"
      data-preview-url="{% url 'transacoes:importar_ofx_preview' %}"
@@ -13,21 +15,39 @@
 
     <div class="p-6 pb-4 border-b border-gray-100 shrink-0">
       <h2 class="text-xl font-semibold text-[#34495E] pr-10">Importar OFX</h2>
-      <p class="text-sm text-gray-500 mt-1">Envie o extrato, revise as linhas, ajuste datas, valores e descrições se quiser e escolha a categoria de cada lançamento.</p>
+      <p class="text-sm text-gray-500 mt-1">Envie o extrato, revise as linhas e ajuste datas, valores e descrições se quiser. A categoria em cada linha é opcional; sem escolha, usa-se Diversos (despesa) ou a receita equivalente no cadastro.</p>
     </div>
 
     <form id="form-csrf-import-ofx" class="hidden">{% csrf_token %}</form>
 
     <div id="import-ofx-step-upload" class="p-6 space-y-4 shrink-0">
-      <div>
+      <div data-combobox-root="conta">
         <label for="import-ofx-conta" class="block text-sm font-medium text-[#34495E] mb-1">Conta</label>
-        <select id="import-ofx-conta" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <option value="">Selecione a conta</option>
-          {% for c in contas %}
-            <option value="{{ c.pk }}">{{ c.nome }}</option>
-          {% endfor %}
-        </select>
+        <div class="relative mt-1">
+          <select id="import-ofx-conta" required
+                  class="sr-only focus:outline-none">
+            <option value="">Selecione a conta</option>
+            {% for c in contas %}
+              <option value="{{ c.pk }}"
+                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-import-ofx-conta">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione a conta</span>
+            <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
+          </button>
+          <div id="cb-list-import-ofx-conta"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[70] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
       </div>
       <div>
         <label for="import-ofx-arquivo" class="block text-sm font-medium text-[#34495E] mb-1">Arquivo (.ofx)</label>
@@ -43,7 +63,7 @@
 
     <div id="import-ofx-step-preview" class="hidden flex flex-col flex-1 min-h-0">
       <div class="px-6 py-2 text-xs text-gray-500 shrink-0">
-        Linhas marcadas serão importadas. Edite data, valor e descrição na tabela; desmarque duplicatas ou linhas indesejadas.
+        Linhas marcadas serão importadas. Edite data, valor e descrição na tabela. A categoria é opcional: sem seleção, usa-se Diversos (despesa) ou Receitas diversas / Diversos (receita ou ajuste), conforme existir no seu cadastro. Desmarque duplicatas ou linhas indesejadas.
       </div>
       <div class="px-4 sm:px-6 overflow-x-auto overflow-y-auto flex-1 min-h-[220px] max-h-[min(62vh,calc(100dvh-13rem))] border-y border-gray-100">
         <table class="w-full min-w-[58rem] text-sm text-left table-auto">
