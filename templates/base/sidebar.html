@@ -1,119 +1,79 @@
 {% load static %}
-<!-- sidebar.html -->
-<div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#F4F5F7] to-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
-  <div class="p-6 flex flex-col h-full">
-    
-    <!-- Logo + nome -->
-    <div class="flex items-center space-x-3 mb-8">
-      <img src="{% static 'img/icons/logo.svg' %}" alt="Logo" class="h-8">
-      <span class="text-lg font-semibold text-gray-700">GranaGo</span>
-    </div>
-    
-    <!-- Menu -->
-    <nav class="flex-1 overflow-y-auto">
-      <ul class="space-y-2 text-gray-700">
+{# Navegação principal — static/css/sidebar.css e static/js/sidebar.js #}
 
-        <!-- VISÃO GERAL -->
+<aside
+  id="sidebar"
+  class="app-sidebar"
+  aria-label="Navegação principal"
+>
+  <div class="app-sidebar__inner">
+    <a class="app-sidebar__brand" href="{% url 'dashboard:home' %}" title="GranaGo — início">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="" width="32" height="32" />
+      <span class="app-sidebar__brand-text">GranaGo</span>
+    </a>
+
+    <a class="app-sidebar__cta" href="{% url 'transacoes:adicionar' %}" title="Adicionar transação">
+      <svg class="app-sidebar__cta-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      <span class="app-sidebar__cta-text">Adicionar transação</span>
+    </a>
+
+    <nav class="app-sidebar__nav" aria-label="Seções">
+      <ul class="app-sidebar__list">
         <li>
-          <a href="{% url 'dashboard:home' %}" 
-             class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <span class="flex items-center">
-              <!-- Ícone Dashboard -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" 
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                   class="mr-3 text-[#2ECC71]">
-                <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"/>
-                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-              </svg>
-              Visão Geral
-            </span>
-            <!-- seta -->
-            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          <a class="app-sidebar__link js-sidebar-nav" href="{% url 'dashboard:home' %}" title="Dashboard">
+            <svg class="app-sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="9" rx="1" />
+              <rect x="14" y="3" width="7" height="5" rx="1" />
+              <rect x="14" y="12" width="7" height="9" rx="1" />
+              <rect x="3" y="16" width="7" height="5" rx="1" />
             </svg>
+            <span class="app-sidebar__label">Dashboard</span>
           </a>
-          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Resumo Mensal</a></li>
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Metas e Planejamento</a></li>
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Carteira de Ativos</a></li>
-          </ul>
         </li>
-
-        <!-- CONTROLE FINANCEIRO -->
         <li>
-          <a href="{% url 'transacoes:adicionar' %}" 
-             class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <span class="flex items-center">
-              <!-- Ícone Cifrão ($) -->
-              <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <text x="6" y="17" font-size="20" font-weight="bold" fill="currentColor">$</text>
-              </svg>
-              Transações
-            </span>
-            <!-- seta -->
-            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          <a class="app-sidebar__link js-sidebar-nav" href="{% url 'transacoes:historico' %}" title="Transações">
+            <svg class="app-sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 6h16M4 12h10M4 18h14" />
             </svg>
+            <span class="app-sidebar__label">Transações</span>
           </a>
-          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Organização e Fluxo</a></li>
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Registro de Movimentações</a></li>
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Relatórios Detalhados</a></li>
-          </ul>
         </li>
-
-        <!-- OBJETIVOS -->
         <li>
-          <button class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <span class="flex items-center">
-              <!-- Ícone Relatórios -->
-              <svg class="mr-3 text-[#2ECC71]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
-                   stroke-linejoin="round">
-                <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
-              </svg>
-              Objetivos
-            </span>
-            <!-- seta -->
-            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          <a class="app-sidebar__link js-sidebar-nav" href="{% url 'categorias:home' %}" title="Categorias">
+            <svg class="app-sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z" />
             </svg>
-          </button>
-          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Meus Objetivos</a></li>
-          </ul>
+            <span class="app-sidebar__label">Categorias</span>
+          </a>
         </li>
-
-        <!-- INVESTIMENTOS -->
         <li>
-          <button class="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-[#E8F0FE] hover:text-[#27AE60] transition-all duration-200">
-            <span class="flex items-center">
-              <!-- Ícone Investimentos -->
-              <svg class="w-5 h-5 mr-3 text-[#2ECC71]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h7v7" />
-              </svg>
-              Investimentos
-            </span>
-            <!-- seta -->
-            <svg class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          <a class="app-sidebar__link js-sidebar-nav" href="{% url 'configuracoes' %}" title="Configurações">
+            <svg class="app-sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
             </svg>
-          </button>
-          <ul class="ml-10 mt-1 space-y-1 text-sm text-gray-600">
-            <li><a href="#" class="block px-2 py-1 rounded hover:bg-[#E8F0FE] hover:text-[#27AE60]">Carteira Atual</a></li>
-          </ul>
+            <span class="app-sidebar__label">Configurações</span>
+          </a>
         </li>
-
       </ul>
+
+      {% block sidebar_nav_extra %}{% endblock %}
     </nav>
 
-    <!-- Botão fechar -->
-    <button id="closeSidebar" class="mt-auto px-4 py-2 bg-[#2ECC71] text-white rounded-lg hover:bg-[#27AE60] transition-all duration-200 shadow-sm hover:shadow-md">
-      Fechar
-    </button>
+    <div class="app-sidebar__footer">
+      <button type="button" class="app-sidebar__collapse" id="sidebarDesktopCollapse" aria-pressed="false" title="Recolher menu" data-label-expand="Expandir menu" data-label-collapse="Recolher menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+        </svg>
+        <span class="app-sidebar__collapse-label">Recolher</span>
+      </button>
+      <button type="button" class="app-sidebar__close-mobile" id="sidebarCloseMobile">
+        Fechar menu
+      </button>
+    </div>
   </div>
-</div>
+</aside>
 
-<!-- Overlay -->
-<div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-40 transition-opacity duration-300 hidden z-40"></div>
+<div class="app-sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>

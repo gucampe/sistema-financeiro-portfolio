@@ -7,8 +7,15 @@
       <!-- Menu e Logo -->
       <div class="flex items-center space-x-4">
         <!-- Ícone de menu -->
-        <button id="openSideBar" class="text-gray-600 hover:text-gray-800 focus:outline-none">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <button
+          type="button"
+          id="openSideBar"
+          class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 rounded"
+          aria-controls="sidebar"
+          aria-expanded="false"
+          aria-label="Abrir menu de navegação"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
