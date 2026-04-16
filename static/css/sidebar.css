@@ -364,3 +364,69 @@ html.sidebar-open .app-sidebar-overlay {
     display: none;
   }
 }
+
+/* ---------- App header (fundo + estado ao rolar) ---------- */
+
+.app-header {
+  background-color: rgb(244 245 247 / 0.8);
+  box-shadow: none;
+}
+
+.app-header.scrolled {
+  background-color: rgb(244 245 247 / 0.95);
+  box-shadow:
+    0 1px 2px 0 rgb(15 23 42 / 0.04),
+    0 2px 8px -2px rgb(15 23 42 / 0.06);
+}
+
+/* ---------- Header: breadcrumb (MVP — um nível; <ol> prepara evolução) ---------- */
+
+.app-header-breadcrumb {
+  /* min-w-0 / flex-1 também no HTML (Tailwind) — mantém largura fluida para truncate */
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.app-header-breadcrumb__list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.app-header-breadcrumb__item {
+  min-width: 0;
+}
+
+/* Largura máxima do título (tipografia: Tailwind no HTML) */
+.app-header-breadcrumb__current {
+  max-width: min(100%, 10rem);
+}
+
+@media (min-width: 480px) {
+  .app-header-breadcrumb__current {
+    max-width: min(100%, 14rem);
+  }
+}
+
+@media (min-width: 640px) {
+  .app-header-breadcrumb__current {
+    max-width: min(100%, 20rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-header-breadcrumb__current {
+    max-width: min(100%, 28rem);
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-header-breadcrumb__current {
+    max-width: min(100%, 36rem);
+  }
+}

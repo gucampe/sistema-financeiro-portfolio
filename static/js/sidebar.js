@@ -103,6 +103,34 @@
     }
   }
 
+  function initAppHeaderScroll() {
+    var header = document.getElementById("appHeader");
+    if (!header) {
+      return;
+    }
+    var threshold = 10;
+    var ticking = false;
+
+    function sync() {
+      ticking = false;
+      if (window.scrollY > threshold) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(sync);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    sync();
+  }
+
   function initSidebar() {
     var sidebar = document.getElementById("sidebar");
     var overlay = document.getElementById("sidebarOverlay");
@@ -170,9 +198,14 @@
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSidebar);
-  } else {
+  function boot() {
     initSidebar();
+    initAppHeaderScroll();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
   }
 })();

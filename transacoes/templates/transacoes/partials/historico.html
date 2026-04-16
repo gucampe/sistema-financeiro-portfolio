@@ -5,6 +5,16 @@
 
 {% block title %}Lançamentos{% endblock %}
 
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Transações</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-3 sm:px-4 lg:px-6">
   <div class="w-full max-w-5xl mx-auto">

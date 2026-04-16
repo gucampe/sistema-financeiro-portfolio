@@ -1,0 +1,37 @@
+{% load static %}
+<div class="flex shrink-0 items-center gap-3 sm:gap-5 pl-2 sm:pl-0">
+  <button
+    type="button"
+    class="inline-flex items-center gap-2 rounded-lg border border-gray-300/70 bg-white/60 px-3 py-2 text-sm font-medium text-gray-700 backdrop-blur-sm transition-colors duration-150 hover:border-gray-400/80 hover:bg-white/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400/40 focus-visible:ring-offset-2 sm:px-3.5"
+  >
+    <svg class="h-5 w-5 shrink-0 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18" />
+    </svg>
+    <span>Tutoriais</span>
+  </button>
+
+  <div class="flex min-w-0 flex-col items-end justify-center gap-0.5">
+    <p class="max-w-[9rem] truncate text-right text-sm font-medium leading-tight text-gray-800 sm:max-w-[15rem]">
+      {% if request.user.is_authenticated %}
+        Olá, {{ request.user.nome }}
+      {% endif %}
+    </p>
+    <form method="post" action="{% url 'usuarios:logout' %}">
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="rounded px-1 text-xs font-medium text-[#2ECC71] transition-colors duration-150 hover:text-[#27AE60] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2ECC71]/30 focus-visible:ring-offset-1"
+      >
+        Sair
+      </button>
+    </form>
+  </div>
+
+  <img
+    src="{% static 'img/wallpaper.jpg' %}"
+    alt="Avatar"
+    class="h-9 w-9 shrink-0 rounded-full border border-gray-300/80 object-cover ring-1 ring-gray-900/[0.04] sm:h-10 sm:w-10"
+    width="40"
+    height="40"
+  />
+</div>
