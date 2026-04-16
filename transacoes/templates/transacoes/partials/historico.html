@@ -6,17 +6,17 @@
 {% block title %}Lançamentos{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-[#f6f8f7] py-8 px-4">
-  <div class="max-w-5xl mx-auto">
+<div class="min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-3 sm:px-4 lg:px-6">
+  <div class="w-full max-w-5xl mx-auto">
 
     <!-- Topo -->
-    <div class="flex items-center justify-between gap-4 flex-wrap mb-5 px-5">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-5 px-1 sm:px-0">
       <div>
         <h1 class="text-2xl font-semibold text-[#2f3a35]">Lançamentos</h1>
         <p class="text-sm text-gray-500 mt-1">Acompanhe suas movimentações recentes</p>
       </div>
 
-      <div class="flex flex-wrap gap-2 items-center justify-end">
+      <div class="flex flex-wrap gap-2 items-start sm:items-center justify-start sm:justify-end">
         <button type="button" id="btn-importar-ofx"
           class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
           <i class="fa-solid fa-file-import text-sm" aria-hidden="true"></i>
@@ -33,31 +33,29 @@
     <!-- Lista -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden pb-24">
 
-      <!-- Header do histórico -->
-      <div class="relative z-10 px-5 py-4 border-b border-gray-100 flex items-center">
+      <!-- Header do histórico: grid evita sobreposição do título com a navegação em ~1366px -->
+      <div class="relative z-10 grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[1100px]:items-center px-4 sm:px-5 py-4 border-b border-gray-100">
 
-        <!-- Título -->
-        <h2 class="text-base font-semibold text-[#2f3a35]">
+        <h2 class="text-base font-semibold text-[#2f3a35] min-[1100px]:justify-self-start">
           Histórico recente
         </h2>
 
-        <!-- Navegação centralizada -->
-        <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 min-w-0 shrink-0">
 
           <!-- botão mês anterior -->
           <a 
             href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
-            class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             ‹
           </a>
         
           <!-- mês atual + dropdown -->
-          <div class="text-center relative">
+          <div class="text-center relative min-w-0">
             <details id="dropdown-meses" class="group">
-              <summary class="inline-flex cursor-pointer list-none items-center gap-1.5 text-lg font-semibold text-gray-800 transition hover:text-blue-600">
-                {{ data_mes|date:"F Y" }}
-                <span class="text-xs opacity-70 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+              <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-blue-600">
+                <span class="truncate">{{ data_mes|date:"F Y" }}</span>
+                <span class="text-xs opacity-70 shrink-0 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
               </summary>
               <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-50 min-w-[10rem] py-1.5 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200 max-h-72 overflow-y-auto">
                 {% for item in meses_dropdown %}
@@ -72,7 +70,7 @@
           <!-- botão próximo mês -->
           <a 
             href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
-            class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             ›
           </a>
@@ -80,18 +78,20 @@
           {% if ano != ano_hoje or mes != mes_hoje %}
           <a 
             href="?ano={% now 'Y' %}&mes={% now 'm' %}"
-            class="inline-flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+            class="inline-flex shrink-0 items-center justify-center rounded-lg bg-gray-200 px-3 sm:px-4 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300"
           >
             Ir pra hoje
           </a>
           {% endif %}
         </div>
 
+        <div class="hidden min-[1100px]:block" aria-hidden="true"></div>
+
       </div>
 
       <!-- Filtro rápido de período -->
-      <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center gap-2">
-        <div class="flex flex-wrap gap-2 items-center">
+      <div class="px-4 sm:px-5 py-3 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div class="flex flex-wrap gap-2 items-center min-w-0 flex-1">
           <a href="?periodo=hoje" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'hoje' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Hoje</a>
           <a href="?periodo=semana" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'semana' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Essa semana</a>
           <a href="?periodo=mes" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'mes' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Este mês</a>
@@ -120,7 +120,7 @@
             </details>
           </div>
         </div>
-        <div>
+        <div class="shrink-0 self-start sm:self-center sm:ml-auto">
           {% if request.GET.periodo or request.GET.inicio or request.GET.fim %}
           <a href="?ano={{ ano }}&mes={{ mes }}" class="inline-flex items-center gap-1 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300">
             <i class="fa-solid fa-xmark text-xs"></i>
@@ -134,12 +134,14 @@
 
       <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
         {% for dia in transacoes_por_dia %}
-        <li class="px-5 py-2 pt-4 border-t border-gray-100 first:border-t-0 first:pt-2">
+        <li class="px-4 sm:px-5 py-2 pt-4 border-t border-gray-100 first:border-t-0 first:pt-2">
           <p class="text-[12px] font-medium text-gray-500 mb-2">{{ dia.data|date:"d/m/Y" }}</p>
           <ul class="divide-y divide-gray-50">
             {% for transacao in dia.transacoes %}
-            <li class="group relative py-2.5 hover:bg-[#fafbfa] transition -mx-5 px-5">
-              <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 min-w-0">
+            <li class="group relative py-2.5 hover:bg-[#fafbfa] transition -mx-4 px-4 sm:-mx-5 sm:px-5">
+              <div class="overflow-x-auto overflow-y-visible overscroll-x-contain max-w-full -mx-4 px-4 lg:mx-0 lg:px-0 lg:overflow-visible">
+              <div class="min-w-[42rem] lg:min-w-0">
+              <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-4 min-w-0">
       
                 <!-- Esquerda: categoria -->
                 <div class="flex items-center gap-2.5 min-w-0">
@@ -159,8 +161,8 @@
                 </div>
       
                 <!-- Centro: banco -->
-                <div class="flex justify-center">
-                  <div class="flex items-center gap-2 min-w-[130px]">
+                <div class="flex justify-center min-w-0">
+                  <div class="flex items-center gap-2 min-w-0 max-w-[11rem] lg:max-w-none lg:min-w-[130px]">
                     {% if transacao.conta %}
                       <img src="{% static transacao.conta.icone|conta_icon_path %}"
                            alt=""
@@ -208,12 +210,14 @@
                 </div>
       
               </div>
+              </div>
+              </div>
             </li>
             {% endfor %}
           </ul>
         </li>
         {% empty %}
-        <li class="px-5 py-12 text-center">
+        <li class="px-4 sm:px-5 py-12 text-center">
           <div class="max-w-sm mx-auto">
             <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
               <i class="fa-solid fa-receipt text-gray-400"></i>
@@ -233,9 +237,9 @@
 {% include 'transacoes/partials/importar_ofx.html' %}
 {% include 'transacoes/partials/confirmar_exclusao.html' %}
 
-{# Barra fixa resumo do mês #}
+{# Barra fixa resumo do mês (mesmo max-width do conteúdo principal) #}
 <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+  <div class="w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between gap-3 sm:gap-4">
     <div class="flex-1 text-center">
       <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Receitas</p>
       <p class="text-lg font-semibold text-emerald-600">{{ total_receitas|moeda }}</p>

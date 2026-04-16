@@ -2,32 +2,36 @@
 {% load icon_filters %}
 
 <div id="overlay-adicionar" 
-     class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50">
+     class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50 p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden">
 
-  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative transform scale-95 transition-all duration-300 border border-[rgb(189_195_199_/_0.65)]">
+  <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-[rgb(189_195_199_/_0.65)] my-auto">
 
     <!-- Botão fechar -->
     <button id="btn-fechar"
-            class="absolute top-4 right-4 flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-300"
+            class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-300"
             aria-label="Fechar modal">
       ✕
     </button>
 
-    <!-- Header dinâmico -->
-    <h2 class="text-2xl font-semibold mb-1 text-[#34495E]">
-      Nova Transação
-    </h2>
-    <p class="text-sm mb-6 text-[rgb(52_73_94_/_0.7)]">
-      Adicione ou edite uma transação para controlar melhor suas finanças.
-    </p>
+    <!-- Cabeçalho fixo (título + intro + erro) -->
+    <div class="shrink-0 pr-12 sm:pr-14">
+      <h2 class="text-2xl font-semibold mb-1 text-[#34495E]">
+        Nova Transação
+      </h2>
+      <p class="text-sm mb-4 sm:mb-6 text-[rgb(52_73_94_/_0.7)]">
+        Adicione ou edite uma transação para controlar melhor suas finanças.
+      </p>
 
-    <!-- Mensagem de erro -->
-    <div id="erro-conta-ajax"
-         class="hidden mb-4 p-3 rounded-lg text-sm border bg-red-600/10 text-red-600 border-red-600/25">
+      <div id="erro-conta-ajax"
+           class="hidden mb-4 p-3 rounded-lg text-sm border bg-red-600/10 text-red-600 border-red-600/25">
+      </div>
     </div>
 
-    <form id="form-adicionar" method="POST" action="{% url 'transacoes:adicionar' %}">
+    <form id="form-adicionar" method="POST" action="{% url 'transacoes:adicionar' %}" class="flex min-h-0 flex-1 flex-col overflow-hidden">
       {% csrf_token %}
+
+      <!-- Corpo rolável: campos (listas absolutas dos comboboxes ficam dentro desta área) -->
+      <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
 
       <!-- Tipo -->
       <div class="mb-4">
@@ -123,21 +127,25 @@
       </div>
 
       <!-- Data -->
-      <div class="mb-6">
+      <div class="mb-4">
         <label for="data" class="block text-sm font-medium mb-1 text-[#34495E]">Data</label>
         <input type="date" name="data" id="data" required
                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
       </div>
 
-      <!-- Botão salvar -->
-      <button type="submit"
-              class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">
-        Salvar
-      </button>
+      </div>
 
-      <p class="text-xs mt-3 text-center text-[rgb(52_73_94_/_0.65)]">
-        Você pode editar ou excluir transações depois, quando quiser.
-      </p>
+      <!-- Rodapé fixo: ação + texto -->
+      <div class="shrink-0 border-t border-gray-100 bg-white pt-4 mt-2">
+        <button type="submit"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">
+          Salvar
+        </button>
+
+        <p class="text-xs mt-3 text-center text-[rgb(52_73_94_/_0.65)]">
+          Você pode editar ou excluir transações depois, quando quiser.
+        </p>
+      </div>
 
     </form>
   </div>

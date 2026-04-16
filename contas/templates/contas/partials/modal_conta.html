@@ -1,19 +1,14 @@
 {% load static %}
 <div id="overlay-modal-conta"
-     class="fixed inset-0 hidden z-50 opacity-0 transition-opacity duration-200"
-     style="background: rgba(0,0,0,.55);">
+     class="fixed inset-0 hidden z-50 opacity-0 transition-opacity duration-200 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/55 p-3 sm:p-4 md:p-6">
 
-  <!-- clique fora pra fechar (opcional: seu JS pode usar overlay click) -->
-  <div class="absolute inset-0"></div>
-
-  <div class="relative mx-auto w-full max-w-lg p-4 sm:p-6 flex items-center justify-center min-h-screen">
-    <div class="w-full bg-white rounded-2xl shadow-xl border overflow-hidden transform transition-all duration-200 scale-[.98]"
-         style="border-color: rgba(189,195,199,.65);">
+  <div class="w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] my-auto flex min-h-0 flex-col overflow-hidden rounded-2xl border bg-white shadow-xl transform transition-all duration-200 scale-[.98]"
+       style="border-color: rgba(189,195,199,.65);">
 
       <!-- Header -->
-      <div class="px-6 py-5 border-b flex items-start justify-between gap-4"
+      <div class="shrink-0 px-5 sm:px-6 py-4 sm:py-5 border-b flex items-start justify-between gap-4"
            style="border-color: rgba(189,195,199,.35);">
-        <div class="min-w-0">
+        <div class="min-w-0 pr-2">
           <h2 id="titulo-modal-conta" class="text-xl sm:text-2xl font-semibold leading-tight" style="color:#34495E;">
             Nova conta
           </h2>
@@ -33,14 +28,7 @@
         </button>
       </div>
 
-      <!-- Body -->
-      <div class="px-6 py-6">
-        <div id="erro-modal-conta"
-             class="hidden mb-4 rounded-xl text-sm border px-4 py-3"
-             style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
-        </div>
-
-        <form id="form-modal-conta" method="post" action="{% url 'contas:salvar' %}" class="space-y-4"
+        <form id="form-modal-conta" method="post" action="{% url 'contas:salvar' %}" class="flex min-h-0 flex-1 flex-col overflow-hidden"
               data-url-instituicoes="{% static 'contas/icons/instituicoes/' %}"
               data-url-genericos="{% static 'contas/icons/genericos/' %}"
               data-instituicoes="{{ icone_choices_instituicoes|join:',' }}"
@@ -48,6 +36,13 @@
           {% csrf_token %}
           <input type="hidden" name="conta_id" id="conta_id" value="">
           <input type="hidden" name="icone" id="conta_icone" value="bank">
+
+        <div id="erro-modal-conta"
+             class="hidden shrink-0 mx-5 sm:mx-6 mt-4 mb-3 rounded-xl text-sm border px-4 py-3"
+             style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
+        </div>
+
+          <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-5 sm:px-6 py-4 space-y-4">
 
           <!-- Preview do ícone (clicável; seleção em modal secundário depois) -->
           <div id="preview-icone-conta-wrapper"
@@ -116,8 +111,11 @@
             </p>
           </div>
 
-          <!-- Footer buttons -->
-          <div class="pt-2 flex flex-col sm:flex-row gap-2 sm:gap-3">
+          </div>
+
+          <!-- Rodapé fixo -->
+          <div class="shrink-0 border-t bg-white px-5 sm:px-6 py-4" style="border-color: rgba(189,195,199,.35);">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button type="submit"
                     class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl text-white font-semibold transition shadow-sm active:scale-[.99]"
                     style="background:#2ECC71;"
@@ -135,22 +133,20 @@
               Cancelar
             </button>
           </div>
+          </div>
         </form>
-      </div>
 
-    </div>
   </div>
 </div>
 
 <!-- Modal secundário: escolha de ícone (z-index maior que o modal principal) -->
 <div id="overlay-modal-icone"
-     class="fixed inset-0 hidden z-[60] opacity-0 transition-opacity duration-200"
-     style="background: rgba(0,0,0,.55);">
+     class="fixed inset-0 hidden z-[60] opacity-0 transition-opacity duration-200 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/55 p-3 sm:p-4 md:p-6">
 
   <div class="absolute inset-0" id="overlay-modal-icone-backdrop"></div>
 
-  <div class="relative mx-auto w-full max-w-lg p-4 sm:p-6 flex items-center justify-center min-h-screen">
-    <div class="w-full max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border"
+  <div class="relative z-10 mx-auto w-full max-w-lg my-auto min-h-0">
+    <div class="w-full max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] overflow-y-auto overscroll-contain rounded-2xl border bg-white shadow-xl"
          style="border-color: rgba(189,195,199,.65);">
 
       <!-- Header -->
@@ -178,7 +174,8 @@
         <!-- Instituições financeiras -->
         <div>
           <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Instituições financeiras</h4>
-          <div id="grid-icones-instituicoes" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          <div class="overflow-x-auto overflow-y-visible -mx-2 px-2 sm:mx-0 sm:px-0">
+          <div id="grid-icones-instituicoes" class="grid min-w-[18rem] grid-cols-3 sm:min-w-0 sm:grid-cols-4 gap-3">
             {% for slug, label, filename in icon_list_instituicoes %}
             <button type="button"
                     class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
@@ -195,12 +192,14 @@
             </button>
             {% endfor %}
           </div>
+          </div>
         </div>
 
         <!-- Ícones genéricos -->
         <div>
           <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Ícones genéricos</h4>
-          <div id="grid-icones-genericos" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          <div class="overflow-x-auto overflow-y-visible -mx-2 px-2 sm:mx-0 sm:px-0">
+          <div id="grid-icones-genericos" class="grid min-w-[18rem] grid-cols-3 sm:min-w-0 sm:grid-cols-4 gap-3">
             {% for slug, label, filename in icon_list_genericos %}
             <button type="button"
                     class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
@@ -216,6 +215,7 @@
               <span class="text-xs font-medium text-center leading-tight">{{ label }}</span>
             </button>
             {% endfor %}
+          </div>
           </div>
         </div>
       </div>
