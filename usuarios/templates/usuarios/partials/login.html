@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block show_header_sidebar %}{% endblock %}
-
 {% block title %}Login - GranaGo{% endblock %}
 
-{% block content %}
+{% block show_header_sidebar %}
 <div class="min-h-screen flex items-center justify-center bg-[#F4F5F7] px-4">
   <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-    
+
     <!-- Logo -->
     <div class="flex items-center justify-center mb-6">
       <img src="{% static 'img/icons/logo.svg' %}" alt="Logo" class="h-8 mr-2">
@@ -74,5 +72,4 @@
   </div>
 </div>
 <script src="{% static 'usuarios/js/togglePassword.js' %}"></script>
-
 {% endblock %}
