@@ -290,9 +290,36 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__link {
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
+.app-sidebar__collapse-icon {
+  flex-shrink: 0;
+}
+
+.app-sidebar__collapse-icon--expand {
+  display: none;
+}
+
+#sidebar.collapsed .app-sidebar__collapse-icon--collapse,
+body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--collapse {
+  display: none;
+}
+
+#sidebar.collapsed .app-sidebar__collapse-icon--expand,
+body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--expand {
+  display: block;
+}
+
 @media (min-width: 768px) {
   .app-sidebar__collapse {
     display: flex;
+  }
+
+  /* Recolhido: botão só com “>>” encostado à direita da barra */
+  #sidebar.collapsed .app-sidebar__collapse,
+  body.sidebar-init-collapsed #sidebar .app-sidebar__collapse {
+    width: auto;
+    margin-left: auto;
+    align-self: flex-end;
+    justify-content: center;
   }
 }
 
