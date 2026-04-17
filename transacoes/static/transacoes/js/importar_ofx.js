@@ -20,7 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const formCsrf = document.getElementById("form-csrf-import-ofx");
   const panel = document.getElementById("import-ofx-panel");
 
-  if (!overlay || !btnAbrir) return;
+  if (!overlay) return;
+
+  /* Overlay dentro de #mainContent herda largura “estreita” (viewport − sidebar); fixed + 100% nesse
+     contexto estoura a página. Ancorar no body alinha largura ao viewport real. */
+  if (overlay.parentNode !== document.body) {
+    document.body.appendChild(overlay);
+  }
+
+  if (!btnAbrir) return;
 
   const previewUrl = overlay.dataset.previewUrl;
   const confirmUrl = overlay.dataset.confirmUrl;
@@ -76,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function fecharModal() {
     contaComboboxOfx?.close();
-    panel?.classList.add("scale-95", "opacity-90");
     overlay.classList.add("opacity-0");
     setTimeout(() => {
       overlay.classList.add("hidden");
@@ -89,13 +96,30 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.classList.remove("hidden");
     requestAnimationFrame(() => {
       overlay.classList.remove("opacity-0");
-      panel?.classList.remove("scale-95", "opacity-90");
-      panel?.classList.add("scale-100", "opacity-100");
     });
+  }
+
+  /** Tempo do fade “leave” antes da troca de passo (alinha ao opacity ~0,65s no CSS + folga). */
+  const OFX_FADE_MS = 700;
+  let stepAnimTimer = null;
+
+  function clearStepAnimTimer() {
+    if (stepAnimTimer != null) {
+      window.clearTimeout(stepAnimTimer);
+      stepAnimTimer = null;
+    }
+  }
+
+  function limparClassesPasso() {
+    stepUpload?.classList.remove("import-ofx-step-leaving", "import-ofx-step-enter-from");
+    stepPreview?.classList.remove("import-ofx-step-leaving", "import-ofx-step-enter-from");
   }
 
   function resetModal() {
     contaComboboxOfx?.close();
+    clearStepAnimTimer();
+    limparClassesPasso();
+    if (panel) panel.dataset.ofxStep = "upload";
     state = { contaId: null, categorias: null, chavePorTipo: null, linhas: [] };
     stepUpload?.classList.remove("hidden");
     stepPreview?.classList.add("hidden");
@@ -108,20 +132,79 @@ document.addEventListener("DOMContentLoaded", () => {
     showErrUpload("");
     showErrPreview("");
     showLoading(false);
-    panel?.classList.remove("scale-100", "opacity-100");
-    panel?.classList.add("scale-95", "opacity-90");
   }
 
+  /** Crossfade + leve translateY; largura do painel em ~240ms (CSS). */
   function irParaPreview() {
-    stepUpload?.classList.add("hidden");
-    stepPreview?.classList.remove("hidden");
+    if (!stepUpload || !stepPreview || !panel) {
+      stepUpload?.classList.add("hidden");
+      stepPreview?.classList.remove("hidden");
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      limparClassesPasso();
+      panel.dataset.ofxStep = "preview";
+      stepUpload.classList.add("hidden");
+      stepPreview.classList.remove("hidden");
+      return;
+    }
+
+    clearStepAnimTimer();
+    limparClassesPasso();
+    panel.dataset.ofxStep = "preview";
+    stepUpload.classList.add("import-ofx-step-leaving");
+
+    stepAnimTimer = window.setTimeout(() => {
+      stepAnimTimer = null;
+      stepUpload.classList.remove("import-ofx-step-leaving");
+      stepUpload.classList.add("hidden");
+      stepPreview.classList.remove("hidden");
+      stepPreview.classList.add("import-ofx-step-enter-from");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          stepPreview.classList.remove("import-ofx-step-enter-from");
+        });
+      });
+    }, OFX_FADE_MS);
   }
 
   function irParaUpload() {
-    stepPreview?.classList.add("hidden");
-    stepUpload?.classList.remove("hidden");
-    showErrPreview("");
-    if (tbody) tbody.innerHTML = "";
+    if (!stepUpload || !stepPreview || !panel) {
+      stepPreview?.classList.add("hidden");
+      stepUpload?.classList.remove("hidden");
+      showErrPreview("");
+      if (tbody) tbody.innerHTML = "";
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      limparClassesPasso();
+      panel.dataset.ofxStep = "upload";
+      stepPreview.classList.add("hidden");
+      showErrPreview("");
+      if (tbody) tbody.innerHTML = "";
+      stepUpload.classList.remove("hidden");
+      return;
+    }
+
+    clearStepAnimTimer();
+    limparClassesPasso();
+    stepPreview.classList.add("import-ofx-step-leaving");
+
+    stepAnimTimer = window.setTimeout(() => {
+      stepAnimTimer = null;
+      stepPreview.classList.remove("import-ofx-step-leaving");
+      stepPreview.classList.add("hidden");
+      showErrPreview("");
+      if (tbody) tbody.innerHTML = "";
+      panel.dataset.ofxStep = "upload";
+      stepUpload.classList.remove("hidden");
+      stepUpload.classList.add("import-ofx-step-enter-from");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          stepUpload.classList.remove("import-ofx-step-enter-from");
+        });
+      });
+    }, OFX_FADE_MS);
   }
 
   function labelTipo(t) {
@@ -174,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const listaCat = cats[chaveCat] || [];
 
       const tdCheck = document.createElement("td");
-      tdCheck.className = "px-2 py-2 align-top";
+      tdCheck.className = "px-1.5 py-2 align-top min-w-0";
       const cb = document.createElement("input");
       cb.type = "checkbox";
       cb.className = "import-ofx-incluir rounded border-gray-300";
@@ -183,21 +266,21 @@ document.addEventListener("DOMContentLoaded", () => {
       tdCheck.appendChild(cb);
 
       const tdData = document.createElement("td");
-      tdData.className = "px-2 py-2 align-top whitespace-nowrap min-w-[10.5rem]";
+      tdData.className = "px-2 py-2 align-top min-w-0";
       const inpData = document.createElement("input");
       inpData.type = "date";
-      inpData.className = `import-ofx-data ${inputCellClass} text-gray-800`;
+      inpData.className = `import-ofx-data ${inputCellClass} min-w-0 max-w-full text-gray-800`;
       const iso = linha.data && String(linha.data).slice(0, 10);
       inpData.value = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso : "";
       inpData.dataset.indice = String(linha.indice);
       tdData.appendChild(inpData);
 
       const tdDesc = document.createElement("td");
-      tdDesc.className = "px-2 py-2 align-top min-w-[12rem] max-w-[22rem]";
+      tdDesc.className = "px-2 py-2 align-top min-w-0";
       const inpDesc = document.createElement("input");
       inpDesc.type = "text";
       inpDesc.className =
-        "import-ofx-descricao w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500";
+        "import-ofx-descricao w-full min-w-0 max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500";
       inpDesc.value = linha.descricao ?? "";
       inpDesc.maxLength = 255;
       inpDesc.setAttribute("autocomplete", "off");
@@ -206,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const tdValor = document.createElement("td");
       tdValor.className =
-        "px-2 py-2 align-top text-right font-medium whitespace-nowrap min-w-[7.5rem] " +
+        "px-2 py-2 align-top text-right font-medium min-w-0 " +
         (linha.tipo === "despesa"
           ? "text-red-600"
           : linha.tipo === "receita"
@@ -218,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
       inpValor.min = "0";
       inpValor.inputMode = "decimal";
       inpValor.className =
-        "import-ofx-valor w-full max-w-[11rem] ml-auto text-right font-medium " +
+        "import-ofx-valor w-full min-w-0 max-w-full text-right font-medium " +
         inputCellClass +
         " " +
         (linha.tipo === "despesa"
@@ -232,11 +315,12 @@ document.addEventListener("DOMContentLoaded", () => {
       tdValor.appendChild(inpValor);
 
       const tdTipo = document.createElement("td");
-      tdTipo.className = "px-2 py-2 align-top text-gray-600";
+      tdTipo.className =
+        "px-1 py-2 align-top min-w-0 break-words text-xs leading-tight text-gray-600";
       tdTipo.textContent = labelTipo(linha.tipo);
 
       const tdAvisos = document.createElement("td");
-      tdAvisos.className = "px-2 py-2 align-top text-xs";
+      tdAvisos.className = "px-2 py-2 align-top min-w-0 break-words text-xs";
       const avisos = [];
       if (linha.duplicata_por_heuristica) avisos.push("Possível dup. (dados)");
       tdAvisos.innerHTML = avisos.length
@@ -244,10 +328,10 @@ document.addEventListener("DOMContentLoaded", () => {
         : "—";
 
       const tdCat = document.createElement("td");
-      tdCat.className = "px-2 py-2 align-top min-w-[17rem] w-[17rem]";
+      tdCat.className = "px-2 py-2 align-top min-w-0";
       const sel = document.createElement("select");
       sel.className =
-        "import-ofx-categoria w-full min-w-[15rem] max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
+        "import-ofx-categoria w-full min-w-0 max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
       sel.dataset.indice = String(linha.indice);
       const opt0 = document.createElement("option");
       opt0.value = "";
@@ -278,7 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnFechar?.addEventListener("click", fecharModal);
   overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) fecharModal();
+    const t = e.target;
+    if (!(t instanceof Element)) return;
+    if (!t.closest("#import-ofx-panel")) fecharModal();
   });
 
   btnVoltar?.addEventListener("click", irParaUpload);
@@ -340,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       state.categorias = data.categorias;
       state.chavePorTipo = data.categorias_chave_por_tipo_transacao;
       state.linhas = data.linhas;
+      showLoading(false);
       montarTabela(data);
       irParaPreview();
     } catch {
