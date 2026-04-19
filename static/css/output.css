@@ -927,10 +927,6 @@ video {
   max-height: 200px;
 }
 
-.max-h-\[calc\(100dvh-1rem\)\] {
-  max-height: calc(100dvh - 1rem);
-}
-
 .max-h-\[min\(90dvh\2c calc\(100dvh-2rem\)\2c calc\(100vh-2rem\)\)\] {
   max-height: min(90dvh,calc(100dvh - 2rem),calc(100vh - 2rem));
 }
@@ -1416,6 +1412,11 @@ video {
   border-color: rgb(189 195 199 / 0.65);
 }
 
+.border-amber-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(253 230 138 / var(--tw-border-opacity, 1));
+}
+
 .border-gray-100 {
   --tw-border-opacity: 1;
   border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
@@ -1530,6 +1531,10 @@ video {
 .bg-\[\#f6f8f7\] {
   --tw-bg-opacity: 1;
   background-color: rgb(246 248 247 / var(--tw-bg-opacity, 1));
+}
+
+.bg-amber-50\/90 {
+  background-color: rgb(255 251 235 / 0.9);
 }
 
 .bg-amber-500 {
@@ -2014,6 +2019,11 @@ video {
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
 }
 
+.text-blue-700 {
+  --tw-text-opacity: 1;
+  color: rgb(29 78 216 / var(--tw-text-opacity, 1));
+}
+
 .text-emerald-600 {
   --tw-text-opacity: 1;
   color: rgb(5 150 105 / var(--tw-text-opacity, 1));
@@ -2066,6 +2076,18 @@ video {
 
 .text-white\/90 {
   color: rgb(255 255 255 / 0.9);
+}
+
+.underline {
+  text-decoration-line: underline;
+}
+
+.decoration-blue-700\/40 {
+  text-decoration-color: rgb(29 78 216 / 0.4);
+}
+
+.underline-offset-2 {
+  text-underline-offset: 2px;
 }
 
 .opacity-0 {
@@ -2329,6 +2351,11 @@ video {
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
 }
 
+.hover\:text-blue-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
+
 .hover\:text-gray-800:hover {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity, 1));
@@ -2439,8 +2466,22 @@ video {
   pointer-events: none;
 }
 
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+.disabled\:bg-gray-400:disabled {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity, 1));
+}
+
 .disabled\:opacity-50:disabled {
   opacity: 0.5;
+}
+
+.disabled\:hover\:bg-gray-400:hover:disabled {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity, 1));
 }
 
 .group[open] .group-open\:rotate-180 {
@@ -2848,10 +2889,6 @@ video {
   .\[\@media\(min-height\:880px\)\]\:my-4 {
     margin-top: 1rem;
     margin-bottom: 1rem;
-  }
-
-  .\[\@media\(min-height\:880px\)\]\:max-h-\[min\(90dvh\2c calc\(100dvh-2rem\)\)\] {
-    max-height: min(90dvh,calc(100dvh - 2rem));
   }
 
   .\[\@media\(min-height\:880px\)\]\:min-h-\[12rem\] {

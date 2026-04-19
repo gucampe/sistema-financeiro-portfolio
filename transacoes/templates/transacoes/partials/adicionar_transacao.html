@@ -45,7 +45,8 @@
 
       <!-- Conta (select nativo + combobox visual) -->
       <div class="mb-4" data-combobox-root="conta">
-        <label for="id_conta" class="block text-sm font-medium mb-1 text-[#34495E]">Conta</label>
+        <label {% if form.conta.field.queryset %}for="id_conta"{% endif %} class="block text-sm font-medium mb-1 text-[#34495E]">Conta</label>
+        {% if form.conta.field.queryset %}
         <div class="relative mt-1">
           <select name="conta" id="id_conta" required
                   class="sr-only focus:outline-none">
@@ -71,6 +72,20 @@
                class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
                hidden></div>
         </div>
+        {% else %}
+        <div class="relative mt-1 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2.5 text-sm text-[#34495E] shadow-sm"
+             role="status">
+          <p class="leading-snug">
+            Você precisa cadastrar pelo menos uma conta antes de registrar transações.
+          </p>
+          <p class="mt-2">
+            <a href="{% url 'contas:home' %}"
+               class="font-medium text-blue-700 underline decoration-blue-700/40 underline-offset-2 hover:text-blue-800">
+              Ir para cadastro de contas
+            </a>
+          </p>
+        </div>
+        {% endif %}
         {% if form.conta.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.conta.errors|striptags }}</p>
         {% endif %}
@@ -138,7 +153,9 @@
       <!-- Rodapé fixo: ação + texto -->
       <div class="shrink-0 border-t border-gray-100 bg-white pt-4 mt-2">
         <button type="submit"
-                class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">
+                id="btn-salvar-transacao"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400"
+                {% if not form.conta.field.queryset %}disabled aria-disabled="true"{% endif %}>
           Salvar
         </button>
 
