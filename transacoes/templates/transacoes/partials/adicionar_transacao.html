@@ -36,10 +36,12 @@
       <!-- Tipo -->
       <div class="mb-4">
         <label for="tipo" class="block text-sm font-medium mb-1 text-[#34495E]">Tipo</label>
+        {% firstof form.tipo.value form.initial.tipo "despesa" as tipo_atual %}
         <select name="tipo" id="tipo" required
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="despesa" selected>Despesa</option>
-          <option value="receita">Receita</option>
+          <option value="despesa" {% if tipo_atual == "despesa" %}selected{% endif %}>Despesa</option>
+          <option value="receita" {% if tipo_atual == "receita" %}selected{% endif %}>Receita</option>
+          <option value="ajuste" {% if tipo_atual == "ajuste" %}selected{% endif %}>Ajuste</option>
         </select>
       </div>
 
@@ -154,7 +156,7 @@
       <div class="shrink-0 border-t border-gray-100 bg-white pt-4 mt-2">
         <button type="submit"
                 id="btn-salvar-transacao"
-                class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400"
+                class="w-full rounded-lg bg-gradient-to-br from-green-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(22,163,74,0.35)] transition hover:brightness-105 hover:shadow-[0_4px_14px_rgba(22,163,74,0.4)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-[0_2px_8px_rgba(22,163,74,0.35)]"
                 {% if not form.conta.field.queryset %}disabled aria-disabled="true"{% endif %}>
           Salvar
         </button>

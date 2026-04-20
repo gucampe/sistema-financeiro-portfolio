@@ -35,17 +35,17 @@
 
     <div class="flex items-center gap-4 mt-3 md:mt-0">
       <!-- Resumo -->
-      <div class="flex gap-4 text-gray-700 text-sm">
+      <div class="flex gap-4 text-gray-700 text-sm {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
         <div class="flex flex-col items-center gap-0.5">
-          <span class="text-green-600 font-bold text-base md:text-lg">{{ entradas_mes|moeda }}</span>
+          <span class="text-green-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ entradas_mes|moeda }}{% endif %}</span>
           <span class="text-[10px] md:text-xs">Receitas</span>
         </div>
         <div class="flex flex-col items-center gap-0.5">
-          <span class="text-red-600 font-bold text-base md:text-lg">{{ saidas_mes|moeda }}</span>
+          <span class="text-red-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ saidas_mes|moeda }}{% endif %}</span>
           <span class="text-[10px] md:text-xs">Despesas</span>
         </div>
         <div class="flex flex-col items-center gap-0.5">
-          <span class="text-blue-600 font-bold text-base md:text-lg">{{ saldo_total|moeda }}</span>
+          <span class="text-blue-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ saldo_total|moeda }}{% endif %}</span>
           <span class="text-[10px] md:text-xs">Saldo</span>
         </div>
       </div>
@@ -65,7 +65,7 @@
   </div>
 
   <!-- GRID DE CARDS -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
     <!-- Gráfico Receitas e Despesas -->
     <div class="bg-white rounded-xl shadow p-4 flex flex-col">
       <h3 class="font-semibold mb-2 text-base md:text-lg">Receitas e Despesas</h3>

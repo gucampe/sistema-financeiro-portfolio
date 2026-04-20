@@ -1,8 +1,9 @@
 # categorias/views.py
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 
 from .models import Categoria
 from .defaults import ICONES_DISPONIVEIS
@@ -165,14 +166,23 @@ def verificar_exclusao_categoria(request, id):
 @login_required
 def listar_categorias_ativas(request):
     tipo = request.GET.get("tipo", "despesa")
-    if tipo not in ("despesa", "receita"):
+    # Transação "ajuste" usa categorias de receita no cadastro (ex.: saldo inicial).
+    if tipo == "ajuste":
+        tipo_filtro = "receita"
+    elif tipo not in ("despesa", "receita"):
         return JsonResponse({"status": "erro", "errors": "Tipo inválido"}, status=400)
+    else:
+        tipo_filtro = tipo
 
-    categorias = Categoria.objects.filter(
-        usuario=request.user,
-        tipo=tipo,
-        ativa=True
-    ).order_by("nome").values("id", "nome", "icone", "cor")
+    categorias = (
+        Categoria.objects.filter(
+            Q(usuario=request.user) | Q(padrao=True),
+            tipo=tipo_filtro,
+            ativa=True,
+        )
+        .order_by("nome")
+        .values("id", "nome", "icone", "cor")
+    )
     return JsonResponse({"status": "ok", "categorias": list(categorias)})
 
 

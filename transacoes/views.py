@@ -16,6 +16,7 @@ from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
 from contas.models import Conta
+from usuarios.models import Perfil
 
 from .forms import TransacaoForm
 from .models import Transacao
@@ -252,8 +253,11 @@ def adicionar_transacao(request):
     ).order_by("nome")
     contas = Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome")
 
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    initial_tx, tipo_padrao_perfil = perfil.defaults_transacao_form()
+
     if request.method == 'POST':
-        tipo_inicial = request.POST.get('tipo', 'despesa')
+        tipo_inicial = request.POST.get('tipo', tipo_padrao_perfil)
         form = TransacaoForm(request.POST, usuario=request.user, tipo_inicial=tipo_inicial)
         if form.is_valid():
             transacao = form.save(commit=False)
@@ -289,7 +293,11 @@ def adicionar_transacao(request):
                 return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
 
     else:
-        form = TransacaoForm(usuario=request.user)
+        form = TransacaoForm(
+            usuario=request.user,
+            tipo_inicial=tipo_padrao_perfil,
+            initial=initial_tx,
+        )
 
     hoje = date.today()
     ano_hoje = hoje.year

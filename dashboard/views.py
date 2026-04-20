@@ -1,13 +1,13 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from transacoes.models import Transacao
-from transacoes.forms import TransacaoForm
-from django.db.models import Sum
-from categorias.models import Categoria
-from django.db.models import Q
-
-from datetime import date
 import calendar
+from datetime import date
+
+from categorias.models import Categoria
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Sum
+from django.shortcuts import render
+from transacoes.forms import TransacaoForm
+from transacoes.models import Transacao
+from usuarios.models import Perfil
 
 
 @login_required
@@ -70,7 +70,13 @@ def dashboard_view(request):
         ativa=True
     ).order_by("nome")
 
-    form = TransacaoForm(usuario=request.user, tipo_inicial="despesa")
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    initial_tx, tipo_p = perfil.defaults_transacao_form()
+    form = TransacaoForm(
+        usuario=request.user,
+        tipo_inicial=tipo_p,
+        initial=initial_tx,
+    )
 
     return render(request, 'dashboard/partials/home.html', {
         'saldo_total': saldo_total,
@@ -86,4 +92,6 @@ def dashboard_view(request):
         'categorias_despesa': categorias_despesa,
         'categorias_receita': categorias_receita,
         'form': form,
+        'ocultar_valores_dashboard': perfil.ocultar_valores_dashboard,
+        'cartoes': [],
     })

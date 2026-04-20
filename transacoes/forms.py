@@ -20,13 +20,18 @@ class TransacaoForm(forms.ModelForm):
 
         if self.usuario is not None:
             from django.db.models import Q
+
             self.fields["conta"].queryset = Conta.objects.filter(
                 usuario=self.usuario, ativa=True
             ).order_by("nome")
+            # Categorias do cadastro são receita/despesa; "ajuste" usa categorias de receita (ex.: saldo inicial).
+            tipo_cat = self.tipo_inicial
+            if tipo_cat == "ajuste":
+                tipo_cat = "receita"
             self.fields["categoria"].queryset = Categoria.objects.filter(
                 Q(usuario=self.usuario) | Q(padrao=True),
-                tipo=self.tipo_inicial,
-                ativa=True
+                tipo=tipo_cat,
+                ativa=True,
             ).order_by("nome")
         else:
             self.fields["conta"].queryset = Conta.objects.none()
@@ -61,7 +66,12 @@ class TransacaoForm(forms.ModelForm):
         tipo_transacao = self.cleaned_data.get("tipo") or self.tipo_inicial
         if self.usuario and not (cat.padrao or cat.usuario_id == self.usuario.id):
             raise forms.ValidationError("Categoria inválida.")
-        if cat.tipo != tipo_transacao:
+        if tipo_transacao == "ajuste":
+            if cat.tipo != "receita":
+                raise forms.ValidationError(
+                    "Para ajuste, selecione uma categoria de receita (ex.: saldo inicial)."
+                )
+        elif cat.tipo != tipo_transacao:
             raise forms.ValidationError("Categoria deve ser do mesmo tipo da transação.")
         if not cat.ativa:
             raise forms.ValidationError("Categoria inválida ou arquivada.")
