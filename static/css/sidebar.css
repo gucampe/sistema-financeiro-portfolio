@@ -101,7 +101,7 @@ html.sidebar-open .app-sidebar {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.35rem 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-decoration: none;
   color: var(--sidebar-text);
   border-radius: 0.5rem;
@@ -113,9 +113,13 @@ html.sidebar-open .app-sidebar {
 }
 
 .app-sidebar__brand img {
-  height: 2rem;
-  width: auto;
+  display: block;
+  box-sizing: border-box;
   flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  object-position: center;
 }
 
 .app-sidebar__brand-text {
@@ -126,11 +130,23 @@ html.sidebar-open .app-sidebar {
   transition: opacity var(--sidebar-transition), width var(--sidebar-transition);
 }
 
+#sidebar.collapsed .app-sidebar__brand,
+body.sidebar-init-collapsed #sidebar .app-sidebar__brand {
+  justify-content: center;
+  gap: 0;
+}
+
 #sidebar.collapsed .app-sidebar__brand-text,
 body.sidebar-init-collapsed #sidebar .app-sidebar__brand-text {
   opacity: 0;
+  flex: 0 0 0;
+  min-width: 0;
+  max-width: 0;
   width: 0;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .app-sidebar__cta {
@@ -162,6 +178,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__brand-text {
 
 .app-sidebar__cta-icon {
   flex-shrink: 0;
+  display: block;
 }
 
 #sidebar.collapsed .app-sidebar__cta-text,
@@ -229,6 +246,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__cta {
 
 .app-sidebar__icon {
   flex-shrink: 0;
+  display: block;
   width: 1.35rem;
   height: 1.35rem;
   color: var(--sidebar-text-muted);
@@ -248,13 +266,20 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__cta {
 #sidebar.collapsed .app-sidebar__label,
 body.sidebar-init-collapsed #sidebar .app-sidebar__label {
   opacity: 0;
+  flex: 0 0 0;
+  min-width: 0;
+  max-width: 0;
   width: 0;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 #sidebar.collapsed .app-sidebar__link,
 body.sidebar-init-collapsed #sidebar .app-sidebar__link {
   justify-content: center;
+  gap: 0;
   padding: 0.6rem;
 }
 
@@ -292,6 +317,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__link {
 
 .app-sidebar__collapse-icon {
   flex-shrink: 0;
+  display: block;
 }
 
 .app-sidebar__collapse-icon--expand {
