@@ -1,0 +1,178 @@
+{% load static %}
+{% load icon_filters %}
+<style>
+  #overlay-importar-planilha {
+    box-sizing: border-box;
+  }
+  #overlay-importar-planilha .import-planilha-modal__center {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  #import-planilha-panel {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: min(32rem, 100%);
+    max-height: min(38rem, 86dvh);
+    transition:
+      max-width 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+      max-height 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  #import-planilha-panel[data-planilha-step="preview"] {
+    max-width: min(80rem, 100%);
+    max-height: min(90dvh, calc(100dvh - 1rem));
+  }
+  @media (min-height: 880px) {
+    #import-planilha-panel[data-planilha-step="preview"] {
+      max-height: min(90dvh, calc(100dvh - 2rem));
+    }
+  }
+  #import-planilha-step-upload,
+  #import-planilha-step-preview {
+    transition:
+      opacity 0.65s cubic-bezier(0.33, 1, 0.68, 1),
+      transform 0.65s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  #import-planilha-step-upload.import-planilha-step-leaving,
+  #import-planilha-step-preview.import-planilha-step-leaving {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+  #import-planilha-step-upload.import-planilha-step-enter-from,
+  #import-planilha-step-preview.import-planilha-step-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #import-planilha-panel {
+      transition: none;
+    }
+    #import-planilha-step-upload,
+    #import-planilha-step-preview {
+      transition: none;
+    }
+  }
+</style>
+<div id="overlay-importar-planilha"
+     class="fixed inset-0 hidden z-[230] w-full max-w-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-x-none transition-opacity duration-300 opacity-0 bg-black/50"
+     data-preview-url="{% url 'transacoes:importar_planilha_preview' %}"
+     data-confirm-url="{% url 'transacoes:importar_planilha_confirmar' %}">
+
+  <div class="import-planilha-modal__center flex min-h-full items-center justify-center p-2 sm:p-3 [@media(min-height:880px)]:sm:p-4 [@media(min-height:880px)]:md:p-6">
+  <div id="import-planilha-panel" data-planilha-step="upload" class="bg-white rounded-2xl shadow-lg my-2 sm:my-3 flex flex-col overflow-hidden border border-[rgb(189_195_199_/_0.65)] relative [@media(min-height:880px)]:my-4 [@media(min-height:880px)]:sm:my-6">
+
+    <button type="button" id="btn-fechar-import-planilha"
+            class="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-sm hover:bg-gray-300"
+            aria-label="Fechar">
+      ✕
+    </button>
+
+    <div class="p-3 pb-2 sm:p-4 sm:pb-3 border-b border-gray-100 shrink-0 [@media(min-height:880px)]:sm:p-6 [@media(min-height:880px)]:sm:pb-4">
+      <h2 class="text-base sm:text-lg font-semibold text-[#34495E] pr-10 [@media(min-height:880px)]:sm:text-xl">Importar planilha</h2>
+      <p class="text-[0.7rem] leading-snug sm:text-xs text-gray-500 mt-1 break-words [@media(min-height:880px)]:sm:text-sm [@media(min-height:880px)]:leading-normal">Use o modelo oficial (.xlsx): primeira aba, primeira linha com colunas <strong>data</strong>, <strong>descricao</strong> e <strong>valor</strong> (valor negativo = despesa, positivo = receita). Revise as linhas; a categoria por linha é opcional.</p>
+    </div>
+
+    <form id="form-csrf-import-planilha" class="hidden">{% csrf_token %}</form>
+
+    <div id="import-planilha-step-upload" class="p-3 sm:p-4 space-y-3 sm:space-y-4 shrink-0 [@media(min-height:880px)]:sm:p-6">
+      <div data-combobox-root="conta" class="min-w-0 max-w-full">
+        <label for="import-planilha-conta" class="block text-sm font-medium text-[#34495E] mb-1">Conta</label>
+        <div class="relative mt-1 min-w-0 max-w-full">
+          <select id="import-planilha-conta" required
+                  class="sr-only focus:outline-none">
+            <option value="">Selecione a conta</option>
+            {% for c in contas %}
+              <option value="{{ c.pk }}"
+                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-import-planilha-conta">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione a conta</span>
+            <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
+          </button>
+          <div id="cb-list-import-planilha-conta"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[240] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
+      </div>
+      <div class="min-w-0 max-w-full">
+        <label for="import-planilha-arquivo" class="block text-sm font-medium text-[#34495E] mb-1">Arquivo (.xlsx)</label>
+        <input type="file" id="import-planilha-arquivo" accept=".xlsx,.XLSX,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+               class="block w-full min-w-0 max-w-full text-sm text-gray-600 file:mr-2 sm:file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 sm:file:px-4 file:py-2 file:text-xs sm:file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100" />
+        <p class="text-xs text-gray-500 mt-2">
+          <a href="{% url 'transacoes:importar_planilha_modelo' %}" class="text-emerald-700 font-medium underline hover:text-emerald-800">Baixar modelo</a>
+          <span class="text-gray-400">·</span>
+          Cabeçalho exato: data, descricao, valor
+        </p>
+      </div>
+      <p id="import-planilha-erro-upload" class="hidden text-sm text-red-600"></p>
+      <button type="button" id="btn-import-planilha-preview"
+              class="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none">
+        Pré-visualizar
+      </button>
+    </div>
+
+    <div id="import-planilha-step-preview" class="hidden flex flex-col flex-1 min-h-0 min-w-0">
+      <div class="px-3 sm:px-4 py-1.5 text-[0.65rem] leading-snug sm:text-xs text-gray-500 shrink-0 break-words [@media(min-height:880px)]:sm:px-6 [@media(min-height:880px)]:py-2">
+        Linhas marcadas serão importadas. Edite data, valor e descrição na tabela. A categoria é opcional: sem seleção, usa-se Diversos (despesa) ou Receitas diversas / Diversos (receita ou ajuste), conforme existir no seu cadastro. Desmarque duplicatas ou linhas indesejadas.
+      </div>
+      <div class="min-h-0 min-w-0 w-full max-w-full flex-1 min-h-0 overflow-x-auto overflow-y-auto border-y border-gray-100 px-2 sm:px-3 md:px-4 [@media(min-height:880px)]:sm:px-4 [@media(min-height:880px)]:md:px-6 [@media(min-height:880px)]:min-h-[12rem]">
+        <table class="w-full min-w-0 max-w-full table-fixed text-sm text-left">
+          <colgroup>
+            <col style="width:3.5%" />
+            <col style="width:13%" />
+            <col style="width:30%" />
+            <col style="width:11%" />
+            <col style="width:8%" />
+            <col style="width:12%" />
+            <col style="width:22.5%" />
+          </colgroup>
+          <thead class="text-[0.65rem] sm:text-xs text-gray-500 uppercase bg-gray-50 sticky top-0 z-[1] [@media(min-height:880px)]:text-xs">
+            <tr>
+              <th class="px-1.5 py-1.5 sm:py-2 w-10 align-middle">
+                <input type="checkbox"
+                       id="import-planilha-toggle-all"
+                       class="rounded border-gray-300"
+                       aria-label="Selecionar ou desmarcar todas as linhas" />
+              </th>
+              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 whitespace-nowrap align-middle">Data</th>
+              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Descrição</th>
+              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 text-right whitespace-nowrap align-middle">Valor</th>
+              <th class="px-1 py-1.5 sm:py-2 whitespace-nowrap align-middle">Tipo</th>
+              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Avisos</th>
+              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Categoria</th>
+            </tr>
+          </thead>
+          <tbody id="import-planilha-tbody"></tbody>
+        </table>
+      </div>
+      <p id="import-planilha-erro-preview" class="hidden px-3 sm:px-4 text-sm text-red-600 shrink-0 [@media(min-height:880px)]:sm:px-6"></p>
+      <div class="p-3 sm:p-4 flex flex-wrap gap-2 shrink-0 border-t border-gray-100 [@media(min-height:880px)]:sm:p-6">
+        <button type="button" id="btn-import-planilha-voltar"
+                class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
+          Voltar
+        </button>
+        <button type="button" id="btn-import-planilha-confirmar"
+                class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none">
+          Confirmar importação
+        </button>
+      </div>
+    </div>
+
+    <div id="import-planilha-loading" class="hidden absolute inset-0 bg-white/70 rounded-2xl flex items-center justify-center z-20">
+      <span class="text-sm text-gray-600">Processando…</span>
+    </div>
+  </div>
+  </div>
+</div>

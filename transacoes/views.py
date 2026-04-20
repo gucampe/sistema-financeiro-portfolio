@@ -1,3 +1,4 @@
+import io
 import json
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -8,9 +9,9 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
 from django.db.models.functions import TruncMonth
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
@@ -19,11 +20,53 @@ from contas.models import Conta
 from .forms import TransacaoForm
 from .models import Transacao
 from .ofx_duplicatas import avaliar_duplicatas_importacao, chave_fingerprint_linha
-from .ofx_parse import parse_ofx_bytes
+from .ofx_parse import LinhaOfx, parse_ofx_bytes
+from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 
 # Limite simples para OFX em memória (MVP síncrono).
 _MAX_OFX_BYTES = 6 * 1024 * 1024
+_MAX_XLSX_BYTES = 6 * 1024 * 1024
 _MAX_LINHAS_IMPORT_OFX = 2000
+
+
+def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
+    """JSON comum aos previews de importação (OFX e planilha)."""
+    dup_flags = avaliar_duplicatas_importacao(usuario, conta, linhas_parse)
+    por_indice = {d.indice: d for d in dup_flags}
+
+    linhas_json = []
+    for i, linha in enumerate(linhas_parse):
+        d = por_indice[i]
+        linhas_json.append(
+            {
+                "indice": i,
+                "data": linha.data.isoformat(),
+                "valor": str(linha.valor),
+                "tipo": linha.tipo,
+                "descricao": linha.descricao,
+                "ofx_fitid": linha.ofx_fitid,
+                "duplicata_por_fitid": d.duplicata_por_fitid,
+                "duplicata_por_heuristica": d.duplicata_por_heuristica,
+            }
+        )
+
+    categorias = _categorias_importacao_preview_payload(usuario)
+    return {
+        "status": "ok",
+        "conta_id": conta.pk,
+        "linhas": linhas_json,
+        "categorias": categorias,
+        "categorias_chave_por_tipo_transacao": {
+            "receita": "receita",
+            "despesa": "despesa",
+            "ajuste": "receita",
+        },
+    }
+
+
+def _upload_filename_is_xlsx(upload) -> bool:
+    name = (getattr(upload, "name", None) or "").strip().lower()
+    return name.endswith(".xlsx")
 
 
 def _normalizar_fitid_confirmacao(val):
@@ -427,40 +470,92 @@ def importar_ofx_preview(request):
             status=400,
         )
 
-    dup_flags = avaliar_duplicatas_importacao(request.user, conta, linhas_parse)
-    por_indice = {d.indice: d for d in dup_flags}
+    payload = _payload_preview_importacao(request.user, conta, linhas_parse)
+    return JsonResponse(payload)
 
-    linhas_json = []
-    for i, linha in enumerate(linhas_parse):
-        d = por_indice[i]
-        linhas_json.append(
-            {
-                "indice": i,
-                "data": linha.data.isoformat(),
-                "valor": str(linha.valor),
-                "tipo": linha.tipo,
-                "descricao": linha.descricao,
-                "ofx_fitid": linha.ofx_fitid,
-                "duplicata_por_fitid": d.duplicata_por_fitid,
-                "duplicata_por_heuristica": d.duplicata_por_heuristica,
-            }
+
+@login_required
+@require_POST
+def importar_planilha_preview(request):
+    """
+    Multipart: conta_id, arquivo (campo `arquivo` ou `file`).
+    Planilha .xlsx no layout fixo (primeira aba: data | descricao | valor).
+    """
+    conta_id = request.POST.get("conta_id")
+    upload = request.FILES.get("arquivo") or request.FILES.get("file")
+
+    if not conta_id:
+        return JsonResponse(
+            {"status": "error", "message": "Informe a conta."},
+            status=400,
+        )
+    if not upload:
+        return JsonResponse(
+            {"status": "error", "message": "Envie um arquivo Excel (.xlsx)."},
+            status=400,
+        )
+    if not _upload_filename_is_xlsx(upload):
+        return JsonResponse(
+            {"status": "error", "message": "Envie um arquivo Excel (.xlsx)."},
+            status=400,
         )
 
-    categorias = _categorias_importacao_preview_payload(request.user)
-    return JsonResponse(
-        {
-            "status": "ok",
-            "conta_id": conta.pk,
-            "linhas": linhas_json,
-            "categorias": categorias,
-            # Transacao tipo "ajuste" no projeto usa categoria com tipo "receita" (ex.: saldo inicial).
-            "categorias_chave_por_tipo_transacao": {
-                "receita": "receita",
-                "despesa": "despesa",
-                "ajuste": "receita",
+    try:
+        conta_pk = int(conta_id)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"status": "error", "message": "Conta inválida."},
+            status=400,
+        )
+
+    conta = get_object_or_404(Conta, pk=conta_pk, usuario=request.user, ativa=True)
+
+    raw = upload.read()
+    if len(raw) > _MAX_XLSX_BYTES:
+        return JsonResponse(
+            {"status": "error", "message": "Arquivo muito grande."},
+            status=400,
+        )
+
+    try:
+        linhas_parse = parse_planilha_padrao_bytes(raw)
+    except ValueError as exc:
+        return JsonResponse({"status": "error", "message": str(exc)}, status=400)
+
+    if len(linhas_parse) > _MAX_LINHAS_IMPORT_OFX:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": f"Limite de {_MAX_LINHAS_IMPORT_OFX} linhas por importação.",
             },
-        }
+            status=400,
+        )
+    if len(linhas_parse) == 0:
+        return JsonResponse(
+            {"status": "error", "message": "Nenhuma linha de lançamento na planilha."},
+            status=400,
+        )
+
+    payload = _payload_preview_importacao(request.user, conta, linhas_parse)
+    return JsonResponse(payload)
+
+
+@login_required
+@require_GET
+def importar_planilha_modelo(request):
+    """Gera .xlsx modelo com cabeçalhos oficiais (mesma ordem esperada pelo parser)."""
+    wb = gerar_workbook_modelo()
+    buf = io.BytesIO()
+    wb.save(buf)
+    data = buf.getvalue()
+    resp = HttpResponse(
+        data,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+    resp["Content-Disposition"] = (
+        'attachment; filename="modelo_importacao_lancamentos.xlsx"'
+    )
+    return resp
 
 
 @login_required

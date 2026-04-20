@@ -44,11 +44,20 @@ def _normalizar_fitid(fitid: object) -> str | None:
     return s if s else None
 
 
-def _amount_para_valor_e_tipo(amount: object) -> tuple[Decimal, str]:
+def valor_e_tipo_de_importacao(
+    amount: object,
+    *,
+    mensagem_valor_invalido: str = "Valor inválido.",
+) -> tuple[Decimal, str]:
+    """
+    Converte um montante com sinal em (valor_absoluto_ou_zero, tipo).
+    Positivo = receita, negativo = despesa (valor armazenado em magnitude), zero = ajuste.
+    Usado pelo OFX e pela importação de planilha padronizada.
+    """
     try:
         d = Decimal(str(amount))
     except (InvalidOperation, TypeError, ValueError) as exc:
-        raise ValueError("Valor da transação OFX inválido.") from exc
+        raise ValueError(mensagem_valor_invalido) from exc
 
     if d > 0:
         return d, "receita"
@@ -92,7 +101,10 @@ def parse_ofx_bytes(data: bytes, *, fail_fast: bool = True) -> list[LinhaOfx]:
 
     linhas: list[LinhaOfx] = []
     for t in _iter_transacoes(ofx):
-        valor, tipo = _amount_para_valor_e_tipo(t.amount)
+        valor, tipo = valor_e_tipo_de_importacao(
+            t.amount,
+            mensagem_valor_invalido="Valor da transação OFX inválido.",
+        )
         data_tx = _data_para_date(t.date)
         desc = _montar_descricao(getattr(t, "payee", None), getattr(t, "memo", None))
         fitid = _normalizar_fitid(getattr(t, "id", None))

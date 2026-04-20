@@ -32,6 +32,11 @@
           <i class="fa-solid fa-file-import text-sm" aria-hidden="true"></i>
           <span>Importar OFX</span>
         </button>
+        <button type="button" id="btn-importar-planilha"
+          class="inline-flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+          <i class="fa-solid fa-table text-sm" aria-hidden="true"></i>
+          <span>Importar planilha</span>
+        </button>
         <button type="button" id="btn-adicionar"
           class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
           <span class="text-base leading-none">+</span>
@@ -245,6 +250,7 @@
 
 {% include 'transacoes/partials/adicionar_transacao.html' %}
 {% include 'transacoes/partials/importar_ofx.html' %}
+{% include 'transacoes/partials/importar_planilha.html' %}
 {% include 'transacoes/partials/confirmar_exclusao.html' %}
 
 {# Barra fixa resumo do mês (mesmo max-width do conteúdo principal) #}
@@ -268,6 +274,7 @@
 <script src="{% static 'transacoes/js/historico.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/importar_ofx.js' %}"></script>
+<script src="{% static 'transacoes/js/importar_planilha.js' %}"></script>
 <script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
 {% endblock %}
