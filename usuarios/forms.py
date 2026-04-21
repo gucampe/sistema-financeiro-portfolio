@@ -22,29 +22,73 @@ def categoria_compativel_com_tipo_transacao_padrao(categoria: Categoria, tipo_tx
 
 
 class DadosPessoaisForm(forms.ModelForm):
+    _max_foto_bytes = 2 * 1024 * 1024
+    _tipos_mime_foto = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
+    foto = forms.ImageField(
+        label="Foto de perfil",
+        required=False,
+        widget=forms.FileInput(
+            attrs={
+                "class": (
+                    "block w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-600 "
+                    "shadow-sm outline-none transition file:mr-3 file:rounded-lg file:border-0 "
+                    "file:bg-gray-100 file:px-3 file:py-2 focus:border-emerald-500 focus:outline-none "
+                    "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                ),
+                "accept": "image/*",
+            }
+        ),
+    )
+
     class Meta:
         model = Usuario
         fields = ("nome", "data_nascimento")
         widgets = {
-            "nome": forms.TextInput(attrs={"class": "w-full rounded-lg border border-gray-300 px-3 py-2"}),
+            "nome": forms.TextInput(
+                attrs={
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
+            ),
             "data_nascimento": forms.DateInput(
-                attrs={"type": "date", "class": "w-full rounded-lg border border-gray-300 px-3 py-2"}
+                attrs={
+                    "type": "date",
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    ),
+                }
             ),
         }
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+        self.order_fields(("nome", "data_nascimento", "foto"))
+
+    def clean_foto(self):
+        foto = self.cleaned_data.get("foto")
+        if not foto:
+            return foto
+        if foto.size > self._max_foto_bytes:
+            raise ValidationError("A imagem deve ter no máximo 2 MB.")
+        content_type = getattr(foto, "content_type", None) or getattr(
+            getattr(foto, "file", None), "content_type", None
+        )
+        if content_type and content_type not in self._tipos_mime_foto:
+            raise ValidationError("Use JPEG, PNG, WebP ou GIF.")
+        return foto
 
 
 class PreferenciasFinanceirasForm(forms.ModelForm):
-    _max_foto_bytes = 2 * 1024 * 1024
-    _tipos_mime_foto = {"image/jpeg", "image/png", "image/webp", "image/gif"}
-
     class Meta:
         model = Perfil
         fields = (
-            "foto",
             "moeda",
             "tipo_transacao_padrao",
             "conta_padrao",
@@ -52,14 +96,50 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             "ocultar_valores_dashboard",
         )
         widgets = {
-            "moeda": forms.Select(attrs={"class": "w-full rounded-lg border border-gray-300 px-3 py-2"}),
-            "tipo_transacao_padrao": forms.Select(attrs={"class": "w-full rounded-lg border border-gray-300 px-3 py-2"}),
-            "conta_padrao": forms.Select(attrs={"class": "w-full rounded-lg border border-gray-300 px-3 py-2"}),
-            "categoria_padrao": forms.Select(attrs={"class": "w-full rounded-lg border border-gray-300 px-3 py-2"}),
-            "ocultar_valores_dashboard": forms.CheckboxInput(
-                attrs={"class": "h-4 w-4 rounded border-gray-300 text-emerald-600"}
+            "moeda": forms.Select(
+                attrs={
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
             ),
-            "foto": forms.FileInput(attrs={"class": "block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2"}),
+            "tipo_transacao_padrao": forms.Select(
+                attrs={
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
+            ),
+            "conta_padrao": forms.Select(
+                attrs={
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
+            ),
+            "categoria_padrao": forms.Select(
+                attrs={
+                    "class": (
+                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+                        "outline-none transition focus:border-emerald-500 focus:outline-none "
+                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
+            ),
+            "ocultar_valores_dashboard": forms.CheckboxInput(
+                attrs={
+                    "class": (
+                        "h-4 w-4 rounded border border-gray-300 text-emerald-600 shadow-sm "
+                        "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                    )
+                }
+            ),
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -79,19 +159,6 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             ativa=True,
         ).order_by("tipo", "nome")
         self.fields["categoria_padrao"].required = False
-
-    def clean_foto(self):
-        foto = self.cleaned_data.get("foto")
-        if not foto:
-            return foto
-        if foto.size > self._max_foto_bytes:
-            raise ValidationError("A imagem deve ter no máximo 2 MB.")
-        content_type = getattr(foto, "content_type", None) or getattr(
-            getattr(foto, "file", None), "content_type", None
-        )
-        if content_type and content_type not in self._tipos_mime_foto:
-            raise ValidationError("Use JPEG, PNG, WebP ou GIF.")
-        return foto
 
     def clean_conta_padrao(self):
         conta = self.cleaned_data.get("conta_padrao")
@@ -130,6 +197,10 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        css = "w-full rounded-lg border border-gray-300 px-3 py-2"
+        css = (
+            "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm outline-none "
+            "transition focus:border-emerald-500 focus:outline-none focus:ring-2 "
+            "focus:ring-emerald-500 focus:ring-offset-0"
+        )
         for f in self.fields.values():
             f.widget.attrs.setdefault("class", css)

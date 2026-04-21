@@ -14,115 +14,150 @@
 {% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-  {% if messages %}
-  <ul class="mb-6 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900" role="status">
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+<div class="min-h-full bg-gray-50">
+  <div class="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+    {% if messages %}
+    <ul class="mb-8 space-y-2 rounded-xl bg-white/90 px-4 py-3 text-sm text-emerald-900 shadow-md ring-1 ring-emerald-100 backdrop-blur-sm" role="status">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
-  <div class="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-gray-900">Configurações</h1>
-      <p class="mt-1 text-sm text-gray-600">Gerencie seu perfil, preferências financeiras e segurança.</p>
-    </div>
-  </div>
+    <header class="mb-10 sm:mb-12">
+      <h1 class="text-3xl font-semibold tracking-tight text-gray-900">Configurações</h1>
+      <p class="mt-2 max-w-2xl text-base leading-relaxed text-gray-500">Gerencie seu perfil, preferências financeiras e segurança.</p>
+    </header>
 
-  <div class="flex flex-col gap-8 lg:flex-row">
-    <nav class="lg:w-52 shrink-0" aria-label="Seções">
-      <ul class="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
-        <li><a href="#perfil" class="inline-flex rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Perfil</a></li>
-        <li><a href="#preferencias" class="inline-flex rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Preferências</a></li>
-        <li><a href="#seguranca" class="inline-flex rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50">Segurança</a></li>
-      </ul>
-    </nav>
+    <div class="flex flex-col gap-10 lg:flex-row lg:gap-12">
+      <nav class="shrink-0 lg:w-56" aria-label="Seções">
+        <p class="mb-2 hidden px-1 text-xs font-medium uppercase tracking-wider text-gray-400 lg:block">Navegação</p>
+        <ul data-config-nav class="flex flex-col gap-0.5 rounded-xl bg-white/80 p-1.5 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:inline-flex sm:flex-row sm:flex-wrap sm:gap-1 lg:flex lg:flex-col">
+          <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
+            <a href="#perfil" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Perfil</a>
+          </li>
+          <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
+            <a href="#preferencias" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Preferências</a>
+          </li>
+          <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
+            <a href="#seguranca" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Segurança</a>
+          </li>
+        </ul>
+      </nav>
 
-    <div class="min-w-0 flex-1 space-y-10">
-      <section id="perfil" class="scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-gray-900">Dados pessoais</h2>
-        <p class="mt-1 text-sm text-gray-500">E-mail (somente leitura): <span class="font-medium text-gray-800">{{ request.user.email }}</span></p>
-
-        <div class="mt-4 flex flex-col gap-6 sm:flex-row sm:items-start">
-          <div class="shrink-0">
-            {% if foto_url %}
-            <img id="preview-foto" src="{{ foto_url }}" alt="" class="h-24 w-24 rounded-full object-cover ring-2 ring-gray-100" width="96" height="96" />
-            {% else %}
-            <div id="preview-foto-placeholder" class="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500 ring-2 ring-gray-100">Sem foto</div>
-            <img id="preview-foto" src="" alt="" class="hidden h-24 w-24 rounded-full object-cover ring-2 ring-gray-100" width="96" height="96" />
-            {% endif %}
+      <div class="min-w-0 flex-1 space-y-12">
+        <section id="perfil" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
+          <div class="border-b border-gray-100 pb-5">
+            <h2 class="text-lg font-semibold tracking-tight text-gray-900">Dados pessoais</h2>
+            <p class="mt-1.5 text-sm text-gray-500">E-mail (somente leitura): <span class="font-medium text-gray-800">{{ request.user.email }}</span></p>
           </div>
-          <form method="post" action="{% url 'usuarios:configuracoes' %}#perfil" class="min-w-0 flex-1 space-y-4">
+
+          <div class="mt-6 flex flex-col gap-8 sm:flex-row sm:items-start">
+            <div class="shrink-0">
+              {% if foto_url %}
+              <img id="preview-foto" src="{{ foto_url }}" alt="Foto de perfil do usuário" class="h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white ring-offset-0" width="96" height="96" />
+              {% else %}
+              <div id="preview-foto-placeholder" class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200/80 shadow-md ring-4 ring-white" aria-hidden="true">
+                <span class="text-base font-semibold tracking-tight text-gray-600">{{ iniciais_avatar }}</span>
+              </div>
+              <img id="preview-foto" src="" alt="Foto de perfil do usuário" class="hidden h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white" width="96" height="96" />
+              {% endif %}
+            </div>
+            <form id="form-dados-pessoais" method="post" enctype="multipart/form-data" action="{% url 'usuarios:configuracoes' %}#perfil" class="min-w-0 flex-1 space-y-5">
+              {% csrf_token %}
+              <input type="hidden" name="form" value="dados_pessoais" />
+              {% for field in dados_form %}
+              <div class="space-y-1.5">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                {{ field }}
+                {% if field.name == "foto" %}<p id="foto-arquivo-selecionado" class="hidden text-xs text-gray-500" aria-live="polite"></p>{% endif %}
+                {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+              </div>
+              {% endfor %}
+              <div class="pt-1">
+                <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">Salvar dados pessoais</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="preferencias" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
+          <div class="border-b border-gray-100 pb-5">
+            <h2 class="text-lg font-semibold tracking-tight text-gray-900">Preferências financeiras</h2>
+            <p class="mt-1.5 text-sm text-gray-500">Moeda, padrões ao criar transação e privacidade no dashboard.</p>
+          </div>
+
+          <form method="post" action="{% url 'usuarios:configuracoes' %}#preferencias" class="mt-6 space-y-5">
             {% csrf_token %}
-            <input type="hidden" name="form" value="dados_pessoais" />
-            {% for field in dados_form %}
-            <div>
-              <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <input type="hidden" name="form" value="preferencias" />
+            {% for field in pref_form %}
+            <div class="space-y-1.5">
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
               {{ field }}
-              {% if field.errors %}<p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+              {% if field.help_text %}<p class="text-xs text-gray-500">{{ field.help_text }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
             </div>
             {% endfor %}
-            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">Salvar dados pessoais</button>
+            {% if pref_form.non_field_errors %}
+            <p class="text-sm text-red-600">{{ pref_form.non_field_errors.0 }}</p>
+            {% endif %}
+            <div class="pt-1">
+              <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">Salvar preferências</button>
+            </div>
           </form>
-        </div>
-      </section>
+        </section>
 
-      <section id="preferencias" class="scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-gray-900">Preferências financeiras</h2>
-        <p class="mt-1 text-sm text-gray-500">Moeda, padrões ao criar transação e privacidade no dashboard.</p>
-
-        <form method="post" enctype="multipart/form-data" action="{% url 'usuarios:configuracoes' %}#preferencias" class="mt-6 space-y-4">
-          {% csrf_token %}
-          <input type="hidden" name="form" value="preferencias" />
-          {% for field in pref_form %}
-          <div>
-            <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium text-gray-700">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>{% endif %}
-            {% if field.errors %}<p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+        <section id="seguranca" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
+          <div class="border-b border-gray-100 pb-5">
+            <h2 class="text-lg font-semibold tracking-tight text-gray-900">Segurança</h2>
+            <p class="mt-1.5 text-sm text-gray-500">Altere sua senha de acesso.</p>
           </div>
-          {% endfor %}
-          {% if pref_form.non_field_errors %}
-          <p class="text-sm text-red-600">{{ pref_form.non_field_errors.0 }}</p>
-          {% endif %}
-          <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700">Salvar preferências</button>
-        </form>
-      </section>
 
-      <section id="seguranca" class="scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-gray-900">Segurança</h2>
-        <p class="mt-1 text-sm text-gray-500">Altere sua senha de acesso.</p>
-
-        <form method="post" action="{% url 'usuarios:configuracoes_senha' %}#seguranca" class="mt-6 max-w-md space-y-4">
-          {% csrf_token %}
-          {% if senha_form.non_field_errors %}
-          <p class="text-sm text-red-600">{{ senha_form.non_field_errors.0 }}</p>
-          {% endif %}
-          {% for field in senha_form %}
-          <div>
-            <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium text-gray-700">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
-            {% if field.help_text %}<p class="mt-1 text-xs text-gray-500">{{ field.help_text|safe }}</p>{% endif %}
-          </div>
-          {% endfor %}
-          <button type="submit" class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800">Atualizar senha</button>
-        </form>
-      </section>
+          <form method="post" action="{% url 'usuarios:configuracoes_senha' %}#seguranca" class="mx-auto mt-6 max-w-md space-y-5">
+            {% csrf_token %}
+            {% if senha_form.non_field_errors %}
+            <p class="text-sm text-red-600">{{ senha_form.non_field_errors.0 }}</p>
+            {% endif %}
+            {% for field in senha_form %}
+            <div class="space-y-1.5">
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+              {% if field.help_text %}<p class="text-xs text-gray-500">{{ field.help_text|safe }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <div class="pt-1">
+              <button type="submit" class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">Atualizar senha</button>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 (function () {
-  var input = document.querySelector('input[name="foto"]');
+  var form = document.getElementById("form-dados-pessoais");
+  var input = form ? form.querySelector('input[name="foto"]') : null;
   var img = document.getElementById("preview-foto");
   var ph = document.getElementById("preview-foto-placeholder");
+  var nomeArq = document.getElementById("foto-arquivo-selecionado");
   if (!input || !img) return;
   input.addEventListener("change", function () {
     var f = input.files && input.files[0];
-    if (!f || !window.FileReader) return;
+    if (!f) {
+      if (nomeArq) {
+        nomeArq.textContent = "";
+        nomeArq.classList.add("hidden");
+      }
+      return;
+    }
+    if (nomeArq) {
+      nomeArq.textContent = "Arquivo selecionado: " + f.name;
+      nomeArq.classList.remove("hidden");
+    }
+    if (!window.FileReader) return;
     var r = new FileReader();
     r.onload = function (e) {
       img.src = e.target.result;
@@ -131,6 +166,34 @@
     };
     r.readAsDataURL(f);
   });
+})();
+
+(function () {
+  var links = document.querySelectorAll("[data-config-nav] [data-nav-link]");
+  var sections = document.querySelectorAll("section#perfil, section#preferencias, section#seguranca");
+  if (!links.length || !sections.length) return;
+  var activeCls = ["bg-emerald-50/90", "text-emerald-900", "ring-1", "ring-emerald-200/80"];
+  function setActive(hash) {
+    var h = hash || (window.location.hash || "#perfil");
+    links.forEach(function (a) {
+      var on = a.getAttribute("href") === h;
+      activeCls.forEach(function (c) { a.classList.toggle(c, on); });
+      if (on) a.setAttribute("aria-current", "location");
+      else a.removeAttribute("aria-current");
+    });
+  }
+  var io = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting || en.intersectionRatio < 0.25) return;
+        setActive("#" + en.target.id);
+      });
+    },
+    { root: null, rootMargin: "-40% 0px -45% 0px", threshold: [0, 0.25, 0.5] }
+  );
+  sections.forEach(function (s) { io.observe(s); });
+  window.addEventListener("hashchange", function () { setActive(window.location.hash); });
+  setActive(window.location.hash);
 })();
 </script>
 {% endblock %}

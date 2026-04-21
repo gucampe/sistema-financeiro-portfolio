@@ -12,6 +12,17 @@ from .forms import (
 from .models import Perfil
 
 
+def _iniciais_avatar(nome: str) -> str:
+    nome = (nome or "").strip()
+    if not nome:
+        return "?"
+    partes = nome.split()
+    if len(partes) >= 2:
+        return f"{partes[0][0]}{partes[-1][0]}".upper()
+    p = partes[0]
+    return (p[:2] if len(p) >= 2 else p[:1]).upper()
+
+
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -40,6 +51,7 @@ def _configuracoes_context(request, perfil=None, dados_form=None, pref_form=None
         "senha_form": senha_form,
         "perfil": perfil,
         "foto_url": foto_url,
+        "iniciais_avatar": _iniciais_avatar(request.user.nome),
     }
 
 
@@ -50,10 +62,19 @@ def configuracoes(request):
     if request.method == "POST":
         form_tipo = request.POST.get("form")
         if form_tipo == "dados_pessoais":
-            fd = DadosPessoaisForm(request.POST, instance=request.user, user=request.user)
+            fd = DadosPessoaisForm(
+                request.POST,
+                request.FILES,
+                instance=request.user,
+                user=request.user,
+            )
             if fd.is_valid():
                 fd.save()
-                messages.success(request, "Dados pessoais atualizados.")
+                foto = fd.cleaned_data.get("foto")
+                if foto:
+                    perfil.foto = foto
+                    perfil.save(update_fields=["foto"])
+                messages.success(request, "Dados pessoais atualizados com sucesso.")
                 return redirect(f"{reverse('usuarios:configuracoes')}#perfil")
             return render(
                 request,
@@ -63,13 +84,12 @@ def configuracoes(request):
         if form_tipo == "preferencias":
             fp = PreferenciasFinanceirasForm(
                 request.POST,
-                request.FILES,
                 instance=perfil,
                 user=request.user,
             )
             if fp.is_valid():
                 fp.save()
-                messages.success(request, "Preferências salvas.")
+                messages.success(request, "Preferências salvas com sucesso.")
                 return redirect(f"{reverse('usuarios:configuracoes')}#preferencias")
             return render(
                 request,
