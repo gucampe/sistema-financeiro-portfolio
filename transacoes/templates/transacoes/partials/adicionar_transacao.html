@@ -4,7 +4,7 @@
 <div id="overlay-adicionar" 
      class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50 p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden">
 
-  <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-[rgb(189_195_199_/_0.65)] my-auto">
+  <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-gray-200 my-auto">
 
     <!-- Botão fechar -->
     <button id="btn-fechar"
@@ -15,10 +15,10 @@
 
     <!-- Cabeçalho fixo (título + intro + erro) -->
     <div class="shrink-0 pr-12 sm:pr-14">
-      <h2 class="text-2xl font-semibold mb-1 text-[#34495E]">
+      <h2 class="text-2xl font-semibold mb-1 text-fg">
         Nova Transação
       </h2>
-      <p class="text-sm mb-4 sm:mb-6 text-[rgb(52_73_94_/_0.7)]">
+      <p class="text-sm mb-4 sm:mb-6 text-fg-muted">
         Adicione ou edite uma transação para controlar melhor suas finanças.
       </p>
 
@@ -35,10 +35,10 @@
 
       <!-- Tipo -->
       <div class="mb-4">
-        <label for="tipo" class="block text-sm font-medium mb-1 text-[#34495E]">Tipo</label>
+        <label for="tipo" class="block text-sm font-medium mb-1 text-fg">Tipo</label>
         {% firstof form.tipo.value form.initial.tipo "despesa" as tipo_atual %}
         <select name="tipo" id="tipo" required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="input w-full">
           <option value="despesa" {% if tipo_atual == "despesa" %}selected{% endif %}>Despesa</option>
           <option value="receita" {% if tipo_atual == "receita" %}selected{% endif %}>Receita</option>
           <option value="ajuste" {% if tipo_atual == "ajuste" %}selected{% endif %}>Ajuste</option>
@@ -47,7 +47,7 @@
 
       <!-- Conta (select nativo + combobox visual) -->
       <div class="mb-4" data-combobox-root="conta">
-        <label {% if form.conta.field.queryset %}for="id_conta"{% endif %} class="block text-sm font-medium mb-1 text-[#34495E]">Conta</label>
+        <label {% if form.conta.field.queryset %}for="id_conta"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta</label>
         {% if form.conta.field.queryset %}
         <div class="relative mt-1">
           <select name="conta" id="id_conta" required
@@ -60,7 +60,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-conta">
@@ -75,14 +75,14 @@
                hidden></div>
         </div>
         {% else %}
-        <div class="relative mt-1 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2.5 text-sm text-[#34495E] shadow-sm"
+        <div class="relative mt-1 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2.5 text-sm text-fg shadow-sm"
              role="status">
           <p class="leading-snug">
             Você precisa cadastrar pelo menos uma conta antes de registrar transações.
           </p>
           <p class="mt-2">
             <a href="{% url 'contas:home' %}"
-               class="font-medium text-blue-700 underline decoration-blue-700/40 underline-offset-2 hover:text-blue-800">
+               class="font-medium text-brand-700 underline decoration-brand-600/40 underline-offset-2 hover:text-brand-800">
               Ir para cadastro de contas
             </a>
           </p>
@@ -95,7 +95,7 @@
 
       <!-- Categoria (select nativo + combobox visual) -->
       <div class="mb-4" data-combobox-root="categoria">
-        <label for="categoria" class="block text-sm font-medium mb-1 text-[#34495E]">Categoria</label>
+        <label for="categoria" class="block text-sm font-medium mb-1 text-fg">Categoria</label>
         <div class="relative mt-1">
           <select name="categoria" id="categoria" required
                   class="sr-only focus:outline-none">
@@ -110,7 +110,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-categoria">
@@ -131,23 +131,23 @@
 
       <!-- Valor -->
       <div class="mb-4">
-        <label for="valor" class="block text-sm font-medium mb-1 text-[#34495E]">Valor (R$)</label>
+        <label for="valor" class="block text-sm font-medium mb-1 text-fg">Valor (R$)</label>
         <input type="number" step="0.01" name="valor" id="valor" required
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="input w-full">
       </div>
 
       <!-- Descrição -->
       <div class="mb-4">
-        <label for="descricao" class="block text-sm font-medium mb-1 text-[#34495E]">Descrição</label>
+        <label for="descricao" class="block text-sm font-medium mb-1 text-fg">Descrição</label>
         <input type="text" name="descricao" id="descricao" required
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="input w-full">
       </div>
 
       <!-- Data -->
       <div class="mb-4">
-        <label for="data" class="block text-sm font-medium mb-1 text-[#34495E]">Data</label>
+        <label for="data" class="block text-sm font-medium mb-1 text-fg">Data</label>
         <input type="date" name="data" id="data" required
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="input w-full">
       </div>
 
       </div>
@@ -156,12 +156,12 @@
       <div class="shrink-0 border-t border-gray-100 bg-white pt-4 mt-2">
         <button type="submit"
                 id="btn-salvar-transacao"
-                class="w-full rounded-lg bg-gradient-to-br from-green-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(22,163,74,0.35)] transition hover:brightness-105 hover:shadow-[0_4px_14px_rgba(22,163,74,0.4)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-[0_2px_8px_rgba(22,163,74,0.35)]"
+                class="btn btn-primary btn-block disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-[0_2px_8px_rgba(22,163,74,0.35)]"
                 {% if not form.conta.field.queryset %}disabled aria-disabled="true"{% endif %}>
           Salvar
         </button>
 
-        <p class="text-xs mt-3 text-center text-[rgb(52_73_94_/_0.65)]">
+        <p class="text-xs mt-3 text-center text-fg-muted">
           Você pode editar ou excluir transações depois, quando quiser.
         </p>
       </div>

@@ -12,24 +12,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!btnDespesa || !btnReceita || !tbodyDespesa || !tbodyReceita) return;
 
-  const COLORS = {
-    receita: { bg: "#2ECC71", text: "#FFFFFF", hover: "#27AE60" },
-    despesa: { bg: "#E74C3C", text: "#FFFFFF", hover: "#C0392B" },
-    inactive: { bg: "#FFFFFF", text: "#34495E", hoverBg: "rgba(189,195,199,.25)" }
-  };
+  const TAB_ACTIVE = ["tab-cat--despesa-active", "tab-cat--receita-active"];
+  const TAB_INACTIVE = "tab-cat--inactive";
+
+  function resetTabButtonClasses(btn) {
+    btn.classList.remove(...TAB_ACTIVE, TAB_INACTIVE);
+  }
 
   function setButtonActive(btn, type) {
-    btn.style.background = COLORS[type].bg;
-    btn.style.color = COLORS[type].text;
-    btn.onmouseenter = () => (btn.style.background = COLORS[type].hover);
-    btn.onmouseleave = () => (btn.style.background = COLORS[type].bg);
+    resetTabButtonClasses(btn);
+    btn.classList.add(type === "despesa" ? "tab-cat--despesa-active" : "tab-cat--receita-active");
   }
 
   function setButtonInactive(btn) {
-    btn.style.background = COLORS.inactive.bg;
-    btn.style.color = COLORS.inactive.text;
-    btn.onmouseenter = () => (btn.style.background = COLORS.inactive.hoverBg);
-    btn.onmouseleave = () => (btn.style.background = COLORS.inactive.bg);
+    resetTabButtonClasses(btn);
+    btn.classList.add(TAB_INACTIVE);
   }
 
   function updateContadorArquivadas(tab) {

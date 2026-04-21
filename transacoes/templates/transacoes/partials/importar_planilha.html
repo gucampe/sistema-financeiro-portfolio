@@ -71,7 +71,7 @@
     </button>
 
     <div class="p-3 pb-2 sm:p-4 sm:pb-3 border-b border-gray-100 shrink-0 [@media(min-height:880px)]:sm:p-6 [@media(min-height:880px)]:sm:pb-4">
-      <h2 class="text-base sm:text-lg font-semibold text-[#34495E] pr-10 [@media(min-height:880px)]:sm:text-xl">Importar planilha</h2>
+      <h2 class="text-base sm:text-lg font-semibold text-fg pr-10 [@media(min-height:880px)]:sm:text-xl">Importar planilha</h2>
       <p class="text-[0.7rem] leading-snug sm:text-xs text-gray-500 mt-1 break-words [@media(min-height:880px)]:sm:text-sm [@media(min-height:880px)]:leading-normal">Use o modelo oficial (.xlsx): primeira aba, primeira linha com colunas <strong>data</strong>, <strong>descricao</strong> e <strong>valor</strong> (valor negativo = despesa, positivo = receita). Revise as linhas; a categoria por linha é opcional.</p>
     </div>
 
@@ -79,7 +79,7 @@
 
     <div id="import-planilha-step-upload" class="p-3 sm:p-4 space-y-3 sm:space-y-4 shrink-0 [@media(min-height:880px)]:sm:p-6">
       <div data-combobox-root="conta" class="min-w-0 max-w-full">
-        <label for="import-planilha-conta" class="block text-sm font-medium text-[#34495E] mb-1">Conta</label>
+        <label for="import-planilha-conta" class="block text-sm font-medium text-fg mb-1">Conta</label>
         <div class="relative mt-1 min-w-0 max-w-full">
           <select id="import-planilha-conta" required
                   class="sr-only focus:outline-none">
@@ -91,7 +91,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-[#34495E] shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-import-planilha-conta">
@@ -107,7 +107,7 @@
         </div>
       </div>
       <div class="min-w-0 max-w-full">
-        <label for="import-planilha-arquivo" class="block text-sm font-medium text-[#34495E] mb-1">Arquivo (.xlsx)</label>
+        <label for="import-planilha-arquivo" class="block text-sm font-medium text-fg mb-1">Arquivo (.xlsx)</label>
         <input type="file" id="import-planilha-arquivo" accept=".xlsx,.XLSX,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                class="block w-full min-w-0 max-w-full text-sm text-gray-600 file:mr-2 sm:file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 sm:file:px-4 file:py-2 file:text-xs sm:file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100" />
         <p class="text-xs text-gray-500 mt-2">

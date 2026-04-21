@@ -5,15 +5,13 @@ from django.db.models import Q
 
 from categorias.models import Categoria
 from contas.models import Conta
+from core.forms_ui import (
+    CHECKBOX_CONTROL_CLASSES,
+    FILE_INPUT_CONTROL_CLASSES,
+    INPUT_CONTROL_CLASSES,
+)
 
 from .models import Perfil, Usuario
-
-# Controles de texto/select na página de configurações (padding e foco unificados).
-_INPUT_CONTROL_CLASSES = (
-    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-    "outline-none transition focus:border-emerald-500 focus:outline-none "
-    "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-)
 
 
 def categoria_compativel_com_tipo_transacao_padrao(categoria: Categoria, tipo_tx: str) -> bool:
@@ -35,28 +33,18 @@ class DadosPessoaisForm(forms.ModelForm):
     foto = forms.ImageField(
         label="Foto de perfil",
         required=False,
-        widget=forms.FileInput(
-            attrs={
-                "class": (
-                    "block w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-600 "
-                    "shadow-sm outline-none transition file:mr-3 file:rounded-lg file:border-0 "
-                    "file:bg-gray-100 file:px-3 file:py-2 focus:border-emerald-500 focus:outline-none "
-                    "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                ),
-                "accept": "image/*",
-            }
-        ),
+        widget=forms.FileInput(attrs={"class": FILE_INPUT_CONTROL_CLASSES, "accept": "image/*"}),
     )
 
     class Meta:
         model = Usuario
         fields = ("nome", "data_nascimento")
         widgets = {
-            "nome": forms.TextInput(attrs={"class": _INPUT_CONTROL_CLASSES}),
+            "nome": forms.TextInput(attrs={"class": INPUT_CONTROL_CLASSES}),
             "data_nascimento": forms.DateInput(
                 attrs={
                     "type": "date",
-                    "class": _INPUT_CONTROL_CLASSES,
+                    "class": INPUT_CONTROL_CLASSES,
                 }
             ),
         }
@@ -91,18 +79,11 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             "ocultar_valores_dashboard",
         )
         widgets = {
-            "moeda": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
-            "tipo_transacao_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
-            "conta_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
-            "categoria_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
-            "ocultar_valores_dashboard": forms.CheckboxInput(
-                attrs={
-                    "class": (
-                        "h-4 w-4 rounded border border-gray-300 text-emerald-600 shadow-sm "
-                        "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
+            "moeda": forms.Select(attrs={"class": INPUT_CONTROL_CLASSES}),
+            "tipo_transacao_padrao": forms.Select(attrs={"class": INPUT_CONTROL_CLASSES}),
+            "conta_padrao": forms.Select(attrs={"class": INPUT_CONTROL_CLASSES}),
+            "categoria_padrao": forms.Select(attrs={"class": INPUT_CONTROL_CLASSES}),
+            "ocultar_valores_dashboard": forms.CheckboxInput(attrs={"class": CHECKBOX_CONTROL_CLASSES}),
         }
 
     def __init__(self, *args, user=None, **kwargs):
@@ -161,6 +142,6 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Mesmo padding horizontal/vertical dos demais inputs; !pr-12 reserva área do botão “olho”.
-        css = f"{_INPUT_CONTROL_CLASSES} !pr-12"
+        css = f"{INPUT_CONTROL_CLASSES} !pr-12"
         for f in self.fields.values():
             f.widget.attrs.setdefault("class", css)

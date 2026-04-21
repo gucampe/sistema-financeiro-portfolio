@@ -1,11 +1,14 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GranaGo | {% block title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}">
     <link rel="alternate icon" type="image/png" href="{% static 'img/icons/logo.png' %}">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/icons/logo.ico' %}">
@@ -14,7 +17,7 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" />
   </head>
-  <body class="bg-[#F4F5F7] min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col bg-surface font-sans antialiased">
   {# Evita flash “abre e fecha” ao navegar: aplica recolhido antes do primeiro paint (localStorage). #}
   <script>
     (function () {

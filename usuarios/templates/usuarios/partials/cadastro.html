@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 
 {% block show_header_sidebar %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-center text-gray-800">Cadastro de Usuário</h2>
+<div class="flex items-center justify-center min-h-screen bg-surface px-4">
+    <div class="card w-full max-w-md p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-center text-fg">Cadastro de Usuário</h2>
         <form method="post" class="space-y-4">
             {% csrf_token %}
             {% for field in form %}
                 <div>
-                    <label class="block mb-1 font-semibold text-gray-700">{{ field.label }}</label>
+                    <label class="block mb-1 text-sm font-medium text-fg" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
                         <p class="text-sm text-red-500">{{ field.errors|striptags }}</p>
                     {% endif %}
                 </div>
             {% endfor %}
-            <button type="submit" class="w-full py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-700 transition">Cadastrar</button>
+            <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
         </form>
         {% if form.non_field_errors %}
             <div class="mt-2 text-sm text-red-500">{{ form.non_field_errors }}</div>

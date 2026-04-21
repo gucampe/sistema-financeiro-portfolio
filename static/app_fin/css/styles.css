@@ -1,6 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    background: red;
-}
-
+/*
+ * Arquivo legado — não referenciado pelo projeto principal.
+ * Mantido vazio para evitar reset acidental (versão anterior forçava background: red).
+ */

@@ -1,5 +1,8 @@
 # transacoes/forms.py
 from django import forms
+
+from core.forms_ui import INPUT_CONTROL_CLASSES
+
 from .models import Transacao
 from categorias.models import Categoria
 from contas.models import Conta
@@ -44,9 +47,7 @@ class TransacaoForm(forms.ModelForm):
         self.fields["categoria"].required = True
 
         for field in self.fields.values():
-            field.widget.attrs.update({
-                "class": "w-full px-4 py-2 border rounded-md"
-            })
+            field.widget.attrs.update({"class": INPUT_CONTROL_CLASSES})
 
     def clean_conta(self):
         conta = self.cleaned_data.get("conta")

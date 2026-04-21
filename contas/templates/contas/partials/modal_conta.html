@@ -2,27 +2,22 @@
 <div id="overlay-modal-conta"
      class="fixed inset-0 hidden z-50 opacity-0 transition-opacity duration-200 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/55 p-3 sm:p-4 md:p-6">
 
-  <div class="w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] my-auto flex min-h-0 flex-col overflow-hidden rounded-2xl border bg-white shadow-xl transform transition-all duration-200 scale-[.98]"
-       style="border-color: rgba(189,195,199,.65);">
+  <div class="w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] my-auto flex min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl transform transition-all duration-200 scale-[.98]">
 
       <!-- Header -->
-      <div class="shrink-0 px-5 sm:px-6 py-4 sm:py-5 border-b flex items-start justify-between gap-4"
-           style="border-color: rgba(189,195,199,.35);">
+      <div class="shrink-0 px-5 sm:px-6 py-4 sm:py-5 border-b border-gray-100 flex items-start justify-between gap-4">
         <div class="min-w-0 pr-2">
-          <h2 id="titulo-modal-conta" class="text-xl sm:text-2xl font-semibold leading-tight" style="color:#34495E;">
+          <h2 id="titulo-modal-conta" class="text-xl sm:text-2xl font-semibold leading-tight text-fg">
             Nova conta
           </h2>
-          <p class="text-sm mt-1" style="color: rgba(52,73,94,.70);">
+          <p class="text-sm mt-1 text-fg-muted">
             Onde está o seu dinheiro: conta corrente, poupança, carteira, cartão ou investimento.
           </p>
         </div>
 
         <button id="btn-fechar-modal-conta"
                 type="button"
-                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition active:scale-[.98]"
-                style="border-color: rgba(189,195,199,.55); color:#34495E; background: rgba(189,195,199,.15);"
-                onmouseover="this.style.background='rgba(189,195,199,.25)'"
-                onmouseout="this.style.background='rgba(189,195,199,.15)'"
+                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-fg bg-gray-100 transition hover:bg-gray-200 active:scale-[.98]"
                 aria-label="Fechar modal">
           ✕
         </button>
@@ -38,16 +33,14 @@
           <input type="hidden" name="icone" id="conta_icone" value="bank">
 
         <div id="erro-modal-conta"
-             class="hidden shrink-0 mx-5 sm:mx-6 mt-4 mb-3 rounded-xl text-sm border px-4 py-3"
-             style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
+             class="hidden shrink-0 mx-5 sm:mx-6 mt-4 mb-3 rounded-xl text-sm border border-danger-border bg-danger-soft px-4 py-3 text-danger">
         </div>
 
           <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-5 sm:px-6 py-4 space-y-4">
 
           <!-- Preview do ícone (clicável; seleção em modal secundário depois) -->
           <div id="preview-icone-conta-wrapper"
-               class="flex flex-col items-center justify-center py-3 px-3 sm:py-4 sm:px-4 rounded-2xl border-2 border-dashed cursor-pointer transition hover:bg-opacity-80"
-               style="border-color: rgba(189,195,199,.6); background: rgba(189,195,199,.06);"
+               class="flex flex-col items-center justify-center py-3 px-3 sm:py-4 sm:px-4 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/80 cursor-pointer transition hover:bg-gray-100/80"
                role="button"
                tabindex="0"
                aria-label="Escolha um ícone">
@@ -59,32 +52,30 @@
                      class="w-full h-full object-contain pointer-events-none rounded-lg">
               </div>
             </div>
-            <span class="text-sm font-semibold" style="color:#34495E;">Escolha um ícone</span>
-            <span class="text-xs mt-0.5" style="color: rgba(52,73,94,.55);">Instituição ou genérico</span>
+            <span class="text-sm font-semibold text-fg">Escolha um ícone</span>
+            <span class="text-xs mt-0.5 text-fg-muted">Instituição ou genérico</span>
           </div>
 
           <!-- Nome -->
           <div>
-            <label for="conta_nome" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+            <label for="conta_nome" class="block text-sm font-semibold mb-2 text-fg">
               Nome
             </label>
             <input type="text" name="nome" id="conta_nome" required
-                   class="w-full px-4 py-2.5 rounded-xl border outline-none transition focus:ring-4"
-                   style="border-color:#BDC3C7; color:#34495E;"
+                   class="input w-full rounded-xl"
                    placeholder="Ex.: Conta Corrente Nubank">
-            <p class="text-xs mt-1" style="color: rgba(52,73,94,.55);">
+            <p class="text-xs mt-1 text-fg-muted opacity-90">
               Um nome curto facilita no dia a dia (ex.: “Nubank”, “Carteira”, “Investimentos”).
             </p>
           </div>
 
           <!-- Tipo -->
           <div>
-            <label for="conta_tipo" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+            <label for="conta_tipo" class="block text-sm font-semibold mb-2 text-fg">
               Tipo
             </label>
             <select name="tipo" id="conta_tipo" required
-                    class="w-full px-4 py-2.5 rounded-xl border bg-white outline-none transition focus:ring-4"
-                    style="border-color:#BDC3C7; color:#34495E;">
+                    class="input w-full rounded-xl bg-white">
               {% for value, label in tipo_choices %}
                 <option value="{{ value }}">{{ label }}</option>
               {% endfor %}
@@ -93,20 +84,18 @@
 
           <!-- Saldo inicial (apenas na criação; oculto na edição via JS) -->
           <div id="grupo-saldo-inicial">
-            <label for="conta_saldo_inicial" class="block text-sm font-semibold mb-2" style="color:#34495E;">
+            <label for="conta_saldo_inicial" class="block text-sm font-semibold mb-2 text-fg">
               Saldo inicial
             </label>
             <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold"
-                    style="color: rgba(52,73,94,.65);">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-fg-muted">
                 R$
               </span>
               <input type="text" name="saldo_inicial" id="conta_saldo_inicial" value="0"
-                     class="w-full pl-12 pr-4 py-2.5 rounded-xl border outline-none transition focus:ring-4"
-                     style="border-color:#BDC3C7; color:#34495E;"
+                     class="input w-full rounded-xl pl-12"
                      placeholder="0,00">
             </div>
-            <p class="text-xs mt-1" style="color: rgba(52,73,94,.55);">
+            <p class="text-xs mt-1 text-fg-muted opacity-90">
               Se preferir, deixe 0 e ajuste depois com uma transação de “ajuste de saldo”.
             </p>
           </div>
@@ -114,19 +103,16 @@
           </div>
 
           <!-- Rodapé fixo -->
-          <div class="shrink-0 border-t bg-white px-5 sm:px-6 py-4" style="border-color: rgba(189,195,199,.35);">
+          <div class="shrink-0 border-t border-gray-100 bg-white px-5 sm:px-6 py-4">
           <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button type="submit"
-                    class="w-full inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(22,163,74,0.35)] transition hover:brightness-105 hover:shadow-[0_4px_14px_rgba(22,163,74,0.4)] active:scale-[.99]">
+                    class="btn btn-primary btn-block sm:flex-1">
               Salvar
             </button>
 
             <button type="button"
                     id="btn-cancelar-modal-conta"
-                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl border font-semibold transition active:scale-[.99]"
-                    style="border-color:#BDC3C7; color:#34495E; background: rgba(189,195,199,.10);"
-                    onmouseover="this.style.background='rgba(189,195,199,.18)'"
-                    onmouseout="this.style.background='rgba(189,195,199,.10)'">
+                    class="btn btn-secondary btn-block sm:flex-1">
               Cancelar
             </button>
           </div>
@@ -143,24 +129,19 @@
   <div class="absolute inset-0" id="overlay-modal-icone-backdrop"></div>
 
   <div class="relative z-10 mx-auto w-full max-w-lg my-auto min-h-0">
-    <div class="w-full max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] overflow-y-auto overscroll-contain rounded-2xl border bg-white shadow-xl"
-         style="border-color: rgba(189,195,199,.65);">
+    <div class="w-full max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] overflow-y-auto overscroll-contain rounded-2xl border border-gray-200 bg-white shadow-xl">
 
       <!-- Header -->
-      <div class="px-6 py-5 border-b flex items-start justify-between gap-4 sticky top-0 bg-white z-10"
-           style="border-color: rgba(189,195,199,.35);">
+      <div class="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4 sticky top-0 bg-white z-10">
         <div class="min-w-0">
-          <h3 class="text-xl font-semibold leading-tight" style="color:#34495E;">Escolha um ícone</h3>
-          <p class="text-sm mt-1" style="color: rgba(52,73,94,.70);">
+          <h3 class="text-xl font-semibold leading-tight text-fg">Escolha um ícone</h3>
+          <p class="text-sm mt-1 text-fg-muted">
             Instituição financeira ou ícone genérico para identificar a conta.
           </p>
         </div>
         <button id="btn-fechar-modal-icone"
                 type="button"
-                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border transition active:scale-[.98]"
-                style="border-color: rgba(189,195,199,.55); color:#34495E; background: rgba(189,195,199,.15);"
-                onmouseover="this.style.background='rgba(189,195,199,.25)'"
-                onmouseout="this.style.background='rgba(189,195,199,.15)'"
+                class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-fg bg-gray-100 transition hover:bg-gray-200 active:scale-[.98]"
                 aria-label="Fechar">
           ✕
         </button>
@@ -170,13 +151,12 @@
       <div class="px-6 py-5 space-y-6">
         <!-- Instituições financeiras -->
         <div>
-          <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Instituições financeiras</h4>
+          <h4 class="text-sm font-semibold mb-3 text-fg">Instituições financeiras</h4>
           <div class="overflow-x-auto overflow-y-visible -mx-2 px-2 sm:mx-0 sm:px-0">
           <div id="grid-icones-instituicoes" class="grid min-w-[18rem] grid-cols-3 sm:min-w-0 sm:grid-cols-4 gap-3">
             {% for slug, label, filename in icon_list_instituicoes %}
             <button type="button"
-                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
-                    style="border-color: rgba(189,195,199,.5); background: rgba(189,195,199,.06); color:#34495E;"
+                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-gray-200 bg-gray-50/80 text-fg transition hover:shadow-md min-h-[100px]"
                     data-icone="{{ slug }}"
                     data-tipo="instituicao"
                     aria-label="Ícone {{ label }}">
@@ -194,13 +174,12 @@
 
         <!-- Ícones genéricos -->
         <div>
-          <h4 class="text-sm font-semibold mb-3" style="color:#34495E;">Ícones genéricos</h4>
+          <h4 class="text-sm font-semibold mb-3 text-fg">Ícones genéricos</h4>
           <div class="overflow-x-auto overflow-y-visible -mx-2 px-2 sm:mx-0 sm:px-0">
           <div id="grid-icones-genericos" class="grid min-w-[18rem] grid-cols-3 sm:min-w-0 sm:grid-cols-4 gap-3">
             {% for slug, label, filename in icon_list_genericos %}
             <button type="button"
-                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition hover:shadow-md min-h-[100px]"
-                    style="border-color: rgba(189,195,199,.5); background: rgba(189,195,199,.06); color:#34495E;"
+                    class="item-icone-conta flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-gray-200 bg-gray-50/80 text-fg transition hover:shadow-md min-h-[100px]"
                     data-icone="{{ slug }}"
                     data-tipo="generico"
                     aria-label="Ícone {{ label }}">
@@ -223,11 +202,11 @@
 <style>
   .item-icone-conta.icone-selecionado {
     border-width: 2px;
-    border-color: #2ECC71;
-    background: rgba(46,204,113,.12);
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
   }
   .item-icone-conta:hover {
-    background: rgba(189,195,199,.12);
-    border-color: rgba(189,195,199,.7);
+    background: rgba(241, 245, 249, 0.95);
+    border-color: #cbd5e1;
   }
 </style>

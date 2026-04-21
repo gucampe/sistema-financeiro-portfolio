@@ -1,31 +1,26 @@
 <div id="overlay-adicionar-categoria"
-     class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center"
-     style="background: rgba(0,0,0,.50);">
+     class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 opacity-0">
 
-  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative transform scale-95 transition-all duration-300 border"
-       style="border-color: rgba(189,195,199,.65);">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative transform scale-95 transition-all duration-300 border border-gray-200">
 
     <!-- Botão fechar -->
     <button id="btn-fechar-categoria"
-            class="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition"
-            style="color:#34495E; background: rgba(189,195,199,.20);"
-            onmouseover="this.style.background='rgba(189,195,199,.35)'"
-            onmouseout="this.style.background='rgba(189,195,199,.20)'"
+            type="button"
+            class="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition text-fg bg-gray-200/80 hover:bg-gray-300"
             aria-label="Fechar modal">
       ✕
     </button>
 
-    <h2 class="text-2xl font-semibold mb-1" style="color:#34495E;">
+    <h2 class="text-2xl font-semibold mb-1 text-fg">
       Nova Categoria
     </h2>
-    <p class="text-sm mb-6" style="color: rgba(52,73,94,.70);">
+    <p class="text-sm mb-6 text-fg-muted">
       Defina tipo, nome, ícone e cor para organizar melhor seu controle financeiro.
     </p>
 
     <!-- Mensagem de erro -->
     <div id="erro-categoria"
-         class="hidden mb-4 p-3 rounded-lg text-sm border"
-         style="background: rgba(220,38,38,.10); color:#DC2626; border-color: rgba(220,38,38,.25);">
+         class="hidden mb-4 p-3 rounded-lg text-sm border border-danger-border bg-danger-soft text-danger">
     </div>
 
     <form id="form-adicionar-categoria"
@@ -35,14 +30,10 @@
 
       <!-- Tipo -->
       <div class="mb-4">
-        <label for="tipo" class="block text-sm font-medium mb-1" style="color:#34495E;">
+        <label for="tipo" class="block text-sm font-medium mb-1 text-fg">
           Tipo
         </label>
-        <select name="tipo" id="tipo" required
-                class="w-full px-4 py-2 rounded-md border bg-white outline-none transition"
-                style="border-color:#BDC3C7; color:#34495E;"
-                onfocus="this.style.boxShadow='0 0 0 3px rgba(46,204,113,.25)'; this.style.borderColor='#2ECC71';"
-                onblur="this.style.boxShadow='none'; this.style.borderColor='#BDC3C7';">
+        <select name="tipo" id="tipo" required class="input w-full">
           <option value="despesa">Despesa</option>
           <option value="receita">Receita</option>
         </select>
@@ -50,38 +41,31 @@
 
       <!-- Nome -->
       <div class="mb-4">
-        <label for="nome" class="block text-sm font-medium mb-1" style="color:#34495E;">
+        <label for="nome" class="block text-sm font-medium mb-1 text-fg">
           Nome
         </label>
         <input type="text"
                name="nome"
                id="nome"
                required
-               class="w-full px-4 py-2 rounded-md border outline-none transition"
-               style="border-color:#BDC3C7; color:#34495E;"
-               placeholder="Ex.: Supermercado"
-               onfocus="this.style.boxShadow='0 0 0 3px rgba(46,204,113,.25)'; this.style.borderColor='#2ECC71';"
-               onblur="this.style.boxShadow='none'; this.style.borderColor='#BDC3C7';">
+               class="input w-full"
+               placeholder="Ex.: Supermercado">
       </div>
 
       <!-- Ícone -->
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-2" style="color:#34495E;">
+        <label class="block text-sm font-medium mb-2 text-fg">
           Ícone
         </label>
 
         <div id="icon-grid" class="grid grid-cols-6 gap-3">
           {% for value in icones %}
-            <div class="relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border"
-                 style="border-color:#BDC3C7;"
-                 onmouseover="this.style.background='rgba(189,195,199,.18)'"
-                 onmouseout="this.style.background='transparent'"
+            <div class="relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
                  data-value="{{ value }}">
-              <i class="fas {{ value }} text-xl" style="color:#34495E;"></i>
+              <i class="fas {{ value }} text-xl text-fg"></i>
 
               <!-- Check -->
-              <span class="check-icon hidden absolute top-1 right-1 text-xs font-bold"
-                    style="color:#2ECC71;">
+              <span class="check-icon hidden absolute top-1 right-1 text-xs font-bold text-brand-600">
                 ✔
               </span>
             </div>
@@ -89,23 +73,21 @@
         </div>
 
         <input type="hidden" name="icone" id="icone" required>
-        <p class="mt-2 text-xs" style="color: rgba(52,73,94,.65);">
+        <p class="mt-2 text-xs text-fg-muted">
           Dica: escolha um ícone simples para reconhecer rapidamente a categoria.
         </p>
       </div>
 
       <!-- Cor -->
       <div class="mb-6">
-        <label class="block text-sm font-medium mb-2" style="color:#34495E;">
+        <label class="block text-sm font-medium mb-2 text-fg">
           Cor
         </label>
 
         <div id="color-grid" class="grid grid-cols-8 gap-3">
           {% for value, label in cores %}
-            <div class="relative cursor-pointer w-8 h-8 rounded-full border-2 flex items-center justify-center transition"
-                 style="background-color: {{ value }}; border-color: rgba(189,195,199,.8);"
-                 onmouseover="this.style.transform='scale(1.08)'"
-                 onmouseout="this.style.transform='scale(1)'"
+            <div class="relative cursor-pointer w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center transition hover:scale-105"
+                 style="background-color: {{ value }};"
                  data-value="{{ value }}"
                  title="{{ label }}">
               <span class="check-color hidden text-white text-sm font-bold">✔</span>
@@ -118,13 +100,12 @@
       </div>
 
       <!-- Botão salvar -->
-      <button type="submit"
-              class="w-full rounded-lg bg-gradient-to-br from-green-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(22,163,74,0.35)] transition hover:brightness-105 hover:shadow-[0_4px_14px_rgba(22,163,74,0.4)]">
+      <button type="submit" class="btn btn-primary btn-block">
         Salvar
       </button>
 
       <!-- microtexto -->
-      <p class="text-xs mt-3 text-center" style="color: rgba(52,73,94,.65);">
+      <p class="text-xs mt-3 text-center text-fg-muted">
         Você pode editar ou excluir categorias depois, quando quiser.
       </p>
 

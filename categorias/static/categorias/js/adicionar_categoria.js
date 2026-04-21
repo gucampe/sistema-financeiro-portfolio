@@ -97,7 +97,7 @@ function getTargetTbodyByTipo(tipo) {
 function limparIcones() {
   if (!iconGrid) return;
   iconGrid.querySelectorAll("div").forEach((d) => {
-    d.classList.remove("border-blue-500", "bg-blue-50");
+    d.classList.remove("border-brand-500", "bg-brand-50");
     const check = d.querySelector(".check-icon");
     if (check) check.classList.add("hidden");
   });
@@ -106,7 +106,7 @@ function limparIcones() {
 function limparCores() {
   if (!colorGrid) return;
   colorGrid.querySelectorAll("div").forEach((d) => {
-    d.classList.remove("ring-4", "ring-blue-500");
+    d.classList.remove("ring-4", "ring-brand-500");
     const check = d.querySelector(".check-color");
     if (check) check.classList.add("hidden");
   });
@@ -180,7 +180,7 @@ function preencherModal(nome, icone, cor, tipo, id) {
   if (iconGrid && icone) {
     const divIcon = iconGrid.querySelector(`div[data-value="${icone}"]`);
     if (divIcon) {
-      divIcon.classList.add("border-blue-500", "bg-blue-50");
+      divIcon.classList.add("border-brand-500", "bg-brand-50");
       const ck = divIcon.querySelector(".check-icon");
       if (ck) ck.classList.remove("hidden");
     }
@@ -232,7 +232,7 @@ if (iconGrid) {
   iconGrid.querySelectorAll("div").forEach((div) => {
     div.addEventListener("click", () => {
       limparIcones();
-      div.classList.add("border-blue-500", "bg-blue-50");
+      div.classList.add("border-brand-500", "bg-brand-50");
       const ck = div.querySelector(".check-icon");
       if (ck) ck.classList.remove("hidden");
       if (inputIcone) inputIcone.value = div.dataset.value;
@@ -244,7 +244,7 @@ if (colorGrid) {
   colorGrid.querySelectorAll("div").forEach((div) => {
     div.addEventListener("click", () => {
       limparCores();
-      div.classList.add("ring-4", "ring-blue-500");
+      div.classList.add("ring-4", "ring-brand-500");
       const ck = div.querySelector(".check-color");
       if (ck) ck.classList.remove("hidden");
       if (inputCor) inputCor.value = div.dataset.value;
@@ -259,12 +259,12 @@ function renderActionsButtons(result, tipo, isArquivada = false) {
   if (isArquivada) {
     return `
       <div class="inline-flex items-center gap-2">
-        <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white transition text-sm"
-                style="border-color: rgba(46,204,113,.4); color:#2ECC71;" data-id="${result.id}" title="Restaurar">
+        <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-success-border bg-white transition text-sm text-success hover:bg-emerald-50"
+                data-id="${result.id}" title="Restaurar">
           <i class="fa-solid fa-rotate-left text-xs"></i>
           <span class="hidden sm:inline">Restaurar</span>
         </button>
-        <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300 transition text-sm"
+        <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger-border bg-white transition text-sm text-danger hover:bg-red-50"
           data-id="${result.id}" title="Excluir definitivamente">
           <i class="fa-solid fa-trash text-xs"></i>
           <span class="hidden sm:inline">Excluir definitivamente</span>
@@ -276,7 +276,7 @@ function renderActionsButtons(result, tipo, isArquivada = false) {
     <div class="inline-flex items-center gap-2">
       <button
         type="button"
-        class="editar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition text-sm"
+        class="editar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white transition text-sm text-fg hover:bg-gray-100"
         data-id="${result.id}"
         data-nome="${result.nome}"
         data-icone="${result.icone}"
@@ -284,13 +284,13 @@ function renderActionsButtons(result, tipo, isArquivada = false) {
         data-tipo="${tipo}"
         title="Editar"
       >
-        <i class="fa-solid fa-pen-to-square text-xs"></i>
+        <i class="fa-solid fa-pen-to-square text-xs text-brand-600"></i>
         <span class="hidden sm:inline">Editar</span>
       </button>
 
       <button
         type="button"
-        class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-200 text-amber-600 bg-white hover:bg-amber-50 hover:border-amber-300 transition text-sm"
+        class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-warning-border bg-white transition text-sm text-warning hover:bg-amber-50"
         data-id="${result.id}"
         title="Arquivar"
       >
@@ -377,7 +377,7 @@ if (form) {
           // Cria nova linha
           const tr = document.createElement("tr");
           tr.dataset.id = result.id;
-          tr.classList.add("border-b", "hover:bg-gray-50");
+          tr.classList.add("border-b", "border-gray-100", "transition", "hover:bg-gray-50/80");
           tr.innerHTML = renderRow(
             {
               id: result.id,
@@ -473,7 +473,7 @@ document.addEventListener("click", (e) => {
           "A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.";
       if (btnConfirmarAcao) {
         btnConfirmarAcao.textContent = "Arquivar";
-        btnConfirmarAcao.style.background = "#F59E0B";
+        btnConfirmarAcao.className = "btn btn-warning-soft btn-sm";
       }
     if (overlayAcao) overlayAcao.classList.remove("hidden");
     return;
@@ -502,7 +502,7 @@ document.addEventListener("click", (e) => {
               "Tem certeza? Esta ação não pode ser desfeita. Só é permitido excluir categorias arquivadas sem transações vinculadas.";
           if (btnConfirmarAcao) {
             btnConfirmarAcao.textContent = "Excluir";
-            btnConfirmarAcao.style.background = "#DC2626";
+            btnConfirmarAcao.className = "btn btn-danger btn-sm";
           }
           if (overlayAcao) overlayAcao.classList.remove("hidden");
         } else if (result.status === "ok" && result.count > 0) {
@@ -551,8 +551,7 @@ document.addEventListener("click", (e) => {
           const newTr = document.createElement("tr");
           newTr.dataset.id = id;
           newTr.dataset.tipo = result.tipo || tipo;
-          newTr.className = "border-b transition";
-          newTr.style.borderColor = "rgba(189,195,199,.4)";
+          newTr.className = "border-b border-gray-100 transition hover:bg-gray-50/80";
           newTr.innerHTML = renderRow(
             { id, nome, icone, cor },
             result.tipo || tipo
@@ -563,7 +562,7 @@ document.addEventListener("click", (e) => {
           if (restantesArq === 0 && parentArq) {
             const emptyTr = document.createElement("tr");
             emptyTr.id = parentArq.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
-            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
+            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td>';
             parentArq.appendChild(emptyTr);
           }
           showToast("Categoria restaurada com sucesso!", "sucesso");
@@ -696,7 +695,7 @@ if (btnConfirmarAcao) {
           if (restantes === 0 && tbodyAtivas) {
             const msg = tipo === "despesa" ? "Nenhuma categoria de despesa." : "Nenhuma categoria de receita.";
             const trEmpty = document.createElement("tr");
-            trEmpty.innerHTML = `<td colspan="2" class="py-4 text-center" style="color: rgba(52,73,94,.6);">${msg}</td>`;
+            trEmpty.innerHTML = `<td colspan="2" class="py-4 text-center text-fg-muted">${msg}</td>`;
             tbodyAtivas.appendChild(trEmpty);
           }
 
@@ -705,8 +704,7 @@ if (btnConfirmarAcao) {
             const emptyArq = targetArquivadas.querySelector("tr[id^='empty']");
             if (emptyArq) emptyArq.remove();
             const newTr = document.createElement("tr");
-            newTr.className = "border-b transition";
-            newTr.style.borderColor = "rgba(189,195,199,.4)";
+            newTr.className = "border-b border-gray-100 transition hover:bg-gray-50/80";
             newTr.dataset.id = id;
             newTr.dataset.tipo = tipo;
             newTr.innerHTML = renderRowArquivada({ id, nome, icone, cor }, tipo);
@@ -739,7 +737,7 @@ if (btnConfirmarAcao) {
           if (wasEmpty && (parent?.id === "tbody-despesa-arquivadas" || parent?.id === "tbody-receita-arquivadas")) {
             const emptyTr = document.createElement("tr");
             emptyTr.id = parent.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
-            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
+            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td>';
             parent.appendChild(emptyTr);
           }
           showToast("Categoria excluída definitivamente!", "sucesso");

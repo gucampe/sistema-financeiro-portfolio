@@ -1,4 +1,7 @@
 from django import forms
+
+from core.forms_ui import INPUT_CONTROL_CLASSES
+
 from .models import Conta
 
 
@@ -10,4 +13,4 @@ class ContaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs.setdefault("class", "w-full px-4 py-2 border rounded-lg")
+            field.widget.attrs.setdefault("class", INPUT_CONTROL_CLASSES)
