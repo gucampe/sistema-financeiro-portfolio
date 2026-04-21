@@ -76,7 +76,7 @@ class Perfil(models.Model):
         related_name="perfis_categoria_padrao",
     )
     ocultar_valores_dashboard = models.BooleanField(
-        _("Ocultar valores no dashboard"),
+        _("Ocultar valores nos relatórios"),
         default=False,
         help_text=_("Mascara valores sensíveis na tela inicial."),
     )
@@ -89,7 +89,7 @@ class Perfil(models.Model):
         return f"Perfil de {self.usuario_id}"
 
     def defaults_transacao_form(self) -> tuple[dict, str]:
-        """Valores iniciais e tipo para `TransacaoForm` (modal / dashboard)."""
+        """Valores iniciais e tipo para `TransacaoForm` (modal / relatórios)."""
         tipo = self.tipo_transacao_padrao or "despesa"
         initial: dict = {"tipo": tipo}
         if self.conta_padrao_id:

@@ -287,7 +287,7 @@ def adicionar_transacao(request):
                     }
                 return JsonResponse(resp)
 
-            return redirect('dashboard:home')
+            return redirect('relatorios:home')
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)

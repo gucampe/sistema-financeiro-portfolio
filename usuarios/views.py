@@ -32,7 +32,7 @@ def login_view(request):
 
         if usuario is not None:
             login(request, usuario)
-            return redirect("dashboard:home")
+            return redirect("relatorios:home")
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect("usuarios:login")
 

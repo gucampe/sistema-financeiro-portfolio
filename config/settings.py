@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
-    'dashboard',
+    'relatorios.apps.RelatoriosConfig',
     'transacoes',  # Certifique-se de que este é o nome correto do seu app financeiro
     'categorias.apps.CategoriasConfig',
     'contas.apps.ContasConfig',
@@ -146,7 +146,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'usuarios:login'
-LOGIN_REDIRECT_URL = 'home'          # onde redirecionar após login
+LOGIN_REDIRECT_URL = "relatorios:home"  # após login: página de relatórios
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
 # settings.py
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
