@@ -8,6 +8,13 @@ from contas.models import Conta
 
 from .models import Perfil, Usuario
 
+# Controles de texto/select na página de configurações (padding e foco unificados).
+_INPUT_CONTROL_CLASSES = (
+    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
+    "outline-none transition focus:border-emerald-500 focus:outline-none "
+    "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+)
+
 
 def categoria_compativel_com_tipo_transacao_padrao(categoria: Categoria, tipo_tx: str) -> bool:
     """
@@ -45,23 +52,11 @@ class DadosPessoaisForm(forms.ModelForm):
         model = Usuario
         fields = ("nome", "data_nascimento")
         widgets = {
-            "nome": forms.TextInput(
-                attrs={
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
+            "nome": forms.TextInput(attrs={"class": _INPUT_CONTROL_CLASSES}),
             "data_nascimento": forms.DateInput(
                 attrs={
                     "type": "date",
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    ),
+                    "class": _INPUT_CONTROL_CLASSES,
                 }
             ),
         }
@@ -96,42 +91,10 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             "ocultar_valores_dashboard",
         )
         widgets = {
-            "moeda": forms.Select(
-                attrs={
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
-            "tipo_transacao_padrao": forms.Select(
-                attrs={
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
-            "conta_padrao": forms.Select(
-                attrs={
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
-            "categoria_padrao": forms.Select(
-                attrs={
-                    "class": (
-                        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm "
-                        "outline-none transition focus:border-emerald-500 focus:outline-none "
-                        "focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
-                    )
-                }
-            ),
+            "moeda": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
+            "tipo_transacao_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
+            "conta_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
+            "categoria_padrao": forms.Select(attrs={"class": _INPUT_CONTROL_CLASSES}),
             "ocultar_valores_dashboard": forms.CheckboxInput(
                 attrs={
                     "class": (
@@ -197,10 +160,7 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        css = (
-            "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm outline-none "
-            "transition focus:border-emerald-500 focus:outline-none focus:ring-2 "
-            "focus:ring-emerald-500 focus:ring-offset-0"
-        )
+        # Mesmo padding horizontal/vertical dos demais inputs; !pr-12 reserva área do botão “olho”.
+        css = f"{_INPUT_CONTROL_CLASSES} !pr-12"
         for f in self.fields.values():
             f.widget.attrs.setdefault("class", css)
