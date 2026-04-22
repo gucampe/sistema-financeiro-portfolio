@@ -47,6 +47,9 @@ class Transacao(models.Model):
 
     class Meta:
         ordering = ["-data", "-id"]
+        indexes = [
+            models.Index(fields=["usuario", "data"], name="transacao_usuario_data_idx"),
+        ]
         constraints = [
             models.UniqueConstraint(
                 fields=["conta", "ofx_fitid"],

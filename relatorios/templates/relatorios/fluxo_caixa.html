@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load moeda %}
+
+{% block title %}Fluxo de caixa{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Fluxo de caixa</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-2 max-w-7xl">
+  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+  {% include 'relatorios/partials/filtros_barra.html' %}
+
+  <div class="mb-4">
+    <h2 class="text-xl font-semibold">Fluxo de caixa</h2>
+    <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+    <div class="bg-white rounded-xl border p-4">
+      <p class="text-xs text-gray-500">Receitas</p>
+      <p class="text-lg font-semibold text-emerald-600 tabular-nums">{{ totais.receitas|moeda }}</p>
+    </div>
+    <div class="bg-white rounded-xl border p-4">
+      <p class="text-xs text-gray-500">Despesas</p>
+      <p class="text-lg font-semibold text-red-600 tabular-nums">{{ totais.despesas|moeda }}</p>
+    </div>
+    <div class="bg-white rounded-xl border p-4">
+      <p class="text-xs text-gray-500">Resultado (fluxo)</p>
+      <p class="text-lg font-semibold text-blue-600 tabular-nums">{{ resultado_fluxo|moeda }}</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow border p-4 mb-4">
+    <h3 class="font-semibold mb-2">Saldo acumulado no período</h3>
+    <p class="text-xs text-gray-500 mb-3">Linha cinza: movimento líquido por dia. Linha azul: soma acumulada no intervalo.</p>
+    <canvas id="chart-fluxo" height="280" class="w-full max-h-80"></canvas>
+  </div>
+
+  <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm text-brand-600 hover:underline">Ver transações deste período</a>
+</div>
+
+{{ serie_fluxo|json_script:"serie-fluxo-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('serie-fluxo-data');
+  const canvas = document.getElementById('chart-fluxo');
+  if (!el || !canvas) return;
+  const data = JSON.parse(el.textContent);
+  const ctx = canvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'Líquido do dia',
+          data: data.liquido,
+          borderColor: '#9ca3af',
+          backgroundColor: 'rgba(156,163,175,0.1)',
+          fill: true,
+          tension: 0.2,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Acumulado',
+          data: data.acumulado,
+          borderColor: '#2563eb',
+          backgroundColor: 'transparent',
+          tension: 0.2,
+          yAxisID: 'y1',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      stacked: false,
+      scales: {
+        y: {
+          type: 'linear',
+          position: 'left',
+          title: { display: true, text: 'Dia' },
+          ticks: { callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR') },
+        },
+        y1: {
+          type: 'linear',
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: 'Acumulado' },
+          ticks: { callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR') },
+        },
+      },
+    },
+  });
+});
+</script>
+{% endblock %}

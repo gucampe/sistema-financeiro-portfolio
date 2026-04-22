@@ -1,0 +1,47 @@
+{% comment %}Barra de filtros GET — mesma query em todas as telas de relatório.{% endcomment %}
+<form method="get" action="{{ request.path }}" class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+  <div class="flex flex-wrap gap-2 items-center">
+    <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Período</label>
+    <select name="preset" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm">
+      <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
+      <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
+      <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
+      <option value="ultimos_90d" {% if filtros.preset == "ultimos_90d" %}selected{% endif %}>Últimos 90 dias</option>
+      <option value="este_ano" {% if filtros.preset == "este_ano" %}selected{% endif %}>Este ano</option>
+      <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
+    </select>
+  </div>
+  <div class="flex flex-wrap gap-2 items-center">
+    <label class="text-xs font-medium text-gray-500">De</label>
+    <input type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm" />
+    <label class="text-xs font-medium text-gray-500">Até</label>
+    <input type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm" />
+  </div>
+  <div class="flex flex-col min-w-[10rem]">
+    <label class="text-xs font-medium text-gray-500 mb-0.5">Contas</label>
+    <select name="conta" multiple size="3" class="border border-gray-200 rounded-lg px-2 py-1 text-sm min-h-[4.5rem]">
+      {% for c in contas_ativas %}
+        <option value="{{ c.id }}" {% if c.id in filtros.conta_ids %}selected{% endif %}>{{ c.nome }}</option>
+      {% endfor %}
+    </select>
+    <span class="text-[10px] text-gray-400 mt-0.5">Ctrl+clique para várias</span>
+  </div>
+  <div class="flex flex-col min-w-[10rem]">
+    <label class="text-xs font-medium text-gray-500 mb-0.5">Categorias</label>
+    <select name="categoria" multiple size="3" class="border border-gray-200 rounded-lg px-2 py-1 text-sm min-h-[4.5rem]">
+      {% for cat in categorias_filtro %}
+        <option value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}selected{% endif %}>{{ cat.get_tipo_display }} — {{ cat.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="text-xs font-medium text-gray-500">Tipos</span>
+    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="receita" {% if "receita" in filtros.tipos %}checked{% endif %} /> Receita</label>
+    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="despesa" {% if "despesa" in filtros.tipos %}checked{% endif %} /> Despesa</label>
+    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} /> Ajuste</label>
+  </div>
+  <div class="flex gap-2">
+    <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
+    <a href="{{ request.path }}?preset=este_mes" class="btn btn-slate btn-sm">Limpar</a>
+  </div>
+</form>

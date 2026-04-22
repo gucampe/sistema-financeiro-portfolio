@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load moeda %}
+
+{% block title %}Comparativo de períodos{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Comparativo</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-2 max-w-6xl">
+  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+  {% include 'relatorios/partials/filtros_barra.html' %}
+
+  <h2 class="text-xl font-semibold mb-1">Comparativo de períodos</h2>
+  <p class="text-sm text-gray-500 mb-4">Período A (filtros atuais) vs. período B (bloco anterior de mesma duração). Para datas B explícitas, use <code class="text-xs bg-gray-100 px-1 rounded">comparar=1&amp;comp_inicio=AAAA-MM-DD&amp;comp_fim=AAAA-MM-DD</code>.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-xl border p-4">
+      <h3 class="font-medium text-gray-700 mb-2">Período A</h3>
+      <p class="text-sm">{{ filtros_a.data_inicio|date:"d/m/Y" }} — {{ filtros_a.data_fim|date:"d/m/Y" }}</p>
+    </div>
+    <div class="bg-white rounded-xl border p-4">
+      <h3 class="font-medium text-gray-700 mb-2">Período B</h3>
+      <p class="text-sm">{{ filtros_b.data_inicio|date:"d/m/Y" }} — {{ filtros_b.data_fim|date:"d/m/Y" }}</p>
+    </div>
+  </div>
+
+  {% with a=comparativo.a b=comparativo.b d=comparativo.delta dp=comparativo.delta_pct %}
+  <div class="bg-white rounded-xl border overflow-hidden shadow-sm text-sm">
+    <table class="w-full">
+      <thead class="bg-gray-50 text-left text-gray-600">
+        <tr>
+          <th class="px-4 py-3">Métrica</th>
+          <th class="px-4 py-3 text-right">A</th>
+          <th class="px-4 py-3 text-right">B</th>
+          <th class="px-4 py-3 text-right">Δ</th>
+          <th class="px-4 py-3 text-right">Δ %</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t">
+          <td class="px-4 py-2">Receitas</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ a.receitas|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ b.receitas|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ d.receitas|moeda }}</td>
+          <td class="px-4 py-2 text-right">{% if dp.receitas is not None %}{{ dp.receitas|floatformat:1 }}%{% else %}—{% endif %}</td>
+        </tr>
+        <tr class="border-t">
+          <td class="px-4 py-2">Despesas</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ a.despesas|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ b.despesas|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ d.despesas|moeda }}</td>
+          <td class="px-4 py-2 text-right">{% if dp.despesas is not None %}{{ dp.despesas|floatformat:1 }}%{% else %}—{% endif %}</td>
+        </tr>
+        <tr class="border-t font-medium">
+          <td class="px-4 py-2">Resultado (fluxo)</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ a.resultado|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ b.resultado|moeda }}</td>
+          <td class="px-4 py-2 text-right tabular-nums">{{ d.resultado|moeda }}</td>
+          <td class="px-4 py-2 text-right">{% if dp.resultado is not None %}{{ dp.resultado|floatformat:1 }}%{% else %}—{% endif %}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% endwith %}
+</div>
+{% endblock %}

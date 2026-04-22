@@ -1,87 +1,199 @@
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('grafico-receitas-despesas');
-  const ctx = canvas.getContext('2d');
+  if (canvas && window.urlApiSerieTendencia) {
+    const q = window.location.search.startsWith('?')
+      ? window.location.search.slice(1)
+      : window.location.search;
+    const url = q ? `${window.urlApiSerieTendencia}?${q}` : window.urlApiSerieTendencia;
+    const ctx = canvas.getContext('2d');
 
-  fetch(window.urlGraficoReceitasDespesas)
-    .then(res => res.json())
-    .then(data => {
-      const gradReceitas = ctx.createLinearGradient(0, 0, 0, 160);
-      gradReceitas.addColorStop(0, 'rgba(16,185,129,0.4)');
-      gradReceitas.addColorStop(1, 'rgba(16,185,129,0.05)');
-      const gradDespesas = ctx.createLinearGradient(0, 0, 0, 160);
-      gradDespesas.addColorStop(0, 'rgba(239,68,68,0.4)');
-      gradDespesas.addColorStop(1, 'rgba(239,68,68,0.05)');
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (
+          !data ||
+          !Array.isArray(data.labels) ||
+          !Array.isArray(data.receitas) ||
+          !Array.isArray(data.despesas)
+        ) {
+          throw new Error('Resposta inválida da API de série');
+        }
+        const despesas = data.despesas;
+        const receitas = data.receitas;
+        const ajustes = Array.isArray(data.ajustes) ? data.ajustes : [];
 
-      new Chart(ctx, {
-        type: 'line',
+        const gradReceitas = ctx.createLinearGradient(0, 0, 0, 220);
+        gradReceitas.addColorStop(0, 'rgba(16,185,129,0.4)');
+        gradReceitas.addColorStop(1, 'rgba(16,185,129,0.05)');
+        const gradDespesas = ctx.createLinearGradient(0, 0, 0, 220);
+        gradDespesas.addColorStop(0, 'rgba(239,68,68,0.4)');
+        gradDespesas.addColorStop(1, 'rgba(239,68,68,0.05)');
+
+        const datasets = [
+          {
+            label: 'Receitas',
+            data: receitas,
+            borderColor: '#10b981',
+            backgroundColor: gradReceitas,
+            pointRadius: 3,
+            tension: 0.35,
+            fill: true,
+          },
+          {
+            label: 'Despesas',
+            data: despesas,
+            borderColor: '#ef4444',
+            backgroundColor: gradDespesas,
+            pointRadius: 3,
+            tension: 0.35,
+            fill: true,
+          },
+        ];
+        if (ajustes.some((v) => Number(v) !== 0)) {
+          datasets.push({
+            label: 'Ajustes',
+            data: ajustes,
+            borderColor: '#6b7280',
+            backgroundColor: 'transparent',
+            pointRadius: 2,
+            tension: 0.35,
+            fill: false,
+          });
+        }
+
+        new Chart(ctx, {
+          type: 'line',
+          data: { labels: data.labels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, position: 'bottom' },
+              tooltip: {
+                backgroundColor: '#1f2937',
+                titleColor: '#fff',
+                bodyColor: '#d1d5db',
+                padding: 8,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => 'R$ ' + Number(value).toLocaleString('pt-BR'),
+                  color: '#4b5563',
+                  font: { size: 10 },
+                },
+              },
+              x: {
+                ticks: { color: '#4b5563', font: { size: 10 }, maxRotation: 45 },
+              },
+            },
+          },
+        });
+      })
+      .catch(() => {
+        canvas.insertAdjacentHTML(
+          'afterend',
+          '<p class="text-sm text-red-600 mt-2" role="alert">Não foi possível carregar o gráfico de tendência. Atualize a página ou verifique se está autenticado.</p>',
+        );
+      });
+  }
+
+  const catCanvas = document.getElementById('grafico-categorias');
+  const topEl = document.getElementById('top-despesas-data');
+  if (catCanvas && topEl) {
+    let topData = [];
+    try {
+      topData = JSON.parse(topEl.textContent);
+    } catch {
+      topData = [];
+    }
+    if (topData.length) {
+      const truncar = (s, max) => {
+        const t = String(s ?? '').trim();
+        if (t.length <= max) return t;
+        return `${t.slice(0, Math.max(0, max - 1))}…`;
+      };
+      const valores = topData.map((x) => {
+        const n = Number(x.total);
+        return Number.isFinite(n) ? n : 0;
+      });
+      const maxVal = Math.max(...valores, 1);
+      const labels = topData.map((x) => truncar(x.nome, 26));
+      const cctx = catCanvas.getContext('2d');
+      new Chart(cctx, {
+        type: 'bar',
         data: {
-          labels: data.labels,
+          labels,
           datasets: [
             {
-              label: 'Receitas',
-              data: data.receitas,
-              borderColor: '#10b981',
-              backgroundColor: gradReceitas,
-              pointRadius: 3,
-              tension: 0.4,
-              fill: true
-            },
-            {
               label: 'Despesas',
-              data: data.despesas,
-              borderColor: '#ef4444',
-              backgroundColor: gradDespesas,
-              pointRadius: 3,
-              tension: 0.4,
-              fill: true
-            }
-          ]
+              data: valores,
+              backgroundColor: topData.map((x) => x.cor || '#6B7280'),
+              borderWidth: 0,
+              // Eixo Y = categorias: altura da barra em px (barras horizontais).
+              barThickness: 10,
+            },
+          ],
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
+          maintainAspectRatio: false,
+          datasets: {
+            bar: {
+              categoryPercentage: 0.4,
+              barPercentage: 0.65,
+            },
+          },
+          layout: { padding: { left: 2, right: 10, top: 2, bottom: 2 } },
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#1f2937',
-              titleColor: '#fff',
-              bodyColor: '#d1d5db',
-              padding: 8
-            }
+              callbacks: {
+                title(items) {
+                  const i = items[0]?.dataIndex;
+                  return i != null ? String(topData[i]?.nome ?? '') : '';
+                },
+                label(ctx) {
+                  const v = ctx.parsed?.x;
+                  return ` ${Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+                },
+              },
+            },
           },
           scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: value => 'R$ ' + value.toLocaleString('pt-BR'),
-                color: '#4b5563',
-                font: { size: 10 }
-              }
-            },
             x: {
+              type: 'linear',
+              beginAtZero: true,
+              suggestedMax: maxVal * 1.06,
               ticks: {
-                color: '#4b5563',
-                font: { size: 10 }
-              }
-            }
-          }
-        }
+                maxTicksLimit: 6,
+                callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR'),
+                font: { size: 9 },
+              },
+              grid: { color: 'rgba(0,0,0,0.06)' },
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 9 },
+                autoSkip: false,
+                padding: 2,
+              },
+            },
+          },
+        },
       });
-    });
-
-  const ctxDonut = document.getElementById('grafico-donut').getContext('2d');
-  new Chart(ctxDonut, {
-    type: 'doughnut',
-    data: {
-      datasets: [{
-        data: [74, 26],
-        backgroundColor: ['#f97316', '#e5e7eb']
-      }]
-    },
-    options: {
-      responsive: false,
-      cutout: '70%',
-      plugins: { legend: { display: false } }
+    } else {
+      catCanvas.insertAdjacentHTML(
+        'afterend',
+        '<p class="text-sm text-gray-500 mt-2">Sem despesas por categoria neste período.</p>',
+      );
     }
-  });
+  }
 });

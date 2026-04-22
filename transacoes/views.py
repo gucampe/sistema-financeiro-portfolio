@@ -120,6 +120,16 @@ def _validation_error_para_json(exc: ValidationError):
     return {"__all__": [m for m in exc.messages]}
 
 
+def _int_ids_from_request(request, key: str) -> list[int]:
+    out: list[int] = []
+    for v in request.GET.getlist(key):
+        try:
+            out.append(int(v))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
 def _categorias_importacao_preview_payload(usuario):
     """Listas de categorias ativas (usuário + padrão) para montar selects no preview."""
     qs = Categoria.objects.filter(
@@ -209,6 +219,13 @@ def adicionar_transacao(request):
             data__month=mes,
         ).select_related("categoria", "conta").order_by("-data", "-id")
 
+    conta_filtro_ids = _int_ids_from_request(request, "conta")
+    categoria_filtro_ids = _int_ids_from_request(request, "categoria")
+    if conta_filtro_ids:
+        transacoes = transacoes.filter(conta_id__in=conta_filtro_ids)
+    if categoria_filtro_ids:
+        transacoes = transacoes.filter(categoria_id__in=categoria_filtro_ids)
+
     transacoes_list = list(transacoes)
     transacoes_por_dia = [
         {"data": data, "transacoes": list(grupo)}
@@ -222,21 +239,21 @@ def adicionar_transacao(request):
         filtro_totais = {"usuario": request.user, "data__gte": data_inicial}
         if data_fim is not None:
             filtro_totais["data__lte"] = data_fim
-        totais = Transacao.objects.filter(
-            **filtro_totais
-        ).aggregate(
-            total_receitas=Sum("valor", filter=Q(tipo="receita")),
-            total_despesas=Sum("valor", filter=Q(tipo="despesa")),
-        )
+        tqs = Transacao.objects.filter(**filtro_totais)
     else:
-        totais = Transacao.objects.filter(
+        tqs = Transacao.objects.filter(
             usuario=request.user,
             data__year=ano,
             data__month=mes,
-        ).aggregate(
-            total_receitas=Sum("valor", filter=Q(tipo="receita")),
-            total_despesas=Sum("valor", filter=Q(tipo="despesa")),
         )
+    if conta_filtro_ids:
+        tqs = tqs.filter(conta_id__in=conta_filtro_ids)
+    if categoria_filtro_ids:
+        tqs = tqs.filter(categoria_id__in=categoria_filtro_ids)
+    totais = tqs.aggregate(
+        total_receitas=Sum("valor", filter=Q(tipo="receita")),
+        total_despesas=Sum("valor", filter=Q(tipo="despesa")),
+    )
     total_receitas = totais["total_receitas"] or 0
     total_despesas = totais["total_despesas"] or 0
     saldo_mes = total_receitas - total_despesas

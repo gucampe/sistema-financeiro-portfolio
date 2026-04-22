@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load moeda %}
+
+{% block title %}Relatórios por conta{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Por conta</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-2 max-w-5xl">
+  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+  {% include 'relatorios/partials/filtros_barra.html' %}
+
+  <h2 class="text-xl font-semibold mb-1">Por conta</h2>
+  <p class="text-sm text-gray-500 mb-4">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl border p-4 shadow-sm">
+      <h3 class="font-semibold mb-3">Saldo acumulado (todas as transações)</h3>
+      <p class="text-xs text-gray-500 mb-2">Patrimônio líquido operacional: <strong>{{ saldo_patrimonio|moeda }}</strong></p>
+      <ul class="space-y-2 text-sm">
+        {% for c in saldos_por_conta %}
+        <li class="flex justify-between gap-2">
+          <span>{{ c.nome }}</span>
+          <span class="tabular-nums font-medium">{{ c.saldo|moeda }}</span>
+        </li>
+        {% empty %}
+        <li class="text-gray-500">Nenhuma conta ativa.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="bg-white rounded-xl border p-4 shadow-sm">
+      <h3 class="font-semibold mb-3">Movimento no período filtrado</h3>
+      <ul class="space-y-2 text-sm">
+        {% for m in movimento_por_conta %}
+        <li class="flex justify-between gap-2">
+          <a href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}" class="text-brand-600 hover:underline truncate">{{ m.nome }}</a>
+          <span class="tabular-nums shrink-0">{{ m.movimento|moeda }}</span>
+        </li>
+        {% empty %}
+        <li class="text-gray-500">Sem movimentação no período.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 bg-white rounded-xl border p-4 text-sm text-gray-600">
+    <p><strong>Receitas no período:</strong> {{ totais_periodo.receitas|moeda }} · <strong>Despesas:</strong> {{ totais_periodo.despesas|moeda }}</p>
+  </div>
+</div>
+{% endblock %}

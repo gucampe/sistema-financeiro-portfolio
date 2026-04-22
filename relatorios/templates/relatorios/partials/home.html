@@ -4,136 +4,232 @@
 
 {% block title %}Relatórios{% endblock %}
 
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Relatórios</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
+{% csrf_token %}
 <div class="container mx-auto p-2 max-w-7xl">
-  <!-- Header + Botão -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-    <div class="flex items-center gap-4">
-      <h2 class="text-xl font-semibold">Balanço Mensal</h2>
-      <select class="border rounded-xl px-2 py-1 text-sm">
-        <option value="2025" {% if "2025" == ano_atual %}selected{% endif %}>2025</option>
-        <option value="2024" {% if "2024" == ano_atual %}selected{% endif %}>2024</option>
-        <option value="2023" {% if "2023" == ano_atual %}selected{% endif %}>2023</option>
-        <option value="2022" {% if "2022" == ano_atual %}selected{% endif %}>2022</option>
-      </select>
-      <select class="border rounded-xl px-2 py-1 text-sm">
-        <option value="0" {% if "0" == mes_atual %}selected{% endif %}>Tudo</option>
-        <option value="1" {% if "1" == mes_atual %}selected{% endif %}>Janeiro</option>
-        <option value="2" {% if "2" == mes_atual %}selected{% endif %}>Fevereiro</option>
-        <option value="3" {% if "3" == mes_atual %}selected{% endif %}>Março</option>
-        <option value="4" {% if "4" == mes_atual %}selected{% endif %}>Abril</option>
-        <option value="5" {% if "5" == mes_atual %}selected{% endif %}>Maio</option>
-        <option value="6" {% if "6" == mes_atual %}selected{% endif %}>Junho</option>
-        <option value="7" {% if "7" == mes_atual %}selected{% endif %}>Julho</option>
-        <option value="8" {% if "8" == mes_atual %}selected{% endif %}>Agosto</option>
-        <option value="9" {% if "9" == mes_atual %}selected{% endif %}>Setembro</option>
-        <option value="10" {% if "10" == mes_atual %}selected{% endif %}>Outubro</option>
-        <option value="11" {% if "11" == mes_atual %}selected{% endif %}>Novembro</option>
-        <option value="12" {% if "12" == mes_atual %}selected{% endif %}>Dezembro</option>
-      </select>
+  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+  {% include 'relatorios/partials/filtros_barra.html' %}
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+    <div>
+      <h2 class="text-xl font-semibold text-gray-900">Visão geral</h2>
+      <p class="text-sm text-gray-500 mt-0.5">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
-
-    <div class="flex items-center gap-4 mt-3 md:mt-0">
-      <!-- Resumo -->
-      <div class="flex gap-4 text-gray-700 text-sm {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-        <div class="flex flex-col items-center gap-0.5">
-          <span class="text-green-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ entradas_mes|moeda }}{% endif %}</span>
-          <span class="text-[10px] md:text-xs">Receitas</span>
-        </div>
-        <div class="flex flex-col items-center gap-0.5">
-          <span class="text-red-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ saidas_mes|moeda }}{% endif %}</span>
-          <span class="text-[10px] md:text-xs">Despesas</span>
-        </div>
-        <div class="flex flex-col items-center gap-0.5">
-          <span class="text-blue-600 font-bold text-base md:text-lg">{% if ocultar_valores_dashboard %}••••{% else %}{{ saldo_total|moeda }}{% endif %}</span>
-          <span class="text-[10px] md:text-xs">Saldo</span>
-        </div>
-      </div>
-
-      <!-- Botão adicionar -->
-      <button
-        type="button"
-        id="btn-adicionar"
-        class="btn btn-primary btn-sm"
-      >
+    <div class="flex flex-wrap gap-2 items-center">
+      <button type="button" id="btn-export-csv" class="btn btn-slate btn-sm" title="Exportar transações do período (CSV)">Exportar CSV</button>
+      <button type="button" id="btn-adicionar" class="btn btn-primary btn-sm">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Adicionar
+        Nova transação
       </button>
     </div>
   </div>
 
-  <!-- GRID DE CARDS -->
+  {% if insights %}
+  <div class="mb-4 space-y-2">
+    {% for ins in insights %}
+    <div class="rounded-lg border px-3 py-2 text-sm {% if ins.nivel == 'aviso' %}border-amber-200 bg-amber-50 text-amber-900{% elif ins.nivel == 'destaque' %}border-indigo-200 bg-indigo-50 text-indigo-900{% else %}border-gray-200 bg-gray-50 text-gray-800{% endif %}">
+      <span class="font-medium">{{ ins.titulo }}</span> — {{ ins.mensagem }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if alertas_orcamento %}
+  <div class="mb-4 space-y-2">
+    {% for a in alertas_orcamento %}
+    <div class="rounded-lg border px-3 py-2 text-sm {% if a.nivel == 'aviso' %}border-red-200 bg-red-50 text-red-900{% else %}border-amber-200 bg-amber-50 text-amber-900{% endif %}">
+      <span class="font-medium">{{ a.titulo }}</span> — {{ a.mensagem }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Receitas</p>
+      <p class="text-lg font-semibold text-emerald-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.receitas|moeda }}{% endif %}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Despesas</p>
+      <p class="text-lg font-semibold text-red-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.despesas|moeda }}{% endif %}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Resultado (fluxo)</p>
+      <p class="text-lg font-semibold text-blue-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ resultado_fluxo|moeda }}{% endif %}</p>
+      <p class="text-[10px] text-gray-400 mt-1">Receitas − despesas no período</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide">Patrimônio (contas)</p>
+      <p class="text-lg font-semibold text-gray-800 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ saldo_patrimonio|moeda }}{% endif %}</p>
+      <p class="text-[10px] text-gray-400 mt-1">Saldo acumulado por conta</p>
+    </div>
+  </div>
+
+  {% if totais.ajustes and totais.ajustes != 0 %}
+  <p class="text-xs text-gray-500 mb-3">Ajustes no período: {% if ocultar_valores_dashboard %}••••{% else %}{{ totais.ajustes|moeda }}{% endif %} (não entram no resultado fluxo)</p>
+  {% endif %}
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <!-- Gráfico Receitas e Despesas -->
-    <div class="bg-white rounded-xl shadow p-4 flex flex-col">
-      <h3 class="font-semibold mb-2 text-base md:text-lg">Receitas e Despesas</h3>
-      <canvas id="grafico-receitas-despesas" class="w-full" height="160"></canvas>
-    </div>
-
-    <!-- Despesas: Realizado vs Planejado -->
-    <div class="bg-white rounded-xl shadow p-4 flex flex-col gap-4">
-      <h3 class="font-semibold text-base md:text-lg">Despesas: Realizado vs Planejado</h3>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex-1 flex flex-col gap-3">
-          {% for item in '123'|make_list %}
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between text-xs md:text-sm">
-              <span>Categoria {{ item }}</span>
-              <span class="text-gray-500">R$ 100 / R$ 200</span>
-            </div>
-            <div class="w-full h-2 md:h-3 bg-gray-200 rounded">
-              <div class="h-2 md:h-3 bg-amber-500 rounded" style="width: {{ item|stringformat:"d" }}0%"></div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <div class="flex justify-center items-center">
-          <div class="relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px]">
-            <canvas id="grafico-donut" width="100" height="100"></canvas>
-            <span class="absolute inset-0 flex items-center justify-center text-sm sm:text-base font-bold text-brand-600">74%</span>
-          </div>
-        </div>
+    <div class="bg-white rounded-xl shadow p-4 flex flex-col md:col-span-2">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold text-base md:text-lg">Receitas e despesas no tempo</h3>
+        <a href="{% url 'relatorios:fluxo_caixa' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Ver fluxo de caixa</a>
       </div>
-      <div class="text-xs md:text-sm text-gray-400 italic mt-1">
-        Dados simulados – em breve você poderá cadastrar seus planejamentos.
+      <div class="relative h-72 w-full min-h-[18rem] max-h-72">
+        <canvas id="grafico-receitas-despesas" class="block h-full w-full" aria-label="Gráfico de receitas e despesas"></canvas>
       </div>
     </div>
 
-    <!-- % por categoria -->
     <div class="bg-white rounded-xl shadow p-4">
-      <h3 class="font-semibold mb-2 text-base md:text-lg">% por categoria de gasto</h3>
-      <canvas id="grafico-categorias" height="150"></canvas>
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold text-base md:text-lg">Top despesas por categoria</h3>
+        <a href="{% url 'relatorios:despesas_categoria' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Detalhes</a>
+      </div>
+      {# Altura modesta + canvas controlado no JS (barThickness) para barras finas e legíveis #}
+      <div class="relative h-52 w-full max-h-52 min-h-[13rem]">
+        <canvas id="grafico-categorias" class="block h-full w-full max-h-full" aria-label="Gráfico por categoria"></canvas>
+      </div>
     </div>
 
-    <!-- Cartões de crédito -->
     <div class="bg-white rounded-xl shadow p-4">
-      <h3 class="font-semibold mb-2 text-base md:text-lg">Gastos com cartões</h3>
-      <div class="space-y-3 max-h-[200px] overflow-y-auto text-sm md:text-base">
-        {% for cartao in cartoes %}
+      <h3 class="font-semibold text-base md:text-lg mb-3">Orçamento vs realizado</h3>
+      {% if orcamento_linhas %}
+      <div class="space-y-3 max-h-64 overflow-y-auto text-sm">
+        {% for row in orcamento_linhas %}
         <div>
-          <div class="flex justify-between mb-0.5">
-            <span>{{ cartao.nome }}</span>
-            <span class="text-xs md:text-sm">{{ cartao.porcentagem }} {{ cartao.valor }}</span>
+          <div class="flex justify-between gap-2 mb-0.5">
+            <span class="truncate">{{ row.nome }}</span>
+            <span class="text-gray-500 shrink-0 tabular-nums">
+              {% if ocultar_valores_dashboard %}•••{% else %}{{ row.realizado|moeda }} / {{ row.planejado|moeda }}{% endif %}
+            </span>
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2 md:h-3">
-            <div class="bg-indigo-600 h-2 md:h-3 rounded-full" style="width: {{ cartao.porcentagem }}"></div>
+          <div class="w-full h-2 bg-gray-200 rounded">
+            {% if row.planejado and row.planejado > 0 and row.percentual != None %}
+              {% if row.percentual >= 100 %}
+              <div class="h-2 rounded bg-red-500" style="width: 100%"></div>
+              {% elif row.percentual >= 85 %}
+              <div class="h-2 rounded bg-amber-500" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
+              {% else %}
+              <div class="h-2 rounded bg-emerald-500" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
+              {% endif %}
+            {% else %}
+              <div class="h-2 rounded bg-gray-300" style="width: 0%"></div>
+            {% endif %}
           </div>
         </div>
         {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-500">Cadastre orçamentos mensais no admin (modelo Orçamento por categoria) ou ignore até configurar metas.</p>
+      {% endif %}
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4 md:col-span-2">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold text-base md:text-lg">Movimento no período por conta</h3>
+        <a href="{% url 'relatorios:por_conta' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Ver contas</a>
+      </div>
+      {% if movimento_por_conta %}
+      <div class="space-y-2 max-h-48 overflow-y-auto text-sm">
+        {% for m in movimento_por_conta %}
+        <div class="flex justify-between gap-2">
+          <a class="text-brand-600 hover:underline truncate" href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}">{{ m.nome }}</a>
+          <span class="tabular-nums shrink-0 {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ m.movimento|moeda }}{% endif %}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-500">Sem movimentação no período com os filtros atuais.</p>
+      {% endif %}
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4 md:col-span-2">
+      <h3 class="font-semibold text-base md:text-lg mb-3">Últimas transações no período</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500 border-b"><th class="pb-2">Data</th><th class="pb-2">Descrição</th><th class="pb-2">Categoria</th><th class="pb-2 text-right">Valor</th></tr></thead>
+          <tbody>
+            {% for t in ultimas_transacoes %}
+            <tr class="border-b border-gray-50">
+              <td class="py-2 whitespace-nowrap">{{ t.data|date:"d/m/Y" }}</td>
+              <td class="py-2"><a href="{% url 'transacoes:editar' t.pk %}" class="text-brand-600 hover:underline">{{ t.descricao|truncatechars:40 }}</a></td>
+              <td class="py-2 text-gray-600">{{ t.categoria.nome }}</td>
+              <td class="py-2 text-right tabular-nums {% if t.tipo == 'despesa' %}text-red-600{% elif t.tipo == 'receita' %}text-emerald-600{% else %}text-gray-700{% endif %} {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ t.valor|moeda }}{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="py-4 text-gray-500">Nenhuma transação no período.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-3 text-right">
+        <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm text-brand-600 hover:underline">Ver todas no histórico</a>
       </div>
     </div>
   </div>
 </div>
 
+{{ top_despesas_chart|json_script:"top-despesas-data" }}
+
 {% include 'transacoes/partials/adicionar_transacao.html' with form=form categorias_despesa=categorias_despesa categorias_receita=categorias_receita %}
 
-
 <script>
-  window.urlGraficoReceitasDespesas = "{% url 'transacoes:grafico_receitas_despesas' %}";
+  window.urlApiSerieTendencia = "{% url 'relatorios:api_serie_tendencia' %}";
+  window.urlApiExportCsv = "{% url 'relatorios:api_export_csv' %}";
+  window.filtrosQueryString = "{{ filtros_querystring|escapejs }}";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'relatorios/js/dash.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
+<script>
+document.getElementById('btn-export-csv')?.addEventListener('click', () => {
+  const q = window.filtrosQueryString || '';
+  const url = window.urlApiExportCsv + (q ? '?' + q : '');
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  const detailTpl = "{% url 'relatorios:api_export_job_detail' 999999998 %}";
+  const maxPolls = 150;
+  fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrftoken || '' } })
+    .then((r) => {
+      if (!r.ok) throw new Error('Falha ao iniciar exportação');
+      return r.json();
+    })
+    .then((data) => {
+      if (!data.job_id) throw new Error('Resposta sem job_id');
+      let polls = 0;
+      const poll = () => {
+        polls += 1;
+        if (polls > maxPolls) {
+          alert('Exportação demorou demais. Tente novamente.');
+          return;
+        }
+        fetch(detailTpl.replace('999999998', String(data.job_id)))
+          .then((r) => {
+            if (!r.ok) throw new Error('Status');
+            return r.json();
+          })
+          .then((j) => {
+            if (j.status === 'ready' && j.download_url) window.location = j.download_url;
+            else if (j.status === 'error') alert(j.erro || 'Erro na exportação');
+            else setTimeout(poll, 400);
+          })
+          .catch(() => alert('Não foi possível verificar o status da exportação.'));
+      };
+      poll();
+    })
+    .catch(() => alert('Não foi possível iniciar a exportação. Verifique sua sessão e tente de novo.'));
+});
+</script>
 {% endblock %}
