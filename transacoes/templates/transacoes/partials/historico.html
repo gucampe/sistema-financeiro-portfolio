@@ -168,6 +168,9 @@
                     </p>
                     <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
                       {{ transacao.categoria.nome|default:transacao.categoria }}
+                      {% if transacao.cartao_id and transacao.data_competencia and transacao.data != transacao.data_competencia %}
+                        <span class="text-fg-muted">· Compra {{ transacao.data|date:"d/m/Y" }}</span>
+                      {% endif %}
                     </p>
                   </div>
                 </div>
@@ -269,6 +272,7 @@
 </div>
 
 <script src="{% static 'transacoes/js/historico.js' %}"></script>
+<script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/importar_ofx.js' %}"></script>
 <script src="{% static 'transacoes/js/importar_planilha.js' %}"></script>

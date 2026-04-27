@@ -35,3 +35,59 @@ class Cartao(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class Fatura(models.Model):
+    """Ciclo de faturamento mensal de um cartão (MVP: sem parcelamento nem pagamento de fatura)."""
+
+    class Status(models.TextChoices):
+        ABERTA = "aberta", "Aberta"
+        FECHADA = "fechada", "Fechada"
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="faturas_cartao",
+    )
+    cartao = models.ForeignKey(
+        Cartao,
+        on_delete=models.PROTECT,
+        related_name="faturas",
+    )
+    competencia = models.DateField(
+        help_text="Primeiro dia do mês de competência (ex.: fatura de abril/2026 → 2026-04-01).",
+    )
+    data_fechamento = models.DateField(help_text="Data de fechamento deste ciclo.")
+    data_vencimento = models.DateField(help_text="Data de vencimento desta fatura.")
+    data_inicio_compras = models.DateField()
+    data_fim_compras = models.DateField()
+    valor_total = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Cache opcional; total pode ser calculado pelas transações.",
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.ABERTA,
+    )
+    criada_em = models.DateTimeField(auto_now_add=True)
+    atualizada_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-competencia", "-data_vencimento"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["cartao", "competencia"],
+                name="cartoes_fatura_uniq_cartao_competencia",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["cartao", "data_vencimento"], name="cartoes_fatura_cartao_venc_idx"),
+            models.Index(fields=["usuario", "data_vencimento"], name="cartoes_fatura_user_venc_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.cartao.nome} — {self.competencia:%m/%Y}"

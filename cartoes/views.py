@@ -1,13 +1,16 @@
 from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
 from contas.models import Conta
+from transacoes.models import Transacao
+from transacoes.views import modal_transacao_context
 
-from .models import Cartao
+from .models import Cartao, Fatura
 
 
 @login_required
@@ -167,3 +170,63 @@ def excluir_cartao(request, id):
     cartao.ativa = False
     cartao.save(update_fields=["ativa", "atualizada_em"])
     return JsonResponse({"status": "ok", "id": id})
+
+
+@login_required
+def faturas_cartao(request, cartao_id):
+    cartao = get_object_or_404(Cartao, pk=cartao_id, usuario=request.user, ativa=True)
+    faturas = (
+        Fatura.objects.filter(cartao=cartao, usuario=request.user)
+        .annotate(total_despesas=Sum("lancamentos__valor", filter=Q(lancamentos__tipo="despesa")))
+        .order_by("-competencia")
+    )
+    fatura_destaque = (
+        Fatura.objects.filter(cartao=cartao, usuario=request.user, status=Fatura.Status.ABERTA)
+        .order_by("-competencia")
+        .first()
+    )
+    if fatura_destaque is None:
+        fatura_destaque = faturas.first()
+
+    total_destaque = None
+    if fatura_destaque is not None:
+        total_destaque = (
+            Transacao.objects.filter(
+                usuario=request.user, fatura=fatura_destaque, tipo="despesa"
+            ).aggregate(s=Sum("valor"))["s"]
+            or Decimal("0")
+        )
+
+    ctx = {
+        "cartao": cartao,
+        "faturas": faturas,
+        "fatura_destaque": fatura_destaque,
+        "total_destaque": total_destaque,
+    }
+    ctx.update(modal_transacao_context(request, pre_select_cartao_id=cartao.id))
+    return render(request, "cartoes/faturas_cartao.html", ctx)
+
+
+@login_required
+def fatura_detalhe(request, cartao_id, fatura_id):
+    cartao = get_object_or_404(Cartao, pk=cartao_id, usuario=request.user, ativa=True)
+    fatura = get_object_or_404(Fatura, pk=fatura_id, cartao=cartao, usuario=request.user)
+    lancamentos = (
+        Transacao.objects.filter(usuario=request.user, fatura=fatura)
+        .select_related("categoria", "conta", "cartao")
+        .order_by("-data", "-id")
+    )
+    total = (
+        Transacao.objects.filter(usuario=request.user, fatura=fatura, tipo="despesa").aggregate(
+            s=Sum("valor")
+        )["s"]
+        or Decimal("0")
+    )
+    ctx = {
+        "cartao": cartao,
+        "fatura": fatura,
+        "lancamentos": lancamentos,
+        "total_despesas": total,
+    }
+    ctx.update(modal_transacao_context(request, pre_select_cartao_id=cartao.id))
+    return render(request, "cartoes/fatura_detalhe.html", ctx)

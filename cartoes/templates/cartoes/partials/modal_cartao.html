@@ -1,4 +1,5 @@
 {% load static %}
+{% load icon_filters %}
 
 <div id="overlay-modal-cartao" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50">
   <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative border border-gray-200">
@@ -47,14 +48,48 @@
         </div>
       </div>
 
-      <div class="mb-4">
-        <label for="cartao_conta_padrao" class="block text-sm font-medium mb-1 text-fg">Conta padrão</label>
-        <select name="conta_padrao" id="cartao_conta_padrao" required class="input w-full">
-          <option value="">Selecione</option>
-          {% for conta in contas_ativas %}
-            <option value="{{ conta.id }}">{{ conta.nome }}</option>
-          {% endfor %}
-        </select>
+      <div class="mb-4" data-combobox-root="conta-padrao-cartao">
+        <label {% if contas_ativas %}for="cartao_conta_padrao"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta padrão</label>
+        {% if contas_ativas %}
+        <div class="relative mt-1">
+          <select name="conta_padrao" id="cartao_conta_padrao" required
+                  class="sr-only focus:outline-none">
+            <option value="">Selecione uma conta</option>
+            {% for conta in contas_ativas %}
+              <option value="{{ conta.id }}"
+                      data-icon-url="{% static conta.icone|conta_icon_path %}">{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-cartao-conta-padrao">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione uma conta</span>
+            <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
+          </button>
+          <div id="cb-list-cartao-conta-padrao"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
+        {% else %}
+        <div class="relative mt-1 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2.5 text-sm text-fg shadow-sm"
+             role="status">
+          <p class="leading-snug">
+            Cadastre uma conta antes de vincular ao cartão.
+          </p>
+          <p class="mt-2">
+            <a href="{% url 'contas:home' %}"
+               class="font-medium text-brand-700 underline decoration-brand-600/40 underline-offset-2 hover:text-brand-800">
+              Ir para cadastro de contas
+            </a>
+          </p>
+        </div>
+        {% endif %}
       </div>
 
       <div class="mb-6">

@@ -45,40 +45,58 @@
         </select>
       </div>
 
-      <!-- Conta (select nativo + combobox visual) -->
-      <div class="mb-4" data-combobox-root="conta">
-        <label {% if form.conta.field.queryset %}for="id_conta"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta</label>
-        {% if form.conta.field.queryset %}
+      <!-- Conta/Cartão (select unificado + combobox; conta e cartão via hidden) -->
+      <div class="mb-4" data-combobox-root="conta-cartao-unificado">
+        <label {% if form.conta.field.queryset or form.cartao.field.queryset %}for="id_conta_cartao"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta/Cartão</label>
+        {% if form.conta.field.queryset or form.cartao.field.queryset %}
+        <div class="sr-only" aria-hidden="true">{{ form.conta }}{{ form.cartao }}</div>
         <div class="relative mt-1">
-          <select name="conta" id="id_conta" required
+          <select id="id_conta_cartao" required
                   class="sr-only focus:outline-none">
-            <option value="">Selecione uma conta</option>
-            {% for c in form.conta.field.queryset %}
-              <option value="{{ c.pk }}"
-                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
-            {% endfor %}
+            <option value="">Selecione conta ou cartão</option>
+            {% if form.conta.field.queryset %}
+            <optgroup label="Contas">
+              {% for c in form.conta.field.queryset %}
+                <option value="c:{{ c.pk }}"
+                        data-icon-url="{% static c.icone|conta_icon_path %}"
+                        data-kind="conta">{{ c.nome }}</option>
+              {% endfor %}
+            </optgroup>
+            {% endif %}
+            {% if form.cartao.field.queryset %}
+            <optgroup label="Cartões">
+              {% for k in form.cartao.field.queryset %}
+                <option value="k:{{ k.pk }}"
+                        data-icon-url="{% static k.icone|conta_icon_path %}"
+                        data-kind="cartao"
+                        data-conta-padrao-id="{{ k.conta_padrao_id }}"
+                        data-conta-padrao-nome="{{ k.conta_padrao.nome|default_if_none:'' }}">{{ k.nome }}</option>
+              {% endfor %}
+            </optgroup>
+            {% endif %}
           </select>
           <button type="button"
                   data-combobox-trigger
                   class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
-                  aria-controls="cb-list-conta">
+                  aria-controls="cb-list-conta-cartao">
             <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
-            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione uma conta</span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione conta ou cartão</span>
             <span class="shrink-0 text-gray-400 text-xs" aria-hidden="true">▾</span>
           </button>
-          <div id="cb-list-conta"
+          <div id="cb-list-conta-cartao"
                data-combobox-list
                role="listbox"
                class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
                hidden></div>
         </div>
+        <p id="conta-cartao-hint-cartao" class="hidden mt-2 text-xs text-fg-muted leading-snug border border-gray-200 rounded-lg bg-gray-50/80 px-3 py-2"></p>
         {% else %}
         <div class="relative mt-1 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2.5 text-sm text-fg shadow-sm"
              role="status">
           <p class="leading-snug">
-            Você precisa cadastrar pelo menos uma conta antes de registrar transações.
+            Cadastre pelo menos uma conta ou um cartão para registrar transações.
           </p>
           <p class="mt-2">
             <a href="{% url 'contas:home' %}"
@@ -91,17 +109,6 @@
         {% if form.conta.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.conta.errors|striptags }}</p>
         {% endif %}
-      </div>
-
-      <!-- Cartão (opcional) -->
-      <div class="mb-4">
-        <label for="id_cartao" class="block text-sm font-medium mb-1 text-fg">Cartão (opcional)</label>
-        <select name="cartao" id="id_cartao" class="input w-full">
-          <option value="">Selecione um cartão</option>
-          {% for cartao in form.cartao.field.queryset %}
-            <option value="{{ cartao.id }}">{{ cartao.nome }}</option>
-          {% endfor %}
-        </select>
         {% if form.cartao.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.cartao.errors|striptags }}</p>
         {% endif %}
@@ -171,7 +178,7 @@
         <button type="submit"
                 id="btn-salvar-transacao"
                 class="btn btn-primary btn-block disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-[0_2px_8px_rgba(22,163,74,0.35)]"
-                {% if not form.conta.field.queryset %}disabled aria-disabled="true"{% endif %}>
+                {% if not form.conta.field.queryset and not form.cartao.field.queryset %}disabled aria-disabled="true"{% endif %}>
           Salvar
         </button>
 

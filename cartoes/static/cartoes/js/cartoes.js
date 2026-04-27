@@ -4,6 +4,12 @@
   const btnFechar = document.getElementById("btn-fechar-modal-cartao");
   const btnCancelar = document.getElementById("btn-cancelar-modal-cartao");
   const form = document.getElementById("form-modal-cartao");
+  const selectContaPadrao = document.getElementById("cartao_conta_padrao");
+  let contaPadraoCombobox = null;
+  if (selectContaPadrao && typeof window.initIconCombobox === "function") {
+    contaPadraoCombobox = window.initIconCombobox(selectContaPadrao, "account");
+  }
+  const rootContaPadrao = selectContaPadrao?.closest("[data-combobox-root]");
   const erroBox = document.getElementById("erro-modal-cartao");
   const inputCartaoId = document.getElementById("cartao_id");
   const inputIcone = document.getElementById("cartao_icone");
@@ -43,6 +49,7 @@
   function resetModal() {
     if (!form) return;
     form.reset();
+    contaPadraoCombobox?.sync();
     inputCartaoId.value = "";
     inputIcone.value = "bank";
     if (erroBox) erroBox.classList.add("hidden");
@@ -61,7 +68,10 @@
       form.limite.value = cartao.limite || "";
       form.dia_fechamento.value = cartao.diaFechamento || "";
       form.dia_vencimento.value = cartao.diaVencimento || "";
-      form.conta_padrao.value = cartao.contaPadrao || "";
+      if (selectContaPadrao) {
+        selectContaPadrao.value = cartao.contaPadrao || "";
+        contaPadraoCombobox?.sync();
+      }
       inputIcone.value = cartao.icone || "bank";
       if (tituloModal) tituloModal.textContent = "Editar Cartão";
       document.querySelectorAll(".item-icone-cartao").forEach((item) => {
@@ -83,6 +93,10 @@
   if (btnCancelar) btnCancelar.addEventListener("click", fecharModal);
 
   document.addEventListener("click", (event) => {
+    if (rootContaPadrao && !rootContaPadrao.contains(event.target)) {
+      contaPadraoCombobox?.close();
+    }
+
     const itemIcone = event.target.closest(".item-icone-cartao");
     if (itemIcone) {
       inputIcone.value = itemIcone.dataset.icone || "bank";

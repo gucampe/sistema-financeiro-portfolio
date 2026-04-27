@@ -25,13 +25,39 @@ def _as_date(val) -> date:
 
 
 def aplicar_filtros_relatorio(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> QuerySet[Transacao]:
-    qs = qs.filter(data__gte=filtros.data_inicio, data__lte=filtros.data_fim)
+    modo = getattr(filtros, "modo_data", "fluxo") or "fluxo"
+    if modo == "competencia_cartao":
+        qs = qs.filter(
+            Q(
+                cartao__isnull=False,
+                data_competencia__gte=filtros.data_inicio,
+                data_competencia__lte=filtros.data_fim,
+            )
+            | Q(
+                cartao__isnull=False,
+                data_competencia__isnull=True,
+                data__gte=filtros.data_inicio,
+                data__lte=filtros.data_fim,
+            )
+            | Q(
+                cartao__isnull=True,
+                data__gte=filtros.data_inicio,
+                data__lte=filtros.data_fim,
+            )
+        )
+    else:
+        qs = qs.filter(data__gte=filtros.data_inicio, data__lte=filtros.data_fim)
     if filtros.conta_ids:
         qs = qs.filter(conta_id__in=filtros.conta_ids)
     if filtros.categoria_ids:
         qs = qs.filter(categoria_id__in=filtros.categoria_ids)
     if filtros.tipos:
         qs = qs.filter(tipo__in=filtros.tipos)
+    meio = getattr(filtros, "meio_pagamento", "todos") or "todos"
+    if meio == "debito":
+        qs = qs.filter(cartao__isnull=True)
+    elif meio == "credito":
+        qs = qs.filter(cartao__isnull=False)
     return qs
 
 

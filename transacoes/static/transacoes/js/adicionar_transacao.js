@@ -1,155 +1,115 @@
-/**
- * Combobox visual sobre <select> nativo (conta + categoria).
- * O select permanece a fonte da verdade para FormData / validação.
- */
-function initIconCombobox(selectEl, kind) {
-  const root = selectEl.closest("[data-combobox-root]");
-  if (!root) return null;
-
-  const trigger = root.querySelector("[data-combobox-trigger]");
-  const list = root.querySelector("[data-combobox-list]");
-  const iconSlot = trigger?.querySelector("[data-combobox-trigger-icon]");
-  const labelEl = trigger?.querySelector("[data-combobox-trigger-label]");
-
-  if (!trigger || !list || !iconSlot || !labelEl) return null;
-
-  let isOpen = false;
-
-  function setOpen(next) {
-    isOpen = next;
-    trigger.setAttribute("aria-expanded", String(next));
-    list.classList.toggle("hidden", !next);
-    list.toggleAttribute("hidden", !next);
-  }
-
-  function renderIconIntoSlot(slot, opt) {
-    slot.innerHTML = "";
-    if (!opt || !opt.value) {
-      const i = document.createElement("i");
-      i.className =
-        kind === "account"
-          ? "fa-solid fa-building-columns text-gray-300 text-lg"
-          : "fa-solid fa-tag text-gray-300 text-lg";
-      i.setAttribute("aria-hidden", "true");
-      slot.appendChild(i);
-      return;
-    }
-
-    if (kind === "account") {
-      const url = opt.dataset.iconUrl;
-      if (url) {
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = "";
-        img.className = "h-full w-full object-contain";
-        slot.appendChild(img);
-      } else {
-        const i = document.createElement("i");
-        i.className = "fa-solid fa-building-columns text-gray-300 text-lg";
-        i.setAttribute("aria-hidden", "true");
-        slot.appendChild(i);
-      }
-      return;
-    }
-
-    const icone = opt.dataset.icone || "fa-ellipsis-h";
-    const cor = opt.dataset.cor || "#4F46E5";
-    const i = document.createElement("i");
-    i.className = `fas ${icone}`;
-    i.style.color = cor;
-    i.setAttribute("aria-hidden", "true");
-    slot.appendChild(i);
-  }
-
-  function syncTrigger() {
-    const sel = selectEl.options[selectEl.selectedIndex];
-    if (!sel || !sel.value) {
-      const ph =
-        selectEl.options[0]?.textContent?.trim() ||
-        (kind === "account" ? "Selecione uma conta" : "Selecione uma categoria");
-      labelEl.textContent = ph;
-      renderIconIntoSlot(iconSlot, null);
-      return;
-    }
-    labelEl.textContent = sel.textContent.trim();
-    renderIconIntoSlot(iconSlot, sel);
-  }
-
-  function buildList() {
-    list.innerHTML = "";
-    Array.from(selectEl.options).forEach((opt) => {
-      if (!opt.value) return;
-      const row = document.createElement("button");
-      row.type = "button";
-      row.setAttribute("role", "option");
-      row.setAttribute("aria-selected", opt.selected ? "true" : "false");
-      row.className =
-        "flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#34495E] hover:bg-gray-100 focus:bg-gray-100 focus:outline-none";
-      const slot = document.createElement("span");
-      slot.className =
-        "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50";
-      renderIconIntoSlot(slot, opt);
-      const text = document.createElement("span");
-      text.className = "min-w-0 flex-1 truncate";
-      text.textContent = opt.textContent.trim();
-      row.append(slot, text);
-      row.addEventListener("click", () => {
-        selectEl.value = opt.value;
-        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
-        setOpen(false);
-        syncTrigger();
-      });
-      list.appendChild(row);
-    });
-  }
-
-  function openList() {
-    buildList();
-    setOpen(true);
-  }
-
-  function closeList() {
-    setOpen(false);
-  }
-
-  trigger.addEventListener("click", () => {
-    if (isOpen) closeList();
-    else openList();
-  });
-
-  selectEl.addEventListener("change", syncTrigger);
-
-  syncTrigger();
-
-  return {
-    refresh() {
-      buildList();
-      syncTrigger();
-    },
-    sync: syncTrigger,
-    close: closeList,
-  };
-}
-
-window.initIconCombobox = initIconCombobox;
+/** Depende de static/js/icon_combobox.js (window.initIconCombobox), carregado antes deste arquivo. */
 
 document.addEventListener("DOMContentLoaded", () => {
+  const initIconCombobox = window.initIconCombobox;
+  const params = new URLSearchParams(window.location.search);
+  const preCartao = params.get("pre_cartao");
+
   const btnAbrir = document.getElementById("btn-adicionar");
   const btnFechar = document.getElementById("btn-fechar");
   const overlay = document.getElementById("overlay-adicionar");
   const form = document.getElementById("form-adicionar");
   const selectTipo = document.getElementById("tipo");
   const selectCategoria = document.getElementById("categoria");
-  const selectConta = document.getElementById("id_conta");
-  const selectCartao = document.getElementById("id_cartao");
+  const selectUnified = document.getElementById("id_conta_cartao");
+  const hiddenConta = document.getElementById("id_conta");
+  const hiddenCartao = document.getElementById("id_cartao");
+  const hintCartao = document.getElementById("conta-cartao-hint-cartao");
   const modalHeader = overlay?.querySelector("h2");
 
   let contaCombobox = null;
   let categoriaCombobox = null;
-  if (selectConta) contaCombobox = initIconCombobox(selectConta, "account");
-  if (selectCategoria) categoriaCombobox = initIconCombobox(selectCategoria, "category");
 
-  const rootConta = selectConta?.closest("[data-combobox-root]");
+  function syncHiddensFromUnified() {
+    if (!hiddenConta || !hiddenCartao || !selectUnified) return;
+    const v = selectUnified.value || "";
+    if (!v) {
+      hiddenConta.value = "";
+      hiddenCartao.value = "";
+    } else if (v.startsWith("c:")) {
+      hiddenConta.value = v.slice(2);
+      hiddenCartao.value = "";
+    } else if (v.startsWith("k:")) {
+      hiddenCartao.value = v.slice(2);
+      const opt = selectUnified.options[selectUnified.selectedIndex];
+      const pid = opt?.dataset?.contaPadraoId;
+      hiddenConta.value = pid ? String(pid) : "";
+    }
+    updateContaCartaoHint();
+  }
+
+  function updateContaCartaoHint() {
+    if (!hintCartao || !selectUnified) return;
+    const opt = selectUnified.options[selectUnified.selectedIndex];
+    if (opt?.dataset?.kind === "cartao" && opt.dataset.contaPadraoNome) {
+      hintCartao.textContent = `Conta utilizada neste lançamento: ${opt.dataset.contaPadraoNome}`;
+      hintCartao.classList.remove("hidden");
+    } else {
+      hintCartao.textContent = "";
+      hintCartao.classList.add("hidden");
+    }
+  }
+
+  function syncUnifiedFromHiddensInicial() {
+    if (!selectUnified || !hiddenConta || !hiddenCartao) return;
+    const kv = (hiddenCartao.value || "").trim();
+    const cv = (hiddenConta.value || "").trim();
+    if (kv && [...selectUnified.options].some((o) => o.value === `k:${kv}`)) {
+      selectUnified.value = `k:${kv}`;
+    } else if (cv && [...selectUnified.options].some((o) => o.value === `c:${cv}`)) {
+      selectUnified.value = `c:${cv}`;
+    }
+    syncHiddensFromUnified();
+  }
+
+  function aplicarCartaoPreSelecionado() {
+    if (!selectUnified || !hiddenConta || !hiddenCartao) return;
+    if (preCartao) {
+      selectUnified.value = `k:${preCartao}`;
+      syncHiddensFromUnified();
+      return;
+    }
+    if (
+      typeof window.__PRESELECT_CARTAO_MODAL !== "undefined" &&
+      window.__PRESELECT_CARTAO_MODAL !== null &&
+      window.__PRESELECT_CARTAO_MODAL !== ""
+    ) {
+      selectUnified.value = `k:${String(window.__PRESELECT_CARTAO_MODAL)}`;
+      syncHiddensFromUnified();
+      return;
+    }
+    syncUnifiedFromHiddensInicial();
+  }
+
+  window.applyUnifiedContaCartaoParaEdicao = function (data) {
+    if (!selectUnified || !hiddenConta || !hiddenCartao) return;
+    const kId = data.cartao && data.cartao.id;
+    const cId = data.conta && data.conta.id;
+    if (kId && [...selectUnified.options].some((o) => o.value === `k:${kId}`)) {
+      selectUnified.value = `k:${kId}`;
+    } else if (cId && [...selectUnified.options].some((o) => o.value === `c:${cId}`)) {
+      selectUnified.value = `c:${cId}`;
+    } else {
+      selectUnified.value = "";
+    }
+    syncHiddensFromUnified();
+    contaCombobox?.sync();
+  };
+
+  if (selectUnified && initIconCombobox) {
+    contaCombobox = initIconCombobox(selectUnified, "account");
+    window.__unifiedContaCartaoCombobox = contaCombobox;
+  }
+  if (selectCategoria && initIconCombobox) categoriaCombobox = initIconCombobox(selectCategoria, "category");
+
+  selectUnified?.addEventListener("change", () => {
+    syncHiddensFromUnified();
+  });
+
+  aplicarCartaoPreSelecionado();
+  contaCombobox?.sync();
+
+  const rootContaCartao = selectUnified?.closest("[data-combobox-root]");
   const rootCategoria = selectCategoria?.closest("[data-combobox-root]");
 
   if (!overlay) return;
@@ -192,9 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.addEventListener("click", (e) => {
-    const inConta = rootConta?.contains(e.target);
+    const inContaCartao = rootContaCartao?.contains(e.target);
     const inCategoria = rootCategoria?.contains(e.target);
-    if (inConta) {
+    if (inContaCartao) {
       categoriaCombobox?.close();
       return;
     }
@@ -209,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") fecharComboboxes();
   });
 
-  // Abrir modal para adicionar
   btnAbrir?.addEventListener("click", () => {
     overlay.dataset.editando = "";
     if (modalHeader) modalHeader.textContent = "Nova Transação";
@@ -221,13 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => overlay.classList.remove("opacity-0"), 10);
   });
 
-  // Fechar modal
   const fecharModal = () => {
     overlay.classList.add("opacity-0");
     setTimeout(() => overlay.classList.add("hidden"), 300);
     overlay.dataset.editando = "";
     fecharComboboxes();
     form.reset();
+    aplicarCartaoPreSelecionado();
     contaCombobox?.sync();
     categoriaCombobox?.sync();
   };
@@ -237,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === overlay) fecharModal();
   });
 
-  // Editar transação (clicando no botão histórico)
   document.addEventListener("click", (e) => {
     const editar = e.target.closest(".editar-transacao");
     if (!editar) return;
@@ -252,9 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("valor").value = data.valor;
         document.getElementById("descricao").value = data.descricao;
         document.getElementById("data").value = data.data;
-        if (selectConta) selectConta.value = data.conta ? data.conta.id : "";
-        if (selectCartao) selectCartao.value = data.cartao ? data.cartao.id : "";
-        contaCombobox?.sync();
+        window.applyUnifiedContaCartaoParaEdicao?.(data);
         popularCategorias(data.tipo, data.categoria.id);
         limparErroContaAjax();
         overlay.classList.remove("hidden");
@@ -263,18 +219,23 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((err) => console.error("Erro ao carregar transação:", err));
   });
 
-  // AJAX submit
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    syncHiddensFromUnified();
     const editandoId = overlay.dataset.editando;
-    const url = editandoId ? `/transacoes/${editandoId}/editar/` : form.action;
+    const actionAttr = form.getAttribute("action") || "";
+    const url = editandoId
+      ? new URL(`/transacoes/${editandoId}/editar/`, window.location.origin).href
+      : new URL(actionAttr || "/transacoes/adicionar/", window.location.origin).href;
 
     const formData = new FormData(form);
-    const csrfToken = formData.get("csrfmiddlewaretoken");
+    const csrfInput = form.querySelector("[name=csrfmiddlewaretoken]");
+    const csrfToken = csrfInput?.value || formData.get("csrfmiddlewaretoken") || "";
 
     try {
       const response = await fetch(url, {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "X-CSRFToken": csrfToken,
           "X-Requested-With": "XMLHttpRequest",
@@ -282,28 +243,41 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        alert(
+          `Resposta inválida do servidor (HTTP ${response.status}). ` +
+            "Se o problema persistir, verifique o login e recarregue a página."
+        );
+        return;
+      }
 
       if (data.status === "ok") {
         limparErroContaAjax();
         fecharModal();
         window.location.reload();
-      } else {
-        const erroContaEl = document.getElementById("erro-conta-ajax");
-        if (erroContaEl && data.errors && data.errors.conta && data.errors.conta.length) {
-          erroContaEl.textContent = data.errors.conta[0];
-          erroContaEl.classList.remove("hidden");
-        }
-        if (data.errors && Object.keys(data.errors).length) {
-          alert("Erro ao salvar: " + JSON.stringify(data.errors));
-        }
+        return;
+      }
+
+      const erroContaEl = document.getElementById("erro-conta-ajax");
+      if (erroContaEl && data.errors && data.errors.conta && data.errors.conta.length) {
+        erroContaEl.textContent = data.errors.conta[0];
+        erroContaEl.classList.remove("hidden");
+      }
+      if (data.errors && Object.keys(data.errors).length) {
+        alert("Erro ao salvar: " + JSON.stringify(data.errors));
+      } else if (!response.ok) {
+        alert(`Não foi possível salvar (HTTP ${response.status}).`);
       }
     } catch (error) {
-      alert("Erro de comunicação.");
+      console.error(error);
+      alert("Erro de comunicação. Verifique a conexão e tente de novo.");
     }
   });
 
-  // Atualiza categorias quando muda tipo
   selectTipo?.addEventListener("change", () => {
     const tipo = selectTipo.value || "despesa";
     popularCategorias(tipo);

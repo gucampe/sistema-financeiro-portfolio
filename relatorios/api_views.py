@@ -77,6 +77,12 @@ def _executar_export_job(job_id: int):
         return
     try:
         raw = json.loads(job.filtros_json or "{}")
+        meio = (raw.get("meio_pagamento") or "todos").strip().lower()
+        if meio not in ("todos", "debito", "credito"):
+            meio = "todos"
+        modo = (raw.get("modo_data") or "fluxo").strip().lower()
+        if modo not in ("fluxo", "competencia_cartao"):
+            modo = "fluxo"
         filtros = RelatorioFiltros(
             data_inicio=datetime.strptime(raw["inicio"], "%Y-%m-%d").date(),
             data_fim=datetime.strptime(raw["fim"], "%Y-%m-%d").date(),
@@ -84,6 +90,8 @@ def _executar_export_job(job_id: int):
             categoria_ids=tuple(raw.get("categoria_ids", [])),
             tipos=tuple(raw.get("tipos", [])),
             preset=raw.get("preset", "custom"),
+            meio_pagamento=meio,
+            modo_data=modo,
         )
     except Exception as exc:  # noqa: BLE001
         job.status = ExportRelatorioJob.STATUS_ERROR

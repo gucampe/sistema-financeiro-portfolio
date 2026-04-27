@@ -16,14 +16,13 @@ document.addEventListener("click", function(e){
               document.getElementById("descricao").value = data.descricao;
               document.getElementById("data").value = data.data;
   
-              // Preencher conta
-              const selectConta = document.getElementById("id_conta");
-              if (selectConta) {
-                  selectConta.value = data.conta ? data.conta.id : "";
-              }
-              const selectCartao = document.getElementById("id_cartao");
-              if (selectCartao) {
-                  selectCartao.value = data.cartao ? data.cartao.id : "";
+              if (typeof window.applyUnifiedContaCartaoParaEdicao === "function") {
+                window.applyUnifiedContaCartaoParaEdicao(data);
+              } else {
+                const hc = document.getElementById("id_conta");
+                const hk = document.getElementById("id_cartao");
+                if (hc) hc.value = data.conta ? data.conta.id : "";
+                if (hk) hk.value = data.cartao ? data.cartao.id : "";
               }
   
               // Preencher categoria

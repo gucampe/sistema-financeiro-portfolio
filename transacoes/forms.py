@@ -28,9 +28,11 @@ class TransacaoForm(forms.ModelForm):
             self.fields["conta"].queryset = Conta.objects.filter(
                 usuario=self.usuario, ativa=True
             ).order_by("nome")
-            self.fields["cartao"].queryset = Cartao.objects.filter(
-                usuario=self.usuario, ativa=True
-            ).order_by("nome")
+            self.fields["cartao"].queryset = (
+                Cartao.objects.filter(usuario=self.usuario, ativa=True)
+                .select_related("conta_padrao")
+                .order_by("nome")
+            )
             # Categorias do cadastro são receita/despesa; "ajuste" usa categorias de receita (ex.: saldo inicial).
             tipo_cat = self.tipo_inicial
             if tipo_cat == "ajuste":
@@ -46,20 +48,25 @@ class TransacaoForm(forms.ModelForm):
             self.fields["categoria"].queryset = Categoria.objects.none()
 
         self.fields["conta"].empty_label = "Selecione uma conta"
-        self.fields["conta"].required = True
-        self.fields["conta"].error_messages["required"] = "Selecione uma conta."
+        self.fields["conta"].required = False
+        self.fields["conta"].widget = forms.HiddenInput()
+        self.fields["conta"].label = ""
         self.fields["cartao"].empty_label = "Selecione um cartão"
         self.fields["cartao"].required = False
+        self.fields["cartao"].widget = forms.HiddenInput()
+        self.fields["cartao"].label = ""
         self.fields["categoria"].empty_label = "Selecione uma categoria"
         self.fields["categoria"].required = True
 
-        for field in self.fields.values():
+        for name, field in self.fields.items():
+            if name in ("conta", "cartao"):
+                continue
             field.widget.attrs.update({"class": INPUT_CONTROL_CLASSES})
 
     def clean_conta(self):
         conta = self.cleaned_data.get("conta")
         if not conta:
-            raise forms.ValidationError("Selecione uma conta.")
+            return None
         if self.usuario and conta.usuario_id != self.usuario.id:
             raise forms.ValidationError("Conta inválida.")
         if not conta.ativa:
@@ -94,3 +101,24 @@ class TransacaoForm(forms.ModelForm):
         if not cat.ativa:
             raise forms.ValidationError("Categoria inválida ou arquivada.")
         return cat
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned is None:
+            return cleaned
+        cartao = cleaned.get("cartao")
+        if cartao:
+            pad = cartao.conta_padrao
+            if pad is None:
+                raise forms.ValidationError(
+                    {"cartao": "Este cartão não possui conta padrão configurada."}
+                )
+            cleaned["conta"] = pad
+        conta = cleaned.get("conta")
+        if not conta:
+            raise forms.ValidationError({"conta": "Selecione uma conta ou cartão."})
+        if self.usuario and conta.usuario_id != self.usuario.id:
+            raise forms.ValidationError({"conta": "Conta inválida."})
+        if not conta.ativa:
+            raise forms.ValidationError({"conta": "Conta inválida ou inativa."})
+        return cleaned

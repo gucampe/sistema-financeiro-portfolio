@@ -17,7 +17,13 @@
     <h1 class="text-2xl font-semibold text-fg mb-6">Editar transação</h1>
     <form method="post" action="">
       {% csrf_token %}
-      {{ form.as_p }}
+      {% for field in form %}
+        {% if field.field.widget.input_type == "hidden" %}
+          {{ field }}
+        {% else %}
+          <p class="mb-4">{{ field.label_tag }}{{ field }}{% if field.errors %}<span class="text-red-600 text-sm">{{ field.errors }}</span>{% endif %}</p>
+        {% endif %}
+      {% endfor %}
       <button type="submit" class="btn btn-primary btn-block mt-4">Salvar</button>
     </form>
     <p class="mt-4">

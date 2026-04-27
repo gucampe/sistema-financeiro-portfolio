@@ -221,6 +221,8 @@ class ComparativoView(RelatorioFiltrosMixin, TemplateView):
                 categoria_ids=primario.categoria_ids,
                 tipos=primario.tipos,
                 preset="custom",
+                meio_pagamento=primario.meio_pagamento,
+                modo_data=primario.modo_data,
             )
 
         qs_a = aplicar_filtros_relatorio(transacoes_base_qs(user), primario)

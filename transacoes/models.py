@@ -34,6 +34,18 @@ class Transacao(models.Model):
         null=True,
         blank=True,
     )
+    fatura = models.ForeignKey(
+        "cartoes.Fatura",
+        on_delete=models.SET_NULL,
+        related_name="lancamentos",
+        null=True,
+        blank=True,
+    )
+    data_competencia = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Para cartão: data de vencimento da fatura (lista e competência); senão igual à data da compra.",
+    )
 
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
 
@@ -74,13 +86,29 @@ class Transacao(models.Model):
             errors["conta"] = "A conta deve pertencer ao usuário da transação."
         if self.cartao_id and self.usuario_id and self.cartao.usuario_id != self.usuario_id:
             errors["cartao"] = "O cartão deve pertencer ao usuário da transação."
+        if self.fatura_id and self.cartao_id and self.fatura.cartao_id != self.cartao_id:
+            errors["fatura"] = "A fatura deve ser do mesmo cartão da transação."
+        if self.fatura_id and self.usuario_id and self.fatura.usuario_id != self.usuario_id:
+            errors["fatura"] = "A fatura deve pertencer ao usuário da transação."
         if self.categoria_id and self.usuario_id:
             if not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
                 errors["categoria"] = "A categoria deve ser padrão ou pertencer ao usuário da transação."
         if errors:
             raise ValidationError(errors)
 
+    def _sincronizar_fatura_e_competencia(self):
+        if self.cartao_id and self.data:
+            from cartoes.services.faturas import obter_ou_criar_fatura
+
+            f = obter_ou_criar_fatura(self.cartao, self.data)
+            self.fatura_id = f.pk
+            self.data_competencia = f.data_vencimento
+        else:
+            self.fatura_id = None
+            self.data_competencia = None
+
     def save(self, *args, **kwargs):
+        self._sincronizar_fatura_e_competencia()
         self.full_clean()
         super().save(*args, **kwargs)
 

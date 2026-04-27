@@ -37,6 +37,8 @@ class RelatorioFiltrosParseTests(TestCase):
             categoria_ids=(9,),
             tipos=("despesa",),
             preset="custom",
+            meio_pagamento="todos",
+            modo_data="fluxo",
         )
         s = f.to_drill_transacoes_query_string()
         self.assertIn("inicio=2026-04-01", s)

@@ -76,6 +76,10 @@
               </div>
 
               <div class="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:justify-end">
+                <a href="{% url 'cartoes:faturas' cartao.id %}"
+                   class="inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-white transition hover:bg-gray-50 hover:shadow-sm active:scale-[.99]">
+                  Faturas
+                </a>
                 <button type="button"
                         class="btn-editar-cartao inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-gray-100/80 transition hover:bg-gray-200/90 hover:shadow-sm active:scale-[.99]"
                         data-id="{{ cartao.id }}"
@@ -116,5 +120,6 @@
 </div>
 
 {% include 'cartoes/partials/modal_cartao.html' %}
+<script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'cartoes/js/cartoes.js' %}"></script>
 {% endblock %}

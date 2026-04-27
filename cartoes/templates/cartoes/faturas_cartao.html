@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load icon_filters %}
+{% load moeda %}
+
+{% block title %}Faturas — {{ cartao.nome }}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <a href="{% url 'cartoes:home' %}" class="text-fg-muted hover:text-fg text-sm font-medium">Cartões</a>
+    </li>
+    <li class="app-header-breadcrumb__item min-w-0" aria-hidden="true"><span class="text-fg-muted px-1">/</span></li>
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">{{ cartao.nome }}</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+<div class="w-full max-w-5xl mx-auto px-1 sm:px-0">
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+    <div class="min-w-0">
+      <h2 class="text-2xl font-semibold text-fg">Faturas</h2>
+      <p class="text-sm mt-1 text-fg-muted">{{ cartao.nome }} · Fecha dia {{ cartao.dia_fechamento }} · Vence dia {{ cartao.dia_vencimento }}</p>
+    </div>
+    <button type="button"
+            id="btn-adicionar"
+            class="btn btn-primary btn-sm shrink-0">
+      <span class="text-base leading-none">+</span>
+      <span>Nova transação</span>
+    </button>
+  </div>
+
+  {% if fatura_destaque %}
+  <section class="card-dense mb-6 overflow-hidden border border-brand-200/60 bg-brand-50/40">
+    <div class="px-4 sm:px-6 py-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-brand-800">Fatura atual</p>
+        <p class="text-lg font-semibold text-fg mt-1">Vencimento {{ fatura_destaque.data_vencimento|date:"d/m/Y" }}</p>
+        <p class="text-sm text-fg-muted">Compras de {{ fatura_destaque.data_inicio_compras|date:"d/m/Y" }} a {{ fatura_destaque.data_fim_compras|date:"d/m/Y" }}</p>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-fg-muted">Total (despesas)</p>
+        <p class="text-2xl font-bold text-fg">{{ total_destaque|moeda }}</p>
+        <a href="{% url 'cartoes:fatura_detalhe' cartao.id fatura_destaque.id %}"
+           class="inline-flex mt-2 text-sm font-medium text-brand-700 underline decoration-brand-600/40 underline-offset-2 hover:text-brand-800">
+          Ver lançamentos
+        </a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card-dense overflow-hidden">
+    <div class="px-4 sm:px-6 py-5 border-b border-gray-100">
+      <h3 class="text-lg font-semibold text-fg">Histórico de faturas</h3>
+      <p class="text-sm mt-1 text-fg-muted">Totais por competência (mês de vencimento).</p>
+    </div>
+    <ul class="divide-y divide-gray-100">
+      {% for f in faturas %}
+        <li class="px-4 sm:px-6 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-fg">{{ f.competencia|date:"F Y"|capfirst }}</p>
+            <p class="text-xs text-fg-muted">Vence {{ f.data_vencimento|date:"d/m/Y" }} · {{ f.get_status_display }}</p>
+          </div>
+          <div class="flex shrink-0 items-center gap-4">
+            <span class="text-sm font-semibold text-fg">{{ f.total_despesas|default_if_none:0|moeda }}</span>
+            <a href="{% url 'cartoes:fatura_detalhe' cartao.id f.id %}"
+               class="btn btn-secondary btn-sm">Abrir</a>
+          </div>
+        </li>
+      {% empty %}
+        <li class="px-4 sm:px-6 py-10 text-center text-fg-muted text-sm">Nenhuma fatura ainda. Crie uma transação com este cartão ou rode o comando de pré-geração.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+</div>
+
+<script>window.__PRESELECT_CARTAO_MODAL = "{{ cartao.id }}";</script>
+{% include 'transacoes/partials/adicionar_transacao.html' %}
+<script src="{% static 'js/icon_combobox.js' %}"></script>
+<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
+{% endblock %}

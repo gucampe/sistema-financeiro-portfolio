@@ -7,8 +7,8 @@ from itertools import groupby
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from django.db.models import Q, Sum
-from django.db.models.functions import TruncMonth
+from django.db.models import DateField, F, Q, Sum
+from django.db.models.functions import Coalesce, TruncMonth
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -29,6 +29,46 @@ from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 _MAX_OFX_BYTES = 6 * 1024 * 1024
 _MAX_XLSX_BYTES = 6 * 1024 * 1024
 _MAX_LINHAS_IMPORT_OFX = 2000
+
+
+def _redirect_ano_mes_transacao(t: Transacao) -> tuple[int, int]:
+    if t.data_competencia:
+        return t.data_competencia.year, t.data_competencia.month
+    return t.data.year, t.data.month
+
+
+def _filtro_mes_calendario(ano: int, mes: int) -> Q:
+    return (
+        Q(cartao__isnull=False, data_competencia__year=ano, data_competencia__month=mes)
+        | Q(
+            cartao__isnull=False,
+            data_competencia__isnull=True,
+            data__year=ano,
+            data__month=mes,
+        )
+        | Q(cartao__isnull=True, data__year=ano, data__month=mes)
+    )
+
+
+def _filtro_periodo_calendario(data_inicial: date, data_fim: date) -> Q:
+    return (
+        Q(
+            cartao__isnull=False,
+            data_competencia__gte=data_inicial,
+            data_competencia__lte=data_fim,
+        )
+        | Q(
+            cartao__isnull=False,
+            data_competencia__isnull=True,
+            data__gte=data_inicial,
+            data__lte=data_fim,
+        )
+        | Q(cartao__isnull=True, data__gte=data_inicial, data__lte=data_fim)
+    )
+
+
+def _anotar_data_exibicao(qs):
+    return qs.annotate(data_exibicao=Coalesce(F("data_competencia"), F("data"), output_field=DateField()))
 
 
 def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
@@ -148,6 +188,37 @@ def _categorias_importacao_preview_payload(usuario):
     return {"receita": receita, "despesa": despesa}
 
 
+def modal_transacao_context(request, *, pre_select_cartao_id=None):
+    """
+    Contexto mínimo para incluir `transacoes/partials/adicionar_transacao.html`
+    fora do histórico (ex.: faturas do cartão), com cartão opcional pré-selecionado.
+    """
+    categorias_despesa = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="despesa",
+        ativa=True,
+    ).order_by("nome")
+    categorias_receita = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        tipo="receita",
+        ativa=True,
+    ).order_by("nome")
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    initial_tx, tipo_padrao_perfil = perfil.defaults_transacao_form()
+    if pre_select_cartao_id is not None:
+        initial_tx = {**initial_tx, "cartao": int(pre_select_cartao_id)}
+    form = TransacaoForm(
+        usuario=request.user,
+        tipo_inicial=tipo_padrao_perfil,
+        initial=initial_tx,
+    )
+    return {
+        "form": form,
+        "categorias_despesa": categorias_despesa,
+        "categorias_receita": categorias_receita,
+    }
+
+
 @login_required
 def adicionar_transacao(request):
     ano = request.GET.get("ano")
@@ -207,18 +278,19 @@ def adicionar_transacao(request):
             data_inicial = None
 
     if data_inicial is not None:
-        filtro_periodo = {"usuario": request.user, "data__gte": data_inicial}
-        if data_fim is not None:
-            filtro_periodo["data__lte"] = data_fim
-        transacoes = Transacao.objects.filter(
-            **filtro_periodo
-        ).select_related("categoria", "conta", "cartao").order_by("-data", "-id")
+        transacoes = (
+            Transacao.objects.filter(usuario=request.user)
+            .filter(_filtro_periodo_calendario(data_inicial, data_fim or data_inicial))
+            .select_related("categoria", "conta", "cartao", "fatura")
+        )
+        transacoes = _anotar_data_exibicao(transacoes).order_by("-data_exibicao", "-id")
     else:
-        transacoes = Transacao.objects.filter(
-            usuario=request.user,
-            data__year=ano,
-            data__month=mes,
-        ).select_related("categoria", "conta", "cartao").order_by("-data", "-id")
+        transacoes = (
+            Transacao.objects.filter(usuario=request.user)
+            .filter(_filtro_mes_calendario(ano, mes))
+            .select_related("categoria", "conta", "cartao", "fatura")
+        )
+        transacoes = _anotar_data_exibicao(transacoes).order_by("-data_exibicao", "-id")
 
     conta_filtro_ids = _int_ids_from_request(request, "conta")
     categoria_filtro_ids = _int_ids_from_request(request, "categoria")
@@ -232,21 +304,16 @@ def adicionar_transacao(request):
         {"data": data, "transacoes": list(grupo)}
         for data, grupo in groupby(
             transacoes_list,
-            key=lambda t: t.data if isinstance(t.data, date) else t.data.date(),
+            key=lambda t: getattr(t, "data_exibicao", t.data),
         )
     ]
 
     if data_inicial is not None:
-        filtro_totais = {"usuario": request.user, "data__gte": data_inicial}
-        if data_fim is not None:
-            filtro_totais["data__lte"] = data_fim
-        tqs = Transacao.objects.filter(**filtro_totais)
-    else:
-        tqs = Transacao.objects.filter(
-            usuario=request.user,
-            data__year=ano,
-            data__month=mes,
+        tqs = Transacao.objects.filter(usuario=request.user).filter(
+            _filtro_periodo_calendario(data_inicial, data_fim or data_inicial)
         )
+    else:
+        tqs = Transacao.objects.filter(usuario=request.user).filter(_filtro_mes_calendario(ano, mes))
     if conta_filtro_ids:
         tqs = tqs.filter(conta_id__in=conta_filtro_ids)
     if categoria_filtro_ids:
@@ -282,8 +349,10 @@ def adicionar_transacao(request):
             transacao = form.save(commit=False)
             transacao.usuario = request.user
             transacao.save()
+            transacao.refresh_from_db()
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                data_exib = transacao.data_competencia or transacao.data
                 resp = {
                     'status': 'ok',
                     'id': transacao.id,
@@ -291,6 +360,7 @@ def adicionar_transacao(request):
                     'descricao': transacao.descricao,
                     'valor': str(transacao.valor),
                     'data': transacao.data.strftime('%Y-%m-%d'),
+                    'data_exibicao': data_exib.strftime('%Y-%m-%d'),
                     'categoria': {
                         'id': transacao.categoria.id,
                         'nome': transacao.categoria.nome,
@@ -369,13 +439,12 @@ def editar_transacao(request, pk):
         )
         if form.is_valid():
             with transaction.atomic():
-                form.save()
+                transacao_salva = form.save()
 
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
                 return JsonResponse({'status': 'ok'})
-            
-            ano_atual = transacao.data.year
-            mes_atual = transacao.data.month
+
+            ano_atual, mes_atual = _redirect_ano_mes_transacao(transacao_salva)
             return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
         else:
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
@@ -384,12 +453,18 @@ def editar_transacao(request, pk):
     else:
         if request.GET.get("ajax"):
             # Retornar JSON com os dados da transação
+            data_exib = transacao.data_competencia or transacao.data
             return JsonResponse({
                 "id": transacao.id,
                 "tipo": transacao.tipo,
                 "valor": str(transacao.valor),
                 "descricao": transacao.descricao,
                 "data": transacao.data.strftime("%Y-%m-%d"),
+                "data_exibicao": data_exib.strftime("%Y-%m-%d"),
+                "data_competencia": transacao.data_competencia.strftime("%Y-%m-%d")
+                if transacao.data_competencia
+                else None,
+                "fatura_id": transacao.fatura_id,
                 "categoria": {
                     "id": transacao.categoria.id,
                     "nome": transacao.categoria.nome
@@ -400,8 +475,11 @@ def editar_transacao(request, pk):
                 } if transacao.conta else None,
                 "cartao": {
                     "id": transacao.cartao.id,
-                    "nome": transacao.cartao.nome
-                } if transacao.cartao else None
+                    "nome": transacao.cartao.nome,
+                    "conta_padrao_id": transacao.cartao.conta_padrao_id,
+                }
+                if transacao.cartao
+                else None,
             })
 
     form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)
@@ -412,14 +490,11 @@ def editar_transacao(request, pk):
 @login_required
 def excluir_transacao(request, pk):
     transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
+    ano_atual, mes_atual = _redirect_ano_mes_transacao(transacao)
     if request.method == "POST":
-        ano_atual = transacao.data.year
-        mes_atual = transacao.data.month
         with transaction.atomic():
             transacao.delete()
         return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
-    ano_atual = transacao.data.year
-    mes_atual = transacao.data.month
     return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
 
 

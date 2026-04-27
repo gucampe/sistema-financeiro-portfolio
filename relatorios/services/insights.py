@@ -78,6 +78,8 @@ def gerar_insights_dashboard(
         categoria_ids=filtros.categoria_ids,
         tipos=filtros.tipos,
         preset="custom",
+        meio_pagamento=filtros.meio_pagamento,
+        modo_data=filtros.modo_data,
     )
     qs_ant = aplicar_filtros_relatorio(transacoes_base_qs(usuario), ant)
     t_ant = totais_por_tipo(qs_ant)

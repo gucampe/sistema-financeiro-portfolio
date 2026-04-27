@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load icon_filters %}
+{% load moeda %}
+
+{% block title %}Fatura — {{ cartao.nome }}{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <a href="{% url 'cartoes:home' %}" class="text-fg-muted hover:text-fg text-sm font-medium">Cartões</a>
+    </li>
+    <li class="app-header-breadcrumb__item min-w-0" aria-hidden="true"><span class="text-fg-muted px-1">/</span></li>
+    <li class="app-header-breadcrumb__item min-w-0">
+      <a href="{% url 'cartoes:faturas' cartao.id %}" class="text-fg-muted hover:text-fg text-sm font-medium">{{ cartao.nome }}</a>
+    </li>
+    <li class="app-header-breadcrumb__item min-w-0" aria-hidden="true"><span class="text-fg-muted px-1">/</span></li>
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">{{ fatura.competencia|date:"m/Y" }}</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+<div class="w-full max-w-5xl mx-auto px-1 sm:px-0">
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+    <div class="min-w-0">
+      <h2 class="text-2xl font-semibold text-fg">Fatura {{ fatura.competencia|date:"F Y"|capfirst }}</h2>
+      <p class="text-sm mt-1 text-fg-muted">Vencimento {{ fatura.data_vencimento|date:"d/m/Y" }} · Compras {{ fatura.data_inicio_compras|date:"d/m/Y" }} — {{ fatura.data_fim_compras|date:"d/m/Y" }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2 shrink-0">
+      <button type="button"
+              id="btn-adicionar"
+              class="btn btn-primary btn-sm">Nova transação</button>
+      <a href="{% url 'cartoes:faturas' cartao.id %}" class="btn btn-secondary btn-sm">Voltar às faturas</a>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+    <div class="px-4 sm:px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <p class="text-sm font-semibold text-fg">Lançamentos</p>
+      <p class="text-sm text-fg-muted">Total despesas: <span class="font-semibold text-fg">{{ total_despesas|moeda }}</span></p>
+    </div>
+    {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
+    <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
+      {% for transacao in lancamentos %}
+        <li class="group relative py-2.5 hover:bg-surface-muted transition px-4 sm:px-5">
+          <div class="overflow-x-auto overflow-y-visible max-w-full">
+            <div class="min-w-[42rem] lg:min-w-0">
+              <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-4 min-w-0">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ transacao.categoria.cor }}20] border-[{{ transacao.categoria.cor }}40]">
+                    {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
+                      <i class="fa-solid {{ icon_raw }} text-[15px] text-[{{ transacao.categoria.cor }}]"></i>
+                    {% endwith %}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-fg truncate leading-tight">{{ transacao.descricao }}</p>
+                    <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
+                      {{ transacao.categoria.nome }} · Compra {{ transacao.data|date:"d/m/Y" }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex justify-center min-w-0">
+                  <div class="flex items-center gap-2 min-w-0 max-w-[11rem]">
+                    {% if transacao.conta %}
+                      <img src="{% static transacao.conta.icone|conta_icon_path %}" alt="" class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
+                      <span class="text-[13px] font-medium text-gray-700 truncate">{{ transacao.conta.nome }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="shrink-0 text-right">
+                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap {% if transacao.tipo == 'despesa' %}text-red-500{% elif transacao.tipo == 'receita' %}text-green-600{% else %}text-gray-700{% endif %}">
+                    {% if transacao.tipo == 'despesa' %}- {{ transacao.valor|moeda }}{% elif transacao.tipo == 'receita' %}+ {{ transacao.valor|moeda }}{% else %}{{ transacao.valor|moeda }}{% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      {% empty %}
+        <li class="px-4 sm:px-5 py-12 text-center text-fg-muted text-sm">Nenhum lançamento nesta fatura.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+</div>
+<script>window.__PRESELECT_CARTAO_MODAL = "{{ cartao.id }}";</script>
+{% include 'transacoes/partials/adicionar_transacao.html' %}
+<script src="{% static 'js/icon_combobox.js' %}"></script>
+<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/historico.js' %}"></script>
+{% endblock %}

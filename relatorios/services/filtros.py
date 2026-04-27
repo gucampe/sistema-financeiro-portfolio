@@ -27,6 +27,8 @@ class RelatorioFiltros:
     categoria_ids: tuple[int, ...] = ()
     tipos: tuple[str, ...] = ()  # vazio = todos (receita, despesa, ajuste)
     preset: str = "custom"  # rótulo do preset usado (para UI)
+    meio_pagamento: str = "todos"  # todos | debito | credito
+    modo_data: str = "fluxo"  # fluxo | competencia_cartao
 
     def to_query_dict(self) -> dict[str, list[str]]:
         """Parâmetros GET equivalentes (listas para urlencode multi-value)."""
@@ -42,6 +44,10 @@ class RelatorioFiltros:
             d.setdefault("categoria", []).append(str(cat))
         for t in self.tipos:
             d.setdefault("tipo", []).append(t)
+        if self.meio_pagamento and self.meio_pagamento != "todos":
+            d.setdefault("meio_pagamento", []).append(self.meio_pagamento)
+        if self.modo_data and self.modo_data != "fluxo":
+            d.setdefault("modo_data", []).append(self.modo_data)
         return d
 
     def to_query_string(self) -> str:
@@ -177,6 +183,13 @@ def parse_relatorio_filtros(
     tipos_list = [t for t in get_params.getlist("tipo") if t in TIPOS_VALIDOS]
     tipos = tuple(dict.fromkeys(tipos_list))  # preserva ordem, únicos
 
+    meio = (get_params.get("meio_pagamento") or "todos").strip().lower()
+    if meio not in ("todos", "debito", "credito"):
+        meio = "todos"
+    modo = (get_params.get("modo_data") or "fluxo").strip().lower()
+    if modo not in ("fluxo", "competencia_cartao"):
+        modo = "fluxo"
+
     return RelatorioFiltros(
         data_inicio=inicio,
         data_fim=fim,
@@ -184,6 +197,8 @@ def parse_relatorio_filtros(
         categoria_ids=categoria_ids,
         tipos=tipos,
         preset=preset,
+        meio_pagamento=meio,
+        modo_data=modo,
     )
 
 
@@ -211,4 +226,6 @@ def parse_comparativo_secundario(
         categoria_ids=primario.categoria_ids,
         tipos=primario.tipos,
         preset="custom",
+        meio_pagamento=primario.meio_pagamento,
+        modo_data=primario.modo_data,
     )
