@@ -141,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectTipo = document.getElementById("tipo");
   const selectCategoria = document.getElementById("categoria");
   const selectConta = document.getElementById("id_conta");
+  const selectCartao = document.getElementById("id_cartao");
   const modalHeader = overlay?.querySelector("h2");
 
   let contaCombobox = null;
@@ -252,6 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("descricao").value = data.descricao;
         document.getElementById("data").value = data.data;
         if (selectConta) selectConta.value = data.conta ? data.conta.id : "";
+        if (selectCartao) selectCartao.value = data.cartao ? data.cartao.id : "";
         contaCombobox?.sync();
         popularCategorias(data.tipo, data.categoria.id);
         limparErroContaAjax();

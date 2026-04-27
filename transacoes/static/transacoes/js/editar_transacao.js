@@ -21,6 +21,10 @@ document.addEventListener("click", function(e){
               if (selectConta) {
                   selectConta.value = data.conta ? data.conta.id : "";
               }
+              const selectCartao = document.getElementById("id_cartao");
+              if (selectCartao) {
+                  selectCartao.value = data.cartao ? data.cartao.id : "";
+              }
   
               // Preencher categoria
               const selectCategoria = document.getElementById("categoria");

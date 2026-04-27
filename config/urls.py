@@ -17,6 +17,7 @@ urlpatterns = [
     path('transacoes/', include(('transacoes.urls', 'transacoes'), namespace='transacoes')),
     path('', include(('categorias.urls', 'categorias'))),
     path('contas/', include(('contas.urls', 'contas'), namespace='contas')),
+    path('cartoes/', include(('cartoes.urls', 'cartoes'), namespace='cartoes')),
 ]
 
 if settings.DEBUG:

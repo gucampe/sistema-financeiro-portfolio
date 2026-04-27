@@ -1,0 +1,88 @@
+{% load static %}
+
+<div id="overlay-modal-cartao" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative border border-gray-200">
+    <button id="btn-fechar-modal-cartao"
+            type="button"
+            class="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition text-fg bg-gray-200/80 hover:bg-gray-300"
+            aria-label="Fechar modal">
+      ✕
+    </button>
+
+    <h2 id="titulo-modal-cartao" class="text-2xl font-semibold mb-1 text-fg">Novo Cartão</h2>
+    <p class="text-sm mb-6 text-fg-muted">Preencha os dados básicos do cartão.</p>
+
+    <div id="erro-modal-cartao"
+         class="hidden mb-4 p-3 rounded-lg text-sm border border-danger-border bg-danger-soft text-danger"></div>
+
+    <form id="form-modal-cartao"
+          method="POST"
+          action="{% url 'cartoes:salvar' %}"
+          data-instituicoes="{{ icone_choices_instituicoes|join:',' }}"
+          data-genericos="{{ icone_choices_genericos|join:',' }}"
+          data-url-instituicoes="{% static 'contas/icons/instituicoes/' %}"
+          data-url-genericos="{% static 'contas/icons/genericos/' %}">
+      {% csrf_token %}
+      <input type="hidden" name="cartao_id" id="cartao_id">
+      <input type="hidden" name="icone" id="cartao_icone" value="bank">
+
+      <div class="mb-4">
+        <label for="cartao_nome" class="block text-sm font-medium mb-1 text-fg">Nome</label>
+        <input type="text" name="nome" id="cartao_nome" required class="input w-full" placeholder="Ex.: Nubank Gold">
+      </div>
+
+      <div class="mb-4">
+        <label for="cartao_limite" class="block text-sm font-medium mb-1 text-fg">Limite</label>
+        <input type="text" name="limite" id="cartao_limite" required class="input w-full" placeholder="Ex.: 2500,00">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="cartao_dia_fechamento" class="block text-sm font-medium mb-1 text-fg">Dia fechamento</label>
+          <input type="number" min="1" max="31" name="dia_fechamento" id="cartao_dia_fechamento" required class="input w-full">
+        </div>
+        <div>
+          <label for="cartao_dia_vencimento" class="block text-sm font-medium mb-1 text-fg">Dia vencimento</label>
+          <input type="number" min="1" max="31" name="dia_vencimento" id="cartao_dia_vencimento" required class="input w-full">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="cartao_conta_padrao" class="block text-sm font-medium mb-1 text-fg">Conta padrão</label>
+        <select name="conta_padrao" id="cartao_conta_padrao" required class="input w-full">
+          <option value="">Selecione</option>
+          {% for conta in contas_ativas %}
+            <option value="{{ conta.id }}">{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-fg">Ícone</label>
+        <div id="icon-grid-cartao" class="grid grid-cols-6 gap-3 max-h-48 overflow-y-auto">
+          {% for slug, nome, arquivo in icon_list_instituicoes %}
+            <button type="button"
+                    class="item-icone-cartao relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
+                    data-icone="{{ slug }}"
+                    title="{{ nome }}">
+              <img src="{% static 'contas/icons/instituicoes/' %}{{ arquivo }}.png" class="w-6 h-6 object-contain" alt="{{ nome }}">
+            </button>
+          {% endfor %}
+          {% for slug, nome, arquivo in icon_list_genericos %}
+            <button type="button"
+                    class="item-icone-cartao relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
+                    data-icone="{{ slug }}"
+                    title="{{ nome }}">
+              <img src="{% static 'contas/icons/genericos/' %}{{ arquivo }}.svg" class="w-6 h-6 object-contain" alt="{{ nome }}">
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button id="btn-cancelar-modal-cartao" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-sm">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>

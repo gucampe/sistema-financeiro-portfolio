@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from categorias.models import Categoria
+from cartoes.models import Cartao
 from contas.models import Conta
 
 
@@ -25,6 +26,13 @@ class Transacao(models.Model):
         Conta,
         on_delete=models.PROTECT,
         related_name="transacoes",
+    )
+    cartao = models.ForeignKey(
+        Cartao,
+        on_delete=models.SET_NULL,
+        related_name="transacoes",
+        null=True,
+        blank=True,
     )
 
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
@@ -64,6 +72,8 @@ class Transacao(models.Model):
         errors = {}
         if self.conta_id and self.usuario_id and self.conta.usuario_id != self.usuario_id:
             errors["conta"] = "A conta deve pertencer ao usuário da transação."
+        if self.cartao_id and self.usuario_id and self.cartao.usuario_id != self.usuario_id:
+            errors["cartao"] = "O cartão deve pertencer ao usuário da transação."
         if self.categoria_id and self.usuario_id:
             if not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
                 errors["categoria"] = "A categoria deve ser padrão ou pertencer ao usuário da transação."

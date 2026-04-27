@@ -93,6 +93,20 @@
         {% endif %}
       </div>
 
+      <!-- Cartão (opcional) -->
+      <div class="mb-4">
+        <label for="id_cartao" class="block text-sm font-medium mb-1 text-fg">Cartão (opcional)</label>
+        <select name="cartao" id="id_cartao" class="input w-full">
+          <option value="">Selecione um cartão</option>
+          {% for cartao in form.cartao.field.queryset %}
+            <option value="{{ cartao.id }}">{{ cartao.nome }}</option>
+          {% endfor %}
+        </select>
+        {% if form.cartao.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ form.cartao.errors|striptags }}</p>
+        {% endif %}
+      </div>
+
       <!-- Categoria (select nativo + combobox visual) -->
       <div class="mb-4" data-combobox-root="categoria">
         <label for="categoria" class="block text-sm font-medium mb-1 text-fg">Categoria</label>

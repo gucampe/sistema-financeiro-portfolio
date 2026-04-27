@@ -3,6 +3,7 @@ from django import forms
 
 from core.forms_ui import INPUT_CONTROL_CLASSES
 
+from cartoes.models import Cartao
 from .models import Transacao
 from categorias.models import Categoria
 from contas.models import Conta
@@ -11,7 +12,7 @@ from contas.models import Conta
 class TransacaoForm(forms.ModelForm):
     class Meta:
         model = Transacao
-        fields = ["tipo", "conta", "categoria", "descricao", "valor", "data"]
+        fields = ["tipo", "conta", "cartao", "categoria", "descricao", "valor", "data"]
         widgets = {
             "data": forms.DateInput(attrs={"type": "date"}),
         }
@@ -27,6 +28,9 @@ class TransacaoForm(forms.ModelForm):
             self.fields["conta"].queryset = Conta.objects.filter(
                 usuario=self.usuario, ativa=True
             ).order_by("nome")
+            self.fields["cartao"].queryset = Cartao.objects.filter(
+                usuario=self.usuario, ativa=True
+            ).order_by("nome")
             # Categorias do cadastro são receita/despesa; "ajuste" usa categorias de receita (ex.: saldo inicial).
             tipo_cat = self.tipo_inicial
             if tipo_cat == "ajuste":
@@ -38,11 +42,14 @@ class TransacaoForm(forms.ModelForm):
             ).order_by("nome")
         else:
             self.fields["conta"].queryset = Conta.objects.none()
+            self.fields["cartao"].queryset = Cartao.objects.none()
             self.fields["categoria"].queryset = Categoria.objects.none()
 
         self.fields["conta"].empty_label = "Selecione uma conta"
         self.fields["conta"].required = True
         self.fields["conta"].error_messages["required"] = "Selecione uma conta."
+        self.fields["cartao"].empty_label = "Selecione um cartão"
+        self.fields["cartao"].required = False
         self.fields["categoria"].empty_label = "Selecione uma categoria"
         self.fields["categoria"].required = True
 
@@ -58,6 +65,16 @@ class TransacaoForm(forms.ModelForm):
         if not conta.ativa:
             raise forms.ValidationError("Conta inválida ou inativa.")
         return conta
+
+    def clean_cartao(self):
+        cartao = self.cleaned_data.get("cartao")
+        if not cartao:
+            return None
+        if self.usuario and cartao.usuario_id != self.usuario.id:
+            raise forms.ValidationError("Cartão inválido.")
+        if not cartao.ativa:
+            raise forms.ValidationError("Cartão inválido ou inativo.")
+        return cartao
 
     def clean_categoria(self):
         cat = self.cleaned_data.get("categoria")

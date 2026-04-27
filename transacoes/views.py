@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
+from cartoes.models import Cartao
 from contas.models import Conta
 from usuarios.models import Perfil
 
@@ -211,13 +212,13 @@ def adicionar_transacao(request):
             filtro_periodo["data__lte"] = data_fim
         transacoes = Transacao.objects.filter(
             **filtro_periodo
-        ).select_related("categoria", "conta").order_by("-data", "-id")
+        ).select_related("categoria", "conta", "cartao").order_by("-data", "-id")
     else:
         transacoes = Transacao.objects.filter(
             usuario=request.user,
             data__year=ano,
             data__month=mes,
-        ).select_related("categoria", "conta").order_by("-data", "-id")
+        ).select_related("categoria", "conta", "cartao").order_by("-data", "-id")
 
     conta_filtro_ids = _int_ids_from_request(request, "conta")
     categoria_filtro_ids = _int_ids_from_request(request, "categoria")
@@ -269,6 +270,7 @@ def adicionar_transacao(request):
         ativa=True
     ).order_by("nome")
     contas = Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome")
+    cartoes = Cartao.objects.filter(usuario=request.user, ativa=True).order_by("nome")
 
     perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
     initial_tx, tipo_padrao_perfil = perfil.defaults_transacao_form()
@@ -301,6 +303,11 @@ def adicionar_transacao(request):
                         'id': transacao.conta.id,
                         'nome': transacao.conta.nome,
                         'icone': transacao.conta.icone,
+                    }
+                if transacao.cartao_id:
+                    resp['cartao'] = {
+                        'id': transacao.cartao.id,
+                        'nome': transacao.cartao.nome,
                     }
                 return JsonResponse(resp)
 
@@ -343,6 +350,7 @@ def adicionar_transacao(request):
         "categorias_despesa": categorias_despesa,
         "categorias_receita": categorias_receita,
         "contas": contas,
+        "cartoes": cartoes,
         "total_receitas": total_receitas,
         "total_despesas": total_despesas,
         "saldo_mes": saldo_mes,
@@ -389,7 +397,11 @@ def editar_transacao(request, pk):
                 "conta": {
                     "id": transacao.conta.id,
                     "nome": transacao.conta.nome
-                } if transacao.conta else None
+                } if transacao.conta else None,
+                "cartao": {
+                    "id": transacao.cartao.id,
+                    "nome": transacao.cartao.nome
+                } if transacao.cartao else None
             })
 
     form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)

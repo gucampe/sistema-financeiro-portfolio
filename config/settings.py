@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'transacoes',  # Certifique-se de que este é o nome correto do seu app financeiro
     'categorias.apps.CategoriasConfig',
     'contas.apps.ContasConfig',
+    'cartoes.apps.CartoesConfig',
     'django.contrib.humanize',
 ]
 
