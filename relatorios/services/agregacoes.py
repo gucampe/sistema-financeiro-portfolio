@@ -6,7 +6,6 @@ from decimal import Decimal
 from typing import Any
 
 from django.db.models import Case, Count, DecimalField, F, Q, QuerySet, Sum, When
-from django.db.models.functions import TruncDate, TruncMonth, TruncWeek
 
 from contas.models import Conta
 from relatorios.services.filtros import RelatorioFiltros
@@ -112,38 +111,63 @@ def _meses_no_intervalo(fi: date, ff: date):
             m += 1
 
 
+def _float_json_seguro(x: Decimal | float | int | None) -> float:
+    """Evita NaN/inf no JSON (Chart.js / navegadores rejeitam)."""
+    if x is None:
+        return 0.0
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return 0.0
+    if v != v or v in (float("inf"), float("-inf")):
+        return 0.0
+    return v
+
+
+def _inicio_semana_segunda(d: date) -> date:
+    """Segunda-feira da semana ISO (igual ao loop semanal já usado nos relatórios)."""
+    return d - timedelta(days=d.weekday())
+
+
 def serie_receitas_despesas(
     qs: QuerySet[Transacao],
     filtros: RelatorioFiltros,
     granularidade: str | None = None,
 ) -> dict[str, Any]:
+    """
+    Agrega por dia na base (campo DateField `data`) e agrupa em dia/semana/mês em Python.
+    Evita TruncDate/TruncWeek em SQLite com USE_TZ, que dispara UDFs que podem falhar
+    com a mensagem \"user-defined function raised exception\".
+    """
     g = granularidade or _granularidade_auto(filtros)
     if g == "day":
-        trunc = TruncDate("data")
         fmt = "%d/%m"
     elif g == "week":
-        trunc = TruncWeek("data")
         fmt = "%d/%m"
     else:
-        trunc = TruncMonth("data")
         fmt = "%b/%y"
 
     buckets: dict[date, dict[str, Decimal]] = defaultdict(
         lambda: {"receita": Decimal("0"), "despesa": Decimal("0"), "ajuste": Decimal("0")}
     )
 
-    annotated = (
-        qs.annotate(bucket=trunc).values("bucket", "tipo").annotate(total=Sum("valor")).order_by("bucket")
-    )
-
-    for row in annotated:
-        b = _as_date(row["bucket"])
-        if g == "month":
-            b = date(b.year, b.month, 1)
-        elif g == "week":
-            b = b - timedelta(days=b.weekday())
-        tipo = row["tipo"]
+    daily = qs.values("data", "tipo").annotate(total=Sum("valor"))
+    for row in daily.iterator(chunk_size=2000):
+        raw_d = row.get("data")
+        try:
+            d_dia = raw_d if isinstance(raw_d, date) else _as_date(raw_d)
+        except (TypeError, ValueError):
+            continue
+        tipo = row.get("tipo")
+        if tipo not in ("receita", "despesa", "ajuste"):
+            continue
         total = row["total"] or Decimal("0")
+        if g == "month":
+            b = date(d_dia.year, d_dia.month, 1)
+        elif g == "week":
+            b = _inicio_semana_segunda(d_dia)
+        else:
+            b = d_dia
         buckets[b][tipo] += total
 
     labels: list[str] = []
@@ -153,9 +177,9 @@ def serie_receitas_despesas(
 
     def push(d: date, data: dict[str, Decimal]):
         labels.append(d.strftime(fmt))
-        receitas.append(float(data["receita"]))
-        despesas.append(float(data["despesa"]))
-        ajustes.append(float(data["ajuste"]))
+        receitas.append(_float_json_seguro(data["receita"]))
+        despesas.append(_float_json_seguro(data["despesa"]))
+        ajustes.append(_float_json_seguro(data["ajuste"]))
 
     if g == "month":
         for y, m in _meses_no_intervalo(filtros.data_inicio, filtros.data_fim):
@@ -246,10 +270,11 @@ def serie_fluxo_diario(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> di
             output_field=DecimalField(max_digits=14, decimal_places=2),
         )
     )
-    rows = qs.annotate(d=TruncDate("data")).values("d").annotate(liquido=expr_dia).order_by("d")
+    rows = qs.values("data").annotate(liquido=expr_dia).order_by("data")
     by_day: dict[date, Decimal] = {}
-    for row in rows:
-        d = _as_date(row["d"])
+    for row in rows.iterator(chunk_size=2000):
+        raw_d = row["data"]
+        d = raw_d if isinstance(raw_d, date) else _as_date(raw_d)
         by_day[d] = row["liquido"] or Decimal("0")
 
     labels: list[str] = []

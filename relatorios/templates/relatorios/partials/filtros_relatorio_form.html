@@ -1,0 +1,139 @@
+{% comment %}
+Formulário GET de filtros de relatório.
+filtros_embed == "drawer" → coluna + área rolável + rodapé com botões.
+Caso contrário → barra horizontal (outras telas).
+{% endcomment %}
+<form
+  method="get"
+  action="{{ request.path }}"
+  id="{% if filtros_embed == 'drawer' %}form-filtros-drawer{% else %}form-filtros-bar{% endif %}"
+  class="{% if filtros_embed == 'drawer' %}flex min-h-0 max-h-full flex-1 flex-col{% else %}flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-0 lg:gap-y-5{% endif %}"
+>
+  {% if filtros_embed == 'drawer' %}
+  <div class="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-2">
+    <div class="space-y-4">
+      <div class="space-y-1.5">
+        <label for="filtro-preset" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Período</label>
+        <select id="filtro-preset" name="preset" class="input w-full">
+          <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
+          <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
+          <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
+          <option value="ultimos_90d" {% if filtros.preset == "ultimos_90d" %}selected{% endif %}>Últimos 90 dias</option>
+          <option value="este_ano" {% if filtros.preset == "este_ano" %}selected{% endif %}>Este ano</option>
+          <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5">
+          <label for="filtro-inicio" class="text-[11px] font-semibold text-gray-500">De</label>
+          <input id="filtro-inicio" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
+        </div>
+        <div class="space-y-1.5">
+          <label for="filtro-fim" class="text-[11px] font-semibold text-gray-500">Até</label>
+          <input id="filtro-fim" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
+        </div>
+      </div>
+    </div>
+    <div class="space-y-1.5">
+      <label for="filtro-contas" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Contas</label>
+      <select id="filtro-contas" name="conta" multiple size="5" class="input min-h-[7rem] py-2 text-xs leading-relaxed">
+        {% for c in contas_ativas %}
+          <option value="{{ c.id }}" {% if c.id in filtros.conta_ids %}selected{% endif %}>{{ c.nome }}</option>
+        {% endfor %}
+      </select>
+      <p class="text-[10px] leading-tight text-gray-400">Ctrl+clique (⌘ no Mac) para várias contas.</p>
+    </div>
+    <div class="space-y-1.5">
+      <label for="filtro-categorias" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Categorias</label>
+      <select id="filtro-categorias" name="categoria" multiple size="5" class="input min-h-[7rem] py-2 text-xs leading-relaxed">
+        {% for cat in categorias_filtro %}
+          <option value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}selected{% endif %}>{{ cat.get_tipo_display }} — {{ cat.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="space-y-2">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Tipos</span>
+      <div class="flex flex-wrap gap-2">
+        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/90 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900">
+          <input type="checkbox" name="tipo" value="receita" {% if "receita" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+          Receita
+        </label>
+        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/90 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900">
+          <input type="checkbox" name="tipo" value="despesa" {% if "despesa" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+          Despesa
+        </label>
+        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/90 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900">
+          <input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+          Ajuste
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="mt-auto flex shrink-0 gap-2 border-t border-gray-100 bg-white pt-4">
+    <button type="submit" class="btn btn-primary btn-sm min-w-0 flex-1 justify-center">Aplicar filtros</button>
+    <a href="{{ request.path }}?preset=este_mes" class="btn btn-secondary btn-sm shrink-0 justify-center">Limpar</a>
+  </div>
+  {% else %}
+  <div class="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end lg:min-w-[min(100%,20rem)] lg:max-w-xl lg:pr-6 lg:border-r lg:border-gray-100">
+    <div class="flex min-w-[12rem] flex-1 flex-col gap-1.5 sm:max-w-xs">
+      <label for="filtro-preset-bar" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Período</label>
+      <select id="filtro-preset-bar" name="preset" class="input max-w-full">
+        <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
+        <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
+        <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
+        <option value="ultimos_90d" {% if filtros.preset == "ultimos_90d" %}selected{% endif %}>Últimos 90 dias</option>
+        <option value="este_ano" {% if filtros.preset == "este_ano" %}selected{% endif %}>Este ano</option>
+        <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
+      </select>
+    </div>
+    <div class="flex flex-wrap items-end gap-3">
+      <div class="flex flex-col gap-1.5">
+        <label for="filtro-inicio-bar" class="text-[11px] font-semibold text-gray-500">De</label>
+        <input id="filtro-inicio-bar" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-[11.5rem] tabular-nums" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="filtro-fim-bar" class="text-[11px] font-semibold text-gray-500">Até</label>
+        <input id="filtro-fim-bar" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-[11.5rem] tabular-nums" />
+      </div>
+    </div>
+  </div>
+  <div class="flex min-w-[11rem] flex-1 flex-col gap-1.5 lg:max-w-[14rem] lg:px-6 lg:border-r lg:border-gray-100">
+    <label for="filtro-contas-bar" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Contas</label>
+    <select id="filtro-contas-bar" name="conta" multiple size="4" class="input min-h-[6.5rem] py-2 text-xs leading-relaxed">
+      {% for c in contas_ativas %}
+        <option value="{{ c.id }}" {% if c.id in filtros.conta_ids %}selected{% endif %}>{{ c.nome }}</option>
+      {% endfor %}
+    </select>
+    <p class="text-[10px] leading-tight text-gray-400">Ctrl+clique (⌘ no Mac) para várias contas.</p>
+  </div>
+  <div class="flex min-w-[11rem] flex-1 flex-col gap-1.5 lg:max-w-[16rem] lg:px-6 lg:border-r lg:border-gray-100">
+    <label for="filtro-categorias-bar" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Categorias</label>
+    <select id="filtro-categorias-bar" name="categoria" multiple size="4" class="input min-h-[6.5rem] py-2 text-xs leading-relaxed">
+      {% for cat in categorias_filtro %}
+        <option value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}selected{% endif %}>{{ cat.get_tipo_display }} — {{ cat.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="flex flex-col gap-2 lg:px-6 lg:border-r lg:border-gray-100">
+    <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Tipos</span>
+    <div class="flex flex-wrap gap-2">
+      <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900 has-[:checked]:shadow-[0_1px_0_rgba(22,163,74,0.08)]">
+        <input type="checkbox" name="tipo" value="receita" {% if "receita" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+        Receita
+      </label>
+      <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900 has-[:checked]:shadow-[0_1px_0_rgba(22,163,74,0.08)]">
+        <input type="checkbox" name="tipo" value="despesa" {% if "despesa" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+        Despesa
+      </label>
+      <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-white has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900 has-[:checked]:shadow-[0_1px_0_rgba(22,163,74,0.08)]">
+        <input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+        Ajuste
+      </label>
+    </div>
+  </div>
+  <div class="flex flex-wrap items-center gap-2 pt-1 lg:pl-6 lg:pt-0">
+    <button type="submit" class="btn btn-primary btn-sm min-w-[6.5rem] justify-center">Aplicar</button>
+    <a href="{{ request.path }}?preset=este_mes" class="btn btn-slate btn-sm justify-center">Limpar</a>
+  </div>
+  {% endif %}
+</form>

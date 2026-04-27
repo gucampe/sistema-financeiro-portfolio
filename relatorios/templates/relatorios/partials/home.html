@@ -16,17 +16,32 @@
 
 {% block content %}
 {% csrf_token %}
-<div class="container mx-auto p-2 max-w-7xl">
-  {% include 'relatorios/partials/navegacao_relatorios.html' %}
-  {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-    <div>
-      <h2 class="text-xl font-semibold text-gray-900">Visão geral</h2>
-      <p class="text-sm text-gray-500 mt-0.5">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+<div class="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
+  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+
+  <header class="mt-8 flex flex-col gap-6 border-b border-gray-100/90 pb-8 lg:flex-row lg:items-start lg:justify-between">
+    <div class="min-w-0 space-y-1">
+      <h1 class="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Visão geral</h1>
+      <p class="text-base font-medium text-gray-700">
+        {% if filtros.preset == "este_mes" %}Este mês
+        {% elif filtros.preset == "mes_anterior" %}Mês anterior
+        {% elif filtros.preset == "ultimos_30d" %}Últimos 30 dias
+        {% elif filtros.preset == "ultimos_90d" %}Últimos 90 dias
+        {% elif filtros.preset == "este_ano" %}Este ano
+        {% elif filtros.preset == "custom" %}Período personalizado
+        {% else %}Período selecionado{% endif %}
+      </p>
+      <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
-    <div class="flex flex-wrap gap-2 items-center">
-      <button type="button" id="btn-export-csv" class="btn btn-slate btn-sm" title="Exportar transações do período (CSV)">Exportar CSV</button>
+    <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+      <button type="button" id="btn-abrir-filtros" class="btn btn-secondary btn-sm" aria-haspopup="dialog" aria-controls="filtros-painel-flutuante" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        Filtros
+      </button>
+      <button type="button" id="btn-export-csv" class="btn btn-secondary btn-sm" title="Exportar transações do período (CSV)">Exportar CSV</button>
       <button type="button" id="btn-adicionar" class="btn btn-primary btn-sm">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -34,120 +49,154 @@
         Nova transação
       </button>
     </div>
-  </div>
-
-  {% if insights %}
-  <div class="mb-4 space-y-2">
-    {% for ins in insights %}
-    <div class="rounded-lg border px-3 py-2 text-sm {% if ins.nivel == 'aviso' %}border-amber-200 bg-amber-50 text-amber-900{% elif ins.nivel == 'destaque' %}border-indigo-200 bg-indigo-50 text-indigo-900{% else %}border-gray-200 bg-gray-50 text-gray-800{% endif %}">
-      <span class="font-medium">{{ ins.titulo }}</span> — {{ ins.mensagem }}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
+  </header>
 
   {% if alertas_orcamento %}
-  <div class="mb-4 space-y-2">
-    {% for a in alertas_orcamento %}
-    <div class="rounded-lg border px-3 py-2 text-sm {% if a.nivel == 'aviso' %}border-red-200 bg-red-50 text-red-900{% else %}border-amber-200 bg-amber-50 text-amber-900{% endif %}">
-      <span class="font-medium">{{ a.titulo }}</span> — {{ a.mensagem }}
+  <section class="mt-10 space-y-6">
+    <div class="space-y-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Orçamento</h2>
+      <div class="grid gap-3">
+        {% for a in alertas_orcamento %}
+        <div class="flex gap-4 rounded-2xl border p-4 shadow-sm transition duration-200 hover:shadow-md {% if a.nivel == 'aviso' %}border-red-100/90 bg-gradient-to-br from-red-50/40 to-white{% else %}border-amber-100/90 bg-gradient-to-br from-amber-50/35 to-white{% endif %}">
+          <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5" aria-hidden="true">
+            {% if a.nivel == 'aviso' %}
+            <svg class="h-5 w-5 text-red-500/90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            {% else %}
+            <svg class="h-5 w-5 text-amber-500/90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01" /></svg>
+            {% endif %}
+          </span>
+          <div class="min-w-0 text-sm leading-relaxed {% if a.nivel == 'aviso' %}text-red-950/90{% else %}text-amber-950/90{% endif %}">
+            <span class="font-semibold">{{ a.titulo }}</span>
+            <span class="opacity-80"> — </span>
+            <span>{{ a.mensagem }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
-  </div>
+  </section>
   {% endif %}
 
-  <!-- KPIs -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Receitas</p>
-      <p class="text-lg font-semibold text-emerald-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.receitas|moeda }}{% endif %}</p>
+  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+      <article class="group relative overflow-hidden rounded-2xl border border-emerald-100/60 bg-gradient-to-br from-emerald-50/50 via-white to-white p-5 shadow-sm transition duration-200 hover:border-emerald-200/80 hover:shadow-md">
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800/70">Receitas</p>
+          <span class="rounded-lg bg-emerald-500/10 p-1 text-emerald-600/70" aria-hidden="true">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+          </span>
+        </div>
+        <p class="mt-3 text-2xl font-semibold tracking-tight text-emerald-800/95 tabular-nums sm:text-[1.65rem]">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.receitas|moeda }}{% endif %}</p>
+      </article>
+      <article class="group relative overflow-hidden rounded-2xl border border-rose-100/60 bg-gradient-to-br from-rose-50/40 via-white to-white p-5 shadow-sm transition duration-200 hover:border-rose-200/80 hover:shadow-md">
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-rose-800/70">Despesas</p>
+          <span class="rounded-lg bg-rose-500/10 p-1 text-rose-600/70" aria-hidden="true">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+          </span>
+        </div>
+        <p class="mt-3 text-2xl font-semibold tracking-tight text-rose-800/95 tabular-nums sm:text-[1.65rem]">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.despesas|moeda }}{% endif %}</p>
+      </article>
+      <article class="group relative overflow-hidden rounded-2xl border border-sky-100/70 bg-gradient-to-br from-sky-50/35 via-white to-white p-5 shadow-sm transition duration-200 hover:border-sky-200/80 hover:shadow-md">
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-800/70">Resultado (fluxo)</p>
+          {% if resultado_fluxo > 0 %}
+          <span class="rounded-lg bg-sky-500/10 p-1 text-sky-600/80" aria-hidden="true"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg></span>
+          {% elif resultado_fluxo < 0 %}
+          <span class="rounded-lg bg-sky-500/10 p-1 text-sky-600/80" aria-hidden="true"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg></span>
+          {% else %}
+          <span class="rounded-lg bg-gray-100 p-1 text-gray-500" aria-hidden="true"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" /></svg></span>
+          {% endif %}
+        </div>
+        <p class="mt-3 text-2xl font-semibold tracking-tight text-sky-900/90 tabular-nums sm:text-[1.65rem]">{% if ocultar_valores_dashboard %}••••{% else %}{{ resultado_fluxo|moeda }}{% endif %}</p>
+        <p class="mt-2 text-xs text-gray-500">Receitas − despesas no período</p>
+      </article>
+      <article class="group relative overflow-hidden rounded-2xl border border-gray-200/70 bg-gradient-to-br from-gray-50/50 via-white to-white p-5 shadow-sm transition duration-200 hover:border-gray-300/90 hover:shadow-md">
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-600">Patrimônio (contas)</p>
+          <span class="rounded-lg bg-gray-100 p-1 text-gray-500" aria-hidden="true">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+          </span>
+        </div>
+        <p class="mt-3 text-2xl font-semibold tracking-tight text-gray-900 tabular-nums sm:text-[1.65rem]">{% if ocultar_valores_dashboard %}••••{% else %}{{ saldo_patrimonio|moeda }}{% endif %}</p>
+        <p class="mt-2 text-xs text-gray-500">Saldo acumulado por conta</p>
+      </article>
     </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Despesas</p>
-      <p class="text-lg font-semibold text-red-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais.despesas|moeda }}{% endif %}</p>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Resultado (fluxo)</p>
-      <p class="text-lg font-semibold text-blue-600 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ resultado_fluxo|moeda }}{% endif %}</p>
-      <p class="text-[10px] text-gray-400 mt-1">Receitas − despesas no período</p>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <p class="text-xs text-gray-500 uppercase tracking-wide">Patrimônio (contas)</p>
-      <p class="text-lg font-semibold text-gray-800 tabular-nums">{% if ocultar_valores_dashboard %}••••{% else %}{{ saldo_patrimonio|moeda }}{% endif %}</p>
-      <p class="text-[10px] text-gray-400 mt-1">Saldo acumulado por conta</p>
-    </div>
-  </div>
+  </section>
 
   {% if totais.ajustes and totais.ajustes != 0 %}
-  <p class="text-xs text-gray-500 mb-3">Ajustes no período: {% if ocultar_valores_dashboard %}••••{% else %}{{ totais.ajustes|moeda }}{% endif %} (não entram no resultado fluxo)</p>
+  <p class="mt-6 text-xs text-gray-500">Ajustes no período: {% if ocultar_valores_dashboard %}••••{% else %}{{ totais.ajustes|moeda }}{% endif %} (não entram no resultado fluxo)</p>
   {% endif %}
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="bg-white rounded-xl shadow p-4 flex flex-col md:col-span-2">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold text-base md:text-lg">Receitas e despesas no tempo</h3>
-        <a href="{% url 'relatorios:fluxo_caixa' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Ver fluxo de caixa</a>
+  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Receitas e despesas no tempo</h2>
+        <a href="{% url 'relatorios:fluxo_caixa' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver fluxo de caixa</a>
       </div>
-      <div class="relative h-72 w-full min-h-[18rem] max-h-72">
+      <div class="relative h-72 w-full min-h-[16rem] sm:h-80 md:min-h-[18rem]">
         <canvas id="grafico-receitas-despesas" class="block h-full w-full" aria-label="Gráfico de receitas e despesas"></canvas>
       </div>
     </div>
+  </section>
 
-    <div class="bg-white rounded-xl shadow p-4">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold text-base md:text-lg">Top despesas por categoria</h3>
-        <a href="{% url 'relatorios:despesas_categoria' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Detalhes</a>
+  <div class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <section class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Top despesas por categoria</h2>
+        <a href="{% url 'relatorios:despesas_categoria' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Detalhes</a>
       </div>
-      {# Altura modesta + canvas controlado no JS (barThickness) para barras finas e legíveis #}
-      <div class="relative h-52 w-full max-h-52 min-h-[13rem]">
+      <div class="relative h-56 w-full min-h-[14rem] max-h-56 sm:h-60">
         <canvas id="grafico-categorias" class="block h-full w-full max-h-full" aria-label="Gráfico por categoria"></canvas>
       </div>
-    </div>
+    </section>
 
-    <div class="bg-white rounded-xl shadow p-4">
-      <h3 class="font-semibold text-base md:text-lg mb-3">Orçamento vs realizado</h3>
+    <section class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+      <h2 class="mb-5 border-b border-gray-100 pb-4 text-lg font-semibold tracking-tight text-gray-900">Orçamento vs realizado</h2>
       {% if orcamento_linhas %}
-      <div class="space-y-3 max-h-64 overflow-y-auto text-sm">
+      <div class="max-h-72 space-y-4 overflow-y-auto pr-1 text-sm">
         {% for row in orcamento_linhas %}
         <div>
-          <div class="flex justify-between gap-2 mb-0.5">
-            <span class="truncate">{{ row.nome }}</span>
-            <span class="text-gray-500 shrink-0 tabular-nums">
+          <div class="mb-1 flex justify-between gap-2">
+            <span class="truncate font-medium text-gray-800">{{ row.nome }}</span>
+            <span class="shrink-0 tabular-nums text-xs text-gray-500 sm:text-sm">
               {% if ocultar_valores_dashboard %}•••{% else %}{{ row.realizado|moeda }} / {{ row.planejado|moeda }}{% endif %}
             </span>
           </div>
-          <div class="w-full h-2 bg-gray-200 rounded">
+          <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
             {% if row.planejado and row.planejado > 0 and row.percentual != None %}
               {% if row.percentual >= 100 %}
-              <div class="h-2 rounded bg-red-500" style="width: 100%"></div>
+              <div class="h-full rounded-full bg-red-400/90 transition-all" style="width: 100%"></div>
               {% elif row.percentual >= 85 %}
-              <div class="h-2 rounded bg-amber-500" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
+              <div class="h-full rounded-full bg-amber-400/90 transition-all" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
               {% else %}
-              <div class="h-2 rounded bg-emerald-500" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
+              <div class="h-full rounded-full bg-emerald-400/90 transition-all" style="width: {{ row.percentual|floatformat:"0u" }}%"></div>
               {% endif %}
             {% else %}
-              <div class="h-2 rounded bg-gray-300" style="width: 0%"></div>
+              <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
             {% endif %}
           </div>
         </div>
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-sm text-gray-500">Cadastre orçamentos mensais no admin (modelo Orçamento por categoria) ou ignore até configurar metas.</p>
+      <p class="text-sm leading-relaxed text-gray-500">Cadastre orçamentos mensais no admin (modelo Orçamento por categoria) ou ignore até configurar metas.</p>
       {% endif %}
-    </div>
+    </section>
+  </div>
 
-    <div class="bg-white rounded-xl shadow p-4 md:col-span-2">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold text-base md:text-lg">Movimento no período por conta</h3>
-        <a href="{% url 'relatorios:por_conta' %}?{{ filtros_querystring }}" class="text-sm text-brand-600 hover:underline">Ver contas</a>
+  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Movimento no período por conta</h2>
+        <a href="{% url 'relatorios:por_conta' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver contas</a>
       </div>
       {% if movimento_por_conta %}
-      <div class="space-y-2 max-h-48 overflow-y-auto text-sm">
+      <div class="max-h-56 space-y-1 overflow-y-auto text-sm">
         {% for m in movimento_por_conta %}
-        <div class="flex justify-between gap-2">
-          <a class="text-brand-600 hover:underline truncate" href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}">{{ m.nome }}</a>
-          <span class="tabular-nums shrink-0 {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ m.movimento|moeda }}{% endif %}</span>
+        <div class="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-50/90">
+          <a class="min-w-0 truncate font-medium text-brand-600 transition hover:text-brand-700 hover:underline" href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}">{{ m.nome }}</a>
+          <span class="shrink-0 tabular-nums text-gray-800 {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ m.movimento|moeda }}{% endif %}</span>
         </div>
         {% endfor %}
       </div>
@@ -155,32 +204,69 @@
       <p class="text-sm text-gray-500">Sem movimentação no período com os filtros atuais.</p>
       {% endif %}
     </div>
+  </section>
 
-    <div class="bg-white rounded-xl shadow p-4 md:col-span-2">
-      <h3 class="font-semibold text-base md:text-lg mb-3">Últimas transações no período</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead><tr class="text-left text-gray-500 border-b"><th class="pb-2">Data</th><th class="pb-2">Descrição</th><th class="pb-2">Categoria</th><th class="pb-2 text-right">Valor</th></tr></thead>
-          <tbody>
-            {% for t in ultimas_transacoes %}
-            <tr class="border-b border-gray-50">
-              <td class="py-2 whitespace-nowrap">{{ t.data|date:"d/m/Y" }}</td>
-              <td class="py-2"><a href="{% url 'transacoes:editar' t.pk %}" class="text-brand-600 hover:underline">{{ t.descricao|truncatechars:40 }}</a></td>
-              <td class="py-2 text-gray-600">{{ t.categoria.nome }}</td>
-              <td class="py-2 text-right tabular-nums {% if t.tipo == 'despesa' %}text-red-600{% elif t.tipo == 'receita' %}text-emerald-600{% else %}text-gray-700{% endif %} {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ t.valor|moeda }}{% endif %}</td>
+  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+      <h2 class="mb-5 border-b border-gray-100 pb-4 text-lg font-semibold tracking-tight text-gray-900">Últimas transações no período</h2>
+      <div class="overflow-x-auto rounded-xl ring-1 ring-gray-100/80">
+        <table class="w-full min-w-[28rem] text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 bg-gray-50/80 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th class="whitespace-nowrap px-4 py-3">Data</th>
+              <th class="px-4 py-3">Descrição</th>
+              <th class="px-4 py-3">Categoria</th>
+              <th class="whitespace-nowrap px-4 py-3 text-right">Valor</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            {% for t in ultimas_transacoes|slice:":6" %}
+            <tr class="transition-colors hover:bg-gray-50/70">
+              <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ t.data|date:"d/m/Y" }}</td>
+              <td class="max-w-[12rem] truncate px-4 py-3 sm:max-w-none">
+                <a href="{% url 'transacoes:editar' t.pk %}" class="font-medium text-brand-600 transition hover:text-brand-700 hover:underline">{{ t.descricao|truncatechars:40 }}</a>
+              </td>
+              <td class="px-4 py-3 text-gray-600">{{ t.categoria.nome }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums {% if t.tipo == 'despesa' %}text-rose-700/90{% elif t.tipo == 'receita' %}text-emerald-700/90{% else %}text-gray-700{% endif %} {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ t.valor|moeda }}{% endif %}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="4" class="py-4 text-gray-500">Nenhuma transação no período.</td></tr>
+            <tr>
+              <td colspan="4" class="px-4 py-10 text-center text-gray-500">Nenhuma transação no período.</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-      <div class="mt-3 text-right">
-        <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm text-brand-600 hover:underline">Ver todas no histórico</a>
+      <div class="mt-5 flex justify-end">
+        <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver todas no histórico</a>
       </div>
     </div>
-  </div>
+  </section>
 </div>
+
+<aside
+  id="filtros-painel-flutuante"
+  class="filtros-painel-floating"
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="filtros-painel-titulo"
+  aria-hidden="true"
+>
+  <div class="flex shrink-0 items-center justify-between gap-3 border-b border-gray-100/90 px-5 py-4">
+    <div>
+      <h2 id="filtros-painel-titulo" class="text-lg font-semibold tracking-tight text-gray-900">Filtros</h2>
+      <p class="text-xs text-gray-500">Refine período, contas e categorias.</p>
+    </div>
+    <button type="button" id="btn-fechar-filtros-panel" class="rounded-xl p-2 text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40" aria-label="Fechar filtros">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+  <div class="flex min-h-0 flex-1 flex-col px-5 pb-5 pt-3">
+    {% with filtros_embed="drawer" %}
+      {% include 'relatorios/partials/filtros_relatorio_form.html' %}
+    {% endwith %}
+  </div>
+</aside>
 
 {{ top_despesas_chart|json_script:"top-despesas-data" }}
 
@@ -191,7 +277,7 @@
   window.urlApiExportCsv = "{% url 'relatorios:api_export_csv' %}";
   window.filtrosQueryString = "{{ filtros_querystring|escapejs }}";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="{% static 'relatorios/js/dash.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 <script>
@@ -231,5 +317,54 @@ document.getElementById('btn-export-csv')?.addEventListener('click', () => {
     })
     .catch(() => alert('Não foi possível iniciar a exportação. Verifique sua sessão e tente de novo.'));
 });
+(function () {
+  const panel = document.getElementById('filtros-painel-flutuante');
+  if (!panel) return;
+  const openBtn = document.getElementById('btn-abrir-filtros');
+  const closeBtn = document.getElementById('btn-fechar-filtros-panel');
+
+  const isOpen = () => panel.classList.contains('filtros-painel-floating--aberto');
+
+  const open = () => {
+    panel.classList.add('filtros-painel-floating--aberto');
+    panel.setAttribute('aria-hidden', 'false');
+    openBtn?.setAttribute('aria-expanded', 'true');
+    closeBtn?.focus();
+  };
+
+  const close = () => {
+    panel.classList.remove('filtros-painel-floating--aberto');
+    panel.setAttribute('aria-hidden', 'true');
+    openBtn?.setAttribute('aria-expanded', 'false');
+    openBtn?.focus();
+  };
+
+  const toggle = (e) => {
+    e.stopPropagation();
+    if (isOpen()) close();
+    else open();
+  };
+
+  openBtn?.addEventListener('click', toggle);
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    close();
+  });
+
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (!isOpen()) return;
+      if (panel.contains(e.target)) return;
+      if (openBtn && openBtn.contains(e.target)) return;
+      close();
+    },
+    true,
+  );
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) close();
+  });
+})();
 </script>
 {% endblock %}

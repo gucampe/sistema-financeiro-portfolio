@@ -1,47 +1,19 @@
-{% comment %}Barra de filtros GET — mesma query em todas as telas de relatório.{% endcomment %}
-<form method="get" action="{{ request.path }}" class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
-  <div class="flex flex-wrap gap-2 items-center">
-    <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Período</label>
-    <select name="preset" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm">
-      <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
-      <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
-      <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
-      <option value="ultimos_90d" {% if filtros.preset == "ultimos_90d" %}selected{% endif %}>Últimos 90 dias</option>
-      <option value="este_ano" {% if filtros.preset == "este_ano" %}selected{% endif %}>Este ano</option>
-      <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
-    </select>
+{% comment %}Barra de filtros GET — telas de relatório exceto visão geral (drawer).{% endcomment %}
+<div class="card-dense mb-6 overflow-hidden">
+  <div class="border-b border-gray-100 bg-gradient-to-r from-surface-muted/70 to-white px-4 py-3.5 sm:px-5">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500/10 text-brand-700 ring-1 ring-brand-500/15" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+      </span>
+      <div class="min-w-0">
+        <h3 class="text-sm font-semibold text-gray-900 tracking-tight">Filtros do relatório</h3>
+        <p class="text-xs text-gray-500 mt-0.5 leading-snug">Os mesmos critérios são mantidos ao trocar de aba.</p>
+      </div>
+    </div>
   </div>
-  <div class="flex flex-wrap gap-2 items-center">
-    <label class="text-xs font-medium text-gray-500">De</label>
-    <input type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm" />
-    <label class="text-xs font-medium text-gray-500">Até</label>
-    <input type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="border border-gray-200 rounded-lg px-2 py-1.5 text-sm" />
+  <div class="p-4 sm:p-5">
+    {% include 'relatorios/partials/filtros_relatorio_form.html' %}
   </div>
-  <div class="flex flex-col min-w-[10rem]">
-    <label class="text-xs font-medium text-gray-500 mb-0.5">Contas</label>
-    <select name="conta" multiple size="3" class="border border-gray-200 rounded-lg px-2 py-1 text-sm min-h-[4.5rem]">
-      {% for c in contas_ativas %}
-        <option value="{{ c.id }}" {% if c.id in filtros.conta_ids %}selected{% endif %}>{{ c.nome }}</option>
-      {% endfor %}
-    </select>
-    <span class="text-[10px] text-gray-400 mt-0.5">Ctrl+clique para várias</span>
-  </div>
-  <div class="flex flex-col min-w-[10rem]">
-    <label class="text-xs font-medium text-gray-500 mb-0.5">Categorias</label>
-    <select name="categoria" multiple size="3" class="border border-gray-200 rounded-lg px-2 py-1 text-sm min-h-[4.5rem]">
-      {% for cat in categorias_filtro %}
-        <option value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}selected{% endif %}>{{ cat.get_tipo_display }} — {{ cat.nome }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="flex flex-col gap-1">
-    <span class="text-xs font-medium text-gray-500">Tipos</span>
-    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="receita" {% if "receita" in filtros.tipos %}checked{% endif %} /> Receita</label>
-    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="despesa" {% if "despesa" in filtros.tipos %}checked{% endif %} /> Despesa</label>
-    <label class="inline-flex items-center gap-1 text-sm"><input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} /> Ajuste</label>
-  </div>
-  <div class="flex gap-2">
-    <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
-    <a href="{{ request.path }}?preset=este_mes" class="btn btn-slate btn-sm">Limpar</a>
-  </div>
-</form>
+</div>

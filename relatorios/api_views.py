@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import logging
 import threading
 from decimal import Decimal
 
@@ -18,15 +19,21 @@ from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import aplicar_filtros_relatorio, serie_receitas_despesas, top_categorias
 from relatorios.services.filtros import parse_relatorio_filtros
 
+logger = logging.getLogger(__name__)
+
 
 class ApiSerieTendenciaView(LoginRequiredMixin, View):
     """Receitas/despesas/ajustes por bucket temporal — mesmos filtros GET da página."""
 
     def get(self, request):
-        filtros = parse_relatorio_filtros(request.GET, usuario=request.user)
-        qs = aplicar_filtros_relatorio(transacoes_base_qs(request.user), filtros)
-        serie = serie_receitas_despesas(qs, filtros)
-        return JsonResponse(serie)
+        try:
+            filtros = parse_relatorio_filtros(request.GET, usuario=request.user)
+            qs = aplicar_filtros_relatorio(transacoes_base_qs(request.user), filtros)
+            serie = serie_receitas_despesas(qs, filtros)
+            return JsonResponse(serie)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("api_serie_tendencia falhou")
+            return JsonResponse({"detail": "Erro ao calcular a série.", "erro": "serie_tendencia"}, status=500)
 
 
 class ApiTopCategoriasView(LoginRequiredMixin, View):

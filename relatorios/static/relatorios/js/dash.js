@@ -1,18 +1,49 @@
+function queryStringFiltrosRelatorio() {
+  const fromServer =
+    typeof window.filtrosQueryString === 'string' ? window.filtrosQueryString.trim() : '';
+  if (fromServer) return fromServer;
+  const s = window.location.search || '';
+  return s.startsWith('?') ? s.slice(1) : s;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('grafico-receitas-despesas');
   if (canvas && window.urlApiSerieTendencia) {
-    const q = window.location.search.startsWith('?')
-      ? window.location.search.slice(1)
-      : window.location.search;
-    const url = q ? `${window.urlApiSerieTendencia}?${q}` : window.urlApiSerieTendencia;
+    const q = queryStringFiltrosRelatorio();
+    const base = String(window.urlApiSerieTendencia).split('#')[0];
+    const url = q ? `${base}?${q}` : base;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    fetch(url)
+    const msgErro = (texto) => {
+      canvas.insertAdjacentHTML(
+        'afterend',
+        `<p class="text-sm text-red-600 mt-2" role="alert">${texto}</p>`,
+      );
+    };
+
+    fetch(url, { credentials: 'same-origin', headers: { Accept: 'application/json' } })
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (res.type === 'opaqueredirect' || res.redirected) {
+          window.location.assign(res.url || window.location.href);
+          return null;
+        }
+        if (!res.ok) {
+          return res.text().then((t) => {
+            throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`);
+          });
+        }
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+          throw new Error('Resposta não é JSON (sessão expirou?)');
+        }
         return res.json();
       })
       .then((data) => {
+        if (data === null) return;
+        if (data && data.erro && data.detail) {
+          throw new Error(data.detail);
+        }
         if (
           !data ||
           !Array.isArray(data.labels) ||
@@ -21,9 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
           throw new Error('Resposta inválida da API de série');
         }
-        const despesas = data.despesas;
-        const receitas = data.receitas;
-        const ajustes = Array.isArray(data.ajustes) ? data.ajustes : [];
+        if (typeof Chart === 'undefined') {
+          throw new Error('Chart.js não carregou');
+        }
+        const despesas = data.despesas.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0));
+        const receitas = data.receitas.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0));
+        const ajustes = Array.isArray(data.ajustes)
+          ? data.ajustes.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0))
+          : [];
 
         const gradReceitas = ctx.createLinearGradient(0, 0, 0, 220);
         gradReceitas.addColorStop(0, 'rgba(16,185,129,0.4)');
@@ -64,41 +100,47 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
 
-        new Chart(ctx, {
-          type: 'line',
-          data: { labels: data.labels, datasets },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: true, position: 'bottom' },
-              tooltip: {
-                backgroundColor: '#1f2937',
-                titleColor: '#fff',
-                bodyColor: '#d1d5db',
-                padding: 8,
-              },
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  callback: (value) => 'R$ ' + Number(value).toLocaleString('pt-BR'),
-                  color: '#4b5563',
-                  font: { size: 10 },
+        try {
+          new Chart(ctx, {
+            type: 'line',
+            data: { labels: data.labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true, position: 'bottom' },
+                tooltip: {
+                  backgroundColor: '#1f2937',
+                  titleColor: '#fff',
+                  bodyColor: '#d1d5db',
+                  padding: 8,
                 },
               },
-              x: {
-                ticks: { color: '#4b5563', font: { size: 10 }, maxRotation: 45 },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: (value) => 'R$ ' + Number(value).toLocaleString('pt-BR'),
+                    color: '#4b5563',
+                    font: { size: 10 },
+                  },
+                },
+                x: {
+                  ticks: { color: '#4b5563', font: { size: 10 }, maxRotation: 45 },
+                },
               },
             },
-          },
-        });
+          });
+        } catch (e) {
+          throw new Error(e && e.message ? e.message : 'Falha ao montar o gráfico');
+        }
       })
-      .catch(() => {
-        canvas.insertAdjacentHTML(
-          'afterend',
-          '<p class="text-sm text-red-600 mt-2" role="alert">Não foi possível carregar o gráfico de tendência. Atualize a página ou verifique se está autenticado.</p>',
+      .catch((err) => {
+        const det = err && err.message ? err.message : '';
+        msgErro(
+          det
+            ? `Não foi possível carregar o gráfico de tendência. ${det}`
+            : 'Não foi possível carregar o gráfico de tendência. Atualize a página ou verifique se está autenticado.',
         );
       });
   }
@@ -113,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
       topData = [];
     }
     if (topData.length) {
+      if (typeof Chart === 'undefined') return;
       const truncar = (s, max) => {
         const t = String(s ?? '').trim();
         if (t.length <= max) return t;
@@ -125,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const maxVal = Math.max(...valores, 1);
       const labels = topData.map((x) => truncar(x.nome, 26));
       const cctx = catCanvas.getContext('2d');
+      if (!cctx) return;
       new Chart(cctx, {
         type: 'bar',
         data: {
