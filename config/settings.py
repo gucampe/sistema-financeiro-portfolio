@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-dev-only-change-me'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sistema-financeiro-fos9.onrender.com']
 
 
 # Application definition
