@@ -65,7 +65,11 @@
         <li class="px-4 sm:px-6 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div class="min-w-0">
             <p class="text-sm font-semibold text-fg">{{ f.competencia|date:"F Y"|capfirst }}</p>
-            <p class="text-xs text-fg-muted">Vence {{ f.data_vencimento|date:"d/m/Y" }} · {{ f.get_status_display }}</p>
+            <p class="text-xs text-fg-muted">
+              Vence {{ f.data_vencimento|date:"d/m/Y" }} ·
+              Ciclo: {{ f.get_status_ciclo_display }} ·
+              Pagamento: {{ f.get_status_pagamento_display }}
+            </p>
           </div>
           <div class="flex shrink-0 items-center gap-4">
             <span class="text-sm font-semibold text-fg">{{ f.total_despesas|default_if_none:0|moeda }}</span>

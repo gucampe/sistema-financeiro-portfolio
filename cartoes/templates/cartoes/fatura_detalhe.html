@@ -35,15 +35,54 @@
       <button type="button"
               id="btn-adicionar"
               class="btn btn-primary btn-sm">Nova transação</button>
+      <form method="post" action="{% url 'cartoes:pagar_fatura' cartao.id fatura.id %}" class="flex items-center gap-2">
+        {% csrf_token %}
+        <input
+          type="text"
+          name="valor"
+          value=""
+          placeholder="{% if status_pagamento == 'parcial' %}Pagar restante{% else %}Pagar total{% endif %}"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm w-32"
+        >
+        <button type="submit" class="btn btn-secondary btn-sm">
+          {% if status_pagamento == 'parcial' %}Pagar restante{% else %}Pagar fatura{% endif %}
+        </button>
+      </form>
       <a href="{% url 'cartoes:faturas' cartao.id %}" class="btn btn-secondary btn-sm">Voltar às faturas</a>
     </div>
   </div>
 
   <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4">
-    <div class="px-4 sm:px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <p class="text-sm font-semibold text-fg">Lançamentos</p>
-      <p class="text-sm text-fg-muted">Total despesas: <span class="font-semibold text-fg">{{ total_despesas|moeda }}</span></p>
+    <div class="px-4 sm:px-5 py-4 border-b border-gray-100">
+      <p class="text-sm font-semibold text-fg mb-3">Lançamentos</p>
+      <div class="rounded-xl border border-gray-200 bg-white p-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-fg-muted font-semibold">Status da fatura</p>
+            <p class="text-lg sm:text-xl font-bold text-fg mt-1">{{ fatura.get_status_pagamento_display }}</p>
+          </div>
+          <div class="grid grid-cols-3 gap-3 sm:gap-4 text-right">
+            <div>
+              <p class="text-xs text-fg-muted">Total</p>
+              <p class="text-sm sm:text-base font-semibold text-fg">{{ total_despesas|moeda }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-fg-muted">Pago</p>
+              <p class="text-sm sm:text-base font-semibold text-fg">{{ valor_pago|moeda }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-fg-muted">Saldo</p>
+              <p class="text-sm sm:text-base font-semibold text-fg">{{ saldo_restante|moeda }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    {% if fatura.status_ciclo == 'fechada' %}
+      <div class="px-4 sm:px-5 py-3 border-b border-gray-100 bg-amber-50 text-amber-900 text-sm">
+        Este lançamento será tratado como ajuste.
+      </div>
+    {% endif %}
     {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
     <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
       {% for transacao in lancamentos %}
@@ -72,8 +111,43 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="shrink-0 text-right">
-                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap {% if transacao.tipo == 'despesa' %}text-red-500{% elif transacao.tipo == 'receita' %}text-green-600{% else %}text-gray-700{% endif %}">
+                <div class="shrink-0 min-w-0 flex flex-row items-center justify-end gap-3">
+                  <div class="inline-flex items-center gap-2 transition-opacity duration-150 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
+                    {% if not transacao.pagamento_de_fatura_id %}
+                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300" data-id="{{ transacao.id }}">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i><span class="hidden sm:inline">Editar</span>
+                      </button>
+                    {% endif %}
+                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300" data-id="{{ transacao.id }}">
+                      <i class="fa-solid fa-trash text-sm"></i><span class="hidden sm:inline">Excluir</span>
+                    </button>
+                    {% if not transacao.pagamento_de_fatura_id and faturas_destino %}
+                      <details class="mover-menu">
+                        <summary class="inline-flex h-10 w-10 list-none cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 marker:content-none [&::-webkit-details-marker]:hidden mover-menu-trigger">
+                          <i class="fa-solid fa-ellipsis text-sm"></i>
+                        </summary>
+                        <div class="fixed z-[9999] w-52 rounded-xl border border-gray-200 bg-white p-1 shadow-xl mover-menu-panel" style="display:none;">
+                          <form method="post" action="{% url 'cartoes:mover_lancamento_fatura' cartao.id fatura.id transacao.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="direcao" value="anterior">
+                            <input type="hidden" name="fatura_destino" value="{% if fatura_anterior %}{{ fatura_anterior.id }}{% endif %}">
+                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100 {% if not fatura_anterior %}opacity-50 cursor-not-allowed{% endif %}" {% if not fatura_anterior %}disabled{% endif %}>
+                              <i class="fa-solid fa-arrow-left text-xs text-gray-500"></i><span>Fatura anterior</span>
+                            </button>
+                          </form>
+                          <form method="post" action="{% url 'cartoes:mover_lancamento_fatura' cartao.id fatura.id transacao.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="direcao" value="proxima">
+                            <input type="hidden" name="fatura_destino" value="{% if fatura_proxima %}{{ fatura_proxima.id }}{% endif %}">
+                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100 {% if not fatura_proxima %}opacity-50 cursor-not-allowed{% endif %}" {% if not fatura_proxima %}disabled{% endif %}>
+                              <i class="fa-solid fa-arrow-right text-xs text-gray-500"></i><span>Próxima fatura</span>
+                            </button>
+                          </form>
+                        </div>
+                      </details>
+                    {% endif %}
+                  </div>
+                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap text-right {% if transacao.tipo == 'despesa' %}text-red-500{% elif transacao.tipo == 'receita' %}text-green-600{% else %}text-gray-700{% endif %}">
                     {% if transacao.tipo == 'despesa' %}- {{ transacao.valor|moeda }}{% elif transacao.tipo == 'receita' %}+ {{ transacao.valor|moeda }}{% else %}{{ transacao.valor|moeda }}{% endif %}
                   </p>
                 </div>
@@ -90,7 +164,109 @@
 </div>
 <script>window.__PRESELECT_CARTAO_MODAL = "{{ cartao.id }}";</script>
 {% include 'transacoes/partials/adicionar_transacao.html' %}
+{% include 'transacoes/partials/confirmar_exclusao.html' %}
 <script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/historico.js' %}"></script>
+<script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
+<script>
+  (function () {
+    const menus = Array.from(document.querySelectorAll(".mover-menu"));
+    let menuAberto = null;
+
+    function obterElementos(menu) {
+      return {
+        trigger: menu.querySelector(".mover-menu-trigger"),
+        panel: menu.querySelector(".mover-menu-panel"),
+      };
+    }
+
+    function posicionarMenu(menu) {
+      const { trigger, panel } = obterElementos(menu);
+      if (!trigger || !panel) return;
+
+      panel.style.display = "block";
+      panel.style.visibility = "hidden";
+
+      const rect = trigger.getBoundingClientRect();
+      const largura = panel.offsetWidth;
+      const altura = panel.offsetHeight;
+      const gap = 8;
+      const margemViewport = 8;
+
+      let top = rect.bottom + gap;
+      let left = rect.right - largura;
+
+      if (left < margemViewport) left = margemViewport;
+      if (left + largura > window.innerWidth - margemViewport) {
+        left = window.innerWidth - largura - margemViewport;
+      }
+
+      if (top + altura > window.innerHeight - margemViewport) {
+        top = Math.max(margemViewport, rect.top - altura - gap);
+      }
+
+      panel.style.top = `${top}px`;
+      panel.style.left = `${left}px`;
+      panel.style.visibility = "visible";
+    }
+
+    function fecharMenu(menu) {
+      const { panel } = obterElementos(menu);
+      if (!panel) return;
+      menu.open = false;
+      panel.style.display = "none";
+    }
+
+    function fecharTodos(except = null) {
+      menus.forEach((menu) => {
+        if (menu !== except) fecharMenu(menu);
+      });
+      if (except === null) menuAberto = null;
+    }
+
+    menus.forEach((menu) => {
+      const { trigger } = obterElementos(menu);
+      if (!trigger) return;
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        const vaiAbrir = !menu.open;
+        fecharTodos(menu);
+        if (vaiAbrir) {
+          menu.open = true;
+          posicionarMenu(menu);
+          menuAberto = menu;
+        } else {
+          fecharMenu(menu);
+          menuAberto = null;
+        }
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".mover-menu")) {
+        fecharTodos();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        fecharTodos();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (menuAberto) posicionarMenu(menuAberto);
+    });
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (menuAberto) posicionarMenu(menuAberto);
+      },
+      true
+    );
+  })();
+</script>
 {% endblock %}

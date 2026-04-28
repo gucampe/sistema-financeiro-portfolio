@@ -41,6 +41,13 @@ class Transacao(models.Model):
         null=True,
         blank=True,
     )
+    pagamento_de_fatura = models.ForeignKey(
+        "cartoes.Fatura",
+        on_delete=models.SET_NULL,
+        related_name="pagamentos",
+        null=True,
+        blank=True,
+    )
     data_competencia = models.DateField(
         null=True,
         blank=True,
@@ -90,6 +97,14 @@ class Transacao(models.Model):
             errors["fatura"] = "A fatura deve ser do mesmo cartão da transação."
         if self.fatura_id and self.usuario_id and self.fatura.usuario_id != self.usuario_id:
             errors["fatura"] = "A fatura deve pertencer ao usuário da transação."
+        if (
+            self.pagamento_de_fatura_id
+            and self.usuario_id
+            and self.pagamento_de_fatura.usuario_id != self.usuario_id
+        ):
+            errors["pagamento_de_fatura"] = (
+                "A fatura de pagamento deve pertencer ao usuário da transação."
+            )
         if self.categoria_id and self.usuario_id:
             if not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
                 errors["categoria"] = "A categoria deve ser padrão ou pertencer ao usuário da transação."
@@ -97,6 +112,8 @@ class Transacao(models.Model):
             raise ValidationError(errors)
 
     def _sincronizar_fatura_e_competencia(self):
+        if self.pagamento_de_fatura_id:
+            return
         if self.cartao_id and self.data:
             from cartoes.services.faturas import obter_ou_criar_fatura
 

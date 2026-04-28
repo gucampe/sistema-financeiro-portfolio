@@ -44,6 +44,13 @@ class Fatura(models.Model):
         ABERTA = "aberta", "Aberta"
         FECHADA = "fechada", "Fechada"
 
+    class StatusPagamento(models.TextChoices):
+        VAZIA = "vazia", "Vazia"
+        PENDENTE = "pendente", "Pendente"
+        PARCIAL = "parcial", "Parcial"
+        PAGO = "pago", "Pago"
+        ATRASADO = "atrasado", "Atrasado"
+
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -72,6 +79,16 @@ class Fatura(models.Model):
         max_length=10,
         choices=Status.choices,
         default=Status.ABERTA,
+    )
+    status_ciclo = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.ABERTA,
+    )
+    status_pagamento = models.CharField(
+        max_length=10,
+        choices=StatusPagamento.choices,
+        default=StatusPagamento.PENDENTE,
     )
     criada_em = models.DateTimeField(auto_now_add=True)
     atualizada_em = models.DateTimeField(auto_now=True)

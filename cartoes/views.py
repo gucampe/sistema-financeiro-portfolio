@@ -1,9 +1,10 @@
 from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from contas.models import Conta
@@ -11,6 +12,34 @@ from transacoes.models import Transacao
 from transacoes.views import modal_transacao_context
 
 from .models import Cartao, Fatura
+from .services.gestao_faturas import (
+    atualizar_status_pagamento,
+    mover_lancamento,
+    pagar_fatura,
+)
+
+
+def _faturas_ordenadas_por_competencia(cartao, usuario):
+    return list(
+        Fatura.objects.filter(cartao=cartao, usuario=usuario).order_by("competencia", "data_vencimento", "id")
+    )
+
+
+def _fatura_adj_por_direcao(*, cartao, usuario, fatura_atual, direcao):
+    faturas = _faturas_ordenadas_por_competencia(cartao, usuario)
+    try:
+        idx = next(i for i, f in enumerate(faturas) if f.pk == fatura_atual.pk)
+    except StopIteration:
+        return None
+    if direcao == "anterior":
+        destino_idx = idx - 1
+    elif direcao == "proxima":
+        destino_idx = idx + 1
+    else:
+        return None
+    if destino_idx < 0 or destino_idx >= len(faturas):
+        return None
+    return faturas[destino_idx]
 
 
 @login_required
@@ -180,8 +209,10 @@ def faturas_cartao(request, cartao_id):
         .annotate(total_despesas=Sum("lancamentos__valor", filter=Q(lancamentos__tipo="despesa")))
         .order_by("-competencia")
     )
+    for f in faturas:
+        atualizar_status_pagamento(f)
     fatura_destaque = (
-        Fatura.objects.filter(cartao=cartao, usuario=request.user, status=Fatura.Status.ABERTA)
+        Fatura.objects.filter(cartao=cartao, usuario=request.user, status_ciclo=Fatura.Status.ABERTA)
         .order_by("-competencia")
         .first()
     )
@@ -222,11 +253,87 @@ def fatura_detalhe(request, cartao_id, fatura_id):
         )["s"]
         or Decimal("0")
     )
+    resumo_pagamento = atualizar_status_pagamento(fatura)
+    faturas = _faturas_ordenadas_por_competencia(cartao, request.user)
+    faturas_destino = [f for f in faturas if f.pk != fatura.pk]
+    fatura_anterior = _fatura_adj_por_direcao(
+        cartao=cartao,
+        usuario=request.user,
+        fatura_atual=fatura,
+        direcao="anterior",
+    )
+    fatura_proxima = _fatura_adj_por_direcao(
+        cartao=cartao,
+        usuario=request.user,
+        fatura_atual=fatura,
+        direcao="proxima",
+    )
     ctx = {
         "cartao": cartao,
         "fatura": fatura,
         "lancamentos": lancamentos,
         "total_despesas": total,
+        "faturas_destino": faturas_destino,
+        "fatura_proxima": fatura_proxima,
+        "fatura_anterior": fatura_anterior,
+        "valor_pago": resumo_pagamento.pago,
+        "saldo_restante": resumo_pagamento.saldo,
+        "status_pagamento": resumo_pagamento.status_pagamento,
     }
     ctx.update(modal_transacao_context(request, pre_select_cartao_id=cartao.id))
     return render(request, "cartoes/fatura_detalhe.html", ctx)
+
+
+@login_required
+@require_POST
+def pagar_fatura_view(request, cartao_id, fatura_id):
+    cartao = get_object_or_404(Cartao, pk=cartao_id, usuario=request.user, ativa=True)
+    fatura = get_object_or_404(Fatura, pk=fatura_id, cartao=cartao, usuario=request.user)
+    valor_raw = (request.POST.get("valor") or "").strip().replace(".", "").replace(",", ".")
+    valor = None
+    if valor_raw:
+        try:
+            valor = Decimal(valor_raw)
+        except (InvalidOperation, ValueError):
+            return JsonResponse({"status": "erro", "errors": "Valor inválido."}, status=400)
+    try:
+        pagar_fatura(fatura=fatura, valor=valor)
+    except ValidationError as exc:
+        return JsonResponse({"status": "erro", "errors": exc.messages[0]}, status=400)
+    return redirect("cartoes:fatura_detalhe", cartao_id=cartao.id, fatura_id=fatura.id)
+
+
+@login_required
+@require_POST
+def mover_lancamento_fatura_view(request, cartao_id, fatura_id, transacao_id):
+    cartao = get_object_or_404(Cartao, pk=cartao_id, usuario=request.user, ativa=True)
+    fatura = get_object_or_404(Fatura, pk=fatura_id, cartao=cartao, usuario=request.user)
+    transacao = get_object_or_404(
+        Transacao,
+        pk=transacao_id,
+        usuario=request.user,
+        fatura=fatura,
+    )
+    direcao = (request.POST.get("direcao") or "").strip().lower()
+    if direcao in {"anterior", "proxima"}:
+        fatura_destino = _fatura_adj_por_direcao(
+            cartao=cartao,
+            usuario=request.user,
+            fatura_atual=fatura,
+            direcao=direcao,
+        )
+        if fatura_destino is None:
+            return JsonResponse({"status": "erro", "errors": "Não existe fatura disponível nessa direção."}, status=400)
+    else:
+        fatura_destino_id = request.POST.get("fatura_destino")
+        fatura_destino = get_object_or_404(
+            Fatura,
+            pk=fatura_destino_id,
+            usuario=request.user,
+            cartao=cartao,
+        )
+    try:
+        mover_lancamento(transacao=transacao, fatura_destino=fatura_destino)
+    except ValidationError as exc:
+        return JsonResponse({"status": "erro", "errors": exc.messages[0]}, status=400)
+    return redirect("cartoes:fatura_detalhe", cartao_id=cartao.id, fatura_id=fatura.id)
