@@ -58,7 +58,7 @@ def calcular_resumo_pagamento(fatura: Fatura, hoje: date | None = None) -> Resum
     saldo = total - pago
 
     if total <= _zero() and pago <= _zero():
-        status = Fatura.StatusPagamento.VAZIA
+        status = Fatura.StatusPagamento.PENDENTE
     elif saldo <= _zero():
         status = Fatura.StatusPagamento.PAGO
     elif pago > _zero():

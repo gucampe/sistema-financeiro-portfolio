@@ -125,7 +125,7 @@ class FaturasServiceTests(TestCase):
         self.assertEqual(resumo_vazio.total, Decimal("0"))
         self.assertEqual(resumo_vazio.pago, Decimal("0"))
         self.assertEqual(resumo_vazio.saldo, Decimal("0"))
-        self.assertEqual(fatura.status_pagamento, Fatura.StatusPagamento.VAZIA)
+        self.assertEqual(fatura.status_pagamento, Fatura.StatusPagamento.PENDENTE)
 
     def test_movimentacao_por_direcao_respeita_ordem_cronologica(self):
         self.client.force_login(self.user)
@@ -250,4 +250,58 @@ class FaturasServiceTests(TestCase):
         self.assertEqual(transacao.fatura_id, fatura_destino.id)
         # Destino paga com novo lançamento deve recalcular para parcial.
         self.assertEqual(fatura_destino.status_pagamento, Fatura.StatusPagamento.PARCIAL)
+
+    def test_nova_transacao_em_fatura_paga_rebaixa_status(self):
+        fatura = Fatura.objects.create(
+            usuario=self.user,
+            cartao=self.cartao,
+            competencia=date(2026, 2, 1),
+            data_fechamento=date(2026, 1, 10),
+            data_vencimento=date(2026, 2, 20),
+            data_inicio_compras=date(2025, 12, 11),
+            data_fim_compras=date(2026, 1, 10),
+            status=Fatura.Status.FECHADA,
+            status_ciclo=Fatura.Status.FECHADA,
+            status_pagamento=Fatura.StatusPagamento.PAGO,
+        )
+        # Situação inicial paga: total == pago
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            cartao=self.cartao,
+            fatura=fatura,
+            categoria=self.categoria,
+            tipo="despesa",
+            valor=Decimal("30.00"),
+            descricao="Compra base",
+            data=date(2026, 2, 3),
+        )
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.categoria,
+            tipo="despesa",
+            valor=Decimal("30.00"),
+            descricao="Pagamento base",
+            data=date(2026, 2, 20),
+            pagamento_de_fatura=fatura,
+        )
+        recalcular_fatura(fatura)
+        fatura.refresh_from_db()
+        self.assertEqual(fatura.status_pagamento, Fatura.StatusPagamento.PAGO)
+
+        # Nova compra deve invalidar "paga" e virar "parcial".
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            cartao=self.cartao,
+            fatura=fatura,
+            categoria=self.categoria,
+            tipo="despesa",
+            valor=Decimal("10.00"),
+            descricao="Nova compra",
+            data=date(2026, 2, 5),
+        )
+        fatura.refresh_from_db()
+        self.assertEqual(fatura.status_pagamento, Fatura.StatusPagamento.PARCIAL)
 
