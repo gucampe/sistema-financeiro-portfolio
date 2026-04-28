@@ -5,3 +5,5 @@ Pillow>=12.0.0
 django-tailwind==4.0.1
 ofxparse==0.21
 sqlparse==0.5.3
+psycopg2-binary==2.9.12
+python-decouple==3.8
