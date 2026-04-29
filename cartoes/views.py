@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from contas.models import Conta
@@ -211,9 +212,14 @@ def faturas_cartao(request, cartao_id):
     )
     for f in faturas:
         atualizar_status_pagamento(f)
+    hoje = timezone.localdate()
     fatura_destaque = (
-        Fatura.objects.filter(cartao=cartao, usuario=request.user, status_ciclo=Fatura.Status.ABERTA)
-        .order_by("-competencia")
+        Fatura.objects.filter(
+            cartao=cartao,
+            usuario=request.user,
+            data_inicio_compras__lte=hoje,
+            data_fim_compras__gte=hoje,
+        ).order_by("-competencia")
         .first()
     )
     if fatura_destaque is None:

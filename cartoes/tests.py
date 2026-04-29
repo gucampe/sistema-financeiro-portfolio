@@ -1,9 +1,10 @@
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from categorias.models import Categoria
 from contas.models import Conta
@@ -46,13 +47,40 @@ class FaturasServiceTests(TestCase):
             icone="fa-utensils",
         )
 
-    def test_obter_ou_criar_fatura_fecha_aberta_anterior(self):
-        fatura_1 = obter_ou_criar_fatura(self.cartao, date(2026, 4, 5))
-        fatura_2 = obter_ou_criar_fatura(self.cartao, date(2026, 5, 5))
-        fatura_1.refresh_from_db()
-        fatura_2.refresh_from_db()
-        self.assertEqual(fatura_1.status_ciclo, Fatura.Status.FECHADA)
-        self.assertEqual(fatura_2.status_ciclo, Fatura.Status.ABERTA)
+    @staticmethod
+    def _first_day_shift_months(d: date, delta_months: int) -> date:
+        m = d.month - 1 + delta_months
+        y = d.year + m // 12
+        m = m % 12 + 1
+        return date(y, m, 1)
+
+    def test_obter_ou_criar_fatura_mantem_faturas_distintas_por_competencia(self):
+        hoje = timezone.localdate()
+        data_mes_anterior = self._first_day_shift_months(hoje, -1)
+        data_mes_atual = date(hoje.year, hoje.month, min(hoje.day, 10))
+        fatura_1 = obter_ou_criar_fatura(self.cartao, data_mes_anterior)
+        fatura_2 = obter_ou_criar_fatura(self.cartao, data_mes_atual)
+        self.assertNotEqual(fatura_1.id, fatura_2.id)
+        self.assertNotEqual(fatura_1.competencia, fatura_2.competencia)
+
+    def test_status_temporal_derivado(self):
+        fatura = obter_ou_criar_fatura(self.cartao, date(2026, 4, 5))
+        self.assertEqual(
+            fatura.get_status_temporal(hoje=fatura.data_inicio_compras),
+            Fatura.StatusTemporal.ABERTA,
+        )
+        self.assertEqual(
+            fatura.get_status_temporal(hoje=fatura.data_inicio_compras - timedelta(days=1)),
+            Fatura.StatusTemporal.FUTURA,
+        )
+        self.assertEqual(
+            fatura.get_status_temporal(hoje=fatura.data_fim_compras),
+            Fatura.StatusTemporal.ABERTA,
+        )
+        self.assertEqual(
+            fatura.get_status_temporal(hoje=fatura.data_fim_compras + timedelta(days=1)),
+            Fatura.StatusTemporal.FECHADA,
+        )
 
     def test_pagamento_parcial_e_total_atualizam_status(self):
         fatura = obter_ou_criar_fatura(self.cartao, date(2026, 4, 5))

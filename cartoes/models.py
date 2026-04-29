@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from contas.models import Conta
 
@@ -50,6 +51,11 @@ class Fatura(models.Model):
         PARCIAL = "parcial", "Parcial"
         PAGO = "pago", "Pago"
         ATRASADO = "atrasado", "Atrasado"
+
+    class StatusTemporal(models.TextChoices):
+        FUTURA = "futura", "Futura"
+        ABERTA = "aberta", "Aberta"
+        FECHADA = "fechada", "Fechada"
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -108,3 +114,24 @@ class Fatura(models.Model):
 
     def __str__(self):
         return f"{self.cartao.nome} — {self.competencia:%m/%Y}"
+
+    def get_status_temporal(self, hoje=None) -> str:
+        """
+        Status temporal derivado (não persistido):
+        - futura: antes do início do ciclo
+        - aberta: durante o ciclo de compras
+        - fechada: após fechamento do ciclo
+        """
+        hoje = hoje or timezone.localdate()
+        if hoje < self.data_inicio_compras:
+            return self.StatusTemporal.FUTURA
+        if hoje <= self.data_fim_compras:
+            return self.StatusTemporal.ABERTA
+        return self.StatusTemporal.FECHADA
+
+    @property
+    def status_temporal(self) -> str:
+        return self.get_status_temporal()
+
+    def get_status_temporal_display(self) -> str:
+        return self.StatusTemporal(self.get_status_temporal()).label

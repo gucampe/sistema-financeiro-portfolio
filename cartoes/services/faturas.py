@@ -36,13 +36,4 @@ def obter_ou_criar_fatura(cartao: Cartao, data_compra: date) -> Fatura:
                 "status_pagamento": Fatura.StatusPagamento.PENDENTE,
             },
         )
-        if created:
-            # Regra de negócio: apenas uma fatura aberta por cartão.
-            Fatura.objects.filter(
-                cartao=cartao,
-                status_ciclo=Fatura.Status.ABERTA,
-            ).exclude(pk=fatura.pk).update(
-                status=Fatura.Status.FECHADA,
-                status_ciclo=Fatura.Status.FECHADA,
-            )
     return fatura

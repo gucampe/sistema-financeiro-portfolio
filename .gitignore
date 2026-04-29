@@ -48,3 +48,4 @@ Thumbs.db
 .idea/
 
 *.zip
+static/css/output.css

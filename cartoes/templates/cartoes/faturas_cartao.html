@@ -67,7 +67,7 @@
             <p class="text-sm font-semibold text-fg">{{ f.competencia|date:"F Y"|capfirst }}</p>
             <p class="text-xs text-fg-muted">
               Vence {{ f.data_vencimento|date:"d/m/Y" }} ·
-              Ciclo: {{ f.get_status_ciclo_display }} ·
+              Ciclo: {{ f.get_status_temporal_display }} ·
               Pagamento: {{ f.get_status_pagamento_display }}
             </p>
           </div>
