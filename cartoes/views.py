@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
@@ -13,6 +14,7 @@ from transacoes.models import Transacao
 from transacoes.views import modal_transacao_context
 
 from .models import Cartao, Fatura
+from .services.faturas import obter_ou_criar_fatura
 from .services.gestao_faturas import (
     atualizar_status_pagamento,
     mover_lancamento,
@@ -41,6 +43,25 @@ def _fatura_adj_por_direcao(*, cartao, usuario, fatura_atual, direcao):
     if destino_idx < 0 or destino_idx >= len(faturas):
         return None
     return faturas[destino_idx]
+
+
+def _fatura_adj_ou_criar(*, cartao, usuario, fatura_atual, direcao):
+    adj = _fatura_adj_por_direcao(
+        cartao=cartao, usuario=usuario, fatura_atual=fatura_atual, direcao=direcao
+    )
+    if adj is not None:
+        return adj
+    if direcao == "anterior":
+        probe = fatura_atual.data_inicio_compras - timedelta(days=1)
+        criada = obter_ou_criar_fatura(cartao, probe)
+    elif direcao == "proxima":
+        probe = fatura_atual.data_fim_compras + timedelta(days=1)
+        criada = obter_ou_criar_fatura(cartao, probe)
+    else:
+        return None
+    if criada.pk == fatura_atual.pk:
+        return None
+    return criada
 
 
 @login_required
@@ -260,8 +281,6 @@ def fatura_detalhe(request, cartao_id, fatura_id):
         or Decimal("0")
     )
     resumo_pagamento = atualizar_status_pagamento(fatura)
-    faturas = _faturas_ordenadas_por_competencia(cartao, request.user)
-    faturas_destino = [f for f in faturas if f.pk != fatura.pk]
     fatura_anterior = _fatura_adj_por_direcao(
         cartao=cartao,
         usuario=request.user,
@@ -279,7 +298,6 @@ def fatura_detalhe(request, cartao_id, fatura_id):
         "fatura": fatura,
         "lancamentos": lancamentos,
         "total_despesas": total,
-        "faturas_destino": faturas_destino,
         "fatura_proxima": fatura_proxima,
         "fatura_anterior": fatura_anterior,
         "valor_pago": resumo_pagamento.pago,
@@ -322,14 +340,17 @@ def mover_lancamento_fatura_view(request, cartao_id, fatura_id, transacao_id):
     )
     direcao = (request.POST.get("direcao") or "").strip().lower()
     if direcao in {"anterior", "proxima"}:
-        fatura_destino = _fatura_adj_por_direcao(
+        fatura_destino = _fatura_adj_ou_criar(
             cartao=cartao,
             usuario=request.user,
             fatura_atual=fatura,
             direcao=direcao,
         )
         if fatura_destino is None:
-            return JsonResponse({"status": "erro", "errors": "Não existe fatura disponível nessa direção."}, status=400)
+            return JsonResponse(
+                {"status": "erro", "errors": "Não foi possível obter ou criar a fatura nessa direção."},
+                status=400,
+            )
     else:
         fatura_destino_id = request.POST.get("fatura_destino")
         fatura_destino = get_object_or_404(

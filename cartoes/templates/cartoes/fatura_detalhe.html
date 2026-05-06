@@ -121,7 +121,7 @@
                     <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300" data-id="{{ transacao.id }}">
                       <i class="fa-solid fa-trash text-sm"></i><span class="hidden sm:inline">Excluir</span>
                     </button>
-                    {% if not transacao.pagamento_de_fatura_id and faturas_destino %}
+                    {% if not transacao.pagamento_de_fatura_id %}
                       <details class="mover-menu">
                         <summary class="inline-flex h-10 w-10 list-none cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 marker:content-none [&::-webkit-details-marker]:hidden mover-menu-trigger">
                           <i class="fa-solid fa-ellipsis text-sm"></i>
@@ -131,7 +131,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="direcao" value="anterior">
                             <input type="hidden" name="fatura_destino" value="{% if fatura_anterior %}{{ fatura_anterior.id }}{% endif %}">
-                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100 {% if not fatura_anterior %}opacity-50 cursor-not-allowed{% endif %}" {% if not fatura_anterior %}disabled{% endif %}>
+                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100">
                               <i class="fa-solid fa-arrow-left text-xs text-gray-500"></i><span>Fatura anterior</span>
                             </button>
                           </form>
@@ -139,7 +139,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="direcao" value="proxima">
                             <input type="hidden" name="fatura_destino" value="{% if fatura_proxima %}{{ fatura_proxima.id }}{% endif %}">
-                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100 {% if not fatura_proxima %}opacity-50 cursor-not-allowed{% endif %}" {% if not fatura_proxima %}disabled{% endif %}>
+                            <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 transition hover:bg-gray-100">
                               <i class="fa-solid fa-arrow-right text-xs text-gray-500"></i><span>Próxima fatura</span>
                             </button>
                           </form>

@@ -333,3 +333,64 @@ class FaturasServiceTests(TestCase):
         fatura.refresh_from_db()
         self.assertEqual(fatura.status_pagamento, Fatura.StatusPagamento.PARCIAL)
 
+    def test_mover_proxima_cria_fatura_quando_so_existe_atual(self):
+        self.client.force_login(self.user)
+        fatura_unica = obter_ou_criar_fatura(self.cartao, date(2026, 4, 5))
+        transacao = Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            cartao=self.cartao,
+            categoria=self.categoria,
+            tipo="despesa",
+            valor=Decimal("15.00"),
+            descricao="Compra abril",
+            data=date(2026, 4, 5),
+        )
+        self.assertEqual(transacao.fatura_id, fatura_unica.id)
+        self.assertEqual(Fatura.objects.filter(cartao=self.cartao).count(), 1)
+
+        url = reverse(
+            "cartoes:mover_lancamento_fatura",
+            kwargs={
+                "cartao_id": self.cartao.id,
+                "fatura_id": fatura_unica.id,
+                "transacao_id": transacao.id,
+            },
+        )
+        resp = self.client.post(url, {"direcao": "proxima"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Fatura.objects.filter(cartao=self.cartao).count(), 2)
+        transacao.refresh_from_db()
+        self.assertNotEqual(transacao.fatura_id, fatura_unica.id)
+        self.assertGreater(transacao.fatura.competencia, fatura_unica.competencia)
+
+    def test_mover_anterior_cria_fatura_quando_so_existe_atual(self):
+        self.client.force_login(self.user)
+        fatura_unica = obter_ou_criar_fatura(self.cartao, date(2026, 4, 5))
+        transacao = Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            cartao=self.cartao,
+            categoria=self.categoria,
+            tipo="despesa",
+            valor=Decimal("15.00"),
+            descricao="Compra abril",
+            data=date(2026, 4, 5),
+        )
+        self.assertEqual(transacao.fatura_id, fatura_unica.id)
+
+        url = reverse(
+            "cartoes:mover_lancamento_fatura",
+            kwargs={
+                "cartao_id": self.cartao.id,
+                "fatura_id": fatura_unica.id,
+                "transacao_id": transacao.id,
+            },
+        )
+        resp = self.client.post(url, {"direcao": "anterior"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Fatura.objects.filter(cartao=self.cartao).count(), 2)
+        transacao.refresh_from_db()
+        self.assertNotEqual(transacao.fatura_id, fatura_unica.id)
+        self.assertLess(transacao.fatura.competencia, fatura_unica.competencia)
+
