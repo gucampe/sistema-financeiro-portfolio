@@ -3,6 +3,7 @@ import json
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from itertools import groupby
+from types import SimpleNamespace
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -15,7 +16,8 @@ from django.views.decorators.http import require_GET, require_POST
 from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
-from cartoes.models import Cartao
+from cartoes.models import Cartao, Fatura
+from cartoes.services.gestao_faturas import calcular_resumo_pagamento, total_fatura
 from contas.models import Conta
 from usuarios.models import Perfil
 
@@ -69,6 +71,132 @@ def _filtro_periodo_calendario(data_inicial: date, data_fim: date) -> Q:
 
 def _anotar_data_exibicao(qs):
     return qs.annotate(data_exibicao=Coalesce(F("data_competencia"), F("data"), output_field=DateField()))
+
+
+def _q_compras_em_fatura():
+    """Lançamentos de compra no cartão vinculados a uma fatura (não são pagamento da fatura)."""
+    return Q(cartao__isnull=False, fatura__isnull=False, pagamento_de_fatura__isnull=True)
+
+
+def _q_pagamento_de_fatura():
+    return Q(pagamento_de_fatura__isnull=False)
+
+
+_MESES_PT_FATURA = (
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+)
+
+
+def _descricao_linha_historico_fatura(fatura: Fatura, status_pagamento: str) -> str:
+    if status_pagamento == Fatura.StatusPagamento.PAGO:
+        return "Pagamento da fatura"
+    mes = _MESES_PT_FATURA[fatura.competencia.month - 1]
+    return f"Fatura {mes.title()} {fatura.competencia.year}"
+
+
+def _faturas_com_vencimento_no_periodo(usuario, *, ano=None, mes=None, data_inicial=None, data_fim=None):
+    qs = Fatura.objects.filter(usuario=usuario, cartao__ativa=True).select_related(
+        "cartao", "cartao__conta_padrao"
+    )
+    if data_inicial is not None:
+        fim = data_fim or data_inicial
+        qs = qs.filter(data_vencimento__gte=data_inicial, data_vencimento__lte=fim)
+    else:
+        qs = qs.filter(data_vencimento__year=ano, data_vencimento__month=mes)
+    return qs.order_by("-data_vencimento", "-id")
+
+
+def _linha_historico_pagamento_fatura(fatura: Fatura, valor_total, *, descricao: str) -> SimpleNamespace:
+    categoria = SimpleNamespace(nome="Cartão de crédito", cor="#6366f1", icone="fa-credit-card")
+    return SimpleNamespace(
+        is_resumo_fatura=True,
+        fatura=fatura,
+        id=None,
+        data_exibicao=fatura.data_vencimento,
+        data=fatura.data_vencimento,
+        data_competencia=fatura.data_vencimento,
+        descricao=descricao,
+        tipo="despesa",
+        valor=valor_total,
+        categoria=categoria,
+        conta=fatura.cartao.conta_padrao,
+        cartao=fatura.cartao,
+        cartao_id=fatura.cartao_id,
+        pagamento_de_fatura_id=None,
+    )
+
+
+def _montar_itens_historico_com_faturas(
+    usuario,
+    transacoes_list: list,
+    *,
+    ano=None,
+    mes=None,
+    data_inicial=None,
+    data_fim=None,
+    conta_filtro_ids: list | None = None,
+    categoria_filtro_ids: list | None = None,
+):
+    """
+    Remove compras em fatura e pagamentos de fatura da lista; insere uma linha sintética
+    por fatura (total das despesas) na data de vencimento.
+    O valor retornado em extras (rodapé) só inclui faturas com status de pagamento Pago.
+    """
+    transacoes_filtradas = []
+    for t in transacoes_list:
+        if t.cartao_id and t.fatura_id and not t.pagamento_de_fatura_id:
+            continue
+        if t.pagamento_de_fatura_id:
+            continue
+        transacoes_filtradas.append(t)
+
+    if categoria_filtro_ids:
+        return transacoes_filtradas, Decimal("0")
+
+    faturas_qs = _faturas_com_vencimento_no_periodo(
+        usuario,
+        ano=ano,
+        mes=mes,
+        data_inicial=data_inicial,
+        data_fim=data_fim,
+    )
+    if conta_filtro_ids:
+        faturas_qs = faturas_qs.filter(cartao__conta_padrao_id__in=conta_filtro_ids)
+
+    extras_valor = Decimal("0")
+    sinteticas = []
+    for fat in faturas_qs:
+        tot = total_fatura(fat)
+        if tot <= Decimal("0"):
+            continue
+        resumo = calcular_resumo_pagamento(fat)
+        desc = _descricao_linha_historico_fatura(fat, resumo.status_pagamento)
+        sinteticas.append(_linha_historico_pagamento_fatura(fat, tot, descricao=desc))
+        if resumo.status_pagamento == Fatura.StatusPagamento.PAGO:
+            extras_valor += tot
+
+    def _ord_key(item):
+        d = getattr(item, "data_exibicao", item.data)
+        if getattr(item, "is_resumo_fatura", False):
+            sid = item.fatura.pk
+        else:
+            sid = item.id
+        return (-d.toordinal(), -sid)
+
+    merged = transacoes_filtradas + sinteticas
+    merged.sort(key=_ord_key)
+    return merged, extras_valor
 
 
 def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
@@ -300,6 +428,25 @@ def adicionar_transacao(request):
         transacoes = transacoes.filter(categoria_id__in=categoria_filtro_ids)
 
     transacoes_list = list(transacoes)
+    if data_inicial is not None:
+        transacoes_list, despesas_resumo_fatura = _montar_itens_historico_com_faturas(
+            request.user,
+            transacoes_list,
+            data_inicial=data_inicial,
+            data_fim=data_fim or data_inicial,
+            conta_filtro_ids=conta_filtro_ids or None,
+            categoria_filtro_ids=categoria_filtro_ids or None,
+        )
+    else:
+        transacoes_list, despesas_resumo_fatura = _montar_itens_historico_com_faturas(
+            request.user,
+            transacoes_list,
+            ano=ano,
+            mes=mes,
+            conta_filtro_ids=conta_filtro_ids or None,
+            categoria_filtro_ids=categoria_filtro_ids or None,
+        )
+
     transacoes_por_dia = [
         {"data": data, "transacoes": list(grupo)}
         for data, grupo in groupby(
@@ -318,12 +465,13 @@ def adicionar_transacao(request):
         tqs = tqs.filter(conta_id__in=conta_filtro_ids)
     if categoria_filtro_ids:
         tqs = tqs.filter(categoria_id__in=categoria_filtro_ids)
+    tqs = tqs.exclude(_q_compras_em_fatura()).exclude(_q_pagamento_de_fatura())
     totais = tqs.aggregate(
         total_receitas=Sum("valor", filter=Q(tipo="receita")),
         total_despesas=Sum("valor", filter=Q(tipo="despesa")),
     )
-    total_receitas = totais["total_receitas"] or 0
-    total_despesas = totais["total_despesas"] or 0
+    total_receitas = totais["total_receitas"] or Decimal("0")
+    total_despesas = (totais["total_despesas"] or Decimal("0")) + despesas_resumo_fatura
     saldo_mes = total_receitas - total_despesas
 
     categorias_despesa = Categoria.objects.filter(

@@ -167,9 +167,13 @@
                       {{ transacao.descricao }}
                     </p>
                     <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
-                      {{ transacao.categoria.nome|default:transacao.categoria }}
-                      {% if transacao.cartao_id and transacao.data_competencia and transacao.data != transacao.data_competencia %}
-                        <span class="text-fg-muted">· Compra {{ transacao.data|date:"d/m/Y" }}</span>
+                      {% if transacao.is_resumo_fatura %}
+                        {{ transacao.categoria.nome }} · {{ transacao.cartao.nome }} · {{ transacao.fatura.competencia|date:"m/Y" }}
+                      {% else %}
+                        {{ transacao.categoria.nome|default:transacao.categoria }}
+                        {% if transacao.cartao_id and transacao.data_competencia and transacao.data != transacao.data_competencia %}
+                          <span class="text-fg-muted">· Compra {{ transacao.data|date:"d/m/Y" }}</span>
+                        {% endif %}
                       {% endif %}
                     </p>
                   </div>
@@ -178,7 +182,14 @@
                 <!-- Centro: banco -->
                 <div class="flex justify-center min-w-0">
                   <div class="flex items-center gap-2 min-w-0 max-w-[11rem] lg:max-w-none lg:min-w-[130px]">
-                    {% if transacao.conta %}
+                    {% if transacao.is_resumo_fatura %}
+                      <img src="{% static transacao.cartao.icone|conta_icon_path %}"
+                           alt=""
+                           class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
+                      <span class="text-[13px] font-medium text-gray-700 truncate">
+                        {{ transacao.cartao.nome }}
+                      </span>
+                    {% elif transacao.conta %}
                       <img src="{% static transacao.conta.icone|conta_icon_path %}"
                            alt=""
                            class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
@@ -199,16 +210,23 @@
                 <!-- Direita: ações + valor (mesma linha, alinhado ao centro vertical) -->
                 <div class="shrink-0 min-w-0 flex flex-row items-center justify-end gap-3">
                   <div class="inline-flex items-center gap-2 transition-opacity duration-150 opacity-100 pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:pointer-events-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:pointer-events-auto">
-                    <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
-                            data-id="{{ transacao.id }}" title="Editar">
-                      <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
-                      <span class="hidden sm:inline">Editar</span>
-                    </button>
-                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
-                            data-id="{{ transacao.id }}" title="Excluir">
-                      <i class="fa-solid fa-trash text-xs"></i>
-                      <span class="hidden sm:inline">Excluir</span>
-                    </button>
+                    {% if transacao.is_resumo_fatura %}
+                      <a href="{% url 'cartoes:fatura_detalhe' transacao.cartao.id transacao.fatura.id %}" class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300" title="Abrir fatura">
+                        <i class="fa-solid fa-file-invoice text-xs text-gray-700"></i>
+                        <span class="hidden sm:inline">Ver fatura</span>
+                      </a>
+                    {% else %}
+                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
+                              data-id="{{ transacao.id }}" title="Editar">
+                        <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
+                        <span class="hidden sm:inline">Editar</span>
+                      </button>
+                      <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
+                              data-id="{{ transacao.id }}" title="Excluir">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                        <span class="hidden sm:inline">Excluir</span>
+                      </button>
+                    {% endif %}
                   </div>
                   <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap text-right
                     {% if transacao.tipo == 'despesa' %}text-red-500
