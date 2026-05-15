@@ -78,11 +78,6 @@
         </div>
       </div>
     </div>
-    {% if fatura.status_temporal == 'fechada' %}
-      <div class="px-4 sm:px-5 py-3 border-b border-gray-100 bg-amber-50 text-amber-900 text-sm">
-        Este lançamento será tratado como ajuste.
-      </div>
-    {% endif %}
     {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
     <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
       {% for transacao in lancamentos %}
