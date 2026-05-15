@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -247,6 +248,7 @@ def faturas_cartao(request, cartao_id):
         fatura_destaque = faturas.first()
 
     total_destaque = None
+    url_fatura_destaque = None
     if fatura_destaque is not None:
         total_destaque = (
             Transacao.objects.filter(
@@ -254,12 +256,17 @@ def faturas_cartao(request, cartao_id):
             ).aggregate(s=Sum("valor"))["s"]
             or Decimal("0")
         )
+        url_fatura_destaque = reverse(
+            "cartoes:fatura_detalhe",
+            kwargs={"cartao_id": cartao.id, "fatura_id": fatura_destaque.id},
+        )
 
     ctx = {
         "cartao": cartao,
         "faturas": faturas,
         "fatura_destaque": fatura_destaque,
         "total_destaque": total_destaque,
+        "url_fatura_destaque": url_fatura_destaque,
     }
     ctx.update(modal_transacao_context(request, pre_select_cartao_id=cartao.id))
     return render(request, "cartoes/faturas_cartao.html", ctx)

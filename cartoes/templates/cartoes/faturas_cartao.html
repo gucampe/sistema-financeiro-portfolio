@@ -46,8 +46,8 @@
       <div class="text-right">
         <p class="text-xs text-fg-muted">Total (despesas)</p>
         <p class="text-2xl font-bold text-fg">{{ total_destaque|moeda }}</p>
-        <a href="{% url 'cartoes:fatura_detalhe' cartao.id fatura_destaque.id %}"
-           class="inline-flex mt-2 text-sm font-medium text-brand-700 underline decoration-brand-600/40 underline-offset-2 hover:text-brand-800">
+        <a href="{{ url_fatura_destaque }}"
+           class="btn btn-secondary btn-sm mt-2">
           Ver lançamentos
         </a>
       </div>

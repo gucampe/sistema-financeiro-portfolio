@@ -1,8 +1,9 @@
+import re
 from datetime import date, timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -393,4 +394,40 @@ class FaturasServiceTests(TestCase):
         transacao.refresh_from_db()
         self.assertNotEqual(transacao.fatura_id, fatura_unica.id)
         self.assertLess(transacao.fatura.competencia, fatura_unica.competencia)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver", "localhost", "127.0.0.1"])
+class FaturasCartaoViewTests(TestCase):
+    def setUp(self):
+        user_model = get_user_model()
+        self.user = user_model.objects.create_user(
+            email="faturas-view@example.com",
+            password="x",
+            nome="Usuario Faturas View",
+        )
+        self.conta = Conta.objects.create(usuario=self.user, nome="Conta", tipo="corrente", ativa=True)
+        self.cartao = Cartao.objects.create(
+            usuario=self.user,
+            nome="Cartao",
+            dia_fechamento=10,
+            dia_vencimento=20,
+            conta_padrao=self.conta,
+            ativa=True,
+        )
+        self.client.force_login(self.user)
+
+    def test_ver_lancamentos_aponta_para_fatura_detalhe(self):
+        fatura = obter_ou_criar_fatura(self.cartao, timezone.localdate())
+        url_faturas = reverse("cartoes:faturas", kwargs={"cartao_id": self.cartao.id})
+        url_detalhe = reverse(
+            "cartoes:fatura_detalhe",
+            kwargs={"cartao_id": self.cartao.id, "fatura_id": fatura.id},
+        )
+
+        resp = self.client.get(url_faturas)
+        self.assertEqual(resp.status_code, 200)
+
+        links = re.findall(r'href="([^"]+)"[^>]*>\s*Ver lan', resp.content.decode())
+        self.assertEqual(links, [url_detalhe])
+        self.assertNotIn("/transacoes/", links[0])
 
