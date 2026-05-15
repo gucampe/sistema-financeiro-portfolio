@@ -10,17 +10,7 @@ from .forms import (
     PreferenciasFinanceirasForm,
 )
 from .models import Perfil
-
-
-def _iniciais_avatar(nome: str) -> str:
-    nome = (nome or "").strip()
-    if not nome:
-        return "?"
-    partes = nome.split()
-    if len(partes) >= 2:
-        return f"{partes[0][0]}{partes[-1][0]}".upper()
-    p = partes[0]
-    return (p[:2] if len(p) >= 2 else p[:1]).upper()
+from .utils import iniciais_avatar
 
 
 def login_view(request):
@@ -51,7 +41,7 @@ def _configuracoes_context(request, perfil=None, dados_form=None, pref_form=None
         "senha_form": senha_form,
         "perfil": perfil,
         "foto_url": foto_url,
-        "iniciais_avatar": _iniciais_avatar(request.user.nome),
+        "iniciais_avatar": iniciais_avatar(request.user.nome),
     }
 
 
