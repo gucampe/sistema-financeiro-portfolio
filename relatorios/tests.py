@@ -45,3 +45,22 @@ class RelatorioFiltrosParseTests(TestCase):
         self.assertIn("fim=2026-04-30", s)
         self.assertIn("conta=1", s)
         self.assertNotIn("categoria", s)
+
+    def test_contagem_filtros_ativos_padrao(self):
+        f = RelatorioFiltros(
+            data_inicio=date(2026, 4, 1),
+            data_fim=date(2026, 4, 30),
+            preset="este_mes",
+        )
+        self.assertEqual(f.contagem_filtros_ativos(), 0)
+
+    def test_contagem_filtros_ativos_multiplos(self):
+        f = RelatorioFiltros(
+            data_inicio=date(2026, 1, 1),
+            data_fim=date(2026, 1, 31),
+            conta_ids=(1,),
+            categoria_ids=(2, 3),
+            tipos=("despesa",),
+            preset="ultimos_30d",
+        )
+        self.assertEqual(f.contagem_filtros_ativos(), 4)

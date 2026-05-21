@@ -72,6 +72,23 @@ class RelatorioFiltros:
         }
         return urlencode(d, doseq=True)
 
+    def contagem_filtros_ativos(self, *, preset_padrao: str = "este_mes") -> int:
+        """Quantidade de dimensões de filtro diferentes do padrão (para badge na UI)."""
+        n = 0
+        if self.preset != preset_padrao:
+            n += 1
+        if self.conta_ids:
+            n += 1
+        if self.categoria_ids:
+            n += 1
+        if self.tipos:
+            n += 1
+        if self.meio_pagamento != "todos":
+            n += 1
+        if self.modo_data != "fluxo":
+            n += 1
+        return n
+
 
 def _last_day_of_month(d: date) -> date:
     _, last = calendar.monthrange(d.year, d.month)

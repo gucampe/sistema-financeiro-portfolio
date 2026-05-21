@@ -36,6 +36,7 @@ class RelatorioFiltrosMixin(LoginRequiredMixin):
         user = self.request.user
         filtros = parse_relatorio_filtros(self.request.GET, usuario=user)
         ctx["filtros"] = filtros
+        ctx["filtros_ativos_count"] = filtros.contagem_filtros_ativos()
         ctx["filtros_querystring"] = filtros.to_query_string()
         ctx["drill_transacoes_qs"] = filtros.to_drill_transacoes_query_string()
         ctx["contas_ativas"] = Conta.objects.filter(usuario=user, ativa=True).order_by("nome")
@@ -73,7 +74,6 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
             }
             for m in movimento_por_conta(qs, user)
         ]
-        saldos_lista, saldo_patrimonio = saldos_por_conta_totais(user)
         ultimas = qs.order_by("-data", "-id")[:8]
         orc_linhas = orcamento_vs_realizado(user, filtros)
         insights = gerar_insights_dashboard(user, filtros, totais_atual=totais, top_despesa=top_d)
@@ -101,8 +101,6 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
                 "top_despesas_chart": top_despesas_chart,
                 "relatorio_nav": "home",
                 "movimento_por_conta": mov_contas,
-                "saldos_por_conta": saldos_lista,
-                "saldo_patrimonio": saldo_patrimonio,
                 "ultimas_transacoes": ultimas,
                 "orcamento_linhas": orc_linhas,
                 "insights": insights,
