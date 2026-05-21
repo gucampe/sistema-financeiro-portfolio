@@ -24,11 +24,11 @@
     </p>
   </div>
 
-  <div class="relative" id="header-user-menu">
+  <div class="relative flex shrink-0 items-center" id="header-user-menu">
     <button
       type="button"
       id="header-user-menu-trigger"
-      class="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400/50 focus-visible:ring-offset-2"
+      class="inline-flex shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400/50 focus-visible:ring-offset-2"
       aria-expanded="false"
       aria-haspopup="true"
       aria-controls="header-user-menu-panel"
@@ -38,13 +38,13 @@
         <img
           src="{{ header_foto_url }}"
           alt="Foto de perfil"
-          class="h-9 w-9 shrink-0 rounded-full border border-gray-300/80 object-cover ring-1 ring-gray-900/[0.04] sm:h-10 sm:w-10"
+          class="block h-9 w-9 shrink-0 rounded-full border border-gray-300/80 object-cover ring-1 ring-gray-900/[0.04] sm:h-10 sm:w-10"
           width="40"
           height="40"
         />
       {% else %}
         <span
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-300/80 bg-gradient-to-br from-gray-100 to-gray-200/90 text-xs font-semibold text-gray-600 ring-1 ring-gray-900/[0.04] sm:h-10 sm:w-10 sm:text-sm"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-300/80 bg-gradient-to-br from-gray-100 to-gray-200/90 text-xs font-semibold leading-none text-gray-600 ring-1 ring-gray-900/[0.04] sm:h-10 sm:w-10 sm:text-sm"
           aria-hidden="true"
         >{{ header_iniciais_avatar }}</span>
       {% endif %}
