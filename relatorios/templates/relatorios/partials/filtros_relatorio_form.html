@@ -2,21 +2,22 @@
   {% load icon_filters %}
   {% comment %}
   Formulário GET de filtros de relatório.
-  filtros_embed == "drawer" → coluna + área rolável + rodapé com botões.
+  filtros_embed == "drawer" | "sheet" → coluna + área rolável + rodapé com botões.
   Caso contrário → barra horizontal (outras telas).
   {% endcomment %}
   <form
     method="get"
     action="{{ request.path }}"
-    id="{% if filtros_embed == 'drawer' %}form-filtros-drawer{% else %}form-filtros-bar{% endif %}"
-    class="{% if filtros_embed == 'drawer' %}flex min-h-0 max-h-full flex-1 flex-col{% else %}flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-0 lg:gap-y-5{% endif %}"
+    id="{% if filtros_embed == 'drawer' %}form-filtros-drawer{% elif filtros_embed == 'sheet' %}form-filtros-sheet{% else %}form-filtros-bar{% endif %}"
+    class="{% if filtros_embed == 'drawer' or filtros_embed == 'sheet' %}flex min-h-0 max-h-full flex-1 flex-col{% else %}flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-0 lg:gap-y-5{% endif %}"
   >
-    {% if filtros_embed == 'drawer' %}
+    {% if filtros_embed == 'drawer' or filtros_embed == 'sheet' %}
+  {% with sid=filtros_embed|default:'drawer' %}
   <div class="min-h-0 flex-1 space-y-5 overflow-visible pb-2">
       <div class="space-y-4">
         <div class="space-y-1.5">
-          <label for="filtro-preset" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Período</label>
-          <select id="filtro-preset" name="preset" class="input w-full">
+          <label for="filtro-preset-{{ sid }}" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Período</label>
+          <select id="filtro-preset-{{ sid }}" name="preset" class="input w-full">
             <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
             <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
             <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
@@ -27,18 +28,18 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1.5">
-            <label for="filtro-inicio" class="text-[11px] font-semibold text-gray-500">De</label>
-            <input id="filtro-inicio" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
+            <label for="filtro-inicio-{{ sid }}" class="text-[11px] font-semibold text-gray-500">De</label>
+            <input id="filtro-inicio-{{ sid }}" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
           </div>
           <div class="space-y-1.5">
-            <label for="filtro-fim" class="text-[11px] font-semibold text-gray-500">Até</label>
-            <input id="filtro-fim" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
+            <label for="filtro-fim-{{ sid }}" class="text-[11px] font-semibold text-gray-500">Até</label>
+            <input id="filtro-fim-{{ sid }}" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full min-w-0 tabular-nums" />
           </div>
         </div>
       </div>
       <div class="space-y-1.5">
-        <label for="filtro-contas" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Contas</label>
-        <div id="filtro-contas" class="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2.5">
+        <label for="filtro-contas-{{ sid }}" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Contas</label>
+        <div id="filtro-contas-{{ sid }}" class="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2.5">
           {% for c in contas_ativas %}
           <label class="inline-flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-gray-700 transition hover:bg-gray-50 has-[:checked]:bg-brand-50/70 has-[:checked]:text-brand-900">
             <input type="checkbox" name="conta" value="{{ c.id }}" {% if c.id in filtros.conta_ids %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
@@ -128,6 +129,7 @@
       <button type="submit" class="btn btn-primary btn-sm min-w-0 flex-1 justify-center">Aplicar filtros</button>
       <a href="{{ request.path }}?preset=este_mes" class="btn btn-secondary btn-sm shrink-0 justify-center">Limpar</a>
     </div>
+  {% endwith %}
     {% else %}
     <div class="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end lg:min-w-[min(100%,20rem)] lg:max-w-xl lg:pr-6 lg:border-r lg:border-gray-100">
       <div class="flex min-w-[12rem] flex-1 flex-col gap-1.5 sm:max-w-xs">

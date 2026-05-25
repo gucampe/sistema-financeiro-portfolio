@@ -61,7 +61,7 @@
             <p class="text-xs uppercase tracking-wide text-fg-muted font-semibold">Status da fatura</p>
             <p class="text-lg sm:text-xl font-bold text-fg mt-1">{{ fatura.get_status_pagamento_display }}</p>
           </div>
-          <div class="grid grid-cols-3 gap-3 sm:gap-4 text-right">
+          <div class="grid grid-cols-1 gap-3 text-right sm:grid-cols-3 sm:gap-4">
             <div>
               <p class="text-xs text-fg-muted">Total</p>
               <p class="text-sm sm:text-base font-semibold text-fg">{{ total_despesas|moeda }}</p>

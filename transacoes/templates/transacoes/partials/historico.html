@@ -43,7 +43,7 @@
     </div>
 
     <!-- Lista -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden pb-24">
+    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white pb-28 shadow-sm sm:pb-24">
 
       <!-- Header do histórico: grid evita sobreposição do título com a navegação em ~1366px -->
       <div class="relative z-10 grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[1100px]:items-center px-4 sm:px-5 py-4 border-b border-gray-100">
@@ -151,22 +151,22 @@
           <ul class="divide-y divide-gray-50">
             {% for transacao in dia.transacoes %}
             <li class="group relative py-2.5 hover:bg-surface-muted transition -mx-4 px-4 sm:-mx-5 sm:px-5">
-              <div class="overflow-x-auto overflow-y-visible overscroll-x-contain max-w-full -mx-4 px-4 lg:mx-0 lg:px-0 lg:overflow-visible">
-              <div class="min-w-[42rem] lg:min-w-0">
-              <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-4 min-w-0">
+              <div class="min-w-0 md:overflow-x-auto md:overflow-y-visible md:overscroll-x-contain md:-mx-4 md:px-4 lg:mx-0 lg:px-0 lg:overflow-visible">
+              <div class="min-w-0 md:min-w-[42rem] lg:min-w-0">
+              <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-4">
       
-                <!-- Esquerda: categoria -->
-                <div class="flex items-center gap-2.5 min-w-0">
+                <!-- Esquerda: ícone + descrição (+ categoria só em md+) -->
+                <div class="flex min-w-0 flex-1 items-center gap-2.5 md:min-w-0">
                   <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ transacao.categoria.cor }}20] border-[{{ transacao.categoria.cor }}40]">
                     {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
                       <i class="fa-solid {{ icon_raw }} text-[15px] text-[{{ transacao.categoria.cor }}]"></i>
                     {% endwith %}
                   </div>
-                  <div class="min-w-0">
-                    <p class="text-sm font-semibold text-fg truncate leading-tight">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold leading-tight text-fg" title="{{ transacao.descricao }}">
                       {{ transacao.descricao }}
                     </p>
-                    <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
+                    <p class="mt-0.5 hidden truncate text-[12px] leading-tight text-gray-500 md:block">
                       {% if transacao.is_resumo_fatura %}
                         {{ transacao.categoria.nome }} · {{ transacao.cartao.nome }} · {{ transacao.fatura.competencia|date:"m/Y" }}
                       {% else %}
@@ -179,9 +179,9 @@
                   </div>
                 </div>
       
-                <!-- Centro: banco -->
-                <div class="flex justify-center min-w-0">
-                  <div class="flex items-center gap-2 min-w-0 max-w-[11rem] lg:max-w-none lg:min-w-[130px]">
+                <!-- Centro: conta (somente tablet/desktop) -->
+                <div class="hidden min-w-0 justify-center md:flex">
+                  <div class="flex min-w-0 max-w-[11rem] items-center gap-2 lg:max-w-none lg:min-w-[130px]">
                     {% if transacao.is_resumo_fatura %}
                       <img src="{% static transacao.cartao.icone|conta_icon_path %}"
                            alt=""
@@ -207,39 +207,39 @@
                   </div>
                 </div>
       
-                <!-- Direita: ações + valor (mesma linha, alinhado ao centro vertical) -->
-                <div class="shrink-0 min-w-0 flex flex-row items-center justify-end gap-3">
-                  <div class="inline-flex items-center gap-2 transition-opacity duration-150 opacity-100 pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:pointer-events-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:pointer-events-auto">
+                <!-- Direita: valor + ações -->
+                <div class="flex shrink-0 flex-row items-center justify-end gap-1.5 min-w-0 sm:gap-2 md:gap-3">
+                  <p class="shrink-0 text-right text-[15px] font-semibold tracking-tight whitespace-nowrap md:order-2
+                    {% if transacao.tipo == 'despesa' %}text-red-500
+                    {% elif transacao.tipo == 'receita' %}text-green-600
+                    {% else %}text-gray-700{% endif %}">
+                    {% if transacao.tipo == 'despesa' %}
+                      -{{ transacao.valor|moeda }}
+                    {% elif transacao.tipo == 'receita' %}
+                      +{{ transacao.valor|moeda }}
+                    {% else %}
+                      {{ transacao.valor|moeda }}
+                    {% endif %}
+                  </p>
+                  <div class="hidden shrink-0 items-center gap-2 transition-opacity duration-150 md:inline-flex md:order-1 opacity-100 pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:pointer-events-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:pointer-events-auto">
                     {% if transacao.is_resumo_fatura %}
-                      <a href="{% url 'cartoes:fatura_detalhe' transacao.cartao.id transacao.fatura.id %}" class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300" title="Abrir fatura">
+                      <a href="{% url 'cartoes:fatura_detalhe' transacao.cartao.id transacao.fatura.id %}" class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-gray-800 transition hover:bg-gray-300 sm:px-4 sm:py-2" title="Abrir fatura">
                         <i class="fa-solid fa-file-invoice text-xs text-gray-700"></i>
                         <span class="hidden sm:inline">Ver fatura</span>
                       </a>
                     {% else %}
-                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300"
+                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-gray-800 transition hover:bg-gray-300 sm:px-4 sm:py-2"
                               data-id="{{ transacao.id }}" title="Editar">
                         <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
                         <span class="hidden sm:inline">Editar</span>
                       </button>
-                      <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300"
+                      <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-red-600 transition hover:bg-gray-300 sm:px-4 sm:py-2"
                               data-id="{{ transacao.id }}" title="Excluir">
                         <i class="fa-solid fa-trash text-xs"></i>
                         <span class="hidden sm:inline">Excluir</span>
                       </button>
                     {% endif %}
                   </div>
-                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap text-right
-                    {% if transacao.tipo == 'despesa' %}text-red-500
-                    {% elif transacao.tipo == 'receita' %}text-green-600
-                    {% else %}text-gray-700{% endif %}">
-                    {% if transacao.tipo == 'despesa' %}
-                      - {{ transacao.valor|moeda }}
-                    {% elif transacao.tipo == 'receita' %}
-                      + {{ transacao.valor|moeda }}
-                    {% else %}
-                      {{ transacao.valor|moeda }}
-                    {% endif %}
-                  </p>
                 </div>
       
               </div>
@@ -272,8 +272,8 @@
 {% include 'transacoes/partials/confirmar_exclusao.html' %}
 
 {# Barra fixa resumo do mês (mesmo max-width do conteúdo principal) #}
-<div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-  <div class="w-full max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between gap-3 sm:gap-4">
+<div class="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+  <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-3 py-3 sm:gap-4 sm:px-4 lg:px-6">
     <div class="flex-1 text-center">
       <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Receitas</p>
       <p class="text-lg font-semibold text-brand-600">{{ total_receitas|moeda }}</p>

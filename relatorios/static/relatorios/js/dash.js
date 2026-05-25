@@ -240,4 +240,13 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
   }
+
+  window.resizeDashboardCharts = () => {
+    ['grafico-receitas-despesas', 'grafico-categorias'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el || typeof Chart === 'undefined') return;
+      const chart = Chart.getChart(el);
+      if (chart) chart.resize();
+    });
+  };
 });

@@ -8,18 +8,12 @@
 
   function abrirModal() {
     var modal = document.getElementById("modal-confirmar-exclusao");
-    if (modal) {
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
+    if (modal) modal.classList.remove("hidden");
   }
 
   function fecharModal() {
     var modal = document.getElementById("modal-confirmar-exclusao");
-    if (modal) {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
+    if (modal) modal.classList.add("hidden");
     idTransacaoParaExcluir = null;
   }
 

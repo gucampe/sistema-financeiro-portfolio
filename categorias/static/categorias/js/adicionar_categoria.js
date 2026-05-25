@@ -198,10 +198,7 @@ function preencherModal(nome, icone, cor, tipo, id) {
 
   if (tituloModal) tituloModal.textContent = "Editar Categoria";
 
-  if (overlay) {
-    overlay.classList.remove("hidden", "opacity-0");
-    overlay.classList.add("opacity-100", "scale-100");
-  }
+  if (overlay) overlay.classList.remove("hidden");
 }
 
 if (btnAbrir && overlay && form) {
@@ -214,8 +211,7 @@ if (btnAbrir && overlay && form) {
     if (inputTipo) inputTipo.value = getTipoAbaAtiva();
     if (tituloModal) tituloModal.textContent = "Nova Categoria";
 
-    overlay.classList.remove("hidden", "opacity-0");
-    overlay.classList.add("opacity-100", "scale-100");
+    overlay.classList.remove("hidden");
   });
 }
 

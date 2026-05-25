@@ -1,24 +1,28 @@
 {% load static %}
 {% load icon_filters %}
 
-<div id="overlay-modal-cartao" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50">
-  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative border border-gray-200">
-    <button id="btn-fechar-modal-cartao"
-            type="button"
-            class="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition text-fg bg-gray-200/80 hover:bg-gray-300"
-            aria-label="Fechar modal">
-      ✕
-    </button>
-
-    <h2 id="titulo-modal-cartao" class="text-2xl font-semibold mb-1 text-fg">Novo Cartão</h2>
-    <p class="text-sm mb-6 text-fg-muted">Preencha os dados básicos do cartão.</p>
+<div id="overlay-modal-cartao" class="modal-overlay hidden">
+  <div class="modal-panel mx-auto w-full max-w-lg">
+    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5">
+      <div class="min-w-0 pr-2">
+        <h2 id="titulo-modal-cartao" class="text-xl font-semibold leading-tight text-fg sm:text-2xl">Novo Cartão</h2>
+        <p class="mt-1 text-sm text-fg-muted">Preencha os dados básicos do cartão.</p>
+      </div>
+      <button id="btn-fechar-modal-cartao"
+              type="button"
+              class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-fg transition hover:bg-gray-200"
+              aria-label="Fechar modal">
+        ✕
+      </button>
+    </div>
 
     <div id="erro-modal-cartao"
-         class="hidden mb-4 p-3 rounded-lg text-sm border border-danger-border bg-danger-soft text-danger"></div>
+         class="hidden shrink-0 mx-5 mt-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger sm:mx-6"></div>
 
     <form id="form-modal-cartao"
           method="POST"
           action="{% url 'cartoes:salvar' %}"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden"
           data-instituicoes="{{ icone_choices_instituicoes|join:',' }}"
           data-genericos="{{ icone_choices_genericos|join:',' }}"
           data-url-instituicoes="{% static 'contas/icons/instituicoes/' %}"
@@ -27,17 +31,18 @@
       <input type="hidden" name="cartao_id" id="cartao_id">
       <input type="hidden" name="icone" id="cartao_icone" value="bank">
 
-      <div class="mb-4">
-        <label for="cartao_nome" class="block text-sm font-medium mb-1 text-fg">Nome</label>
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 space-y-4">
+      <div>
+        <label for="cartao_nome" class="mb-1 block text-sm font-medium text-fg">Nome</label>
         <input type="text" name="nome" id="cartao_nome" required class="input w-full" placeholder="Ex.: Nubank Gold">
       </div>
 
-      <div class="mb-4">
+      <div>
         <label for="cartao_limite" class="block text-sm font-medium mb-1 text-fg">Limite</label>
         <input type="text" name="limite" id="cartao_limite" required class="input w-full" placeholder="Ex.: 2500,00">
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="grid grid-cols-2 gap-4">
         <div>
           <label for="cartao_dia_fechamento" class="block text-sm font-medium mb-1 text-fg">Dia fechamento</label>
           <input type="number" min="1" max="31" name="dia_fechamento" id="cartao_dia_fechamento" required class="input w-full">
@@ -48,7 +53,7 @@
         </div>
       </div>
 
-      <div class="mb-4" data-combobox-root="conta-padrao-cartao">
+      <div data-combobox-root="conta-padrao-cartao">
         <label {% if contas_ativas %}for="cartao_conta_padrao"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta padrão</label>
         {% if contas_ativas %}
         <div class="relative mt-1">
@@ -92,9 +97,9 @@
         {% endif %}
       </div>
 
-      <div class="mb-6">
+      <div>
         <label class="block text-sm font-medium mb-2 text-fg">Ícone</label>
-        <div id="icon-grid-cartao" class="grid grid-cols-6 gap-3 max-h-48 overflow-y-auto">
+        <div id="icon-grid-cartao" class="grid max-h-48 grid-cols-6 gap-3 overflow-y-auto overscroll-contain">
           {% for slug, nome, arquivo in icon_list_instituicoes %}
             <button type="button"
                     class="item-icone-cartao relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
@@ -113,10 +118,11 @@
           {% endfor %}
         </div>
       </div>
+      </div>
 
-      <div class="flex justify-end gap-3">
-        <button id="btn-cancelar-modal-cartao" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
-        <button type="submit" class="btn btn-primary btn-sm">Salvar</button>
+      <div class="flex shrink-0 flex-col-reverse gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+        <button id="btn-cancelar-modal-cartao" type="button" class="btn btn-secondary btn-sm w-full sm:w-auto">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-sm w-full sm:w-auto">Salvar</button>
       </div>
     </form>
   </div>

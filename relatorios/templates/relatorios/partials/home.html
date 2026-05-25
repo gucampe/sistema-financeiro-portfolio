@@ -34,39 +34,46 @@
       </p>
       <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
-    <div class="flex flex-wrap items-center gap-2 sm:justify-end">
-      <button
-        type="button"
-        id="btn-abrir-filtros"
-        class="btn btn-sm {% if filtros_ativos_count %}border-brand-400 bg-brand-50 text-brand-800 shadow-sm ring-1 ring-brand-200/80 hover:border-brand-500 hover:bg-brand-100{% else %}btn-secondary{% endif %}"
-        aria-haspopup="dialog"
-        aria-controls="filtros-painel-lateral"
-        aria-expanded="false"
-        {% if filtros_ativos_count %}aria-label="Filtros: {{ filtros_ativos_count }} ativo{{ filtros_ativos_count|pluralize:'s' }}"{% endif %}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 {% if filtros_ativos_count %}text-brand-600{% else %}opacity-70{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-        Filtros{% if filtros_ativos_count %} ({{ filtros_ativos_count }}){% endif %}
-      </button>
-      <button type="button" id="btn-export-csv" class="btn btn-secondary btn-sm" title="Exportar transações do período (CSV)">Exportar CSV</button>
-      <button type="button" id="btn-adicionar" class="btn btn-primary btn-sm">
+    <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+      <button type="button" id="btn-adicionar" class="btn btn-primary btn-sm w-full sm:w-auto order-1 sm:order-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Nova transação
       </button>
+      <button
+        type="button"
+        id="btn-abrir-filtros"
+        class="btn btn-sm w-full sm:w-auto order-2 {% if filtros_ativos_count %}border-brand-400 bg-brand-50 text-brand-800 shadow-sm ring-1 ring-brand-200/80 hover:border-brand-500 hover:bg-brand-100{% else %}btn-secondary{% endif %}"
+        aria-haspopup="dialog"
+        aria-controls="filtros-painel-lateral filtros-sheet-panel"
+        aria-expanded="false"
+        {% if filtros_ativos_count %}aria-label="Filtros: {{ filtros_ativos_count }} ativo{{ filtros_ativos_count|pluralize:'s' }}"{% else %}aria-label="Filtros"{% endif %}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 {% if filtros_ativos_count %}text-brand-600{% else %}opacity-70{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        <span class="hidden sm:inline">Filtros{% if filtros_ativos_count %} ({{ filtros_ativos_count }}){% endif %}</span>
+        {% if filtros_ativos_count %}<span class="sm:hidden">({{ filtros_ativos_count }})</span>{% endif %}
+      </button>
+      <button type="button" id="btn-export-csv" class="btn btn-secondary btn-sm w-full sm:w-auto order-3 sm:order-2" title="Exportar transações do período (CSV)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span class="hidden sm:inline">Exportar CSV</span>
+        <span class="sr-only sm:hidden">Exportar CSV</span>
+      </button>
     </div>
   </header>
 
-  <div id="dashboard-layout" class="mt-2 min-w-0">
+  <div id="dashboard-layout" class="mt-2 flex min-w-0 flex-col">
       {% if alertas_orcamento %}
-      <section class="space-y-6">
+      <section class="order-1 space-y-6 lg:order-none">
         <div class="space-y-3">
           <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Orçamento</h2>
           <div class="grid gap-3">
             {% for a in alertas_orcamento %}
-            <div class="flex gap-4 rounded-2xl border p-4 shadow-sm transition duration-200 hover:shadow-md {% if a.nivel == 'aviso' %}border-red-100/90 bg-gradient-to-br from-red-50/40 to-white{% else %}border-amber-100/90 bg-gradient-to-br from-amber-50/35 to-white{% endif %}">
+            <div class="flex gap-4 rounded-2xl border p-3 shadow-sm transition duration-200 sm:p-4 {% if a.nivel == 'aviso' %}border-red-100/90 bg-gradient-to-br from-red-50/40 to-white{% else %}border-amber-100/90 bg-gradient-to-br from-amber-50/35 to-white{% endif %}">
               <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/90 shadow-sm ring-1 ring-black/5" aria-hidden="true">
                 {% if a.nivel == 'aviso' %}
                 <svg class="h-5 w-5 text-red-500/90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -86,8 +93,8 @@
       </section>
       {% endif %}
 
-  <section id="secao-kpis" class="{% if alertas_orcamento %}mt-10 {% endif %}{% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+  <section id="secao-kpis" class="order-2 lg:order-none {% if alertas_orcamento %}mt-6 sm:mt-10 {% else %}mt-2{% endif %}{% if ocultar_valores_dashboard %} blur-md select-none{% endif %}">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-6">
       <article class="group relative min-w-0 overflow-hidden rounded-2xl border border-emerald-100/60 bg-gradient-to-br from-emerald-50/50 via-white to-white p-3 shadow-sm transition duration-200 hover:border-emerald-200/80 hover:shadow-md sm:p-5">
         <div class="flex items-start justify-between gap-2">
           <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800/70">Receitas</p>
@@ -121,36 +128,72 @@
         <p class="mt-1 hidden text-xs text-gray-500 sm:mt-2 sm:block">Receitas − despesas no período</p>
       </article>
     </div>
+    {% if totais.ajustes and totais.ajustes != 0 %}
+    <p class="mt-4 text-xs text-gray-500 sm:mt-6">Ajustes no período: {% if ocultar_valores_dashboard %}••••{% else %}{{ totais.ajustes|moeda }}{% endif %} (não entram no resultado fluxo)</p>
+    {% endif %}
   </section>
 
-  {% if totais.ajustes and totais.ajustes != 0 %}
-  <p class="mt-6 text-xs text-gray-500">Ajustes no período: {% if ocultar_valores_dashboard %}••••{% else %}{{ totais.ajustes|moeda }}{% endif %} (não entram no resultado fluxo)</p>
-  {% endif %}
+  <section class="order-3 mt-6 lg:order-7 lg:mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-4 border-b border-gray-100 pb-3 text-lg font-semibold tracking-tight text-gray-900">Últimas transações no período</h2>
+      <div class="table-scroll">
+        <table class="w-full min-w-[28rem] text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 bg-gray-50/80 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <th class="whitespace-nowrap px-4 py-3">Data</th>
+              <th class="px-4 py-3">Descrição</th>
+              <th class="hidden px-4 py-3 sm:table-cell">Categoria</th>
+              <th class="whitespace-nowrap px-4 py-3 text-right">Valor</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            {% for t in ultimas_transacoes|slice:":6" %}
+            <tr class="transition-colors hover:bg-gray-50/70">
+              <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ t.data|date:"d/m/Y" }}</td>
+              <td class="max-w-[10rem] truncate px-4 py-3 sm:max-w-none">
+                <a href="{% url 'transacoes:editar' t.pk %}" class="font-medium text-brand-600 transition hover:text-brand-700 hover:underline">{{ t.descricao|truncatechars:40 }}</a>
+              </td>
+              <td class="hidden px-4 py-3 text-gray-600 sm:table-cell">{{ t.categoria.nome }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums {% if t.tipo == 'despesa' %}text-rose-700/90{% elif t.tipo == 'receita' %}text-emerald-700/90{% else %}text-gray-700{% endif %} {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ t.valor|moeda }}{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="px-4 py-10 text-center text-gray-500">Nenhuma transação no período.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 flex justify-end sm:mt-5">
+        <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver todas no histórico</a>
+      </div>
+    </div>
+  </section>
 
-  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
-      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Receitas e despesas no tempo</h2>
+  <section class="order-5 mt-6 lg:order-3 lg:mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-4 shadow-sm sm:p-6">
+      <div class="mb-4 flex flex-col gap-2 border-b border-gray-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-base font-semibold tracking-tight text-gray-900 sm:text-lg">Receitas e despesas no tempo</h2>
         <a href="{% url 'relatorios:fluxo_caixa' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver fluxo de caixa</a>
       </div>
-      <div class="relative h-72 w-full min-h-[16rem] sm:h-80 md:min-h-[18rem]">
+      <div class="relative h-48 w-full min-h-[12rem] lg:h-72 lg:min-h-[16rem] xl:h-80">
         <canvas id="grafico-receitas-despesas" class="block h-full w-full" aria-label="Gráfico de receitas e despesas"></canvas>
       </div>
     </div>
   </section>
 
-  <div class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <section class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
-      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Top despesas por categoria</h2>
+  <div class="order-6 mt-6 grid grid-cols-1 gap-6 lg:order-4 lg:mt-10 lg:grid-cols-2 lg:gap-8 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <section class="hidden rounded-2xl border border-gray-100/90 bg-white p-4 shadow-sm md:block sm:p-6">
+      <div class="mb-4 flex flex-col gap-2 border-b border-gray-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-base font-semibold tracking-tight text-gray-900 sm:text-lg">Top despesas por categoria</h2>
         <a href="{% url 'relatorios:despesas_categoria' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Detalhes</a>
       </div>
-      <div class="relative h-56 w-full min-h-[14rem] max-h-56 sm:h-60">
+      <div class="relative h-40 w-full min-h-[10rem] lg:h-56 lg:max-h-56 lg:min-h-[14rem]">
         <canvas id="grafico-categorias" class="block h-full w-full max-h-full" aria-label="Gráfico por categoria"></canvas>
       </div>
     </section>
 
-    <section class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
+    <section class="hidden rounded-2xl border border-gray-100/90 bg-white p-4 shadow-sm md:block sm:p-6">
       <h2 class="mb-5 border-b border-gray-100 pb-4 text-lg font-semibold tracking-tight text-gray-900">Orçamento vs realizado</h2>
       {% if orcamento_linhas %}
       <div class="max-h-72 space-y-4 overflow-y-auto pr-1 text-sm">
@@ -184,10 +227,10 @@
     </section>
   </div>
 
-  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
-      <div class="mb-5 flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-lg font-semibold tracking-tight text-gray-900">Movimento no período por conta</h2>
+  <section class="order-4 mt-6 lg:order-6 lg:mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
+    <div class="rounded-2xl border border-gray-100/90 bg-white p-4 shadow-sm sm:p-6">
+      <div class="mb-4 flex flex-col gap-2 border-b border-gray-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-base font-semibold tracking-tight text-gray-900 sm:text-lg">Movimento no período por conta</h2>
         <a href="{% url 'relatorios:por_conta' %}?{{ filtros_querystring }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver contas</a>
       </div>
       {% if movimento_por_conta %}
@@ -202,43 +245,6 @@
       {% else %}
       <p class="text-sm text-gray-500">Sem movimentação no período com os filtros atuais.</p>
       {% endif %}
-    </div>
-  </section>
-
-  <section class="mt-10 {% if ocultar_valores_dashboard %}blur-md select-none{% endif %}">
-    <div class="rounded-2xl border border-gray-100/90 bg-white p-5 shadow-sm transition duration-200 hover:border-gray-200/90 hover:shadow-md sm:p-6">
-      <h2 class="mb-5 border-b border-gray-100 pb-4 text-lg font-semibold tracking-tight text-gray-900">Últimas transações no período</h2>
-      <div class="overflow-x-auto rounded-xl ring-1 ring-gray-100/80">
-        <table class="w-full min-w-[28rem] text-sm">
-          <thead>
-            <tr class="border-b border-gray-100 bg-gray-50/80 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-              <th class="whitespace-nowrap px-4 py-3">Data</th>
-              <th class="px-4 py-3">Descrição</th>
-              <th class="px-4 py-3">Categoria</th>
-              <th class="whitespace-nowrap px-4 py-3 text-right">Valor</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-50">
-            {% for t in ultimas_transacoes|slice:":6" %}
-            <tr class="transition-colors hover:bg-gray-50/70">
-              <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ t.data|date:"d/m/Y" }}</td>
-              <td class="max-w-[12rem] truncate px-4 py-3 sm:max-w-none">
-                <a href="{% url 'transacoes:editar' t.pk %}" class="font-medium text-brand-600 transition hover:text-brand-700 hover:underline">{{ t.descricao|truncatechars:40 }}</a>
-              </td>
-              <td class="px-4 py-3 text-gray-600">{{ t.categoria.nome }}</td>
-              <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums {% if t.tipo == 'despesa' %}text-rose-700/90{% elif t.tipo == 'receita' %}text-emerald-700/90{% else %}text-gray-700{% endif %} {% if ocultar_valores_dashboard %}blur-sm{% endif %}">{% if ocultar_valores_dashboard %}••••{% else %}{{ t.valor|moeda }}{% endif %}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="px-4 py-10 text-center text-gray-500">Nenhuma transação no período.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="mt-5 flex justify-end">
-        <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm font-medium text-brand-600 transition hover:text-brand-700 hover:underline">Ver todas no histórico</a>
-      </div>
     </div>
   </section>
     <aside
@@ -266,6 +272,40 @@
         </div>
       </div>
     </aside>
+  </div>
+
+  <div
+    id="filtros-sheet-root"
+    class="pointer-events-none fixed inset-0 z-50 lg:hidden"
+    aria-hidden="true"
+  >
+    <div
+      id="filtros-sheet-backdrop"
+      class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200 ease-out"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="filtros-sheet-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filtros-sheet-titulo"
+      class="absolute inset-x-0 bottom-0 flex max-h-[85dvh] translate-y-full flex-col rounded-t-2xl border-t border-gray-200 bg-white shadow-lg transition-transform duration-200 ease-out"
+    >
+      <div class="flex shrink-0 items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+        <div class="min-w-0">
+          <h2 id="filtros-sheet-titulo" class="text-base font-semibold tracking-tight text-gray-900">Filtros</h2>
+          <p class="text-xs text-gray-500">Período, contas e categorias</p>
+        </div>
+        <button type="button" id="btn-fechar-filtros-sheet" class="shrink-0 rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40" aria-label="Fechar filtros">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+        {% with filtros_embed="sheet" %}
+          {% include 'relatorios/partials/filtros_relatorio_form.html' %}
+        {% endwith %}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -320,77 +360,167 @@ document.getElementById('btn-export-csv')?.addEventListener('click', () => {
     .catch(() => alert('Não foi possível iniciar a exportação. Verifique sua sessão e tente de novo.'));
 });
 (function () {
+  const MQ_LG = '(min-width: 1024px)';
   const layout = document.getElementById('dashboard-layout');
-  const panel = document.getElementById('filtros-painel-lateral');
+  const drawer = document.getElementById('filtros-painel-lateral');
   const kpiSection = document.getElementById('secao-kpis');
-  if (!panel || !layout) return;
+  const sheetRoot = document.getElementById('filtros-sheet-root');
+  const sheetBackdrop = document.getElementById('filtros-sheet-backdrop');
+  const sheetPanel = document.getElementById('filtros-sheet-panel');
   const openBtn = document.getElementById('btn-abrir-filtros');
-  const closeBtn = document.getElementById('btn-fechar-filtros-panel');
-  let animTimer = null;
+  const closeDrawerBtn = document.getElementById('btn-fechar-filtros-panel');
+  const closeSheetBtn = document.getElementById('btn-fechar-filtros-sheet');
+  if (!openBtn || !layout) return;
 
-  const isOpen = () => !panel.classList.contains('hidden');
+  let drawerTimer = null;
+  let sheetOpen = false;
+  let bodyLockedBySheet = false;
 
-  const alinharComKpis = () => {
-    if (!kpiSection) return;
+  const isDesktop = () => window.matchMedia(MQ_LG).matches;
+
+  const lockBody = () => {
+    if (document.documentElement.classList.contains('sidebar-open')) return;
+    document.body.style.overflow = 'hidden';
+    bodyLockedBySheet = true;
+  };
+
+  const unlockBody = () => {
+    if (!bodyLockedBySheet) return;
+    if (!document.documentElement.classList.contains('sidebar-open')) {
+      document.body.style.overflow = '';
+    }
+    bodyLockedBySheet = false;
+  };
+
+  const drawerIsOpen = () =>
+    drawer && !drawer.classList.contains('hidden') && drawer.classList.contains('opacity-100');
+
+  const alinharDrawerComKpis = () => {
+    if (!kpiSection || !drawer) return;
     const top = Math.max(16, kpiSection.offsetTop || 0);
-    panel.style.top = `${top}px`;
+    drawer.style.top = `${top}px`;
+  };
+
+  const closeDrawer = () => {
+    if (!drawer || !drawerIsOpen()) return;
+    if (drawerTimer) clearTimeout(drawerTimer);
+    drawer.classList.remove('opacity-100', 'translate-x-0', 'pointer-events-auto');
+    drawer.classList.add('opacity-0', 'translate-x-2', 'pointer-events-none');
+    drawerTimer = setTimeout(() => {
+      drawer.classList.add('hidden');
+    }, 180);
+    drawer.setAttribute('aria-hidden', 'true');
+  };
+
+  const openDrawer = () => {
+    if (!drawer) return;
+    alinharDrawerComKpis();
+    if (drawerTimer) clearTimeout(drawerTimer);
+    drawer.classList.remove('hidden', 'opacity-0', 'translate-x-2', 'pointer-events-none');
+    requestAnimationFrame(() => {
+      drawer.classList.add('opacity-100', 'translate-x-0', 'pointer-events-auto');
+    });
+    drawer.setAttribute('aria-hidden', 'false');
+    closeDrawerBtn?.focus();
+  };
+
+  const closeSheet = () => {
+    if (!sheetRoot || !sheetPanel || !sheetBackdrop || !sheetOpen) return;
+    sheetOpen = false;
+    sheetPanel.classList.add('translate-y-full');
+    sheetBackdrop.classList.remove('opacity-100');
+    sheetBackdrop.classList.add('opacity-0');
+    sheetRoot.classList.add('pointer-events-none');
+    sheetRoot.setAttribute('aria-hidden', 'true');
+    unlockBody();
+    if (typeof window.resizeDashboardCharts === 'function') {
+      window.resizeDashboardCharts();
+    }
+  };
+
+  const openSheet = () => {
+    if (!sheetRoot || !sheetPanel || !sheetBackdrop) return;
+    sheetOpen = true;
+    sheetRoot.classList.remove('pointer-events-none');
+    sheetRoot.setAttribute('aria-hidden', 'false');
+    sheetBackdrop.classList.remove('opacity-0');
+    sheetBackdrop.classList.add('opacity-100');
+    requestAnimationFrame(() => {
+      sheetPanel.classList.remove('translate-y-full');
+    });
+    lockBody();
+    closeSheetBtn?.focus();
+  };
+
+  const closeAll = () => {
+    closeDrawer();
+    closeSheet();
+    openBtn.setAttribute('aria-expanded', 'false');
   };
 
   const open = () => {
-    if (window.matchMedia('(max-width: 1023px)').matches) return;
-    alinharComKpis();
-    if (animTimer) clearTimeout(animTimer);
-    panel.classList.remove('hidden', 'opacity-0', 'translate-x-2', 'pointer-events-none');
-    requestAnimationFrame(() => {
-      panel.classList.add('opacity-100', 'translate-x-0', 'pointer-events-auto');
-    });
-    panel.setAttribute('aria-hidden', 'false');
-    openBtn?.setAttribute('aria-expanded', 'true');
-    closeBtn?.focus();
-  };
-
-  const close = () => {
-    if (!isOpen()) return;
-    if (animTimer) clearTimeout(animTimer);
-    panel.classList.remove('opacity-100', 'translate-x-0', 'pointer-events-auto');
-    panel.classList.add('opacity-0', 'translate-x-2', 'pointer-events-none');
-    animTimer = setTimeout(() => {
-      panel.classList.add('hidden');
-    }, 180);
-    panel.setAttribute('aria-hidden', 'true');
-    openBtn?.setAttribute('aria-expanded', 'false');
-    openBtn?.focus();
+    if (isDesktop()) {
+      closeSheet();
+      openDrawer();
+    } else {
+      closeDrawer();
+      openSheet();
+    }
+    openBtn.setAttribute('aria-expanded', 'true');
   };
 
   const toggle = (e) => {
     e.stopPropagation();
-    if (isOpen()) close();
-    else open();
+    const anyOpen = drawerIsOpen() || sheetOpen;
+    if (anyOpen) {
+      closeAll();
+      openBtn.focus();
+    } else {
+      open();
+    }
   };
 
-  openBtn?.addEventListener('click', toggle);
-  closeBtn?.addEventListener('click', (e) => {
+  openBtn.addEventListener('click', toggle);
+  closeDrawerBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    close();
+    closeAll();
+    openBtn.focus();
+  });
+  closeSheetBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeAll();
+    openBtn.focus();
+  });
+  sheetBackdrop?.addEventListener('click', () => {
+    closeAll();
+    openBtn.focus();
   });
 
   document.addEventListener(
     'click',
     (e) => {
-      if (!isOpen()) return;
-      if (panel.contains(e.target)) return;
-      if (openBtn && openBtn.contains(e.target)) return;
-      close();
+      if (!drawerIsOpen()) return;
+      if (drawer.contains(e.target)) return;
+      if (openBtn.contains(e.target)) return;
+      closeAll();
+      openBtn.focus();
     },
     true,
   );
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen()) close();
+    if (e.key === 'Escape' && (drawerIsOpen() || sheetOpen)) {
+      closeAll();
+      openBtn.focus();
+    }
   });
 
+  let resizeTimer = null;
   window.addEventListener('resize', () => {
-    if (isOpen()) alinharComKpis();
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      closeAll();
+    }, 150);
   });
 })();
 </script>

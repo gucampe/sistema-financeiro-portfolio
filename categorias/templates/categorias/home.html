@@ -100,7 +100,8 @@
       </span>
     </div>
 
-    <table class="w-full text-sm text-left text-fg">
+    <div class="table-scroll">
+    <table class="w-full min-w-[20rem] text-sm text-left text-fg">
       <thead class="border-b border-gray-200 uppercase text-xs text-fg-muted">
         <tr>
           <th class="py-2">Categoria</th>
@@ -194,7 +195,8 @@
       <i id="icon-accordion-arquivadas" class="fas fa-chevron-down text-sm transition-transform"></i>
     </button>
     <div id="conteudo-arquivadas" class="hidden border-t border-gray-100">
-      <table class="w-full text-sm text-left text-fg">
+      <div class="table-scroll">
+      <table class="w-full min-w-[20rem] text-sm text-left text-fg">
         <thead class="border-b border-gray-200 uppercase text-xs text-fg-muted">
           <tr>
             <th class="py-2 px-6">Categoria</th>
@@ -266,6 +268,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>

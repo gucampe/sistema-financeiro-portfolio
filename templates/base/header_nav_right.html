@@ -13,10 +13,10 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 6h18M3 14h18M3 18h18" />
       </svg>
     </span>
-    <span>Tutoriais</span>
+    <span class="hidden sm:inline">Tutoriais</span>
   </button>
 
-  <div class="flex min-w-0 items-center justify-end">
+  <div class="hidden min-w-0 items-center justify-end md:flex">
     <p class="max-w-[9rem] truncate text-right text-sm font-medium leading-tight text-gray-800 sm:max-w-[15rem]">
       {% if request.user.is_authenticated %}
         Olá, {{ request.user.nome }}

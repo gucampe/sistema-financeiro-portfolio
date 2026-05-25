@@ -14,15 +14,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto p-2 max-w-5xl">
+<div class="relative mx-auto max-w-5xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
   {% include 'relatorios/partials/navegacao_relatorios.html' %}
   {% include 'relatorios/partials/filtros_barra.html' %}
 
   <h2 class="text-xl font-semibold mb-1">Despesas por categoria</h2>
   <p class="text-sm text-gray-500 mb-4">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }} · Total: {{ totais.despesas|moeda }}</p>
 
-  <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-    <table class="w-full text-sm">
+  <div class="table-scroll bg-white shadow-sm">
+    <table class="w-full min-w-[28rem] text-sm">
       <thead class="bg-gray-50 text-left text-gray-600">
         <tr>
           <th class="px-4 py-3">Categoria</th>

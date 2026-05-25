@@ -1,114 +1,78 @@
-<div id="overlay-adicionar-categoria"
-     class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 opacity-0">
+<div id="overlay-adicionar-categoria" class="modal-overlay hidden">
 
-  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg relative transform scale-95 transition-all duration-300 border border-gray-200">
+  <div class="modal-panel mx-auto w-full max-w-lg">
+    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5">
+      <div class="min-w-0 pr-2">
+        <h2 class="text-xl font-semibold leading-tight text-fg sm:text-2xl">Nova Categoria</h2>
+        <p class="text-sm text-fg-muted">Defina tipo, nome, ícone e cor.</p>
+      </div>
+      <button id="btn-fechar-categoria"
+              type="button"
+              class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-fg transition hover:bg-gray-200"
+              aria-label="Fechar modal">
+        ✕
+      </button>
+    </div>
 
-    <!-- Botão fechar -->
-    <button id="btn-fechar-categoria"
-            type="button"
-            class="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition text-fg bg-gray-200/80 hover:bg-gray-300"
-            aria-label="Fechar modal">
-      ✕
-    </button>
-
-    <h2 class="text-2xl font-semibold mb-1 text-fg">
-      Nova Categoria
-    </h2>
-    <p class="text-sm mb-6 text-fg-muted">
-      Defina tipo, nome, ícone e cor para organizar melhor seu controle financeiro.
-    </p>
-
-    <!-- Mensagem de erro -->
     <div id="erro-categoria"
-         class="hidden mb-4 p-3 rounded-lg text-sm border border-danger-border bg-danger-soft text-danger">
+         class="hidden shrink-0 mx-5 mt-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger sm:mx-6">
     </div>
 
     <form id="form-adicionar-categoria"
           method="POST"
-          action="{% url 'categorias:adicionar' %}">
+          action="{% url 'categorias:adicionar' %}"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden">
       {% csrf_token %}
 
-      <!-- Tipo -->
-      <div class="mb-4">
-        <label for="tipo" class="block text-sm font-medium mb-1 text-fg">
-          Tipo
-        </label>
+      <div class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">
+      <div>
+        <label for="tipo" class="mb-1 block text-sm font-medium text-fg">Tipo</label>
         <select name="tipo" id="tipo" required class="input w-full">
           <option value="despesa">Despesa</option>
           <option value="receita">Receita</option>
         </select>
       </div>
 
-      <!-- Nome -->
-      <div class="mb-4">
-        <label for="nome" class="block text-sm font-medium mb-1 text-fg">
-          Nome
-        </label>
-        <input type="text"
-               name="nome"
-               id="nome"
-               required
-               class="input w-full"
-               placeholder="Ex.: Supermercado">
+      <div>
+        <label for="nome" class="mb-1 block text-sm font-medium text-fg">Nome</label>
+        <input type="text" name="nome" id="nome" required class="input w-full" placeholder="Ex.: Supermercado">
       </div>
 
-      <!-- Ícone -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-2 text-fg">
-          Ícone
-        </label>
-
+      <div>
+        <label class="mb-2 block text-sm font-medium text-fg">Ícone</label>
         <div id="icon-grid" class="grid grid-cols-6 gap-3">
           {% for value in icones %}
-            <div class="relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
+            <div class="relative flex cursor-pointer items-center justify-center rounded-lg border border-gray-300 p-3 transition hover:bg-gray-100"
                  data-value="{{ value }}">
               <i class="fas {{ value }} text-xl text-fg"></i>
-
-              <!-- Check -->
-              <span class="check-icon hidden absolute top-1 right-1 text-xs font-bold text-brand-600">
-                ✔
-              </span>
+              <span class="check-icon absolute right-1 top-1 hidden text-xs font-bold text-brand-600">✔</span>
             </div>
           {% endfor %}
         </div>
-
         <input type="hidden" name="icone" id="icone" required>
-        <p class="mt-2 text-xs text-fg-muted">
-          Dica: escolha um ícone simples para reconhecer rapidamente a categoria.
-        </p>
       </div>
 
-      <!-- Cor -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium mb-2 text-fg">
-          Cor
-        </label>
-
+      <div>
+        <label class="mb-2 block text-sm font-medium text-fg">Cor</label>
         <div id="color-grid" class="grid grid-cols-8 gap-3">
           {% for value, label in cores %}
-            <div class="relative cursor-pointer w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center transition hover:scale-105"
+            <div class="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-gray-300 transition hover:scale-105"
                  style="background-color: {{ value }};"
                  data-value="{{ value }}"
                  title="{{ label }}">
-              <span class="check-color hidden text-white text-sm font-bold">✔</span>
+              <span class="check-color hidden text-sm font-bold text-white">✔</span>
             </div>
           {% endfor %}
         </div>
-
         <input type="hidden" name="cor" id="cor" required>
         <input type="hidden" name="categoria_id" id="categoria_id">
       </div>
+      </div>
 
-      <!-- Botão salvar -->
-      <button type="submit" class="btn btn-primary btn-block">
-        Salvar
-      </button>
-
-      <!-- microtexto -->
-      <p class="text-xs mt-3 text-center text-fg-muted">
-        Você pode editar ou excluir categorias depois, quando quiser.
-      </p>
-
+      <div class="shrink-0 border-t border-gray-100 px-5 py-4 sm:px-6">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        <p class="mt-3 text-center text-xs text-fg-muted">Você pode editar ou excluir categorias depois.</p>
+      </div>
     </form>
   </div>
 </div>

@@ -19,13 +19,16 @@
     @apply min-h-full bg-surface px-3 py-6 sm:px-6 sm:py-8 lg:px-6;
   }
 
-  /* Painel flutuante de filtros (visão geral — sem overlay fullscreen) */
-  .filtros-painel-floating {
-    @apply fixed right-6 top-20 z-[200] flex w-80 max-h-[min(36rem,calc(100dvh-6rem))] flex-col overflow-hidden rounded-2xl border border-gray-200/90 bg-white p-0 shadow-xl transition-all duration-200 ease-out opacity-0 invisible scale-95 translate-x-2 pointer-events-none;
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/55 p-3 sm:p-4 md:p-6;
   }
 
-  .filtros-painel-floating--aberto {
-    @apply pointer-events-auto visible translate-x-0 scale-100 opacity-100;
+  .modal-panel {
+    @apply my-auto flex w-full max-w-lg min-h-0 max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl;
+  }
+
+  .table-scroll {
+    @apply overflow-x-auto rounded-xl ring-1 ring-gray-100/80;
   }
 
   .card {
