@@ -34,6 +34,12 @@
     form.submit();
   }
 
+  window.solicitarExclusaoTransacao = function (id) {
+    if (!id) return;
+    idTransacaoParaExcluir = String(id);
+    abrirModal();
+  };
+
   document.addEventListener("click", function (e) {
     var excluir = e.target.closest(".excluir-transacao");
     if (excluir) {
@@ -41,8 +47,7 @@
       e.stopPropagation();
       var id = excluir.getAttribute("data-id");
       if (!id) return;
-      idTransacaoParaExcluir = id;
-      abrirModal();
+      window.solicitarExclusaoTransacao(id);
       return;
     }
 

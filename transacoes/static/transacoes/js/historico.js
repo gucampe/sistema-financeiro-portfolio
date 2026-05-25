@@ -1,6 +1,49 @@
 document.addEventListener("DOMContentLoaded", () => {
   const dropdownMeses = document.getElementById("dropdown-meses");
   const dropdownPersonalizado = document.getElementById("dropdown-personalizado");
+  const MQ_MOBILE = "(max-width: 767px)";
+
+  function isMobileHistorico() {
+    return window.matchMedia(MQ_MOBILE).matches;
+  }
+
+  function ativarToqueLancamento(e) {
+    if (!isMobileHistorico()) return;
+    if (e.target.closest("a, button, summary, input, select, label")) return;
+
+    const faturaRow = e.target.closest(".historico-lancamento-fatura[data-fatura-url]");
+    if (faturaRow) {
+      window.location.href = faturaRow.dataset.faturaUrl;
+      return;
+    }
+
+    const row = e.target.closest(".historico-lancamento[data-transacao-id]");
+    if (!row) return;
+    const id = row.dataset.transacaoId;
+    if (!id || typeof window.abrirModalEditarTransacao !== "function") return;
+    e.preventDefault();
+    window.abrirModalEditarTransacao(id);
+  }
+
+  document.addEventListener("click", ativarToqueLancamento);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (!isMobileHistorico()) return;
+    const faturaRow = e.target.closest(".historico-lancamento-fatura[data-fatura-url]");
+    if (faturaRow) {
+      e.preventDefault();
+      window.location.href = faturaRow.dataset.faturaUrl;
+      return;
+    }
+    const row = e.target.closest(".historico-lancamento[data-transacao-id]");
+    if (!row) return;
+    e.preventDefault();
+    const id = row.dataset.transacaoId;
+    if (id && typeof window.abrirModalEditarTransacao === "function") {
+      window.abrirModalEditarTransacao(id);
+    }
+  });
 
   document.addEventListener("click", (e) => {
     if (dropdownMeses && !dropdownMeses.contains(e.target)) {

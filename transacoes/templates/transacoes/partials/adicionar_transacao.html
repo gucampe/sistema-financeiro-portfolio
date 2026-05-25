@@ -4,7 +4,7 @@
 <div id="overlay-adicionar" 
      class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50 p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden">
 
-  <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-gray-200 my-auto">
+  <div class="bg-white rounded-2xl shadow-lg px-4 py-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-gray-200 my-auto">
 
     <!-- Botão fechar -->
     <button id="btn-fechar"
@@ -31,14 +31,15 @@
       {% csrf_token %}
 
       <!-- Corpo rolável: campos (listas absolutas dos comboboxes ficam dentro desta área) -->
-      <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+      <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] max-md:pr-1.5">
+      <div class="min-w-0 w-full max-w-full max-md:max-w-[calc(100%-4px)]">
 
       <!-- Tipo -->
-      <div class="mb-4">
+      <div class="mb-4 min-w-0">
         <label for="tipo" class="block text-sm font-medium mb-1 text-fg">Tipo</label>
         {% firstof form.tipo.value form.initial.tipo "despesa" as tipo_atual %}
         <select name="tipo" id="tipo" required
-                class="input w-full">
+                class="input w-full max-w-full min-w-0">
           <option value="despesa" {% if tipo_atual == "despesa" %}selected{% endif %}>Despesa</option>
           <option value="receita" {% if tipo_atual == "receita" %}selected{% endif %}>Receita</option>
           <option value="ajuste" {% if tipo_atual == "ajuste" %}selected{% endif %}>Ajuste</option>
@@ -46,11 +47,11 @@
       </div>
 
       <!-- Conta/Cartão (select unificado + combobox; conta e cartão via hidden) -->
-      <div class="mb-4" data-combobox-root="conta-cartao-unificado">
+      <div class="mb-4 min-w-0" data-combobox-root="conta-cartao-unificado">
         <label {% if form.conta.field.queryset or form.cartao.field.queryset %}for="id_conta_cartao"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta/Cartão</label>
         {% if form.conta.field.queryset or form.cartao.field.queryset %}
         <div class="sr-only" aria-hidden="true">{{ form.conta }}{{ form.cartao }}</div>
-        <div class="relative mt-1">
+        <div class="relative mt-1 min-w-0">
           <select id="id_conta_cartao" required
                   class="sr-only focus:outline-none">
             <option value="">Selecione conta ou cartão</option>
@@ -77,7 +78,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-conta-cartao">
@@ -115,9 +116,9 @@
       </div>
 
       <!-- Categoria (select nativo + combobox visual) -->
-      <div class="mb-4" data-combobox-root="categoria">
+      <div class="mb-4 min-w-0" data-combobox-root="categoria">
         <label for="categoria" class="block text-sm font-medium mb-1 text-fg">Categoria</label>
-        <div class="relative mt-1">
+        <div class="relative mt-1 min-w-0">
           <select name="categoria" id="categoria" required
                   class="sr-only focus:outline-none">
             <option value="">Selecione uma categoria</option>
@@ -131,7 +132,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-categoria">
@@ -151,26 +152,27 @@
       </div>
 
       <!-- Valor -->
-      <div class="mb-4">
+      <div class="mb-4 min-w-0">
         <label for="valor" class="block text-sm font-medium mb-1 text-fg">Valor (R$)</label>
         <input type="number" step="0.01" name="valor" id="valor" required
-               class="input w-full">
+               class="input w-full max-w-full min-w-0">
       </div>
 
       <!-- Descrição -->
-      <div class="mb-4">
+      <div class="mb-4 min-w-0">
         <label for="descricao" class="block text-sm font-medium mb-1 text-fg">Descrição</label>
         <input type="text" name="descricao" id="descricao" required
-               class="input w-full">
+               class="input w-full max-w-full min-w-0">
       </div>
 
       <!-- Data -->
-      <div class="mb-4">
+      <div class="mb-4 min-w-0">
         <label for="data" class="block text-sm font-medium mb-1 text-fg">Data</label>
         <input type="date" name="data" id="data" required
-               class="input w-full">
+               class="input w-full max-w-full min-w-0">
       </div>
 
+      </div>
       </div>
 
       <!-- Rodapé fixo: ação + texto -->
@@ -180,6 +182,11 @@
                 class="btn btn-primary btn-block disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-[0_2px_8px_rgba(22,163,74,0.35)]"
                 {% if not form.conta.field.queryset and not form.cartao.field.queryset %}disabled aria-disabled="true"{% endif %}>
           Salvar
+        </button>
+        <button type="button"
+                id="btn-excluir-transacao-modal"
+                class="btn btn-danger btn-block mt-2 hidden md:hidden">
+          Excluir transação
         </button>
 
         <p class="text-xs mt-3 text-center text-fg-muted">

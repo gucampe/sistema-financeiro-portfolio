@@ -150,7 +150,20 @@
           <p class="text-[12px] font-medium text-gray-500 mb-2">{{ dia.data|date:"d/m/Y" }}</p>
           <ul class="divide-y divide-gray-50">
             {% for transacao in dia.transacoes %}
-            <li class="group relative py-2.5 hover:bg-surface-muted transition -mx-4 px-4 sm:-mx-5 sm:px-5">
+            <li
+              class="group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5 md:cursor-default md:active:bg-transparent {% if transacao.is_resumo_fatura %}historico-lancamento-fatura cursor-pointer{% else %}historico-lancamento cursor-pointer{% endif %}"
+              {% if transacao.is_resumo_fatura %}
+              data-fatura-url="{% url 'cartoes:fatura_detalhe' transacao.cartao.id transacao.fatura.id %}"
+              role="button"
+              tabindex="0"
+              aria-label="Abrir fatura {{ transacao.cartao.nome }}"
+              {% else %}
+              data-transacao-id="{{ transacao.id }}"
+              role="button"
+              tabindex="0"
+              aria-label="Editar transação {{ transacao.descricao }}"
+              {% endif %}
+            >
               <div class="min-w-0 md:overflow-x-auto md:overflow-y-visible md:overscroll-x-contain md:-mx-4 md:px-4 lg:mx-0 lg:px-0 lg:overflow-visible">
               <div class="min-w-0 md:min-w-[42rem] lg:min-w-0">
               <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-4">
@@ -289,11 +302,11 @@
   </div>
 </div>
 
-<script src="{% static 'transacoes/js/historico.js' %}"></script>
 <script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
-<script src="{% static 'transacoes/js/importar_ofx.js' %}"></script>
-<script src="{% static 'transacoes/js/importar_planilha.js' %}"></script>
 <script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
+<script src="{% static 'transacoes/js/historico.js' %}"></script>
+<script src="{% static 'transacoes/js/importar_ofx.js' %}"></script>
+<script src="{% static 'transacoes/js/importar_planilha.js' %}"></script>
 {% endblock %}

@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const hiddenCartao = document.getElementById("id_cartao");
   const hintCartao = document.getElementById("conta-cartao-hint-cartao");
   const modalHeader = overlay?.querySelector("h2");
+  const btnExcluirModal = document.getElementById("btn-excluir-transacao-modal");
 
   let contaCombobox = null;
   let categoriaCombobox = null;
@@ -169,8 +170,41 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") fecharComboboxes();
   });
 
+  function atualizarBotaoExcluirModal(editandoId) {
+    if (!btnExcluirModal) return;
+    if (editandoId) {
+      btnExcluirModal.classList.remove("hidden");
+    } else {
+      btnExcluirModal.classList.add("hidden");
+    }
+  }
+
+  function abrirModalEditar(id) {
+    if (!id) return;
+    fetch(`/transacoes/${id}/editar/?ajax=1`)
+      .then((r) => r.json())
+      .then((data) => {
+        overlay.dataset.editando = id;
+        if (modalHeader) modalHeader.textContent = "Editar Transação";
+        selectTipo.value = data.tipo;
+        document.getElementById("valor").value = data.valor;
+        document.getElementById("descricao").value = data.descricao;
+        document.getElementById("data").value = data.data;
+        window.applyUnifiedContaCartaoParaEdicao?.(data);
+        popularCategorias(data.tipo, data.categoria.id);
+        limparErroContaAjax();
+        atualizarBotaoExcluirModal(id);
+        overlay.classList.remove("hidden");
+        setTimeout(() => overlay.classList.remove("opacity-0"), 10);
+      })
+      .catch((err) => console.error("Erro ao carregar transação:", err));
+  }
+
+  window.abrirModalEditarTransacao = abrirModalEditar;
+
   btnAbrir?.addEventListener("click", () => {
     overlay.dataset.editando = "";
+    atualizarBotaoExcluirModal("");
     if (modalHeader) modalHeader.textContent = "Nova Transação";
     const tipo = selectTipo?.value || "despesa";
     if (!tipo) return;
@@ -184,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.classList.add("opacity-0");
     setTimeout(() => overlay.classList.add("hidden"), 300);
     overlay.dataset.editando = "";
+    atualizarBotaoExcluirModal("");
     fecharComboboxes();
     form.reset();
     aplicarCartaoPreSelecionado();
@@ -196,27 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === overlay) fecharModal();
   });
 
-  document.addEventListener("click", (e) => {
-    const editar = e.target.closest(".editar-transacao");
-    if (!editar) return;
-    const id = editar.dataset.id;
-
-    fetch(`/transacoes/${id}/editar/?ajax=1`)
-      .then((r) => r.json())
-      .then((data) => {
-        overlay.dataset.editando = id;
-        if (modalHeader) modalHeader.textContent = "Editar Transação";
-        selectTipo.value = data.tipo;
-        document.getElementById("valor").value = data.valor;
-        document.getElementById("descricao").value = data.descricao;
-        document.getElementById("data").value = data.data;
-        window.applyUnifiedContaCartaoParaEdicao?.(data);
-        popularCategorias(data.tipo, data.categoria.id);
-        limparErroContaAjax();
-        overlay.classList.remove("hidden");
-        setTimeout(() => overlay.classList.remove("opacity-0"), 10);
-      })
-      .catch((err) => console.error("Erro ao carregar transação:", err));
+  btnExcluirModal?.addEventListener("click", () => {
+    const id = overlay.dataset.editando;
+    if (!id) return;
+    fecharModal();
+    if (typeof window.solicitarExclusaoTransacao === "function") {
+      window.solicitarExclusaoTransacao(id);
+    }
   });
 
   form?.addEventListener("submit", async (e) => {
