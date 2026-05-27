@@ -145,3 +145,5 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
         css = f"{INPUT_CONTROL_CLASSES} !pr-12"
         for f in self.fields.values():
             f.widget.attrs.setdefault("class", css)
+        # Evita foco automático em "senha antiga" ao abrir a página de configurações.
+        self.fields["old_password"].widget.attrs.pop("autofocus", None)

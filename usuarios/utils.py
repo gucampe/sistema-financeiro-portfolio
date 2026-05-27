@@ -1,3 +1,10 @@
+def primeiro_nome(nome: str) -> str:
+    nome = (nome or "").strip()
+    if not nome:
+        return ""
+    return nome.split()[0]
+
+
 def iniciais_avatar(nome: str) -> str:
     nome = (nome or "").strip()
     if not nome:

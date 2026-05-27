@@ -1,0 +1,12 @@
+{% load static %}
+{# Marca no header (mobile). Em md+ o breadcrumb da página é exibido. #}
+<a
+  class="app-header-brand"
+  href="{% url 'relatorios:home' %}"
+  title="GranaGo — início"
+>
+  <span class="app-header-brand__mark">
+    <img src="{% static 'img/icons/logo.svg' %}" alt="" width="28" height="32" />
+  </span>
+  <span class="app-header-brand__text">GranaGo</span>
+</a>

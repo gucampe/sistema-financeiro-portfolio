@@ -97,8 +97,75 @@ html.sidebar-open .app-sidebar {
   gap: 1rem;
 }
 
-.app-sidebar__brand {
+/* Topo da sidebar: mobile = usuário; desktop = marca GranaGo */
+.app-sidebar__brand.app-sidebar__brand--desktop {
+  display: none;
+}
+
+.app-sidebar__user--mobile {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.5rem;
+  text-decoration: none;
+  color: var(--sidebar-text);
+  border-radius: 0.5rem;
+  transition: background 0.2s ease;
+}
+
+.app-sidebar__user--mobile:hover {
+  background: var(--sidebar-hover);
+}
+
+.app-sidebar__user-photo,
+.app-sidebar__user-avatar {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(209 213 219 / 0.8);
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.app-sidebar__user-photo {
+  display: block;
+  object-fit: cover;
+}
+
+.app-sidebar__user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #f3f4f6, rgb(229 231 235 / 0.9));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #4b5563;
+}
+
+.app-sidebar__user-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .app-sidebar__brand.app-sidebar__brand--desktop {
+    display: flex;
+  }
+
+  .app-sidebar__user--mobile {
+    display: none;
+  }
+}
+
+.app-sidebar__brand {
   align-items: center;
   gap: 0.65rem;
   padding: 0.5rem;
@@ -434,6 +501,85 @@ html.sidebar-open .app-sidebar-overlay {
   box-shadow:
     0 1px 2px 0 rgb(15 23 42 / 0.04),
     0 2px 8px -2px rgb(15 23 42 / 0.06);
+}
+
+/* ---------- Header: marca (mobile) ---------- */
+
+.app-header-brand {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.5rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-decoration: none;
+  color: inherit;
+  line-height: 1;
+}
+
+/* Caixa do ícone: elimina “gap” de baseline abaixo do SVG */
+.app-header-brand__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  line-height: 0;
+}
+
+.app-header-brand__mark img {
+  display: block;
+  width: auto;
+  height: 1.75rem;
+  max-width: 2rem;
+  object-fit: contain;
+  object-position: center;
+}
+
+.app-header-brand__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-brand-600, #16a34a);
+  /* Desce levemente o texto para alinhar ao centro visual do ícone */
+  transform: translateY(0.1em);
+}
+
+/* Smartphone: marca GranaGo. Tablet/desktop (≥768px): breadcrumb da página. */
+@media (min-width: 768px) {
+  .app-header-brand {
+    display: none;
+  }
+}
+
+.app-header-breadcrumb-wrap {
+  display: none;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+@media (min-width: 768px) {
+  .app-header-breadcrumb-wrap {
+    display: block;
+  }
+}
+
+/* Tutoriais: só em tablet/desktop (≥768px). */
+.app-header-tutoriais {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .app-header-tutoriais {
+    display: inline-flex;
+  }
 }
 
 /* ---------- Header: breadcrumb (MVP — um nível; <ol> prepara evolução) ---------- */

@@ -1,4 +1,4 @@
-from usuarios.utils import iniciais_avatar
+from usuarios.utils import iniciais_avatar, primeiro_nome
 
 
 def perfil_header(request):
@@ -13,4 +13,5 @@ def perfil_header(request):
     return {
         "header_foto_url": foto_url,
         "header_iniciais_avatar": iniciais_avatar(user.nome),
+        "header_primeiro_nome": primeiro_nome(user.nome),
     }
