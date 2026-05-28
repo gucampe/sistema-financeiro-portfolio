@@ -43,7 +43,7 @@
         <p class="text-lg font-semibold text-fg mt-1">Vencimento {{ fatura_destaque.data_vencimento|date:"d/m/Y" }}</p>
         <p class="text-sm text-fg-muted">Compras de {{ fatura_destaque.data_inicio_compras|date:"d/m/Y" }} a {{ fatura_destaque.data_fim_compras|date:"d/m/Y" }}</p>
       </div>
-      <div class="text-right">
+      <div class="flex flex-col items-start text-left sm:items-end sm:text-right">
         <p class="text-xs text-fg-muted">Total (despesas)</p>
         <p class="text-2xl font-bold text-fg">{{ total_destaque|moeda }}</p>
         <a href="{{ url_fatura_destaque }}"

@@ -81,47 +81,55 @@
     {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
     <ul class="divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url }}">
       {% for transacao in lancamentos %}
-        <li class="group relative py-2.5 hover:bg-surface-muted transition px-4 sm:px-5">
-          <div class="overflow-x-auto overflow-y-visible max-w-full">
-            <div class="min-w-[42rem] lg:min-w-0">
-              <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-4 min-w-0">
-                <div class="flex items-center gap-2.5 min-w-0">
+        <li
+          class="group relative px-4 py-2.5 transition hover:bg-surface-muted sm:px-5 {% if not transacao.pagamento_de_fatura_id %}historico-lancamento cursor-pointer active:bg-surface-muted md:cursor-default md:active:bg-transparent{% endif %}"
+          {% if not transacao.pagamento_de_fatura_id %}
+          data-transacao-id="{{ transacao.id }}"
+          role="button"
+          tabindex="0"
+          aria-label="Editar transação {{ transacao.descricao }}"
+          {% endif %}
+        >
+          <div class="min-w-0 md:overflow-x-auto md:overflow-y-visible md:overscroll-x-contain md:-mx-4 md:px-4 lg:mx-0 lg:px-0 lg:overflow-visible">
+            <div class="min-w-0 md:min-w-[42rem] lg:min-w-0">
+              <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-4">
+                <div class="flex min-w-0 flex-1 items-center gap-2.5 md:min-w-0">
                   <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ transacao.categoria.cor }}20] border-[{{ transacao.categoria.cor }}40]">
                     {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
                       <i class="fa-solid {{ icon_raw }} text-[15px] text-[{{ transacao.categoria.cor }}]"></i>
                     {% endwith %}
                   </div>
-                  <div class="min-w-0">
-                    <p class="text-sm font-semibold text-fg truncate leading-tight">{{ transacao.descricao }}</p>
-                    <p class="text-[12px] text-gray-500 mt-0.5 truncate leading-tight">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold leading-tight text-fg" title="{{ transacao.descricao }}">{{ transacao.descricao }}</p>
+                    <p class="mt-0.5 hidden truncate text-[12px] leading-tight text-gray-500 md:block">
                       {{ transacao.categoria.nome }} · Compra {{ transacao.data|date:"d/m/Y" }}
                     </p>
                   </div>
                 </div>
-                <div class="flex justify-center min-w-0">
-                  <div class="flex items-center gap-2 min-w-0 max-w-[11rem]">
+                <div class="hidden min-w-0 justify-center md:flex">
+                  <div class="flex min-w-0 max-w-[11rem] items-center gap-2 lg:max-w-none lg:min-w-[130px]">
                     {% if transacao.conta %}
-                      <img src="{% static transacao.conta.icone|conta_icon_path %}" alt="" class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
-                      <span class="text-[13px] font-medium text-gray-700 truncate">{{ transacao.conta.nome }}</span>
+                      <img src="{% static transacao.conta.icone|conta_icon_path %}" alt="" class="conta-icone-dinamico h-7 w-7 shrink-0 rounded-md object-contain">
+                      <span class="truncate text-[13px] font-medium text-gray-700">{{ transacao.conta.nome }}</span>
                     {% endif %}
                   </div>
                 </div>
-                <div class="shrink-0 min-w-0 flex flex-row items-center justify-end gap-3">
-                  <div class="inline-flex items-center gap-2 transition-opacity duration-150 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
+                <div class="flex min-w-0 shrink-0 flex-row items-center justify-end gap-1.5 sm:gap-2 md:gap-3">
+                  <div class="hidden shrink-0 items-center gap-2 transition-opacity duration-150 md:inline-flex md:order-1 opacity-100 pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:pointer-events-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-hover:pointer-events-auto [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:pointer-events-auto">
                     {% if not transacao.pagamento_de_fatura_id %}
-                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300" data-id="{{ transacao.id }}">
-                        <i class="fa-solid fa-pen-to-square text-sm"></i><span class="hidden sm:inline">Editar</span>
+                      <button type="button" class="editar-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-gray-800 transition hover:bg-gray-300 sm:px-4 sm:py-2" data-id="{{ transacao.id }}" title="Editar">
+                        <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i><span class="hidden sm:inline">Editar</span>
                       </button>
                     {% endif %}
-                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm text-red-600 transition hover:bg-gray-300" data-id="{{ transacao.id }}">
-                      <i class="fa-solid fa-trash text-sm"></i><span class="hidden sm:inline">Excluir</span>
+                    <button type="button" class="excluir-transacao inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-red-600 transition hover:bg-gray-300 sm:px-4 sm:py-2" data-id="{{ transacao.id }}" title="Excluir">
+                      <i class="fa-solid fa-trash text-xs"></i><span class="hidden sm:inline">Excluir</span>
                     </button>
                     {% if not transacao.pagamento_de_fatura_id %}
                       <details class="mover-menu">
-                        <summary class="inline-flex h-10 w-10 list-none cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 marker:content-none [&::-webkit-details-marker]:hidden mover-menu-trigger">
+                        <summary class="mover-menu-trigger inline-flex h-10 w-10 list-none cursor-pointer items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 marker:content-none [&::-webkit-details-marker]:hidden">
                           <i class="fa-solid fa-ellipsis text-sm"></i>
                         </summary>
-                        <div class="fixed z-[9999] w-52 rounded-xl border border-gray-200 bg-white p-1 shadow-xl mover-menu-panel" style="display:none;">
+                        <div class="mover-menu-panel fixed z-[9999] w-52 rounded-xl border border-gray-200 bg-white p-1 shadow-xl" style="display:none;">
                           <form method="post" action="{% url 'cartoes:mover_lancamento_fatura' cartao.id fatura.id transacao.id %}">
                             {% csrf_token %}
                             <input type="hidden" name="direcao" value="anterior">
@@ -142,8 +150,8 @@
                       </details>
                     {% endif %}
                   </div>
-                  <p class="text-[15px] font-semibold tracking-tight whitespace-nowrap text-right {% if transacao.tipo == 'despesa' %}text-red-500{% elif transacao.tipo == 'receita' %}text-green-600{% else %}text-gray-700{% endif %}">
-                    {% if transacao.tipo == 'despesa' %}- {{ transacao.valor|moeda }}{% elif transacao.tipo == 'receita' %}+ {{ transacao.valor|moeda }}{% else %}{{ transacao.valor|moeda }}{% endif %}
+                  <p class="shrink-0 whitespace-nowrap text-right text-[15px] font-semibold tracking-tight md:order-2 {% if transacao.tipo == 'despesa' %}text-red-500{% elif transacao.tipo == 'receita' %}text-green-600{% else %}text-gray-700{% endif %}">
+                    {% if transacao.tipo == 'despesa' %}-{{ transacao.valor|moeda }}{% elif transacao.tipo == 'receita' %}+{{ transacao.valor|moeda }}{% else %}{{ transacao.valor|moeda }}{% endif %}
                   </p>
                 </div>
               </div>
