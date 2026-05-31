@@ -22,10 +22,10 @@
 </div>
 
 <!-- Modal Migração (excluir categoria com transações) -->
-<div id="overlay-migracao-categoria"
-     class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center">
-  <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md relative border border-gray-200">
-    <h3 class="text-lg font-semibold mb-2 text-fg">Transferir transações e excluir</h3>
+<div id="overlay-migracao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-migracao-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md p-5 sm:p-6">
+    <h3 id="modal-migracao-titulo" class="text-lg font-semibold mb-2 text-fg">Transferir transações e excluir</h3>
     <p id="modal-migracao-msg" class="mb-4 text-sm text-fg-muted">
       Esta categoria está vinculada a <span id="migracao-count">0</span> transações. Escolha uma nova categoria para transferi-las.
     </p>
@@ -38,7 +38,7 @@
     </div>
     <div id="erro-migracao" class="hidden mb-4 p-3 rounded-lg text-sm text-red-600 bg-red-50 border border-red-200"></div>
     <div class="flex justify-around gap-3">
-      <button id="btn-cancelar-migracao" type="button" class="btn btn-secondary btn-sm">
+      <button id="btn-cancelar-migracao" type="button" data-modal-close class="btn btn-secondary btn-sm">
         Cancelar
       </button>
       <button id="btn-confirmar-migracao" type="button" class="btn btn-danger btn-sm">
@@ -49,13 +49,13 @@
 </div>
 
 <!-- Modal Arquivar / Excluir definitivamente -->
-<div id="overlay-acao-categoria"
-     class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center">
-  <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm text-center relative border border-gray-200">
+<div id="overlay-acao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-acao-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-sm p-5 sm:p-6 text-center">
     <h3 id="modal-acao-titulo" class="text-lg font-semibold mb-2 text-fg">Arquivar categoria?</h3>
     <p id="modal-acao-msg" class="mb-6 text-sm text-fg-muted">A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.</p>
     <div class="flex justify-around gap-3">
-      <button id="btn-cancelar-acao" type="button" class="btn btn-secondary btn-sm">
+      <button id="btn-cancelar-acao" type="button" data-modal-close class="btn btn-secondary btn-sm">
         Cancelar
       </button>
       <button id="btn-confirmar-acao" type="button" class="btn btn-warning-soft btn-sm">
@@ -80,195 +80,82 @@
   </div>
 
   <!-- Card principal -->
-  <div class="card-dense p-6 mb-6">
+  <div class="card-dense mb-0 p-4 sm:p-6">
 
     <!-- Toggle Despesa/Receita -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+    <div class="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div class="inline-flex w-full min-w-0 rounded-lg border border-gray-300 overflow-hidden sm:w-auto">
         <button type="button" id="btn-tab-despesa" data-tab="despesa"
-                class="px-3 py-2 text-sm font-semibold transition tab-cat--despesa-active">
+                class="min-w-0 flex-1 px-3 py-2.5 text-sm font-semibold transition tab-cat--despesa-active sm:flex-none">
           Despesas
         </button>
         <button type="button" id="btn-tab-receita" data-tab="receita"
-                class="px-3 py-2 text-sm font-semibold transition tab-cat--inactive">
+                class="min-w-0 flex-1 px-3 py-2.5 text-sm font-semibold transition tab-cat--inactive sm:flex-none">
           Receitas
         </button>
       </div>
-      <span id="contador-categorias" class="text-xs text-fg-muted">
-        <span class="inline-block w-2 h-2 rounded-full align-middle mr-1 bg-amber-400"></span>
-        <span class="align-middle">Gerencie suas categorias</span>
+      <span id="contador-categorias" class="flex items-center justify-center gap-1 text-xs text-fg-muted sm:inline-flex sm:shrink-0 sm:justify-end">
+        <span class="inline-block h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+        <span>Gerencie suas categorias</span>
       </span>
     </div>
 
-    <div class="table-scroll">
-    <table class="w-full min-w-[20rem] text-sm text-left text-fg">
-      <thead class="border-b border-gray-200 uppercase text-xs text-fg-muted">
-        <tr>
-          <th class="py-2">Categoria</th>
-          <th class="py-2 text-right">Ações</th>
-        </tr>
-      </thead>
+    <ul id="lista-despesa" role="list" aria-label="Categorias de despesa" class="divide-y divide-gray-100">
+      {% for categoria in categorias_ativas_despesa %}
+        {% include 'categorias/partials/categoria_item_ativa.html' %}
+      {% empty %}
+        <li role="presentation" data-empty-categoria class="px-4 py-12 text-center text-sm text-fg-muted sm:px-5">
+          Nenhuma categoria de despesa.
+        </li>
+      {% endfor %}
+    </ul>
 
-      <tbody id="tbody-despesa">
-        {% for categoria in categorias_ativas_despesa %}
-        <tr class="border-b border-gray-100 transition hover:bg-gray-50/80"
-            data-id="{{ categoria.id }}" data-tipo="despesa">
-          <td class="py-2 flex items-center gap-2">
-            <i class="fas {{ categoria.icone }}" style="color: {{ categoria.cor }};"></i>
-            <span class="nome-categoria">{{ categoria.nome }}</span>
-            {% if categoria.usuario == None %}
-              <span class="ml-2 text-xs italic text-fg-muted opacity-80">(padrão)</span>
-            {% endif %}
-          </td>
-          <td class="py-2 text-right">
-            {% if categoria.usuario %}
-            <div class="inline-flex items-center gap-2">
-              <button type="button" class="editar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white transition text-sm text-fg hover:bg-gray-100"
-                      data-id="{{ categoria.id }}" data-nome="{{ categoria.nome }}"
-                      data-icone="{{ categoria.icone }}" data-cor="{{ categoria.cor }}"
-                      data-tipo="{{ categoria.tipo }}" title="Editar">
-                <i class="fa-solid fa-pen-to-square text-xs text-brand-600"></i>
-                <span class="hidden sm:inline">Editar</span>
-              </button>
-              <button type="button" class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-warning-border bg-white transition text-sm text-warning hover:bg-amber-50"
-                      data-id="{{ categoria.id }}" title="Arquivar">
-                <i class="fa-solid fa-archive text-xs"></i>
-                <span class="hidden sm:inline">Arquivar</span>
-              </button>
-            </div>
-            {% else %}
-              <span class="text-xs italic text-fg-muted opacity-80">Não editável</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="2" class="py-4 text-center text-fg-muted">Nenhuma categoria de despesa.</td></tr>
-        {% endfor %}
-      </tbody>
+    <ul id="lista-receita" role="list" aria-label="Categorias de receita"
+        class="hidden divide-y divide-gray-100">
+      {% for categoria in categorias_ativas_receita %}
+        {% include 'categorias/partials/categoria_item_ativa.html' %}
+      {% empty %}
+        <li role="presentation" data-empty-categoria class="px-4 py-12 text-center text-sm text-fg-muted sm:px-5">
+          Nenhuma categoria de receita.
+        </li>
+      {% endfor %}
+    </ul>
 
-      <tbody id="tbody-receita" class="hidden">
-        {% for categoria in categorias_ativas_receita %}
-        <tr class="border-b border-gray-100 transition hover:bg-gray-50/80"
-            data-id="{{ categoria.id }}" data-tipo="receita">
-          <td class="py-2 flex items-center gap-2">
-            <i class="fas {{ categoria.icone }}" style="color: {{ categoria.cor }};"></i>
-            <span class="nome-categoria">{{ categoria.nome }}</span>
-            {% if categoria.usuario == None %}
-              <span class="ml-2 text-xs italic text-fg-muted opacity-80">(padrão)</span>
-            {% endif %}
-          </td>
-          <td class="py-2 text-right">
-            {% if categoria.usuario %}
-            <div class="inline-flex items-center gap-2">
-              <button type="button" class="editar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white transition text-sm text-fg hover:bg-gray-100"
-                      data-id="{{ categoria.id }}" data-nome="{{ categoria.nome }}"
-                      data-icone="{{ categoria.icone }}" data-cor="{{ categoria.cor }}"
-                      data-tipo="{{ categoria.tipo }}" title="Editar">
-                <i class="fa-solid fa-pen-to-square text-xs text-brand-600"></i>
-                <span class="hidden sm:inline">Editar</span>
-              </button>
-              <button type="button" class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-warning-border bg-white transition text-sm text-warning hover:bg-amber-50"
-                      data-id="{{ categoria.id }}" title="Arquivar">
-                <i class="fa-solid fa-archive text-xs"></i>
-                <span class="hidden sm:inline">Arquivar</span>
-              </button>
-            </div>
-            {% else %}
-              <span class="text-xs italic text-fg-muted opacity-80">Não editável</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="2" class="py-4 text-center text-fg-muted">Nenhuma categoria de receita.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Seção Arquivadas (accordion) -->
-  <div id="secao-arquivadas" class="card-dense overflow-hidden"
+  <!-- Seção Arquivadas (accordion) — secundária, mais compacta que o card principal -->
+  <div id="secao-arquivadas" class="mt-3 mb-6 overflow-hidden rounded-xl border border-gray-200/90 bg-gray-50/50"
        data-count-despesa="{{ categorias_arquivadas_despesa|length }}"
        data-count-receita="{{ categorias_arquivadas_receita|length }}">
     <button id="btn-toggle-arquivadas" type="button"
-            class="w-full flex items-center justify-between px-6 py-4 text-left transition hover:bg-gray-50 text-fg">
-      <span class="font-semibold">Arquivadas (<span id="contador-arquivadas">0</span>)</span>
-      <i id="icon-accordion-arquivadas" class="fas fa-chevron-down text-sm transition-transform"></i>
+            class="flex w-full min-h-[44px] items-center justify-between gap-3 px-4 py-2.5 text-left text-sm font-medium text-fg-muted transition hover:bg-gray-100/80 sm:px-5 sm:py-3"
+            aria-expanded="false"
+            aria-controls="conteudo-arquivadas">
+      <span class="text-fg">Arquivadas <span class="font-normal text-fg-muted">(<span id="contador-arquivadas">0</span>)</span></span>
+      <i id="icon-accordion-arquivadas" class="fas fa-chevron-down shrink-0 text-xs text-gray-400 transition-transform" aria-hidden="true"></i>
     </button>
-    <div id="conteudo-arquivadas" class="hidden border-t border-gray-100">
-      <div class="table-scroll">
-      <table class="w-full min-w-[20rem] text-sm text-left text-fg">
-        <thead class="border-b border-gray-200 uppercase text-xs text-fg-muted">
-          <tr>
-            <th class="py-2 px-6">Categoria</th>
-            <th class="py-2 text-right px-6">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-despesa-arquivadas">
-          {% for categoria in categorias_arquivadas_despesa %}
-          <tr class="border-b border-gray-100 transition hover:bg-gray-50/80"
-              data-id="{{ categoria.id }}" data-tipo="despesa">
-            <td class="py-2 px-6 flex items-center gap-2">
-              <i class="fas {{ categoria.icone }}" style="color: {{ categoria.cor }};"></i>
-              <span class="nome-categoria">{{ categoria.nome }}</span>
-              <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Arquivada</span>
-            </td>
-            <td class="py-2 text-right px-6">
-              {% if categoria.usuario %}
-              <div class="inline-flex items-center gap-2">
-                <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-success-border bg-white transition text-sm text-success hover:bg-emerald-50"
-                        data-id="{{ categoria.id }}" title="Restaurar">
-                  <i class="fa-solid fa-rotate-left text-xs"></i>
-                  <span class="hidden sm:inline">Restaurar</span>
-                </button>
-                <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger-border bg-white transition text-sm text-danger hover:bg-red-50"
-                        data-id="{{ categoria.id }}" title="Excluir definitivamente">
-                  <i class="fa-solid fa-trash text-xs"></i>
-                  <span class="hidden sm:inline">Excluir definitivamente</span>
-                </button>
-              </div>
-              {% else %}
-                <span class="text-xs italic text-fg-muted opacity-80">Não editável</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr id="empty-despesa-arquivadas"><td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td></tr>
-          {% endfor %}
-        </tbody>
-        <tbody id="tbody-receita-arquivadas" class="hidden">
-          {% for categoria in categorias_arquivadas_receita %}
-          <tr class="border-b border-gray-100 transition hover:bg-gray-50/80"
-              data-id="{{ categoria.id }}" data-tipo="receita">
-            <td class="py-2 px-6 flex items-center gap-2">
-              <i class="fas {{ categoria.icone }}" style="color: {{ categoria.cor }};"></i>
-              <span class="nome-categoria">{{ categoria.nome }}</span>
-              <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Arquivada</span>
-            </td>
-            <td class="py-2 text-right px-6">
-              {% if categoria.usuario %}
-              <div class="inline-flex items-center gap-2">
-                <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-success-border bg-white transition text-sm text-success hover:bg-emerald-50"
-                        data-id="{{ categoria.id }}" title="Restaurar">
-                  <i class="fa-solid fa-rotate-left text-xs"></i>
-                  <span class="hidden sm:inline">Restaurar</span>
-                </button>
-                <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger-border bg-white transition text-sm text-danger hover:bg-red-50"
-                        data-id="{{ categoria.id }}" title="Excluir definitivamente">
-                  <i class="fa-solid fa-trash text-xs"></i>
-                  <span class="hidden sm:inline">Excluir definitivamente</span>
-                </button>
-              </div>
-              {% else %}
-                <span class="text-xs italic text-fg-muted opacity-80">Não editável</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr id="empty-receita-arquivadas"><td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      </div>
+    <div id="conteudo-arquivadas" class="hidden border-t border-gray-100 bg-white">
+      <ul id="lista-despesa-arquivadas" role="list" aria-label="Categorias de despesa arquivadas"
+          class="divide-y divide-gray-100">
+        {% for categoria in categorias_arquivadas_despesa %}
+          {% include 'categorias/partials/categoria_item_arquivada.html' %}
+        {% empty %}
+          <li id="empty-despesa-arquivadas" role="presentation" data-empty-categoria
+              class="px-4 py-12 text-center text-sm text-fg-muted sm:px-5">
+            Nenhuma categoria arquivada.
+          </li>
+        {% endfor %}
+      </ul>
+
+      <ul id="lista-receita-arquivadas" role="list" aria-label="Categorias de receita arquivadas"
+          class="hidden divide-y divide-gray-100">
+        {% for categoria in categorias_arquivadas_receita %}
+          {% include 'categorias/partials/categoria_item_arquivada.html' %}
+        {% empty %}
+          <li id="empty-receita-arquivadas" role="presentation" data-empty-categoria
+              class="px-4 py-12 text-center text-sm text-fg-muted sm:px-5">
+            Nenhuma categoria arquivada.
+          </li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </div>

@@ -1,7 +1,8 @@
 # transacoes/forms.py
 from django import forms
 
-from core.forms_ui import INPUT_CONTROL_CLASSES
+from core.forms_ui import INPUT_CONTROL_CLASSES, MOEDA_INPUT_CLASSES, MoedaTextInput
+from core.moeda import parse_decimal_moeda_br
 
 from cartoes.models import Cartao
 from .models import Transacao
@@ -15,6 +16,7 @@ class TransacaoForm(forms.ModelForm):
         fields = ["tipo", "conta", "cartao", "categoria", "descricao", "valor", "data"]
         widgets = {
             "data": forms.DateInput(attrs={"type": "date"}),
+            "valor": MoedaTextInput(attrs={"class": MOEDA_INPUT_CLASSES}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -61,7 +63,22 @@ class TransacaoForm(forms.ModelForm):
         for name, field in self.fields.items():
             if name in ("conta", "cartao"):
                 continue
+            if name == "valor":
+                field.widget.attrs.setdefault("class", MOEDA_INPUT_CLASSES)
+                continue
             field.widget.attrs.update({"class": INPUT_CONTROL_CLASSES})
+
+    def clean_valor(self):
+        raw = self.data.get("valor")
+        if raw in (None, ""):
+            raise forms.ValidationError("Informe o valor.")
+        try:
+            valor = parse_decimal_moeda_br(raw)
+        except ValueError:
+            raise forms.ValidationError("Valor inválido.")
+        if valor < 0:
+            raise forms.ValidationError("O valor não pode ser negativo.")
+        return valor
 
     def clean_conta(self):
         conta = self.cleaned_data.get("conta")

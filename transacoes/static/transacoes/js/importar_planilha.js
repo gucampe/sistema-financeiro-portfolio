@@ -84,19 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function fecharModal() {
     contaComboboxPlanilha?.close();
-    overlay.classList.add("opacity-0");
-    setTimeout(() => {
-      overlay.classList.add("hidden");
-      resetModal();
-    }, 300);
+    resetModal();
   }
 
   function abrirModal() {
     resetModal();
-    overlay.classList.remove("hidden");
-    requestAnimationFrame(() => {
-      overlay.classList.remove("opacity-0");
-    });
+    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir });
   }
 
   /** Tempo do fade “leave” antes da troca de passo (alinha ao opacity ~0,65s no CSS + folga). */
@@ -217,12 +210,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputCellClass =
     "w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
 
-  /** Normaliza string digitada (vírgula → ponto) e devolve número finito ou NaN. */
   function parseValorDigitado(raw) {
-    if (raw === undefined || raw === null) return Number.NaN;
-    const s = String(raw).trim().replace(/\s/g, "").replace(",", ".");
-    if (s === "") return Number.NaN;
-    return Number.parseFloat(s);
+    if (raw instanceof HTMLInputElement) {
+      const dec =
+        window.MoedaInput && typeof window.MoedaInput.parseToDecimalString === "function"
+          ? window.MoedaInput.parseToDecimalString(raw)
+          : "0.00";
+      const n = Number.parseFloat(dec);
+      return n <= 0 ? Number.NaN : n;
+    }
+    if (!String(raw || "").replace(/\D/g, "")) return Number.NaN;
+    const dec =
+      window.MoedaInput && typeof window.MoedaInput.parseToDecimalString === "function"
+        ? window.MoedaInput.parseToDecimalString(raw)
+        : String(raw).trim().replace(/\s/g, "").replace(",", ".");
+    const n = Number.parseFloat(dec);
+    return Number.isNaN(n) ? Number.NaN : n;
+  }
+
+  function valorParaBackend(raw) {
+    if (
+      raw instanceof HTMLInputElement &&
+      window.MoedaInput &&
+      typeof window.MoedaInput.parseToDecimalString === "function"
+    ) {
+      return window.MoedaInput.parseToDecimalString(raw);
+    }
+    if (window.MoedaInput && typeof window.MoedaInput.parseToDecimalString === "function") {
+      return window.MoedaInput.parseToDecimalString(raw);
+    }
+    return String(raw || "")
+      .trim()
+      .replace(/\s/g, "")
+      .replace(",", ".");
   }
 
   function atualizarEstadoToggleAll() {
@@ -296,12 +316,12 @@ document.addEventListener("DOMContentLoaded", () => {
             ? "text-emerald-600"
             : "text-gray-700");
       const inpValor = document.createElement("input");
-      inpValor.type = "number";
-      inpValor.step = "any";
-      inpValor.min = "0";
+      inpValor.type = "text";
+      inpValor.setAttribute("data-moeda-input", "1");
+      inpValor.setAttribute("autocomplete", "off");
       inpValor.inputMode = "decimal";
       inpValor.className =
-        "import-planilha-valor w-full min-w-0 max-w-full text-right font-medium " +
+        "import-planilha-valor input input-moeda w-full min-w-0 max-w-full text-right font-medium " +
         inputCellClass +
         " " +
         (linha.tipo === "despesa"
@@ -309,10 +329,12 @@ document.addEventListener("DOMContentLoaded", () => {
           : linha.tipo === "receita"
             ? "text-emerald-600"
             : "text-gray-700");
-      inpValor.value =
-        linha.valor != null && linha.valor !== "" ? String(linha.valor).trim() : "";
+      if (linha.valor != null && linha.valor !== "") {
+        inpValor.dataset.initialDecimal = String(linha.valor).trim();
+      }
       inpValor.dataset.indice = String(linha.indice);
       tdValor.appendChild(inpValor);
+      window.MoedaInput?.init(inpValor);
 
       const tdTipo = document.createElement("td");
       tdTipo.className =
@@ -356,16 +378,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnAbrir.addEventListener("click", () => abrirModal());
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !overlay.classList.contains("hidden")) fecharModal();
-  });
-
-  btnFechar?.addEventListener("click", fecharModal);
-  overlay.addEventListener("click", (e) => {
-    const t = e.target;
-    if (!(t instanceof Element)) return;
-    if (!t.closest("#import-planilha-panel")) fecharModal();
-  });
+  if (globalThis.GranaGoModal) {
+    GranaGoModal.bind(overlay, { onClose: fecharModal });
+  }
 
   btnVoltar?.addEventListener("click", irParaUpload);
 
@@ -478,10 +493,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const inpValor = tr.querySelector(".import-planilha-valor");
       const valorDigitado =
-        inpValor instanceof HTMLInputElement ? inpValor.value : String(linha.valor ?? "");
-      const valorNorm = valorDigitado.trim().replace(/\s/g, "").replace(",", ".");
-      const vNum = parseValorDigitado(valorNorm);
-      if (valorNorm === "" || Number.isNaN(vNum)) {
+        inpValor instanceof HTMLInputElement ? inpValor : String(linha.valor ?? "");
+      const valorNorm = valorParaBackend(valorDigitado);
+      const vNum = parseValorDigitado(valorDigitado);
+      if (Number.isNaN(vNum)) {
         showErrPreview("Preencha um valor numérico válido em todas as linhas marcadas.");
         return;
       }

@@ -1,8 +1,6 @@
 (function () {
   const overlay = document.getElementById("overlay-modal-cartao");
   const btnAbrir = document.getElementById("btn-adicionar-cartao");
-  const btnFechar = document.getElementById("btn-fechar-modal-cartao");
-  const btnCancelar = document.getElementById("btn-cancelar-modal-cartao");
   const form = document.getElementById("form-modal-cartao");
   const selectContaPadrao = document.getElementById("cartao_conta_padrao");
   let contaPadraoCombobox = null;
@@ -65,7 +63,12 @@
     if (cartao) {
       inputCartaoId.value = cartao.id;
       form.nome.value = cartao.nome || "";
-      form.limite.value = cartao.limite || "";
+      const limiteEl = document.getElementById("cartao_limite");
+      if (limiteEl && window.MoedaInput) {
+        window.MoedaInput.setValueFromDecimal(limiteEl, cartao.limite || "0");
+      } else if (limiteEl) {
+        limiteEl.value = cartao.limite || "";
+      }
       form.dia_fechamento.value = cartao.diaFechamento || "";
       form.dia_vencimento.value = cartao.diaVencimento || "";
       if (selectContaPadrao) {
@@ -81,16 +84,18 @@
         }
       });
     }
-    overlay.classList.remove("hidden");
+    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
   }
 
   function fecharModal() {
-    overlay.classList.add("hidden");
+    resetModal();
   }
 
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
-  if (btnFechar) btnFechar.addEventListener("click", fecharModal);
-  if (btnCancelar) btnCancelar.addEventListener("click", fecharModal);
+
+  if (overlay && globalThis.GranaGoModal) {
+    GranaGoModal.bind(overlay, { onClose: fecharModal });
+  }
 
   document.addEventListener("click", (event) => {
     if (rootContaPadrao && !rootContaPadrao.contains(event.target)) {
@@ -121,29 +126,6 @@
       return;
     }
 
-    const btnExcluir = event.target.closest(".btn-excluir-cartao");
-    if (btnExcluir) {
-      const id = btnExcluir.dataset.id;
-      if (!id) return;
-      if (!window.confirm("Deseja excluir este cartão?")) return;
-      fetch(`/cartoes/${id}/excluir/`, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": getCsrfToken(),
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          if (result.status === "ok") {
-            showToast("Cartão excluído com sucesso!");
-            window.location.reload();
-          } else {
-            showToast(result.errors || "Erro ao excluir cartão.", "erro");
-          }
-        })
-        .catch(() => showToast("Erro inesperado. Tente novamente.", "erro"));
-    }
   });
 
   if (form) {
@@ -162,7 +144,7 @@
         });
         const result = await response.json();
         if (result.status === "ok") {
-          fecharModal();
+          globalThis.GranaGoModal?.close(overlay);
           showToast(inputCartaoId.value ? "Cartão atualizado com sucesso!" : "Cartão criado com sucesso!");
           window.location.reload();
           return;

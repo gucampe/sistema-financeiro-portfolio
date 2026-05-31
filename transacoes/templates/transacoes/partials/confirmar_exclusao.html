@@ -1,6 +1,7 @@
-<div id="modal-confirmar-exclusao" class="modal-overlay hidden">
-  <div class="modal-panel mx-auto w-full max-w-md scale-[.98] p-5 sm:p-6">
-    <h3 class="text-lg font-semibold text-gray-800">
+<div id="modal-confirmar-exclusao" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-exclusao-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md p-5 sm:p-6">
+    <h3 id="modal-exclusao-titulo" class="text-lg font-semibold text-gray-800">
       Excluir transação
     </h3>
 
@@ -9,7 +10,7 @@
     </p>
 
     <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-      <button id="cancelar-exclusao" type="button" class="btn btn-secondary btn-sm w-full sm:w-auto">
+      <button id="cancelar-exclusao" type="button" data-modal-close class="btn btn-secondary btn-sm w-full sm:w-auto">
         Cancelar
       </button>
       <button id="confirmar-exclusao" type="button" class="btn btn-danger btn-sm w-full sm:w-auto">

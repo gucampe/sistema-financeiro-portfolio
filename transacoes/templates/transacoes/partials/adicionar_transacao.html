@@ -1,13 +1,14 @@
 {% load static %}
 {% load icon_filters %}
 
-<div id="overlay-adicionar" 
-     class="fixed inset-0 hidden z-50 transition-opacity duration-300 opacity-0 flex items-center justify-center bg-black/50 p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden">
+<div id="overlay-adicionar" data-modal data-modal-fade="300"
+     class="modal-overlay hidden"
+     data-modal-labelledby="titulo-modal-transacao">
 
-  <div class="bg-white rounded-2xl shadow-lg px-4 py-5 sm:p-8 w-full max-w-lg max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] min-h-0 flex flex-col overflow-hidden relative transform scale-95 transition-all duration-300 border border-gray-200 my-auto">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-lg px-4 py-5 sm:p-8 relative">
 
     <!-- Botão fechar -->
-    <button id="btn-fechar"
+    <button id="btn-fechar" type="button" data-modal-close
             class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 hover:bg-gray-300"
             aria-label="Fechar modal">
       ✕
@@ -15,7 +16,7 @@
 
     <!-- Cabeçalho fixo (título + intro + erro) -->
     <div class="shrink-0 pr-12 sm:pr-14">
-      <h2 class="text-2xl font-semibold mb-1 text-fg">
+      <h2 id="titulo-modal-transacao" class="text-2xl font-semibold mb-1 text-fg">
         Nova Transação
       </h2>
       <p class="text-sm mb-4 sm:mb-6 text-fg-muted">
@@ -30,9 +31,9 @@
     <form id="form-adicionar" method="POST" action="{% url 'transacoes:adicionar' %}" class="flex min-h-0 flex-1 flex-col overflow-hidden">
       {% csrf_token %}
 
-      <!-- Corpo rolável: campos (listas absolutas dos comboboxes ficam dentro desta área) -->
-      <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable] max-md:pr-1.5">
-      <div class="min-w-0 w-full max-w-full max-md:max-w-[calc(100%-4px)]">
+      <!-- Corpo rolável: padding lateral para o focus:ring (box-shadow) não ser recortado pelo scrollport -->
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] px-2 pb-0.5">
+      <div class="min-w-0 w-full max-w-full">
 
       <!-- Tipo -->
       <div class="mb-4 min-w-0">
@@ -154,8 +155,9 @@
       <!-- Valor -->
       <div class="mb-4 min-w-0">
         <label for="valor" class="block text-sm font-medium mb-1 text-fg">Valor (R$)</label>
-        <input type="number" step="0.01" name="valor" id="valor" required
-               class="input w-full max-w-full min-w-0">
+        <input type="text" name="valor" id="valor" required
+               class="input input-moeda w-full max-w-full min-w-0"
+               data-moeda-input autocomplete="off" inputmode="decimal">
       </div>
 
       <!-- Descrição -->

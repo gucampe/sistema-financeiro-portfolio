@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.views.decorators.cache import never_cache
 from django.urls import reverse
 
 from .forms import (
@@ -9,7 +10,7 @@ from .forms import (
     DadosPessoaisForm,
     PreferenciasFinanceirasForm,
 )
-from .models import Perfil
+from .models import Perfil, Usuario
 from .utils import iniciais_avatar
 
 
@@ -30,36 +31,41 @@ def login_view(request):
 
 
 def _configuracoes_context(request, perfil=None, dados_form=None, pref_form=None, senha_form=None):
-    perfil = perfil or Perfil.objects.get_or_create(usuario=request.user)[0]
-    dados_form = dados_form or DadosPessoaisForm(instance=request.user, user=request.user)
-    pref_form = pref_form or PreferenciasFinanceirasForm(instance=perfil, user=request.user)
-    senha_form = senha_form or ConfiguracoesPasswordChangeForm(request.user)
+    usuario = Usuario.objects.get(pk=request.user.pk)
+    perfil = perfil or Perfil.objects.get_or_create(usuario=usuario)[0]
+    dados_form = dados_form or DadosPessoaisForm(instance=usuario, user=usuario)
+    pref_form = pref_form or PreferenciasFinanceirasForm(instance=perfil, user=usuario)
+    senha_form = senha_form or ConfiguracoesPasswordChangeForm(usuario)
     foto_url = perfil.foto.url if perfil.foto else None
     return {
+        "usuario": usuario,
         "dados_form": dados_form,
         "pref_form": pref_form,
         "senha_form": senha_form,
         "perfil": perfil,
         "foto_url": foto_url,
-        "iniciais_avatar": iniciais_avatar(request.user.nome),
+        "iniciais_avatar": iniciais_avatar(usuario.nome),
     }
 
 
 @login_required
+@never_cache
 def configuracoes(request):
     perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
 
     if request.method == "POST":
         form_tipo = request.POST.get("form")
         if form_tipo == "dados_pessoais":
+            usuario = Usuario.objects.get(pk=request.user.pk)
             fd = DadosPessoaisForm(
                 request.POST,
                 request.FILES,
-                instance=request.user,
-                user=request.user,
+                instance=usuario,
+                user=usuario,
             )
             if fd.is_valid():
-                fd.save()
+                usuario = fd.save()
+                usuario.refresh_from_db()
                 foto = fd.cleaned_data.get("foto")
                 if foto:
                     perfil.foto = foto

@@ -9,6 +9,7 @@ from core.forms_ui import (
     CHECKBOX_CONTROL_CLASSES,
     FILE_INPUT_CONTROL_CLASSES,
     INPUT_CONTROL_CLASSES,
+    IsoDateInput,
 )
 
 from .models import Perfil, Usuario
@@ -35,24 +36,47 @@ class DadosPessoaisForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={"class": FILE_INPUT_CONTROL_CLASSES, "accept": "image/*"}),
     )
+    data_nascimento = forms.DateField(
+        label="Data de nascimento",
+        required=False,
+        input_formats=["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"],
+        widget=IsoDateInput(
+            format="%Y-%m-%d",
+            attrs={"class": INPUT_CONTROL_CLASSES},
+        ),
+    )
 
     class Meta:
         model = Usuario
         fields = ("nome", "data_nascimento")
         widgets = {
             "nome": forms.TextInput(attrs={"class": INPUT_CONTROL_CLASSES}),
-            "data_nascimento": forms.DateInput(
-                attrs={
-                    "type": "date",
-                    "class": INPUT_CONTROL_CLASSES,
-                }
-            ),
         }
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
         self.order_fields(("nome", "data_nascimento", "foto"))
+
+    @property
+    def data_nascimento_valor_iso(self):
+        """Valor para o atributo value do input type=date (sempre YYYY-MM-DD)."""
+        if self.is_bound:
+            raw = (self.data.get("data_nascimento") or "").strip()
+            if raw:
+                return raw[:10]
+        if self.instance and self.instance.pk and self.instance.data_nascimento:
+            return self.instance.data_nascimento.isoformat()
+        return ""
+
+    def clean(self):
+        cleaned = super().clean()
+        # Campo vazio no POST não deve apagar data já salva (input sem value no navegador).
+        if self.instance.pk and self.instance.data_nascimento:
+            posted = (self.data.get("data_nascimento") or "").strip()
+            if not posted:
+                cleaned["data_nascimento"] = self.instance.data_nascimento
+        return cleaned
 
     def clean_foto(self):
         foto = self.cleaned_data.get("foto")
@@ -145,5 +169,7 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
         css = f"{INPUT_CONTROL_CLASSES} !pr-12"
         for f in self.fields.values():
             f.widget.attrs.setdefault("class", css)
+        # Regras exibidas no template (painel interativo); validadores do Django permanecem ativos.
+        self.fields["new_password1"].help_text = ""
         # Evita foco automático em "senha antiga" ao abrir a página de configurações.
         self.fields["old_password"].widget.attrs.pop("autofocus", None)

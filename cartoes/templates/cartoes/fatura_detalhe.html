@@ -31,24 +31,30 @@
       <h2 class="text-2xl font-semibold text-fg">Fatura {{ fatura.competencia|date:"F Y"|capfirst }}</h2>
       <p class="text-sm mt-1 text-fg-muted">Vencimento {{ fatura.data_vencimento|date:"d/m/Y" }} · Compras {{ fatura.data_inicio_compras|date:"d/m/Y" }} — {{ fatura.data_fim_compras|date:"d/m/Y" }}</p>
     </div>
-    <div class="flex flex-wrap gap-2 shrink-0">
+    <div class="flex w-full flex-col gap-3 shrink-0 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-2">
       <button type="button"
               id="btn-adicionar"
-              class="btn btn-primary btn-sm">Nova transação</button>
-      <form method="post" action="{% url 'cartoes:pagar_fatura' cartao.id fatura.id %}" class="flex items-center gap-2">
+              class="btn btn-primary btn-sm w-full sm:w-auto">Nova transação</button>
+      <form method="post" action="{% url 'cartoes:pagar_fatura' cartao.id fatura.id %}" class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
         {% csrf_token %}
         <input
           type="text"
           name="valor"
-          value=""
+          class="input input-moeda w-full text-sm sm:w-40"
+          data-moeda-input
+          data-moeda-allow-empty="1"
+          autocomplete="off"
+          inputmode="decimal"
           placeholder="{% if status_pagamento == 'parcial' %}Pagar restante{% else %}Pagar total{% endif %}"
-          class="rounded-lg border border-gray-300 px-3 py-2 text-sm w-32"
         >
-        <button type="submit" class="btn btn-secondary btn-sm">
+        <button type="submit" class="btn btn-secondary btn-sm w-full sm:w-auto">
           {% if status_pagamento == 'parcial' %}Pagar restante{% else %}Pagar fatura{% endif %}
         </button>
       </form>
-      <a href="{% url 'cartoes:faturas' cartao.id %}" class="btn btn-secondary btn-sm">Voltar às faturas</a>
+      <a href="{% url 'cartoes:faturas' cartao.id %}"
+         class="inline-flex w-full items-center justify-start gap-1.5 px-1 py-2 text-sm font-medium text-fg-muted no-underline transition hover:text-fg sm:btn sm:btn-secondary sm:btn-sm sm:w-auto sm:shrink-0 sm:justify-center">
+        <span class="sm:hidden" aria-hidden="true">←</span> Voltar às faturas
+      </a>
     </div>
   </div>
 
@@ -56,23 +62,45 @@
     <div class="px-4 sm:px-5 py-4 border-b border-gray-100">
       <p class="text-sm font-semibold text-fg mb-3">Lançamentos</p>
       <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="sm:hidden">
+          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold
+            {% if status_pagamento == 'pago' %}bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80
+            {% elif status_pagamento == 'parcial' %}bg-amber-50 text-amber-800 ring-1 ring-amber-200/80
+            {% elif status_pagamento == 'atrasado' %}bg-rose-50 text-rose-700 ring-1 ring-rose-200/80
+            {% elif status_pagamento == 'vazia' %}bg-gray-50 text-gray-600 ring-1 ring-gray-200/80
+            {% else %}bg-sky-50 text-sky-800 ring-1 ring-sky-200/80{% endif %}">
+            {{ fatura.get_status_pagamento_display }}
+          </span>
+          <p class="mt-3 text-3xl font-bold tracking-tight text-fg tabular-nums">{{ saldo_restante|moeda }}</p>
+          <p class="mt-0.5 text-sm text-fg-muted">Falta pagar</p>
+          <div class="mt-4 space-y-1.5 border-t border-gray-100 pt-3 text-sm">
+            <p class="flex items-baseline justify-between gap-3">
+              <span class="text-fg-muted">Total</span>
+              <span class="font-semibold text-fg tabular-nums">{{ total_despesas|moeda }}</span>
+            </p>
+            <p class="flex items-baseline justify-between gap-3">
+              <span class="text-fg-muted">Pago</span>
+              <span class="font-semibold text-fg tabular-nums">{{ valor_pago|moeda }}</span>
+            </p>
+          </div>
+        </div>
+        <div class="hidden sm:flex flex-wrap items-center justify-between gap-3">
           <div>
             <p class="text-xs uppercase tracking-wide text-fg-muted font-semibold">Status da fatura</p>
-            <p class="text-lg sm:text-xl font-bold text-fg mt-1">{{ fatura.get_status_pagamento_display }}</p>
+            <p class="text-xl font-bold text-fg mt-1">{{ fatura.get_status_pagamento_display }}</p>
           </div>
-          <div class="grid grid-cols-1 gap-3 text-right sm:grid-cols-3 sm:gap-4">
+          <div class="grid grid-cols-3 gap-4 text-right">
             <div>
               <p class="text-xs text-fg-muted">Total</p>
-              <p class="text-sm sm:text-base font-semibold text-fg">{{ total_despesas|moeda }}</p>
+              <p class="text-base font-semibold text-fg">{{ total_despesas|moeda }}</p>
             </div>
             <div>
               <p class="text-xs text-fg-muted">Pago</p>
-              <p class="text-sm sm:text-base font-semibold text-fg">{{ valor_pago|moeda }}</p>
+              <p class="text-base font-semibold text-fg">{{ valor_pago|moeda }}</p>
             </div>
             <div>
               <p class="text-xs text-fg-muted">Saldo</p>
-              <p class="text-sm sm:text-base font-semibold text-fg">{{ saldo_restante|moeda }}</p>
+              <p class="text-base font-semibold text-fg">{{ saldo_restante|moeda }}</p>
             </div>
           </div>
         </div>

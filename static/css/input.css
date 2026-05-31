@@ -20,11 +20,11 @@
   }
 
   .modal-overlay {
-    @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/55 p-3 sm:p-4 md:p-6;
+    @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/55 p-3 sm:p-4 md:p-6 opacity-0 transition-opacity duration-300;
   }
 
   .modal-panel {
-    @apply my-auto flex w-full max-w-lg min-h-0 max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl;
+    @apply my-auto flex w-full max-w-lg min-h-0 max-h-[min(90dvh,calc(100dvh-2rem),calc(100vh-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl transform transition-all duration-300 scale-95;
   }
 
   .table-scroll {
@@ -45,6 +45,11 @@
 
   .input {
     @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-fg shadow-sm outline-none transition placeholder:text-fg-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0;
+  }
+
+  .input-moeda,
+  [data-moeda-input] {
+    @apply text-right tabular-nums;
   }
 
   .btn {

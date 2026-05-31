@@ -52,33 +52,65 @@
             <p class="mt-1.5 text-sm text-gray-500">E-mail (somente leitura): <span class="font-medium text-gray-800">{{ request.user.email }}</span></p>
           </div>
 
-          <div class="mt-6 flex flex-col gap-8 sm:flex-row sm:items-start">
-            <div class="shrink-0">
-              {% if foto_url %}
-              <img id="preview-foto" src="{{ foto_url }}" alt="Foto de perfil do usuário" class="h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white ring-offset-0" width="96" height="96" />
-              {% else %}
-              <div id="preview-foto-placeholder" class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200/80 shadow-md ring-4 ring-white" aria-hidden="true">
-                <span class="text-base font-semibold tracking-tight text-gray-600">{{ iniciais_avatar }}</span>
+          <form id="form-dados-pessoais" method="post" enctype="multipart/form-data" action="{% url 'usuarios:configuracoes' %}#perfil" class="mt-6">
+            {% csrf_token %}
+            <input type="hidden" name="form" value="dados_pessoais" />
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+              <div class="flex flex-col items-center gap-3 sm:shrink-0 sm:items-start">
+                {% if foto_url %}
+                <img id="preview-foto" src="{{ foto_url }}" alt="Foto de perfil do usuário" class="h-28 w-28 rounded-full object-cover shadow-md ring-4 ring-white sm:h-24 sm:w-24" width="112" height="112" />
+                {% else %}
+                <div id="preview-foto-placeholder" class="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200/80 text-lg font-semibold tracking-tight text-gray-600 shadow-md ring-4 ring-white sm:h-24 sm:w-24 sm:text-base" aria-hidden="true">
+                  {{ iniciais_avatar }}
+                </div>
+                <img id="preview-foto" src="" alt="Foto de perfil do usuário" class="hidden h-28 w-28 rounded-full object-cover shadow-md ring-4 ring-white sm:h-24 sm:w-24" width="112" height="112" />
+                {% endif %}
+                <button
+                  type="button"
+                  id="btn-alterar-foto"
+                  class="btn btn-secondary btn-sm sm:hidden"
+                  aria-controls="{% if dados_form.foto.id_for_label %}{{ dados_form.foto.id_for_label }}{% else %}id_foto{% endif %}"
+                >
+                  Alterar foto
+                </button>
+                <p id="foto-arquivo-selecionado" class="hidden max-w-[14rem] truncate text-center text-xs text-gray-500 sm:hidden" aria-live="polite"></p>
               </div>
-              <img id="preview-foto" src="" alt="Foto de perfil do usuário" class="hidden h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white" width="96" height="96" />
-              {% endif %}
+              <div class="min-w-0 flex-1 space-y-5">
+                {% for field in dados_form %}
+                {% if field.name == "foto" %}
+                <div class="hidden space-y-1.5 sm:block">
+                  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% if field.errors %}<p class="text-center text-sm text-red-600 sm:hidden" role="alert">{{ field.errors.0 }}</p>{% endif %}
+                {% elif field.name == "data_nascimento" %}
+                <div class="space-y-1.5">
+                  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                  <input
+                    type="date"
+                    name="data_nascimento"
+                    id="{{ field.id_for_label }}"
+                    class="input"
+                    value="{{ dados_form.data_nascimento_valor_iso }}"
+                    {% if dados_form.data_nascimento_valor_iso %}data-iso="{{ dados_form.data_nascimento_valor_iso }}"{% endif %}
+                  />
+                  {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% else %}
+                <div class="space-y-1.5">
+                  <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="pt-1">
+                  <button type="submit" class="btn btn-primary-solid w-full sm:w-auto">Salvar dados pessoais</button>
+                </div>
+              </div>
             </div>
-            <form id="form-dados-pessoais" method="post" enctype="multipart/form-data" action="{% url 'usuarios:configuracoes' %}#perfil" class="min-w-0 flex-1 space-y-5">
-              {% csrf_token %}
-              <input type="hidden" name="form" value="dados_pessoais" />
-              {% for field in dados_form %}
-              <div class="space-y-1.5">
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                {{ field }}
-                {% if field.name == "foto" %}<p id="foto-arquivo-selecionado" class="hidden text-xs text-gray-500" aria-live="polite"></p>{% endif %}
-                {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
-              </div>
-              {% endfor %}
-              <div class="pt-1">
-                <button type="submit" class="btn btn-primary-solid">Salvar dados pessoais</button>
-              </div>
-            </form>
-          </div>
+          </form>
         </section>
 
         <section id="preferencias" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
@@ -139,7 +171,39 @@
               {{ field }}
               {% endif %}
               {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
-              {% if field.help_text %}<p class="text-xs text-gray-500">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.name == "new_password1" %}
+              <div
+                id="senha-regras-panel"
+                class="rounded-xl border border-gray-200/90 bg-gray-50/80 px-3.5 py-3 shadow-sm transition-opacity duration-200{% if not field.errors %} hidden{% endif %}"
+                role="region"
+                aria-labelledby="senha-regras-titulo"
+                {% if field.errors %}data-keep-open="true"{% else %}hidden{% endif %}
+              >
+                <p id="senha-regras-titulo" class="mb-2.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Sua senha deve:
+                </p>
+                <ul class="space-y-2 text-sm leading-snug text-gray-600" role="list">
+                  <li class="flex items-start gap-2">
+                    <span class="mt-0.5 shrink-0 text-brand-600" aria-hidden="true">✓</span>
+                    <span>Ter pelo menos 8 caracteres</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="mt-0.5 shrink-0 text-brand-600" aria-hidden="true">✓</span>
+                    <span>Não ser muito parecida com seus dados pessoais</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="mt-0.5 shrink-0 text-brand-600" aria-hidden="true">✓</span>
+                    <span>Não ser uma senha comum</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="mt-0.5 shrink-0 text-brand-600" aria-hidden="true">✓</span>
+                    <span>Não ser composta apenas por números</span>
+                  </li>
+                </ul>
+              </div>
+              {% elif field.help_text %}
+              <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+              {% endif %}
             </div>
             {% endfor %}
             <div class="pt-1">
@@ -151,6 +215,19 @@
     </div>
   </div>
 </div>
+
+<script>
+(function () {
+  var dn = document.getElementById("id_data_nascimento");
+  if (!dn) return;
+  function syncDataNascimento() {
+    var iso = dn.getAttribute("data-iso") || dn.getAttribute("value");
+    if (iso && dn.value !== iso) dn.value = iso;
+  }
+  syncDataNascimento();
+  window.addEventListener("pageshow", syncDataNascimento);
+})();
+</script>
 
 <script>
 (function () {
@@ -171,7 +248,13 @@
   var img = document.getElementById("preview-foto");
   var ph = document.getElementById("preview-foto-placeholder");
   var nomeArq = document.getElementById("foto-arquivo-selecionado");
+  var btnAlterarFoto = document.getElementById("btn-alterar-foto");
   if (!input || !img) return;
+  if (btnAlterarFoto) {
+    btnAlterarFoto.addEventListener("click", function () {
+      input.click();
+    });
+  }
   input.addEventListener("change", function () {
     var f = input.files && input.files[0];
     if (!f) {
@@ -227,6 +310,46 @@
 (function () {
   var form = document.getElementById("form-alterar-senha");
   if (!form) return;
+
+  var novaSenha = form.querySelector('input[name="new_password1"]');
+  var painelRegras = document.getElementById("senha-regras-panel");
+
+  function painelVisivel(on) {
+    if (!painelRegras) return;
+    painelRegras.classList.toggle("hidden", !on);
+    if (on) {
+      painelRegras.removeAttribute("hidden");
+      if (novaSenha) novaSenha.setAttribute("aria-describedby", "senha-regras-panel");
+    } else {
+      painelRegras.setAttribute("hidden", "");
+      if (novaSenha) novaSenha.removeAttribute("aria-describedby");
+    }
+  }
+
+  function atualizarPainelRegras() {
+    if (!novaSenha || !painelRegras) return;
+    var interagindo = document.activeElement === novaSenha;
+    var temTexto = novaSenha.value.length > 0;
+    painelVisivel(interagindo || temTexto);
+  }
+
+  if (novaSenha && painelRegras) {
+    novaSenha.addEventListener("focus", atualizarPainelRegras);
+    novaSenha.addEventListener("blur", function () {
+      if (painelRegras.dataset.keepOpen === "true") return;
+      painelVisivel(false);
+    });
+    novaSenha.addEventListener("input", function () {
+      if (painelRegras.dataset.keepOpen) painelRegras.removeAttribute("data-keep-open");
+      atualizarPainelRegras();
+    });
+    if (painelRegras.dataset.keepOpen === "true" || novaSenha.value.length > 0) {
+      painelVisivel(true);
+    } else {
+      painelVisivel(false);
+    }
+  }
+
   form.querySelectorAll(".js-toggle-password").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var wrap = btn.closest(".relative");

@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from core.moeda import parse_decimal_moeda_br
 from transacoes.models import Transacao
 from transacoes.services import criar_transacao_saldo_inicial
 from .models import Conta
@@ -115,8 +116,7 @@ def salvar_conta(request):
     if not conta_id:
         # Saldo inicial só é considerado na criação
         try:
-            normalizado = saldo_inicial_raw.replace(".", "").replace(",", ".")
-            saldo_inicial = Decimal(normalizado)
+            saldo_inicial = parse_decimal_moeda_br(saldo_inicial_raw)
         except (InvalidOperation, ValueError, TypeError):
             saldo_inicial = Decimal("0.00")
 

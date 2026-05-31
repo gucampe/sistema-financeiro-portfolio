@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from core.moeda import parse_decimal_moeda_br
 from contas.models import Conta
 from transacoes.models import Transacao
 from transacoes.views import modal_transacao_context
@@ -147,7 +148,7 @@ def salvar_cartao(request):
         return JsonResponse({"status": "erro", "errors": "Conta padrão é obrigatória"}, status=400)
 
     try:
-        limite = Decimal(limite_raw.replace(".", "").replace(",", "."))
+        limite = parse_decimal_moeda_br(limite_raw)
     except (InvalidOperation, ValueError, TypeError):
         return JsonResponse({"status": "erro", "errors": "Limite inválido"}, status=400)
 
@@ -320,11 +321,11 @@ def fatura_detalhe(request, cartao_id, fatura_id):
 def pagar_fatura_view(request, cartao_id, fatura_id):
     cartao = get_object_or_404(Cartao, pk=cartao_id, usuario=request.user, ativa=True)
     fatura = get_object_or_404(Fatura, pk=fatura_id, cartao=cartao, usuario=request.user)
-    valor_raw = (request.POST.get("valor") or "").strip().replace(".", "").replace(",", ".")
+    valor_raw = (request.POST.get("valor") or "").strip()
     valor = None
     if valor_raw:
         try:
-            valor = Decimal(valor_raw)
+            valor = parse_decimal_moeda_br(valor_raw)
         except (InvalidOperation, ValueError):
             return JsonResponse({"status": "erro", "errors": "Valor inválido."}, status=400)
     try:

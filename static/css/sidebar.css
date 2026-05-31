@@ -571,14 +571,30 @@ html.sidebar-open .app-sidebar-overlay {
   }
 }
 
-/* Tutoriais: só em tablet/desktop (≥768px). */
-.app-header-tutoriais {
-  display: none;
+/* Tutoriais na sidebar: apenas mobile (<768px), acima do rodapé */
+.app-sidebar__help--mobile {
+  flex-shrink: 0;
+  padding: 0 0.125rem;
+}
+
+.app-sidebar__help-divider {
+  margin: 0.25rem 0.75rem 0.75rem;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.app-sidebar__link--btn {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.app-sidebar__link--btn:focus-visible {
+  outline: 2px solid var(--sidebar-accent);
+  outline-offset: 2px;
 }
 
 @media (min-width: 768px) {
-  .app-header-tutoriais {
-    display: inline-flex;
+  .app-sidebar__help--mobile {
+    display: none;
   }
 }
 

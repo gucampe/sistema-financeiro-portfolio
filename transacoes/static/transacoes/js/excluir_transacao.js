@@ -7,13 +7,10 @@
   }
 
   function abrirModal() {
-    var modal = document.getElementById("modal-confirmar-exclusao");
-    if (modal) modal.classList.remove("hidden");
+    globalThis.GranaGoModal?.open("modal-confirmar-exclusao");
   }
 
   function fecharModal() {
-    var modal = document.getElementById("modal-confirmar-exclusao");
-    if (modal) modal.classList.add("hidden");
     idTransacaoParaExcluir = null;
   }
 
@@ -40,6 +37,11 @@
     abrirModal();
   };
 
+  var modalEl = document.getElementById("modal-confirmar-exclusao");
+  if (modalEl && globalThis.GranaGoModal) {
+    GranaGoModal.bind(modalEl, { onClose: fecharModal });
+  }
+
   document.addEventListener("click", function (e) {
     var excluir = e.target.closest(".excluir-transacao");
     if (excluir) {
@@ -51,16 +53,10 @@
       return;
     }
 
-    if (e.target.id === "cancelar-exclusao") {
-      e.preventDefault();
-      fecharModal();
-      return;
-    }
-
     if (e.target.id === "confirmar-exclusao") {
       e.preventDefault();
       var id = idTransacaoParaExcluir;
-      fecharModal();
+      globalThis.GranaGoModal?.close("modal-confirmar-exclusao");
       if (id) enviarExclusao(id);
     }
   });

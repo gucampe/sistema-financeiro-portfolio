@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const preCartao = params.get("pre_cartao");
 
   const btnAbrir = document.getElementById("btn-adicionar");
-  const btnFechar = document.getElementById("btn-fechar");
   const overlay = document.getElementById("overlay-adicionar");
   const form = document.getElementById("form-adicionar");
   const selectTipo = document.getElementById("tipo");
@@ -166,9 +165,13 @@ document.addEventListener("DOMContentLoaded", () => {
     fecharComboboxes();
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") fecharComboboxes();
-  });
+  function algumComboboxAberto() {
+    const roots = [rootContaCartao, rootCategoria].filter(Boolean);
+    return roots.some((root) => {
+      const list = root.querySelector("[data-combobox-list]");
+      return list && !list.classList.contains("hidden");
+    });
+  }
 
   function atualizarBotaoExcluirModal(editandoId) {
     if (!btnExcluirModal) return;
@@ -187,15 +190,19 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.dataset.editando = id;
         if (modalHeader) modalHeader.textContent = "Editar Transação";
         selectTipo.value = data.tipo;
-        document.getElementById("valor").value = data.valor;
+        const valorEl = document.getElementById("valor");
+        if (valorEl && window.MoedaInput) {
+          window.MoedaInput.setValueFromDecimal(valorEl, data.valor);
+        } else if (valorEl) {
+          valorEl.value = data.valor;
+        }
         document.getElementById("descricao").value = data.descricao;
         document.getElementById("data").value = data.data;
         window.applyUnifiedContaCartaoParaEdicao?.(data);
         popularCategorias(data.tipo, data.categoria.id);
         limparErroContaAjax();
         atualizarBotaoExcluirModal(id);
-        overlay.classList.remove("hidden");
-        setTimeout(() => overlay.classList.remove("opacity-0"), 10);
+        globalThis.GranaGoModal?.open(overlay);
       })
       .catch((err) => console.error("Erro ao carregar transação:", err));
   }
@@ -210,13 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tipo) return;
     limparErroContaAjax();
     popularCategorias(tipo);
-    overlay.classList.remove("hidden");
-    setTimeout(() => overlay.classList.remove("opacity-0"), 10);
+    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
   });
 
   const fecharModal = () => {
-    overlay.classList.add("opacity-0");
-    setTimeout(() => overlay.classList.add("hidden"), 300);
     overlay.dataset.editando = "";
     atualizarBotaoExcluirModal("");
     fecharComboboxes();
@@ -226,15 +230,22 @@ document.addEventListener("DOMContentLoaded", () => {
     categoriaCombobox?.sync();
   };
 
-  btnFechar?.addEventListener("click", fecharModal);
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) fecharModal();
-  });
+  if (globalThis.GranaGoModal) {
+    GranaGoModal.bind(overlay, {
+      onClose: fecharModal,
+      onEscape: () => {
+        if (algumComboboxAberto()) {
+          fecharComboboxes();
+          return false;
+        }
+      },
+    });
+  }
 
   btnExcluirModal?.addEventListener("click", () => {
     const id = overlay.dataset.editando;
     if (!id) return;
-    fecharModal();
+    globalThis.GranaGoModal?.close(overlay);
     if (typeof window.solicitarExclusaoTransacao === "function") {
       window.solicitarExclusaoTransacao(id);
     }
@@ -278,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.status === "ok") {
         limparErroContaAjax();
-        fecharModal();
+        globalThis.GranaGoModal?.close(overlay);
         window.location.reload();
         return;
       }

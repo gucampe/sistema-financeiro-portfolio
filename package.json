@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "tailwind:watch": "npx tailwindcss -i static/css/input.css -o static/css/output.css --watch",
-    "django:runserver": "python manage.py runserver",
+    "django:runserver": "python manage.py runserver 0.0.0.0:8000",
     "dev": "concurrently \"npm run tailwind:watch\" \"npm run django:runserver\""
   },
   "keywords": [],

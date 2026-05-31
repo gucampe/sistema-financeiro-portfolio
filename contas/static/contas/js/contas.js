@@ -1,7 +1,6 @@
 (function () {
   const overlay = document.getElementById("overlay-modal-conta");
   const btnAbrir = document.getElementById("btn-adicionar-conta");
-  const btnFechar = document.getElementById("btn-fechar-modal-conta");
   const form = document.getElementById("form-modal-conta");
   const erroBox = document.getElementById("erro-modal-conta");
   const tituloModal = document.getElementById("titulo-modal-conta");
@@ -86,18 +85,13 @@
 
   function abrirModalIcone() {
     syncSelecionadoModalIcone();
-    if (overlayModalIcone) {
-      overlayModalIcone.classList.remove("hidden", "opacity-0");
-      overlayModalIcone.classList.add("opacity-100");
-    }
+    globalThis.GranaGoModal?.open(overlayModalIcone, {
+      trigger: previewIconeWrapper || undefined,
+    });
   }
 
   function fecharModalIcone() {
-    if (overlayModalIcone) {
-      overlayModalIcone.classList.add("hidden");
-      overlayModalIcone.classList.remove("opacity-100");
-      overlayModalIcone.classList.add("opacity-0");
-    }
+    /* cleanup opcional; visibilidade via GranaGoModal.close / defaultClose */
   }
 
   function abrirModal(conta) {
@@ -109,7 +103,8 @@
       selecionarIcone(conta.icone);
       const saldoField = document.getElementById("conta_saldo_inicial");
       if (saldoField) {
-        saldoField.value = "0";
+        if (window.MoedaInput) window.MoedaInput.setValueFromDecimal(saldoField, "0");
+        else saldoField.value = "0";
         saldoField.disabled = true;
       }
       if (grupoSaldoInicial) grupoSaldoInicial.classList.add("hidden");
@@ -121,30 +116,28 @@
       selecionarIcone("bank");
       const saldoField = document.getElementById("conta_saldo_inicial");
       if (saldoField) {
-        saldoField.value = "0";
+        if (window.MoedaInput) window.MoedaInput.setValueFromDecimal(saldoField, "0");
+        else saldoField.value = "0";
         saldoField.disabled = false;
       }
       if (grupoSaldoInicial) grupoSaldoInicial.classList.remove("hidden");
       if (tituloModal) tituloModal.textContent = "Nova conta";
     }
-    overlay.classList.remove("hidden", "opacity-0");
-    overlay.classList.add("opacity-100");
+    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
   }
 
   function fecharModal() {
     if (erroBox) erroBox.classList.add("hidden");
-    fecharModalIcone();
-    overlay.classList.add("hidden");
+    if (overlayModalIcone && globalThis.GranaGoModal?.isVisible(overlayModalIcone)) {
+      globalThis.GranaGoModal.close(overlayModalIcone);
+    }
     form.reset();
     inputContaId.value = "";
     if (inputIcone) inputIcone.value = "bank";
     selecionarIcone("bank");
   }
 
-  const btnCancelar = document.getElementById("btn-cancelar-modal-conta");
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
-  if (btnFechar) btnFechar.addEventListener("click", fecharModal);
-  if (btnCancelar) btnCancelar.addEventListener("click", fecharModal);
 
   if (previewIconeWrapper) {
     previewIconeWrapper.addEventListener("click", (e) => {
@@ -158,16 +151,19 @@
       }
     });
   }
-  if (btnFecharModalIcone) btnFecharModalIcone.addEventListener("click", fecharModalIcone);
-  const backdropIcone = document.getElementById("overlay-modal-icone-backdrop");
-  if (backdropIcone) backdropIcone.addEventListener("click", fecharModalIcone);
+  if (globalThis.GranaGoModal) {
+    GranaGoModal.bind(overlay, { onClose: fecharModal });
+    if (overlayModalIcone) {
+      GranaGoModal.bind(overlayModalIcone, { onClose: fecharModalIcone });
+    }
+  }
 
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".item-icone-conta");
     if (btn) {
       e.preventDefault();
       selecionarIcone(btn.dataset.icone);
-      fecharModalIcone();
+      globalThis.GranaGoModal?.close(overlayModalIcone);
     }
   });
 
@@ -227,7 +223,7 @@
 
         if (result.status === "ok") {
           const editandoId = inputContaId.value ? String(inputContaId.value) : null;
-          fecharModal();
+          globalThis.GranaGoModal?.close(overlay);
           showToast(editandoId ? "Conta atualizada!" : "Conta criada!");
           window.location.reload();
         } else {

@@ -164,7 +164,7 @@
       });
     }
 
-    document.querySelectorAll(".js-sidebar-nav").forEach(function (link) {
+    document.querySelectorAll(".js-sidebar-nav, .js-sidebar-tutoriais").forEach(function (link) {
       link.addEventListener("click", function () {
         closeMobileIfNeeded();
       });

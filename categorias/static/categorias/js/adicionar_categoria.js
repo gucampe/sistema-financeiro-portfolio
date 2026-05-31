@@ -11,19 +11,16 @@ const inputTipo = document.getElementById("tipo");
 
 const overlay = document.getElementById("overlay-adicionar-categoria");
 const btnAbrir = document.getElementById("btn-adicionar-categoria");
-const btnFechar = document.getElementById("btn-fechar-categoria");
 const form = document.getElementById("form-adicionar-categoria");
 const erroBox = document.getElementById("erro-categoria");
 const tituloModal = overlay ? overlay.querySelector("h2") : null;
 
 const overlayAcao = document.getElementById("overlay-acao-categoria");
-const btnCancelarAcao = document.getElementById("btn-cancelar-acao");
 const btnConfirmarAcao = document.getElementById("btn-confirmar-acao");
 const modalAcaoTitulo = document.getElementById("modal-acao-titulo");
 const modalAcaoMsg = document.getElementById("modal-acao-msg");
 
 const overlayMigracao = document.getElementById("overlay-migracao-categoria");
-const btnCancelarMigracao = document.getElementById("btn-cancelar-migracao");
 const btnConfirmarMigracao = document.getElementById("btn-confirmar-migracao");
 const selectMigracao = document.getElementById("select-migracao-categoria");
 const migracaoCountEl = document.getElementById("migracao-count");
@@ -34,13 +31,14 @@ const toastMsg = document.getElementById("toast-msg");
 const toastClose = document.getElementById("toast-close");
 let toastTimeout;
 
-const tbodyDespesa = document.getElementById("tbody-despesa");
-const tbodyReceita = document.getElementById("tbody-receita");
-const tbodyDespesaArquivadas = document.getElementById("tbody-despesa-arquivadas");
-const tbodyReceitaArquivadas = document.getElementById("tbody-receita-arquivadas");
-const tabelaCategorias = document.querySelector(".container table");
+const listaDespesa = document.getElementById("lista-despesa");
+const listaReceita = document.getElementById("lista-receita");
+const listaDespesaArquivadas = document.getElementById("lista-despesa-arquivadas");
+const listaReceitaArquivadas = document.getElementById("lista-receita-arquivadas");
 
-// Guarda o tr e a ação pendente: "arquivar" | "excluir"
+const LIST_ITEM_SELECTOR = "[data-categoria-item]";
+
+// Guarda o item da lista e a ação pendente: "arquivar" | "excluir"
 let categoriaParaAcao = null;
 let acaoPendente = null;
 
@@ -86,12 +84,42 @@ if (toastClose) {
 // Helpers
 // =====================
 function getTipoAbaAtiva() {
-  if (tbodyDespesa && !tbodyDespesa.classList.contains("hidden")) return "despesa";
+  if (listaDespesa && !listaDespesa.classList.contains("hidden")) return "despesa";
   return "receita";
 }
 
-function getTargetTbodyByTipo(tipo) {
-  return tipo === "receita" ? tbodyReceita : tbodyDespesa;
+function getTargetListaByTipo(tipo) {
+  return tipo === "receita" ? listaReceita : listaDespesa;
+}
+
+function closestCategoriaItem(el) {
+  return el ? el.closest(LIST_ITEM_SELECTOR) : null;
+}
+
+function isListaArquivadas(lista) {
+  return (
+    lista?.id === "lista-despesa-arquivadas" || lista?.id === "lista-receita-arquivadas"
+  );
+}
+
+function removeEmptyPlaceholder(lista) {
+  lista?.querySelector("[data-empty-categoria]")?.remove();
+}
+
+function ensureEmptyPlaceholder(lista, message, id) {
+  if (!lista || countCategorias(lista) > 0) return;
+  if (lista.querySelector("[data-empty-categoria]")) return;
+  const li = document.createElement("li");
+  if (id) li.id = id;
+  li.setAttribute("role", "presentation");
+  li.dataset.emptyCategoria = "1";
+  li.className = "px-4 py-12 text-center text-sm text-fg-muted sm:px-5";
+  li.textContent = message;
+  lista.appendChild(li);
+}
+
+function countCategorias(lista) {
+  return lista ? lista.querySelectorAll(LIST_ITEM_SELECTOR).length : 0;
 }
 
 function limparIcones() {
@@ -121,6 +149,15 @@ function safeText(s) {
   return String(s ?? "").trim();
 }
 
+function getCorFromIconEl(iconEl) {
+  if (!iconEl) return "#4F46E5";
+  if (iconEl.style?.color) return iconEl.style.color;
+  const fromClass = [...iconEl.classList].find((c) => c.startsWith("text-[") && c.endsWith("]"));
+  if (fromClass) return fromClass.slice(6, -1);
+  const computed = getComputedStyle(iconEl).color;
+  return computed && computed !== "rgba(0, 0, 0, 0)" ? computed : "#4F46E5";
+}
+
 function abrirModalMigracao(categoriaId, tipo, count) {
   if (!overlayMigracao || !migracaoCountEl || !selectMigracao) return;
   migracaoCountEl.textContent = count;
@@ -147,8 +184,10 @@ function abrirModalMigracao(categoriaId, tipo, count) {
         opt.textContent = c.nome;
         selectMigracao.appendChild(opt);
       });
-      overlayMigracao.classList.remove("hidden");
-      categoriaParaAcao = document.querySelector(`tr[data-id="${categoriaId}"]`);
+      globalThis.GranaGoModal?.open(overlayMigracao);
+      categoriaParaAcao = document.querySelector(
+        `${LIST_ITEM_SELECTOR}[data-id="${categoriaId}"]`
+      );
       acaoPendente = "migracao";
     })
     .catch((err) => {
@@ -198,7 +237,7 @@ function preencherModal(nome, icone, cor, tipo, id) {
 
   if (tituloModal) tituloModal.textContent = "Editar Categoria";
 
-  if (overlay) overlay.classList.remove("hidden");
+  globalThis.GranaGoModal?.open(overlay);
 }
 
 if (btnAbrir && overlay && form) {
@@ -211,14 +250,28 @@ if (btnAbrir && overlay && form) {
     if (inputTipo) inputTipo.value = getTipoAbaAtiva();
     if (tituloModal) tituloModal.textContent = "Nova Categoria";
 
-    overlay.classList.remove("hidden");
+    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir });
   });
 }
 
-if (btnFechar && overlay) {
-  btnFechar.addEventListener("click", () => {
-    overlay.classList.add("hidden");
-  });
+function fecharOverlayAdicionar() {
+  categoriaEditandoId = null;
+}
+
+function fecharOverlayAcao() {
+  categoriaParaAcao = null;
+  acaoPendente = null;
+}
+
+function fecharOverlayMigracao() {
+  categoriaParaAcao = null;
+  acaoPendente = null;
+}
+
+if (globalThis.GranaGoModal) {
+  if (overlay) GranaGoModal.bind(overlay, { onClose: fecharOverlayAdicionar });
+  if (overlayAcao) GranaGoModal.bind(overlayAcao, { onClose: fecharOverlayAcao });
+  if (overlayMigracao) GranaGoModal.bind(overlayMigracao, { onClose: fecharOverlayMigracao });
 }
 
 // =====================
@@ -249,30 +302,46 @@ if (colorGrid) {
 }
 
 // =====================
-// Render helpers (linha da tabela)
+// Render helpers (list row)
 // =====================
+const LI_ROW_CLASSES =
+  "group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5";
+
+const BTN_ACAO_BASE =
+  "inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm transition hover:bg-gray-300 sm:px-4 sm:py-2";
+
+function renderIconBox(result) {
+  const icone = result.icone || "fa-ellipsis-h";
+  const cor = result.cor || "#4F46E5";
+  return `
+    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[${cor}20] border-[${cor}40]">
+      <i class="fas ${icone} text-[15px] text-[${cor}]"></i>
+    </div>
+  `;
+}
+
 function renderActionsButtons(result, tipo, isArquivada = false) {
   if (isArquivada) {
     return `
-      <div class="inline-flex items-center gap-2">
-        <button type="button" class="restaurar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-success-border bg-white transition text-sm text-success hover:bg-emerald-50"
+      <div class="inline-flex shrink-0 items-center gap-2">
+        <button type="button" class="restaurar-categoria ${BTN_ACAO_BASE} text-gray-800"
                 data-id="${result.id}" title="Restaurar">
-          <i class="fa-solid fa-rotate-left text-xs"></i>
+          <i class="fa-solid fa-rotate-left text-xs text-gray-700"></i>
           <span class="hidden sm:inline">Restaurar</span>
         </button>
-        <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger-border bg-white transition text-sm text-danger hover:bg-red-50"
+        <button type="button" class="excluir-definitivamente ${BTN_ACAO_BASE} text-red-600"
           data-id="${result.id}" title="Excluir definitivamente">
           <i class="fa-solid fa-trash text-xs"></i>
-          <span class="hidden sm:inline">Excluir definitivamente</span>
+          <span class="hidden sm:inline">Excluir</span>
         </button>
       </div>
     `;
   }
   return `
-    <div class="inline-flex items-center gap-2">
+    <div class="inline-flex shrink-0 items-center gap-2">
       <button
         type="button"
-        class="editar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 bg-white transition text-sm text-fg hover:bg-gray-100"
+        class="editar-categoria ${BTN_ACAO_BASE} text-gray-800"
         data-id="${result.id}"
         data-nome="${result.nome}"
         data-icone="${result.icone}"
@@ -280,13 +349,12 @@ function renderActionsButtons(result, tipo, isArquivada = false) {
         data-tipo="${tipo}"
         title="Editar"
       >
-        <i class="fa-solid fa-pen-to-square text-xs text-brand-600"></i>
+        <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
         <span class="hidden sm:inline">Editar</span>
       </button>
-
       <button
         type="button"
-        class="arquivar-categoria inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-warning-border bg-white transition text-sm text-warning hover:bg-amber-50"
+        class="arquivar-categoria ${BTN_ACAO_BASE} text-amber-700"
         data-id="${result.id}"
         title="Arquivar"
       >
@@ -297,16 +365,36 @@ function renderActionsButtons(result, tipo, isArquivada = false) {
   `;
 }
 
-function renderRow(result, tipo) {
+function renderCategoriaRowInner(result, tipo, isArquivada = false) {
+  const secondary = isArquivada
+    ? '<p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500">Arquivada</p>'
+    : "";
+  const actions = renderActionsButtons(result, tipo, isArquivada);
   return `
-    <td class="py-2 flex items-center gap-2">
-      <i class="fas ${result.icone}" style="color:${result.cor};"></i>
-      <span class="nome-categoria">${result.nome}</span>
-    </td>
-    <td class="py-2 text-right">
-      ${renderActionsButtons(result, tipo)}
-    </td>
+    <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4">
+      <div class="flex min-w-0 flex-1 items-center gap-2.5 md:min-w-0">
+        ${renderIconBox(result)}
+        <div class="min-w-0 flex-1">
+          <p class="nome-categoria truncate text-sm font-semibold leading-tight text-fg" title="${result.nome}">${result.nome}</p>
+          ${secondary}
+        </div>
+      </div>
+      <div class="flex shrink-0 flex-row items-center justify-end gap-1.5 min-w-0 sm:gap-2 md:gap-3">
+        ${actions}
+      </div>
+    </div>
   `;
+}
+
+function createListItem(result, tipo, isArquivada = false) {
+  const li = document.createElement("li");
+  li.setAttribute("role", "listitem");
+  li.dataset.categoriaItem = "1";
+  li.dataset.id = String(result.id);
+  li.dataset.tipo = tipo;
+  li.className = LI_ROW_CLASSES;
+  li.innerHTML = renderCategoriaRowInner(result, tipo, isArquivada);
+  return li;
 }
 
 // =====================
@@ -338,43 +426,41 @@ if (form) {
 
       if (result.status === "ok") {
         const tipo = result.tipo || (inputTipo ? inputTipo.value : "despesa");
-        const targetTbody = getTargetTbodyByTipo(tipo);
+        const targetLista = getTargetListaByTipo(tipo);
 
-        if (!targetTbody) {
-          showToast("Erro: tbodys não encontrados no template.", "erro");
+        if (!targetLista) {
+          showToast("Erro: listas não encontradas no template.", "erro");
           return;
         }
 
         if (categoriaEditandoId) {
-          // Atualiza linha existente
-          const tr = document.querySelector(`tr[data-id="${categoriaEditandoId}"]`);
-          if (!tr) {
-            showToast("Não encontrei a linha para editar.", "erro");
+          const li = document.querySelector(
+            `${LIST_ITEM_SELECTOR}[data-id="${categoriaEditandoId}"]`
+          );
+          if (!li) {
+            showToast("Não encontrei a categoria para editar.", "erro");
             return;
           }
 
-          // Move se mudou o tipo
-          if (tr.parentElement !== targetTbody) {
-            tr.remove();
-            targetTbody.appendChild(tr);
+          if (li.parentElement !== targetLista) {
+            li.remove();
+            targetLista.appendChild(li);
           }
 
-          tr.dataset.id = categoriaEditandoId;
-          tr.innerHTML = renderRow(
+          li.dataset.id = String(categoriaEditandoId);
+          li.innerHTML = renderCategoriaRowInner(
             {
               id: result.id,
               nome: result.nome,
               icone: result.icone,
               cor: result.cor,
             },
-            tipo
+            tipo,
+            false
           );
         } else {
-          // Cria nova linha
-          const tr = document.createElement("tr");
-          tr.dataset.id = result.id;
-          tr.classList.add("border-b", "border-gray-100", "transition", "hover:bg-gray-50/80");
-          tr.innerHTML = renderRow(
+          removeEmptyPlaceholder(targetLista);
+          const li = createListItem(
             {
               id: result.id,
               nome: result.nome,
@@ -383,8 +469,7 @@ if (form) {
             },
             tipo
           );
-
-          targetTbody.appendChild(tr);
+          targetLista.appendChild(li);
         }
 
         // Fecha modal + limpa
@@ -395,7 +480,7 @@ if (form) {
         limparCores();
 
         if (inputTipo) inputTipo.value = getTipoAbaAtiva();
-        if (overlay) overlay.classList.add("hidden");
+        globalThis.GranaGoModal?.close(overlay);
 
         showToast(categoriaEditandoId ? "Categoria editada com sucesso!" : "Categoria salva com sucesso!");
         categoriaEditandoId = null;
@@ -423,34 +508,21 @@ if (form) {
   });
 }
 
-function renderRowArquivada(result, tipo) {
-  return `
-    <td class="py-2 px-6 flex items-center gap-2">
-      <i class="fas ${result.icone}" style="color:${result.cor};"></i>
-      <span class="nome-categoria">${result.nome}</span>
-      <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600">Arquivada</span>
-    </td>
-    <td class="py-2 text-right px-6">
-      ${renderActionsButtons({ id: result.id, nome: result.nome, icone: result.icone, cor: result.cor }, tipo, true)}
-    </td>
-  `;
-}
-
-// Delegação em document para cobrir tabela ativas e seção arquivadas
+// Delegação em document para listas ativas e arquivadas
 document.addEventListener("click", (e) => {
   const btnEditar = e.target.closest(".editar-categoria");
   if (btnEditar) {
     e.preventDefault();
-    const tr = btnEditar.closest("tr");
-    if (!tr) return;
-    if (tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
-    const id = tr.dataset.id;
-      const nome = btnEditar.dataset.nome || safeText(tr.querySelector(".nome-categoria")?.textContent);
-      const icone = btnEditar.dataset.icone || "fa-ellipsis-h";
-      const cor = btnEditar.dataset.cor || "#4F46E5";
-      const tipo =
-        btnEditar.dataset.tipo ||
-        (tr.parentElement && tr.parentElement.id === "tbody-receita" ? "receita" : "despesa");
+    const item = closestCategoriaItem(btnEditar);
+    if (!item) return;
+    if (isListaArquivadas(item.parentElement)) return;
+    const id = item.dataset.id;
+    const nome = btnEditar.dataset.nome || safeText(item.querySelector(".nome-categoria")?.textContent);
+    const icone = btnEditar.dataset.icone || "fa-ellipsis-h";
+    const cor = btnEditar.dataset.cor || "#4F46E5";
+    const tipo =
+      btnEditar.dataset.tipo ||
+      (item.parentElement?.id === "lista-receita" ? "receita" : "despesa");
     preencherModal(nome, icone, cor, tipo, id);
     return;
   }
@@ -458,10 +530,10 @@ document.addEventListener("click", (e) => {
   const btnArquivar = e.target.closest(".arquivar-categoria");
   if (btnArquivar) {
     e.preventDefault();
-    const tr = btnArquivar.closest("tr");
-    if (!tr) return;
-    if (tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
-    categoriaParaAcao = tr;
+    const item = closestCategoriaItem(btnArquivar);
+    if (!item) return;
+    if (isListaArquivadas(item.parentElement)) return;
+    categoriaParaAcao = item;
     acaoPendente = "arquivar";
       if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Arquivar categoria?";
       if (modalAcaoMsg)
@@ -471,18 +543,18 @@ document.addEventListener("click", (e) => {
         btnConfirmarAcao.textContent = "Arquivar";
         btnConfirmarAcao.className = "btn btn-warning-soft btn-sm";
       }
-    if (overlayAcao) overlayAcao.classList.remove("hidden");
+    globalThis.GranaGoModal?.open(overlayAcao);
     return;
   }
 
   const btnExcluirDef = e.target.closest(".excluir-definitivamente");
   if (btnExcluirDef) {
     e.preventDefault();
-    const tr = btnExcluirDef.closest("tr");
-    if (!tr) return;
-    categoriaParaAcao = tr;
-    const id = tr.dataset.id;
-    const tipo = tr.dataset.tipo || "despesa";
+    const item = closestCategoriaItem(btnExcluirDef);
+    if (!item) return;
+    categoriaParaAcao = item;
+    const id = item.dataset.id;
+    const tipo = item.dataset.tipo || "despesa";
 
     fetch(`/categorias/verificar-exclusao/${id}/`, {
       method: "GET",
@@ -500,7 +572,7 @@ document.addEventListener("click", (e) => {
             btnConfirmarAcao.textContent = "Excluir";
             btnConfirmarAcao.className = "btn btn-danger btn-sm";
           }
-          if (overlayAcao) overlayAcao.classList.remove("hidden");
+          globalThis.GranaGoModal?.open(overlayAcao);
         } else if (result.status === "ok" && result.count > 0) {
           abrirModalMigracao(id, tipo, result.count);
         } else {
@@ -517,16 +589,16 @@ document.addEventListener("click", (e) => {
   const btnRestaurar = e.target.closest(".restaurar-categoria");
   if (btnRestaurar) {
     e.preventDefault();
-    const tr = btnRestaurar.closest("tr");
-    if (!tr || !tr.closest("#tbody-despesa-arquivadas, #tbody-receita-arquivadas")) return;
-    const id = tr.dataset.id;
-    const tipo = tr.dataset.tipo || "despesa";
-    const nome = safeText(tr.querySelector(".nome-categoria")?.textContent);
-    const iconEl = tr.querySelector("i.fas");
+    const item = closestCategoriaItem(btnRestaurar);
+    if (!item || !isListaArquivadas(item.parentElement)) return;
+    const id = item.dataset.id;
+    const tipo = item.dataset.tipo || "despesa";
+    const nome = safeText(item.querySelector(".nome-categoria")?.textContent);
+    const iconEl = item.querySelector("i.fas");
     const icone = [...(iconEl?.classList || [])].find((c) =>
       c.startsWith("fa-") && !["fas", "far", "fab"].includes(c)
     ) || "fa-ellipsis-h";
-    const cor = iconEl?.getAttribute("style")?.match(/color:\s*([^;]+)/)?.[1]?.trim() || "#4F46E5";
+    const cor = getCorFromIconEl(iconEl);
 
     const formData = new FormData();
     formData.append("categoria_id", id);
@@ -540,26 +612,24 @@ document.addEventListener("click", (e) => {
       .then((r) => r.json())
       .then((result) => {
         if (result.status === "ok") {
-          const targetAtivas = getTargetTbodyByTipo(result.tipo || tipo);
-          const emptyRow = targetAtivas?.querySelector("tr td[colspan]")?.closest("tr");
-          if (emptyRow) emptyRow.remove();
-          tr.remove();
-          const newTr = document.createElement("tr");
-          newTr.dataset.id = id;
-          newTr.dataset.tipo = result.tipo || tipo;
-          newTr.className = "border-b border-gray-100 transition hover:bg-gray-50/80";
-          newTr.innerHTML = renderRow(
-            { id, nome, icone, cor },
-            result.tipo || tipo
-          );
-          if (targetAtivas) targetAtivas.appendChild(newTr);
-          const parentArq = tr.closest("tbody");
-          const restantesArq = parentArq?.querySelectorAll("tr[data-id]")?.length ?? 0;
-          if (restantesArq === 0 && parentArq) {
-            const emptyTr = document.createElement("tr");
-            emptyTr.id = parentArq.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
-            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td>';
-            parentArq.appendChild(emptyTr);
+          const tipoFinal = result.tipo || tipo;
+          const targetAtivas = getTargetListaByTipo(tipoFinal);
+          const parentArq = item.parentElement;
+          removeEmptyPlaceholder(targetAtivas);
+          item.remove();
+          if (targetAtivas) {
+            targetAtivas.appendChild(
+              createListItem({ id, nome, icone, cor }, tipoFinal, false)
+            );
+          }
+          if (parentArq && countCategorias(parentArq) === 0) {
+            ensureEmptyPlaceholder(
+              parentArq,
+              "Nenhuma categoria arquivada.",
+              parentArq.id === "lista-despesa-arquivadas"
+                ? "empty-despesa-arquivadas"
+                : "empty-receita-arquivadas"
+            );
           }
           showToast("Categoria restaurada com sucesso!", "sucesso");
           if (typeof window.atualizarContadorArquivadas === "function") {
@@ -579,13 +649,6 @@ document.addEventListener("click", (e) => {
 // =====================
 // Modal Migração
 // =====================
-if (btnCancelarMigracao) {
-  btnCancelarMigracao.addEventListener("click", () => {
-    categoriaParaAcao = null;
-    acaoPendente = null;
-    if (overlayMigracao) overlayMigracao.classList.add("hidden");
-  });
-}
 
 if (btnConfirmarMigracao) {
   btnConfirmarMigracao.addEventListener("click", async () => {
@@ -617,11 +680,14 @@ if (btnConfirmarMigracao) {
         const parent = categoriaParaAcao.parentElement;
         const tipo = categoriaParaAcao.dataset.tipo || "despesa";
         categoriaParaAcao.remove();
-        if (parent?.querySelectorAll("tr[data-id]").length === 0 && parent) {
-          const emptyTr = document.createElement("tr");
-          emptyTr.id = parent.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
-          emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6" style="color: rgba(52,73,94,.6);">Nenhuma categoria arquivada.</td>';
-          parent.appendChild(emptyTr);
+        if (parent && countCategorias(parent) === 0) {
+          ensureEmptyPlaceholder(
+            parent,
+            "Nenhuma categoria arquivada.",
+            parent.id === "lista-despesa-arquivadas"
+              ? "empty-despesa-arquivadas"
+              : "empty-receita-arquivadas"
+          );
         }
         showToast("Transações transferidas e categoria excluída com sucesso!", "sucesso");
         if (typeof window.atualizarContadorArquivadas === "function") {
@@ -639,7 +705,7 @@ if (btnConfirmarMigracao) {
       console.error(err);
       showToast("Erro inesperado!", "erro");
     } finally {
-      if (overlayMigracao) overlayMigracao.classList.add("hidden");
+      globalThis.GranaGoModal?.close(overlayMigracao);
       categoriaParaAcao = null;
       acaoPendente = null;
     }
@@ -649,13 +715,6 @@ if (btnConfirmarMigracao) {
 // =====================
 // Modal: Arquivar / Excluir definitivamente
 // =====================
-if (btnCancelarAcao) {
-  btnCancelarAcao.addEventListener("click", () => {
-    categoriaParaAcao = null;
-    acaoPendente = null;
-    if (overlayAcao) overlayAcao.classList.add("hidden");
-  });
-}
 
 if (btnConfirmarAcao) {
   btnConfirmarAcao.addEventListener("click", async () => {
@@ -676,35 +735,31 @@ if (btnConfirmarAcao) {
         const result = await response.json();
 
         if (result.status === "ok") {
-          const parentTbody = categoriaParaAcao.closest("tbody");
-          const tipo = categoriaParaAcao.dataset.tipo || (parentTbody?.id === "tbody-despesa" ? "despesa" : "receita");
+          const listaAtivas = categoriaParaAcao.parentElement;
+          const tipo =
+            categoriaParaAcao.dataset.tipo ||
+            (listaAtivas?.id === "lista-receita" ? "receita" : "despesa");
           const nome = safeText(categoriaParaAcao.querySelector(".nome-categoria")?.textContent);
           const iconeEl = categoriaParaAcao.querySelector("i.fas");
           const icone = iconeEl?.className?.match(/fa-[a-z0-9-]+/)?.[0] || "fa-ellipsis-h";
-          const cor = iconeEl?.style?.color || "#4F46E5";
+          const cor = getCorFromIconEl(iconeEl);
 
-          const tbodyAtivas = parentTbody;
-          const emptyRow = tbodyAtivas?.querySelector("tr td[colspan]");
-          if (emptyRow) emptyRow.closest("tr")?.remove();
           categoriaParaAcao.remove();
-          const restantes = tbodyAtivas?.querySelectorAll("tr[data-id]")?.length ?? 0;
-          if (restantes === 0 && tbodyAtivas) {
-            const msg = tipo === "despesa" ? "Nenhuma categoria de despesa." : "Nenhuma categoria de receita.";
-            const trEmpty = document.createElement("tr");
-            trEmpty.innerHTML = `<td colspan="2" class="py-4 text-center text-fg-muted">${msg}</td>`;
-            tbodyAtivas.appendChild(trEmpty);
+          if (listaAtivas && countCategorias(listaAtivas) === 0) {
+            const msg =
+              tipo === "despesa"
+                ? "Nenhuma categoria de despesa."
+                : "Nenhuma categoria de receita.";
+            ensureEmptyPlaceholder(listaAtivas, msg);
           }
 
-          const targetArquivadas = tipo === "receita" ? tbodyReceitaArquivadas : tbodyDespesaArquivadas;
+          const targetArquivadas =
+            tipo === "receita" ? listaReceitaArquivadas : listaDespesaArquivadas;
           if (targetArquivadas) {
-            const emptyArq = targetArquivadas.querySelector("tr[id^='empty']");
-            if (emptyArq) emptyArq.remove();
-            const newTr = document.createElement("tr");
-            newTr.className = "border-b border-gray-100 transition hover:bg-gray-50/80";
-            newTr.dataset.id = id;
-            newTr.dataset.tipo = tipo;
-            newTr.innerHTML = renderRowArquivada({ id, nome, icone, cor }, tipo);
-            targetArquivadas.appendChild(newTr);
+            removeEmptyPlaceholder(targetArquivadas);
+            targetArquivadas.appendChild(
+              createListItem({ id, nome, icone, cor }, tipo, true)
+            );
           }
           showToast("Categoria arquivada com sucesso!", "sucesso");
           if (typeof window.atualizarContadorArquivadas === "function") {
@@ -724,17 +779,19 @@ if (btnConfirmarAcao) {
         const result = await response.json();
 
         if (result.status === "ok") {
-          const parentTbodyExcluir = categoriaParaAcao.closest("tbody");
-          const tipo = categoriaParaAcao.dataset.tipo ||
-            (parentTbodyExcluir?.id === "tbody-receita-arquivadas" ? "receita" : "despesa");
           const parent = categoriaParaAcao.parentElement;
-          const wasEmpty = parent && parent.querySelectorAll("tr").length <= 1;
+          const tipo =
+            categoriaParaAcao.dataset.tipo ||
+            (parent?.id === "lista-receita-arquivadas" ? "receita" : "despesa");
           categoriaParaAcao.remove();
-          if (wasEmpty && (parent?.id === "tbody-despesa-arquivadas" || parent?.id === "tbody-receita-arquivadas")) {
-            const emptyTr = document.createElement("tr");
-            emptyTr.id = parent.id === "tbody-despesa-arquivadas" ? "empty-despesa-arquivadas" : "empty-receita-arquivadas";
-            emptyTr.innerHTML = '<td colspan="2" class="py-4 text-center px-6 text-fg-muted">Nenhuma categoria arquivada.</td>';
-            parent.appendChild(emptyTr);
+          if (parent && isListaArquivadas(parent) && countCategorias(parent) === 0) {
+            ensureEmptyPlaceholder(
+              parent,
+              "Nenhuma categoria arquivada.",
+              parent.id === "lista-despesa-arquivadas"
+                ? "empty-despesa-arquivadas"
+                : "empty-receita-arquivadas"
+            );
           }
           showToast("Categoria excluída definitivamente!", "sucesso");
           if (typeof window.atualizarContadorArquivadas === "function") {
@@ -755,7 +812,7 @@ if (btnConfirmarAcao) {
       console.error(err);
       showToast("Erro inesperado!", "erro");
     } finally {
-      if (overlayAcao) overlayAcao.classList.add("hidden");
+      globalThis.GranaGoModal?.close(overlayAcao);
       categoriaParaAcao = null;
       acaoPendente = null;
     }

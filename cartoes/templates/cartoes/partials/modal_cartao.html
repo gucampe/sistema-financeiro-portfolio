@@ -1,8 +1,9 @@
 {% load static %}
 {% load icon_filters %}
 
-<div id="overlay-modal-cartao" class="modal-overlay hidden">
-  <div class="modal-panel mx-auto w-full max-w-lg">
+<div id="overlay-modal-cartao" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="titulo-modal-cartao">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-lg">
     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5">
       <div class="min-w-0 pr-2">
         <h2 id="titulo-modal-cartao" class="text-xl font-semibold leading-tight text-fg sm:text-2xl">Novo Cartão</h2>
@@ -10,6 +11,7 @@
       </div>
       <button id="btn-fechar-modal-cartao"
               type="button"
+              data-modal-close
               class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-fg transition hover:bg-gray-200"
               aria-label="Fechar modal">
         ✕
@@ -39,7 +41,9 @@
 
       <div>
         <label for="cartao_limite" class="block text-sm font-medium mb-1 text-fg">Limite</label>
-        <input type="text" name="limite" id="cartao_limite" required class="input w-full" placeholder="Ex.: 2500,00">
+        <input type="text" name="limite" id="cartao_limite" required
+               class="input input-moeda w-full"
+               data-moeda-input autocomplete="off" inputmode="decimal">
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -99,21 +103,27 @@
 
       <div>
         <label class="block text-sm font-medium mb-2 text-fg">Ícone</label>
-        <div id="icon-grid-cartao" class="grid max-h-48 grid-cols-6 gap-3 overflow-y-auto overscroll-contain">
+        <div id="icon-grid-cartao" class="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto overscroll-contain sm:max-h-48 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6">
           {% for slug, nome, arquivo in icon_list_instituicoes %}
             <button type="button"
-                    class="item-icone-cartao relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
+                    class="item-icone-cartao relative flex h-14 w-full min-h-[2.75rem] cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 bg-gray-50/80 p-2 transition hover:border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
                     data-icone="{{ slug }}"
-                    title="{{ nome }}">
-              <img src="{% static 'contas/icons/instituicoes/' %}{{ arquivo }}.png" class="w-6 h-6 object-contain" alt="{{ nome }}">
+                    title="{{ nome }}"
+                    aria-label="{{ nome }}">
+              <span class="flex h-8 w-8 shrink-0 items-center justify-center">
+                <img src="{% static 'contas/icons/instituicoes/' %}{{ arquivo }}.png" class="max-h-full max-w-full object-contain pointer-events-none" alt="">
+              </span>
             </button>
           {% endfor %}
           {% for slug, nome, arquivo in icon_list_genericos %}
             <button type="button"
-                    class="item-icone-cartao relative cursor-pointer rounded-lg p-3 flex items-center justify-center transition border border-gray-300 hover:bg-gray-100"
+                    class="item-icone-cartao relative flex h-14 w-full min-h-[2.75rem] cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 bg-gray-50/80 p-2 transition hover:border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
                     data-icone="{{ slug }}"
-                    title="{{ nome }}">
-              <img src="{% static 'contas/icons/genericos/' %}{{ arquivo }}.svg" class="w-6 h-6 object-contain" alt="{{ nome }}">
+                    title="{{ nome }}"
+                    aria-label="{{ nome }}">
+              <span class="flex h-8 w-8 shrink-0 items-center justify-center">
+                <img src="{% static 'contas/icons/genericos/' %}{{ arquivo }}.svg" class="max-h-full max-w-full object-contain pointer-events-none" alt="">
+              </span>
             </button>
           {% endfor %}
         </div>
@@ -121,7 +131,7 @@
       </div>
 
       <div class="flex shrink-0 flex-col-reverse gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
-        <button id="btn-cancelar-modal-cartao" type="button" class="btn btn-secondary btn-sm w-full sm:w-auto">Cancelar</button>
+        <button id="btn-cancelar-modal-cartao" type="button" data-modal-close class="btn btn-secondary btn-sm w-full sm:w-auto">Cancelar</button>
         <button type="submit" class="btn btn-primary btn-sm w-full sm:w-auto">Salvar</button>
       </div>
     </form>
