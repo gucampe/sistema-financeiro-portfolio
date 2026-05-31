@@ -1,252 +1,213 @@
-function queryStringFiltrosRelatorio() {
-  const fromServer =
-    typeof window.filtrosQueryString === 'string' ? window.filtrosQueryString.trim() : '';
-  if (fromServer) return fromServer;
-  const s = window.location.search || '';
-  return s.startsWith('?') ? s.slice(1) : s;
+function parseJsonScript(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  try {
+    return JSON.parse(el.textContent);
+  } catch {
+    return null;
+  }
+}
+
+function moedaTick(value) {
+  return `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+const DASHBOARD_MQ_LG = '(min-width: 1024px)';
+
+function initDashboardMasonry() {
+  const container = document.getElementById('dashboard-masonry');
+  if (!container) return () => {};
+
+  const mq = window.matchMedia(DASHBOARD_MQ_LG);
+  const items = () => [...container.querySelectorAll('.dashboard-masonry-item')];
+  let frame = null;
+
+  const clearLayout = () => {
+    container.style.height = '';
+    container.style.width = '';
+    items().forEach((item) => {
+      item.style.position = '';
+      item.style.top = '';
+      item.style.left = '';
+      item.style.width = '';
+      item.style.visibility = '';
+    });
+  };
+
+  const containerWidth = () => {
+    container.style.width = '100%';
+    const own = container.getBoundingClientRect().width;
+    if (own > 0) return own;
+    const parent = container.parentElement;
+    return parent ? parent.getBoundingClientRect().width : 0;
+  };
+
+  const layout = (options = {}) => {
+    const { reveal = true } = options;
+    const cards = items();
+    if (!cards.length) return;
+
+    if (!mq.matches) {
+      clearLayout();
+      if (reveal) container.classList.remove('dashboard-masonry--pending');
+      return;
+    }
+
+    const gap =
+      Number.parseFloat(getComputedStyle(container).gap) ||
+      Number.parseFloat(getComputedStyle(container).rowGap) ||
+      24;
+    const width = containerWidth();
+    if (width <= 0) return;
+
+    const colWidth = (width - gap) / 2;
+    const heights = cards.map((item) => {
+      item.style.position = 'absolute';
+      item.style.width = `${colWidth}px`;
+      item.style.left = '0';
+      item.style.top = '0';
+      item.style.visibility = 'hidden';
+      return item.offsetHeight;
+    });
+
+    const colHeights = [0, 0];
+    cards.forEach((item, index) => {
+      const col = colHeights[0] <= colHeights[1] ? 0 : 1;
+      item.style.visibility = '';
+      item.style.left = `${col * (colWidth + gap)}px`;
+      item.style.top = `${colHeights[col]}px`;
+      colHeights[col] += heights[index] + gap;
+    });
+
+    const totalHeight = Math.max(colHeights[0], colHeights[1]);
+    container.style.width = '100%';
+    container.style.height = `${Math.max(0, totalHeight - gap)}px`;
+    if (reveal) container.classList.remove('dashboard-masonry--pending');
+  };
+
+  const scheduleLayout = (options) => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => layout(options));
+  };
+
+  mq.addEventListener('change', () => {
+    if (mq.matches) {
+      container.classList.add('dashboard-masonry--pending');
+      scheduleLayout({ reveal: true });
+    } else {
+      clearLayout();
+      container.classList.remove('dashboard-masonry--pending');
+    }
+  });
+
+  window.addEventListener('resize', () => scheduleLayout({ reveal: false }));
+
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(() => scheduleLayout({ reveal: false }));
+    observer.observe(container);
+    if (container.parentElement) observer.observe(container.parentElement);
+    items().forEach((item) => observer.observe(item));
+  }
+
+  if (mq.matches) {
+    container.classList.add('dashboard-masonry--pending');
+    layout({ reveal: true });
+  } else {
+    container.classList.remove('dashboard-masonry--pending');
+  }
+
+  return () => scheduleLayout({ reveal: false });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('grafico-receitas-despesas');
-  if (canvas && window.urlApiSerieTendencia) {
-    const q = queryStringFiltrosRelatorio();
-    const base = String(window.urlApiSerieTendencia).split('#')[0];
-    const url = q ? `${base}?${q}` : base;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const root = document.getElementById('dashboard-root');
+  const toggleBtn = document.getElementById('btn-toggle-valores');
+  const MASCARA = '••••••';
+  const relayoutMasonry = initDashboardMasonry();
 
-    const msgErro = (texto) => {
-      canvas.insertAdjacentHTML(
-        'afterend',
-        `<p class="text-sm text-red-600 mt-2" role="alert">${texto}</p>`,
-      );
-    };
+  const aplicarOcultar = (ocultar) => {
+    root?.querySelectorAll('.dash-valor').forEach((el) => {
+      el.textContent = ocultar ? MASCARA : el.dataset.valor || MASCARA;
+    });
+    root?.classList.toggle('dashboard--ocultar-valores', ocultar);
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-pressed', ocultar ? 'true' : 'false');
+      toggleBtn.title = ocultar ? 'Exibir valores' : 'Ocultar valores';
+    }
+  };
 
-    fetch(url, { credentials: 'same-origin', headers: { Accept: 'application/json' } })
-      .then((res) => {
-        if (res.type === 'opaqueredirect' || res.redirected) {
-          window.location.assign(res.url || window.location.href);
-          return null;
-        }
-        if (!res.ok) {
-          return res.text().then((t) => {
-            throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`);
-          });
-        }
-        const ct = res.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) {
-          throw new Error('Resposta não é JSON (sessão expirou?)');
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data === null) return;
-        if (data && data.erro && data.detail) {
-          throw new Error(data.detail);
-        }
-        if (
-          !data ||
-          !Array.isArray(data.labels) ||
-          !Array.isArray(data.receitas) ||
-          !Array.isArray(data.despesas)
-        ) {
-          throw new Error('Resposta inválida da API de série');
-        }
-        if (typeof Chart === 'undefined') {
-          throw new Error('Chart.js não carregou');
-        }
-        const despesas = data.despesas.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0));
-        const receitas = data.receitas.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0));
-        const ajustes = Array.isArray(data.ajustes)
-          ? data.ajustes.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0))
-          : [];
-
-        const gradReceitas = ctx.createLinearGradient(0, 0, 0, 220);
-        gradReceitas.addColorStop(0, 'rgba(16,185,129,0.4)');
-        gradReceitas.addColorStop(1, 'rgba(16,185,129,0.05)');
-        const gradDespesas = ctx.createLinearGradient(0, 0, 0, 220);
-        gradDespesas.addColorStop(0, 'rgba(239,68,68,0.4)');
-        gradDespesas.addColorStop(1, 'rgba(239,68,68,0.05)');
-
-        const datasets = [
-          {
-            label: 'Receitas',
-            data: receitas,
-            borderColor: '#10b981',
-            backgroundColor: gradReceitas,
-            pointRadius: 3,
-            tension: 0.35,
-            fill: true,
-          },
-          {
-            label: 'Despesas',
-            data: despesas,
-            borderColor: '#ef4444',
-            backgroundColor: gradDespesas,
-            pointRadius: 3,
-            tension: 0.35,
-            fill: true,
-          },
-        ];
-        if (ajustes.some((v) => Number(v) !== 0)) {
-          datasets.push({
-            label: 'Ajustes',
-            data: ajustes,
-            borderColor: '#6b7280',
-            backgroundColor: 'transparent',
-            pointRadius: 2,
-            tension: 0.35,
-            fill: false,
-          });
-        }
-
-        try {
-          new Chart(ctx, {
-            type: 'line',
-            data: { labels: data.labels, datasets },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: { display: true, position: 'bottom' },
-                tooltip: {
-                  backgroundColor: '#1f2937',
-                  titleColor: '#fff',
-                  bodyColor: '#d1d5db',
-                  padding: 8,
-                },
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: {
-                    callback: (value) => 'R$ ' + Number(value).toLocaleString('pt-BR'),
-                    color: '#4b5563',
-                    font: { size: 10 },
-                  },
-                },
-                x: {
-                  ticks: { color: '#4b5563', font: { size: 10 }, maxRotation: 45 },
-                },
-              },
-            },
-          });
-        } catch (e) {
-          throw new Error(e && e.message ? e.message : 'Falha ao montar o gráfico');
-        }
-      })
-      .catch((err) => {
-        const det = err && err.message ? err.message : '';
-        msgErro(
-          det
-            ? `Não foi possível carregar o gráfico de tendência. ${det}`
-            : 'Não foi possível carregar o gráfico de tendência. Atualize a página ou verifique se está autenticado.',
-        );
-      });
+  if (root) {
+    aplicarOcultar(root.dataset.ocultar === '1');
   }
 
-  const catCanvas = document.getElementById('grafico-categorias');
-  const topEl = document.getElementById('top-despesas-data');
-  if (catCanvas && topEl) {
-    let topData = [];
+  toggleBtn?.addEventListener('click', async () => {
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
     try {
-      topData = JSON.parse(topEl.textContent);
+      const res = await fetch(toggleBtn.dataset.url, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf || '', 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      root.dataset.ocultar = data.ocultar ? '1' : '0';
+      aplicarOcultar(data.ocultar);
+      relayoutMasonry();
     } catch {
-      topData = [];
+      /* silencioso */
     }
-    if (topData.length) {
-      if (typeof Chart === 'undefined') return;
-      const truncar = (s, max) => {
-        const t = String(s ?? '').trim();
-        if (t.length <= max) return t;
-        return `${t.slice(0, Math.max(0, max - 1))}…`;
-      };
-      const valores = topData.map((x) => {
-        const n = Number(x.total);
-        return Number.isFinite(n) ? n : 0;
-      });
-      const maxVal = Math.max(...valores, 1);
-      const labels = topData.map((x) => truncar(x.nome, 26));
-      const cctx = catCanvas.getContext('2d');
-      if (!cctx) return;
-      new Chart(cctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Despesas',
-              data: valores,
-              backgroundColor: topData.map((x) => x.cor || '#6B7280'),
-              borderWidth: 0,
-              // Eixo Y = categorias: altura da barra em px (barras horizontais).
-              barThickness: 10,
-            },
-          ],
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          datasets: {
-            bar: {
-              categoryPercentage: 0.4,
-              barPercentage: 0.65,
-            },
-          },
-          layout: { padding: { left: 2, right: 10, top: 2, bottom: 2 } },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title(items) {
-                  const i = items[0]?.dataIndex;
-                  return i != null ? String(topData[i]?.nome ?? '') : '';
-                },
-                label(ctx) {
-                  const v = ctx.parsed?.x;
-                  return ` ${Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
-                },
-              },
-            },
-          },
-          scales: {
-            x: {
-              type: 'linear',
-              beginAtZero: true,
-              suggestedMax: maxVal * 1.06,
-              ticks: {
-                maxTicksLimit: 6,
-                callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR'),
-                font: { size: 9 },
-              },
-              grid: { color: 'rgba(0,0,0,0.06)' },
-            },
-            y: {
-              grid: { display: false },
-              ticks: {
-                font: { size: 9 },
-                autoSkip: false,
-                padding: 2,
-              },
-            },
-          },
-        },
-      });
-    } else {
-      catCanvas.insertAdjacentHTML(
-        'afterend',
-        '<p class="text-sm text-gray-500 mt-2">Sem despesas por categoria neste período.</p>',
-      );
-    }
-  }
+  });
 
   window.resizeDashboardCharts = () => {
-    ['grafico-receitas-despesas', 'grafico-categorias'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el || typeof Chart === 'undefined') return;
-      const chart = Chart.getChart(el);
-      if (chart) chart.resize();
-    });
+    if (typeof Chart !== 'undefined') {
+      const el = document.getElementById('grafico-categorias');
+      if (el) {
+        const chart = Chart.getChart(el);
+        if (chart) chart.resize();
+      }
+    }
+    relayoutMasonry();
   };
+
+  if (typeof Chart !== 'undefined') {
+    const catCanvas = document.getElementById('grafico-categorias');
+    const topData = parseJsonScript('top-despesas-data') || [];
+    if (catCanvas && topData.length) {
+      const cctx = catCanvas.getContext('2d');
+      if (cctx) {
+        new Chart(cctx, {
+          type: 'doughnut',
+          data: {
+            labels: topData.map((x) => x.nome),
+            datasets: [
+              {
+                data: topData.map((x) => (Number.isFinite(Number(x.total)) ? Number(x.total) : 0)),
+                backgroundColor: topData.map((x) => x.cor || '#6B7280'),
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 8,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '68%',
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label(ctx) {
+                    const pct = topData[ctx.dataIndex]?.pct;
+                    const val = moedaTick(ctx.parsed);
+                    return pct != null ? ` ${val} (${Math.round(pct)}%)` : ` ${val}`;
+                  },
+                },
+              },
+            },
+          },
+        });
+        relayoutMasonry();
+      }
+    }
+  }
 });

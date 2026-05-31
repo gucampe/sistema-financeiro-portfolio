@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
+
 from categorias.models import Categoria
 
 
 class OrcamentoCategoria(models.Model):
-    """Planejamento mensal por categoria de despesa."""
+    """Regra recorrente de limite mensal por categoria de despesa."""
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -17,28 +19,51 @@ class OrcamentoCategoria(models.Model):
         on_delete=models.CASCADE,
         related_name="orcamentos",
     )
-    ano = models.PositiveIntegerField()
-    mes = models.PositiveSmallIntegerField()  # 1–12
     valor_planejado = models.DecimalField(max_digits=12, decimal_places=2)
+    ativo = models.BooleanField(default=True, db_index=True)
+    inicio_ano = models.PositiveIntegerField()
+    inicio_mes = models.PositiveSmallIntegerField()  # 1–12
+    fim_ano = models.PositiveIntegerField(null=True, blank=True)
+    fim_mes = models.PositiveSmallIntegerField(null=True, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Orçamento por categoria"
         verbose_name_plural = "Orçamentos por categoria"
         constraints = [
             models.UniqueConstraint(
-                fields=["usuario", "categoria", "ano", "mes"],
-                name="relatorios_orcamento_unico_usuario_categoria_ano_mes",
+                fields=["usuario", "categoria"],
+                name="relatorios_orcamento_unico_usuario_categoria",
             ),
         ]
-        ordering = ["-ano", "-mes", "categoria__nome"]
+        ordering = ["categoria__nome"]
+
+    def vigente_em(self, ano: int, mes: int) -> bool:
+        if not self.ativo:
+            return False
+        ref = (ano, mes)
+        if ref < (self.inicio_ano, self.inicio_mes):
+            return False
+        if self.fim_ano is not None and self.fim_mes is not None:
+            if ref > (self.fim_ano, self.fim_mes):
+                return False
+        return True
 
     def clean(self):
         super().clean()
-        if self.mes < 1 or self.mes > 12:
-            raise ValidationError({"mes": "Mês inválido."})
+        if self.inicio_mes < 1 or self.inicio_mes > 12:
+            raise ValidationError({"inicio_mes": "Mês de início inválido."})
+        if self.fim_mes is not None and (self.fim_mes < 1 or self.fim_mes > 12):
+            raise ValidationError({"fim_mes": "Mês de fim inválido."})
+        if self.fim_ano is not None and self.fim_mes is not None:
+            if (self.fim_ano, self.fim_mes) < (self.inicio_ano, self.inicio_mes):
+                raise ValidationError({"fim_ano": "A vigência final deve ser posterior ao início."})
+        if self.valor_planejado is not None and self.valor_planejado <= 0:
+            raise ValidationError({"valor_planejado": "O valor deve ser maior que zero."})
         if self.categoria.tipo != "despesa":
             raise ValidationError({"categoria": "Orçamento só para categorias de despesa."})
-        if not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
+        if self.usuario_id and not (self.categoria.padrao or self.categoria.usuario_id == self.usuario_id):
             raise ValidationError({"categoria": "Categoria inválida para este usuário."})
 
     def save(self, *args, **kwargs):
@@ -46,7 +71,10 @@ class OrcamentoCategoria(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.categoria.nome} {self.mes:02d}/{self.ano}: {self.valor_planejado}"
+        fim = ""
+        if self.fim_ano and self.fim_mes:
+            fim = f" até {self.fim_mes:02d}/{self.fim_ano}"
+        return f"{self.categoria.nome} {self.inicio_mes:02d}/{self.inicio_ano}{fim}: {self.valor_planejado}"
 
 
 class ExportRelatorioJob(models.Model):

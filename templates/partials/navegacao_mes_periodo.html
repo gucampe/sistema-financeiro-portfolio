@@ -1,0 +1,81 @@
+{# Navegação ◀ Mês Ano ▾ ▶ — padrão histórico; use nav_mes_compact=True para variante compacta (ex. orçamentos). #}
+{# Contexto: ano, mes, data_mes, ano_anterior, mes_anterior, ano_proximo, mes_proximo, ano_hoje, mes_hoje, meses_dropdown, nav_qs_extra (opcional) #}
+{% if nav_mes_compact %}
+<div class="flex flex-wrap items-center justify-center gap-1.5 min-w-0" role="navigation" aria-label="Período da lista">
+  <a
+    href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}{{ nav_qs_extra }}"
+    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+    aria-label="Mês anterior"
+  >‹</a>
+
+  <div class="relative min-w-0 text-center">
+    <details class="group">
+      <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1 text-sm font-medium text-gray-600 transition hover:text-gray-900">
+        <span class="truncate">{{ data_mes|date:"F Y" }}</span>
+        <span class="shrink-0 text-[10px] opacity-60 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+      </summary>
+      <div class="absolute left-1/2 top-full z-50 mt-1 min-w-[10rem] max-h-72 -translate-x-1/2 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg ring-1 ring-gray-200">
+        {% for item in meses_dropdown %}
+        <a href="?ano={{ item.ano }}&mes={{ item.mes }}{{ nav_qs_extra }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
+          {{ item.data_mes|date:"F Y" }}
+        </a>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+
+  <a
+    href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}{{ nav_qs_extra }}"
+    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+    aria-label="Próximo mês"
+  >›</a>
+
+  {% if ano != ano_hoje or mes != mes_hoje %}
+  <a
+    href="?ano={{ ano_hoje }}&mes={{ mes_hoje }}{{ nav_qs_extra }}"
+    class="shrink-0 px-1 text-xs font-medium text-gray-500 transition hover:text-brand-600"
+  >
+    Hoje
+  </a>
+  {% endif %}
+</div>
+{% else %}
+<div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 min-w-0 shrink-0" role="navigation" aria-label="Navegação por mês">
+  <a
+    href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}{{ nav_qs_extra }}"
+    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+    aria-label="Mês anterior"
+  >‹</a>
+
+  <div class="text-center relative min-w-0">
+    <details class="group">
+      <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-brand-600">
+        <span class="truncate">{{ data_mes|date:"F Y" }}</span>
+        <span class="text-xs opacity-70 shrink-0 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+      </summary>
+      <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-50 min-w-[10rem] py-1.5 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200 max-h-72 overflow-y-auto">
+        {% for item in meses_dropdown %}
+        <a href="?ano={{ item.ano }}&mes={{ item.mes }}{{ nav_qs_extra }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
+          {{ item.data_mes|date:"F Y" }}
+        </a>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+
+  <a
+    href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}{{ nav_qs_extra }}"
+    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+    aria-label="Próximo mês"
+  >›</a>
+
+  {% if ano != ano_hoje or mes != mes_hoje %}
+  <a
+    href="?ano={{ ano_hoje }}&mes={{ mes_hoje }}{{ nav_qs_extra }}"
+    class="inline-flex shrink-0 items-center justify-center rounded-lg bg-gray-200 px-3 sm:px-4 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+  >
+    Ir pra hoje
+  </a>
+  {% endif %}
+</div>
+{% endif %}

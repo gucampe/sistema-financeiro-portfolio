@@ -5,9 +5,19 @@ from relatorios.models import ExportRelatorioJob, OrcamentoCategoria
 
 @admin.register(OrcamentoCategoria)
 class OrcamentoCategoriaAdmin(admin.ModelAdmin):
-    list_display = ("usuario", "categoria", "ano", "mes", "valor_planejado")
-    list_filter = ("ano", "mes")
+    list_display = (
+        "usuario",
+        "categoria",
+        "valor_planejado",
+        "ativo",
+        "inicio_ano",
+        "inicio_mes",
+        "fim_ano",
+        "fim_mes",
+    )
+    list_filter = ("ativo", "inicio_ano", "inicio_mes")
     search_fields = ("usuario__email", "categoria__nome")
+    readonly_fields = ("criado_em", "atualizado_em")
 
 
 @admin.register(ExportRelatorioJob)

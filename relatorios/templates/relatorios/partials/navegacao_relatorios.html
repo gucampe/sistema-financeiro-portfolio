@@ -1,8 +1,16 @@
-<nav class="-mx-1 flex gap-x-4 gap-y-2 overflow-x-auto border-b border-gray-200 px-1 pb-3 mb-4 text-sm whitespace-nowrap overscroll-x-contain" aria-label="Relatórios">
-  <a href="{% url 'relatorios:home' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'home' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Visão geral</a>
-  <a href="{% url 'relatorios:fluxo_caixa' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'fluxo_caixa' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Fluxo de caixa</a>
-  <a href="{% url 'relatorios:despesas_categoria' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'despesas_categoria' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Despesas por categoria</a>
-  <a href="{% url 'relatorios:receitas_categoria' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'receitas_categoria' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Receitas por categoria</a>
-  <a href="{% url 'relatorios:por_conta' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'por_conta' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Por conta</a>
-  <a href="{% url 'relatorios:comparativo' %}?{{ filtros_querystring }}" class="{% if relatorio_nav == 'comparativo' %}font-semibold text-brand-600 border-b-2 border-brand-600 -mb-3 pb-3{% else %}text-gray-600 hover:text-brand-600{% endif %}">Comparativo</a>
+<nav class="relatorios-tabs flex gap-x-6 overflow-x-auto overflow-y-hidden border-b border-gray-200 text-sm font-medium whitespace-nowrap overscroll-x-contain" aria-label="Relatórios">
+  <a href="{% url 'relatorios:home' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'home' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Visão geral</a>
+  <a href="{% url 'relatorios:orcamentos' %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'orcamentos' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Orçamentos</a>
+  <a href="{% url 'relatorios:fluxo_caixa' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'fluxo_caixa' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Fluxo de caixa</a>
+  <a href="{% url 'relatorios:despesas_categoria' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'despesas_categoria' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Despesas por categoria</a>
+  <a href="{% url 'relatorios:receitas_categoria' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'receitas_categoria' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Receitas por categoria</a>
+  <a href="{% url 'relatorios:por_conta' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'por_conta' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Por conta</a>
+  <a href="{% url 'relatorios:comparativo' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'comparativo' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Comparativo</a>
 </nav>

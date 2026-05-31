@@ -348,53 +348,6 @@ def resumo_comparativo(
 
 
 def orcamento_vs_realizado(usuario, filtros: RelatorioFiltros) -> list[dict[str, Any]]:
-    from categorias.models import Categoria
-    from relatorios.models import OrcamentoCategoria
+    from relatorios.services.orcamentos import orcamento_vs_realizado as _orcamento_vs_realizado
 
-    qs = aplicar_filtros_relatorio(
-        Transacao.objects.filter(usuario=usuario).select_related("categoria"),
-        filtros,
-    ).filter(tipo="despesa", categoria__tipo="despesa")
-
-    realizado_rows = (
-        qs.values("categoria_id", "categoria__nome", "categoria__cor").annotate(gasto=Sum("valor")).order_by("-gasto")
-    )
-    real_map: dict[int, dict[str, Any]] = {
-        r["categoria_id"]: r for r in realizado_rows if r["categoria_id"] is not None
-    }
-
-    planejado_por_cat: dict[int, Decimal] = defaultdict(lambda: Decimal("0"))
-    for y, m in _meses_no_intervalo(filtros.data_inicio, filtros.data_fim):
-        for o in OrcamentoCategoria.objects.filter(usuario=usuario, ano=y, mes=m).select_related("categoria"):
-            planejado_por_cat[o.categoria_id] += o.valor_planejado
-
-    categoria_ids = set(planejado_por_cat) | set(real_map.keys())
-    out: list[dict[str, Any]] = []
-    for cid in categoria_ids:
-        r = real_map.get(cid, {})
-        gasto = r.get("gasto") or Decimal("0")
-        planejado = planejado_por_cat.get(cid, Decimal("0"))
-        nome = r.get("categoria__nome")
-        cor = r.get("categoria__cor")
-        if nome is None:
-            cat = OrcamentoCategoria.objects.filter(usuario=usuario, categoria_id=cid).first()
-            if cat:
-                nome = cat.categoria.nome
-                cor = cat.categoria.cor
-            else:
-                c = Categoria.objects.filter(pk=cid).first()
-                nome = c.nome if c else "?"
-                cor = c.cor if c else "#6B7280"
-        pct = (gasto / planejado * 100) if planejado else None
-        out.append(
-            {
-                "categoria_id": cid,
-                "nome": nome,
-                "cor": cor or "#6B7280",
-                "planejado": planejado,
-                "realizado": gasto,
-                "percentual": pct,
-            }
-        )
-    out.sort(key=lambda x: x["realizado"], reverse=True)
-    return out
+    return _orcamento_vs_realizado(usuario, filtros)

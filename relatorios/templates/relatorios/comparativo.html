@@ -14,22 +14,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="relative mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
-  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+<div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
   {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <h2 class="text-xl font-semibold mb-1">Comparativo de períodos</h2>
-  <p class="text-sm text-gray-500 mb-4">Período A (filtros atuais) vs. período B (bloco anterior de mesma duração). Para datas B explícitas, use <code class="text-xs bg-gray-100 px-1 rounded">comparar=1&amp;comp_inicio=AAAA-MM-DD&amp;comp_fim=AAAA-MM-DD</code>.</p>
+  <header class="min-w-0">
+    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Comparativo de períodos</h2>
+    <p class="mt-1 text-sm text-gray-500">Período A (filtros atuais) vs. período B (bloco anterior de mesma duração). Para datas B explícitas, use <code class="rounded bg-gray-100 px-1 text-xs">comparar=1&amp;comp_inicio=AAAA-MM-DD&amp;comp_fim=AAAA-MM-DD</code>.</p>
+  </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    <div class="bg-white rounded-xl border p-4">
-      <h3 class="font-medium text-gray-700 mb-2">Período A</h3>
-      <p class="text-sm">{{ filtros_a.data_inicio|date:"d/m/Y" }} — {{ filtros_a.data_fim|date:"d/m/Y" }}</p>
-    </div>
-    <div class="bg-white rounded-xl border p-4">
-      <h3 class="font-medium text-gray-700 mb-2">Período B</h3>
-      <p class="text-sm">{{ filtros_b.data_inicio|date:"d/m/Y" }} — {{ filtros_b.data_fim|date:"d/m/Y" }}</p>
-    </div>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <section class="card min-w-0 p-6 sm:p-7">
+      <h3 class="text-base font-semibold tracking-tight text-gray-900">Período A</h3>
+      <p class="mt-1 text-sm text-gray-600">{{ filtros_a.data_inicio|date:"d/m/Y" }} — {{ filtros_a.data_fim|date:"d/m/Y" }}</p>
+    </section>
+    <section class="card min-w-0 p-6 sm:p-7">
+      <h3 class="text-base font-semibold tracking-tight text-gray-900">Período B</h3>
+      <p class="mt-1 text-sm text-gray-600">{{ filtros_b.data_inicio|date:"d/m/Y" }} — {{ filtros_b.data_fim|date:"d/m/Y" }}</p>
+    </section>
   </div>
 
   {% with a=comparativo.a b=comparativo.b d=comparativo.delta dp=comparativo.delta_pct %}
@@ -62,7 +64,7 @@
       </dl>
     </article>
   </div>
-  <div class="table-scroll hidden md:block bg-white shadow-sm text-sm">
+  <div class="table-scroll hidden md:block card min-w-0 overflow-hidden p-0 text-sm">
     <table class="w-full">
       <thead class="bg-gray-50 text-left text-gray-600">
         <tr>
@@ -99,5 +101,7 @@
     </table>
   </div>
   {% endwith %}
+
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 {% endblock %}

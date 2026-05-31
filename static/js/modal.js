@@ -29,6 +29,44 @@
 
   let handlersReady = false;
   let bodyScrollLock = 0;
+  /** @type {{ scrollY: number } | null} */
+  let scrollLockSnapshot = null;
+
+  function lockBodyScroll() {
+    bodyScrollLock += 1;
+    if (bodyScrollLock !== 1) return;
+
+    const scrollY = window.scrollY;
+    const viewportWidth = document.documentElement.clientWidth;
+
+    scrollLockSnapshot = { scrollY };
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = `${viewportWidth}px`;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+  }
+
+  function unlockBodyScroll() {
+    bodyScrollLock = Math.max(0, bodyScrollLock - 1);
+    if (bodyScrollLock !== 0 || !scrollLockSnapshot) return;
+
+    const { scrollY } = scrollLockSnapshot;
+    scrollLockSnapshot = null;
+
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+
+    window.scrollTo(0, scrollY);
+  }
 
   function resolveOverlay(overlayOrId) {
     if (!overlayOrId) return null;
@@ -177,20 +215,6 @@
       if (panel) {
         panel.removeAttribute("aria-modal");
       }
-    }
-  }
-
-  function lockBodyScroll() {
-    bodyScrollLock += 1;
-    if (bodyScrollLock === 1) {
-      document.documentElement.classList.add("overflow-hidden");
-    }
-  }
-
-  function unlockBodyScroll() {
-    bodyScrollLock = Math.max(0, bodyScrollLock - 1);
-    if (bodyScrollLock === 0) {
-      document.documentElement.classList.remove("overflow-hidden");
     }
   }
 
@@ -497,6 +521,8 @@
     unbind,
     open,
     close: closeOverlay,
+    lockScroll: lockBodyScroll,
+    unlockScroll: unlockBodyScroll,
     isVisible,
     getOpenOverlays,
     getPanel,

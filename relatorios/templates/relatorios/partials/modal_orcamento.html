@@ -1,0 +1,60 @@
+<div id="overlay-orcamento" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-orcamento-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-lg">
+    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5">
+      <div class="min-w-0 pr-2">
+        <h2 id="modal-orcamento-titulo" class="text-xl font-semibold leading-tight text-fg sm:text-2xl">Novo orçamento</h2>
+        <p class="text-sm text-fg-muted">Defina limite mensal e vigência por categoria de despesa.</p>
+      </div>
+      <button type="button" data-modal-close class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-fg transition hover:bg-gray-200" aria-label="Fechar modal">✕</button>
+    </div>
+
+    <div id="erro-orcamento" class="hidden shrink-0 mx-5 mt-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger sm:mx-6"></div>
+
+    <form id="form-orcamento" method="POST" action="{% url 'relatorios:orcamentos_salvar' %}" class="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {% csrf_token %}
+      <input type="hidden" name="orcamento_id" id="orcamento_id" value="">
+      <input type="hidden" name="ref_ano" id="ref_ano" value="{{ ano }}">
+      <input type="hidden" name="ref_mes" id="ref_mes" value="{{ mes }}">
+
+      <div class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">
+        <div>
+          <label for="id_categoria" class="mb-1 block text-sm font-medium text-fg">Categoria</label>
+          {{ form_orcamento.categoria }}
+        </div>
+        <div>
+          <label for="id_valor_planejado" class="mb-1 block text-sm font-medium text-fg">Valor mensal</label>
+          {{ form_orcamento.valor_planejado }}
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="id_inicio_mes" class="mb-1 block text-sm font-medium text-fg">Início (mês)</label>
+            {{ form_orcamento.inicio_mes }}
+          </div>
+          <div>
+            <label for="id_inicio_ano" class="mb-1 block text-sm font-medium text-fg">Início (ano)</label>
+            {{ form_orcamento.inicio_ano }}
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="id_fim_mes" class="mb-1 block text-sm font-medium text-fg">Fim (mês) <span class="text-fg-muted font-normal">opcional</span></label>
+            {{ form_orcamento.fim_mes }}
+          </div>
+          <div>
+            <label for="id_fim_ano" class="mb-1 block text-sm font-medium text-fg">Fim (ano)</label>
+            {{ form_orcamento.fim_ano }}
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          {{ form_orcamento.ativo }}
+          <label for="id_ativo" class="text-sm font-medium text-fg">Orçamento ativo</label>
+        </div>
+      </div>
+
+      <div class="shrink-0 border-t border-gray-100 px-5 py-4 sm:px-6">
+        <button type="submit" class="btn btn-primary btn-block">Salvar orçamento</button>
+      </div>
+    </form>
+  </div>
+</div>

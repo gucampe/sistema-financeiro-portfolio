@@ -1,19 +1,36 @@
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
 
 from categorias.models import Categoria
 from contas.models import Conta
 from transacoes.forms import TransacaoForm
 from usuarios.models import Perfil
+from usuarios.utils import primeiro_nome
 
+from relatorios.forms import OrcamentoCategoriaForm
+from relatorios.models import OrcamentoCategoria
+from relatorios.services.orcamentos import (
+    MESES_PT,
+    historico_utilizacao_categoria,
+    listar_orcamentos_mes,
+    navegacao_mes_context,
+    painel_mes_orcamento,
+    resumo_linhas_orcamento,
+    usuario_tem_orcamentos_cadastrados,
+    usuario_tem_orcamentos_vigentes_mes,
+)
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
     aplicar_filtros_relatorio,
     movimento_por_conta,
-    orcamento_vs_realizado,
     resumo_comparativo,
     resultado_fluxo,
     saldos_por_conta_totais,
@@ -22,7 +39,17 @@ from relatorios.services.agregacoes import (
     totais_por_tipo,
 )
 from relatorios.services.filtros import RelatorioFiltros, parse_comparativo_secundario, parse_relatorio_filtros
-from relatorios.services.insights import avaliar_alertas_orcamento, gerar_insights_dashboard
+from relatorios.services.dashboard import (
+    comparacao_mensal,
+    fluxo_caixa_futuro_dashboard,
+    contas_dashboard,
+    metas_financeiras,
+    query_transacoes_mes_atual,
+    resumo_cartoes_dashboard,
+    rotulo_periodo_atual,
+    saudacao_periodo,
+    top_despesas_mes_atual,
+)
 
 
 class RelatorioFiltrosMixin(LoginRequiredMixin):
@@ -54,30 +81,28 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
         filtros = ctx["filtros"]
-        qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
 
-        totais = totais_por_tipo(qs)
-        top_d = top_categorias(qs, "despesa", limit=8)
+        comparacao = comparacao_mensal(user)
+        totais_mes = comparacao["atual"]
+        patrimonio = contas_dashboard(user, limit=5)
+        cartoes = resumo_cartoes_dashboard(user)
+        fluxo_caixa = fluxo_caixa_futuro_dashboard(user)
+        metas = metas_financeiras(user)
+        tem_orcamentos_cadastrados = usuario_tem_orcamentos_cadastrados(user)
+        hoje = date.today()
+        tem_orcamentos_vigentes = usuario_tem_orcamentos_vigentes_mes(user, hoje.year, hoje.month)
+        top_despesas_mes = top_despesas_mes_atual(user, limit=5)
         top_despesas_chart = [
             {
                 "nome": x["nome"],
                 "total": float(x["total"]),
                 "cor": x["cor"] or "#6B7280",
                 "pct": float(x["percentual"]),
+                "categoria_id": x["categoria_id"],
             }
-            for x in top_d[:6]
+            for x in top_despesas_mes
         ]
-        mov_contas = [
-            {
-                **m,
-                "drill_qs": filtros.to_drill_transacoes_periodo_e_conta(m["conta_id"]),
-            }
-            for m in movimento_por_conta(qs, user)
-        ]
-        ultimas = qs.order_by("-data", "-id")[:8]
-        orc_linhas = orcamento_vs_realizado(user, filtros)
-        insights = gerar_insights_dashboard(user, filtros, totais_atual=totais, top_despesa=top_d)
-        alertas_orc = avaliar_alertas_orcamento(orc_linhas)
+        resultado_mes = comparacao["resultado_atual"]
 
         categorias_despesa = Categoria.objects.filter(
             Q(usuario=user) | Q(padrao=True),
@@ -95,16 +120,26 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
 
         ctx.update(
             {
-                "totais": totais,
-                "resultado_fluxo": resultado_fluxo(totais),
-                "top_despesas_categoria": top_d,
-                "top_despesas_chart": top_despesas_chart,
                 "relatorio_nav": "home",
-                "movimento_por_conta": mov_contas,
-                "ultimas_transacoes": ultimas,
-                "orcamento_linhas": orc_linhas,
-                "insights": insights,
-                "alertas_orcamento": alertas_orc,
+                "saudacao": saudacao_periodo(),
+                "nome_usuario": primeiro_nome(user.nome),
+                "rotulo_periodo": rotulo_periodo_atual(),
+                "comparacao_mensal": comparacao,
+                "totais_mes": totais_mes,
+                "resultado_mes": resultado_mes,
+                "patrimonio": patrimonio,
+                "cartoes_dashboard": cartoes,
+                "fluxo_caixa": fluxo_caixa,
+                "metas_financeiras": metas,
+                "tem_orcamentos_cadastrados": tem_orcamentos_cadastrados,
+                "tem_orcamentos_vigentes": tem_orcamentos_vigentes,
+                "top_despesas_mes": top_despesas_mes,
+                "top_despesas_chart": top_despesas_chart,
+                "periodo_transacoes_qs": query_transacoes_mes_atual(),
+                "icone_choices_instituicoes": [
+                    "nubank", "itau", "santander", "bradesco", "bb", "caixa",
+                    "inter", "sicredi", "sicoob", "picpay", "mercadopago",
+                ],
                 "categorias_despesa": categorias_despesa,
                 "categorias_receita": categorias_receita,
                 "form": form,
@@ -112,6 +147,131 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
             }
         )
         return ctx
+
+
+@login_required
+@require_POST
+def toggle_ocultar_valores_dashboard(request):
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    perfil.ocultar_valores_dashboard = not perfil.ocultar_valores_dashboard
+    perfil.save(update_fields=["ocultar_valores_dashboard"])
+    return JsonResponse({"ocultar": perfil.ocultar_valores_dashboard})
+
+
+def _parse_ano_mes(request, default: date | None = None) -> tuple[int, int]:
+    ref = default or date.today()
+    try:
+        ano = int(request.GET.get("ano") or request.POST.get("ref_ano") or ref.year)
+        mes = int(request.GET.get("mes") or request.POST.get("ref_mes") or ref.month)
+        if not (1 <= mes <= 12):
+            raise ValueError
+    except (TypeError, ValueError):
+        ano, mes = ref.year, ref.month
+    return ano, mes
+
+
+class OrcamentosView(LoginRequiredMixin, TemplateView):
+    template_name = "relatorios/orcamentos.html"
+
+    def get_context_data(self, **kwargs):
+        import calendar
+
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        filtros = parse_relatorio_filtros(self.request.GET, usuario=user)
+        ano, mes = _parse_ano_mes(self.request)
+        linhas = listar_orcamentos_mes(user, ano, mes, incluir_inativos=True)
+        resumo = resumo_linhas_orcamento(linhas)
+        painel_mes = painel_mes_orcamento(linhas, resumo)
+        nav_mes = navegacao_mes_context(ano, mes)
+
+        historico_por_categoria: dict[int, list] = {}
+        orcamento_ids = [l.orcamento_id for l in linhas if l.orcamento_id]
+        orcamentos_map = {
+            o.pk: o
+            for o in OrcamentoCategoria.objects.filter(usuario=user, pk__in=orcamento_ids)
+        }
+        for linha in linhas:
+            if linha.orcamento_id and linha.planejado > 0:
+                historico_por_categoria[linha.categoria_id] = historico_utilizacao_categoria(
+                    user, linha.categoria_id, meses=3
+                )
+            linha.historico = historico_por_categoria.get(linha.categoria_id, [])
+            linha.orcamento_obj = orcamentos_map.get(linha.orcamento_id)
+
+        inicio_mes = date(ano, mes, 1)
+        fim_mes = date(ano, mes, calendar.monthrange(ano, mes)[1])
+        drill_qs = f"inicio={inicio_mes.isoformat()}&fim={fim_mes.isoformat()}&tipo=despesa"
+
+        ctx.update(
+            {
+                "relatorio_nav": "orcamentos",
+                "filtros_querystring": filtros.to_query_string(),
+                "ano": ano,
+                "mes": mes,
+                "mes_rotulo": MESES_PT[mes - 1],
+                "linhas_orcamento": linhas,
+                "resumo_orcamento": resumo,
+                "painel_mes": painel_mes,
+                "nav_mes": nav_mes,
+                "data_mes": nav_mes["data_mes"],
+                "ano_anterior": nav_mes["ano_anterior"],
+                "mes_anterior": nav_mes["mes_anterior"],
+                "ano_proximo": nav_mes["ano_proximo"],
+                "mes_proximo": nav_mes["mes_proximo"],
+                "ano_hoje": nav_mes["ano_hoje"],
+                "mes_hoje": nav_mes["mes_hoje"],
+                "meses_dropdown": nav_mes["meses_dropdown"],
+                "nav_qs_extra": nav_mes["nav_qs_extra"],
+                "tem_orcamentos": usuario_tem_orcamentos_cadastrados(user),
+                "historico_por_categoria": historico_por_categoria,
+                "drill_mes_qs": drill_qs,
+                "form_orcamento": OrcamentoCategoriaForm(
+                    usuario=user,
+                    initial={"inicio_ano": ano, "inicio_mes": mes, "ativo": True},
+                ),
+            }
+        )
+        return ctx
+
+
+@login_required
+@require_POST
+def salvar_orcamento(request):
+    user = request.user
+    orcamento_id = request.POST.get("orcamento_id") or None
+    instance = None
+    if orcamento_id:
+        instance = get_object_or_404(OrcamentoCategoria, pk=orcamento_id, usuario=user)
+    elif request.POST.get("categoria"):
+        instance = OrcamentoCategoria.objects.filter(
+            usuario=user, categoria_id=request.POST.get("categoria")
+        ).first()
+
+    form = OrcamentoCategoriaForm(request.POST, instance=instance, usuario=user)
+    if not form.is_valid():
+        errors = {k: [str(e) for e in v] for k, v in form.errors.items()}
+        return JsonResponse({"status": "erro", "errors": errors}, status=400)
+
+    obj = form.save()
+    ano, mes = _parse_ano_mes(request)
+    linhas = listar_orcamentos_mes(user, ano, mes, incluir_inativos=True)
+    linha = next((l for l in linhas if l.orcamento_id == obj.pk), None)
+    payload = linha.as_dict() if linha else {"orcamento_id": obj.pk}
+    return JsonResponse({"status": "ok", "linha": payload})
+
+
+@login_required
+@require_POST
+def toggle_orcamento_ativo(request, pk):
+    orcamento = get_object_or_404(OrcamentoCategoria, pk=pk, usuario=request.user)
+    orcamento.ativo = not orcamento.ativo
+    try:
+        orcamento.save()
+    except ValidationError as exc:
+        msgs = exc.message_dict if hasattr(exc, "message_dict") else {"__all__": exc.messages}
+        return JsonResponse({"status": "erro", "errors": msgs}, status=400)
+    return JsonResponse({"status": "ok", "ativo": orcamento.ativo, "id": orcamento.pk})
 
 
 class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):

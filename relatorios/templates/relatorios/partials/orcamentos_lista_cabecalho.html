@@ -1,0 +1,10 @@
+{# Cabeçalho da lista: título + navegação de mês (filtro discreto da lista) #}
+<div class="mt-1 grid min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
+  <h3 class="justify-self-start text-sm font-semibold uppercase leading-none tracking-wider text-gray-500">Por categoria</h3>
+  <div class="justify-self-center">
+    {% with nav_mes_compact=True %}
+    {% include 'partials/navegacao_mes_periodo.html' %}
+    {% endwith %}
+  </div>
+  <span class="invisible justify-self-end text-sm font-semibold uppercase leading-none tracking-wider" aria-hidden="true">Por categoria</span>
+</div>

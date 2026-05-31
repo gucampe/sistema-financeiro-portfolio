@@ -598,6 +598,13 @@ html.sidebar-open .app-sidebar-overlay {
   }
 }
 
+/* ---------- Relatórios: abas (evita salto ao trocar de guia) ---------- */
+
+.relatorios-tabs {
+  overflow-anchor: none;
+  overflow-y: hidden;
+}
+
 /* ---------- Header: breadcrumb (MVP — um nível; <ol> prepara evolução) ---------- */
 
 .app-header-breadcrumb {
@@ -623,6 +630,8 @@ html.sidebar-open .app-sidebar-overlay {
 
 /* Largura máxima do título (tipografia: Tailwind no HTML) */
 .app-header-breadcrumb__current {
+  display: inline-block;
+  min-width: 6.5rem;
   max-width: min(100%, 10rem);
 }
 

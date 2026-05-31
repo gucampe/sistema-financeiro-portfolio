@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   :root {
     --color-brand-500: theme('colors.brand.500');
     --color-brand-600: theme('colors.brand.600');
@@ -15,6 +19,13 @@
 }
 
 @layer components {
+  /* Masonry do dashboard: oculta até o JS posicionar (evita salto visual). */
+  @media (min-width: 1024px) {
+    #dashboard-masonry.dashboard-masonry--pending {
+      opacity: 0;
+    }
+  }
+
   .page-shell {
     @apply min-h-full bg-surface px-3 py-6 sm:px-6 sm:py-8 lg:px-6;
   }

@@ -15,37 +15,39 @@
 {% endblock %}
 
 {% block content %}
-<div class="relative mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
-  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+<div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
   {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <div class="mb-4">
-    <h2 class="text-xl font-semibold">Fluxo de caixa</h2>
-    <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+  <header class="min-w-0">
+    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Fluxo de caixa</h2>
+    <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+  </header>
+
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Receitas</p>
+      <p class="mt-2 text-2xl font-semibold tabular-nums text-emerald-700">{{ totais.receitas|moeda }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Despesas</p>
+      <p class="mt-2 text-2xl font-semibold tabular-nums text-rose-700">{{ totais.despesas|moeda }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resultado (fluxo)</p>
+      <p class="mt-2 text-2xl font-semibold tabular-nums text-brand-600">{{ resultado_fluxo|moeda }}</p>
+    </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-    <div class="bg-white rounded-xl border p-4">
-      <p class="text-xs text-gray-500">Receitas</p>
-      <p class="text-lg font-semibold text-emerald-600 tabular-nums">{{ totais.receitas|moeda }}</p>
-    </div>
-    <div class="bg-white rounded-xl border p-4">
-      <p class="text-xs text-gray-500">Despesas</p>
-      <p class="text-lg font-semibold text-red-600 tabular-nums">{{ totais.despesas|moeda }}</p>
-    </div>
-    <div class="bg-white rounded-xl border p-4">
-      <p class="text-xs text-gray-500">Resultado (fluxo)</p>
-      <p class="text-lg font-semibold text-blue-600 tabular-nums">{{ resultado_fluxo|moeda }}</p>
-    </div>
-  </div>
+  <section class="card min-w-0 p-6 sm:p-7">
+    <h3 class="text-base font-semibold tracking-tight text-gray-900">Saldo acumulado no período</h3>
+    <p class="mt-1 text-sm text-gray-500">Linha cinza: movimento líquido por dia. Linha azul: soma acumulada no intervalo.</p>
+    <canvas id="chart-fluxo" height="280" class="mt-4 w-full max-h-80"></canvas>
+  </section>
 
-  <div class="bg-white rounded-xl shadow border p-4 mb-4">
-    <h3 class="font-semibold mb-2">Saldo acumulado no período</h3>
-    <p class="text-xs text-gray-500 mb-3">Linha cinza: movimento líquido por dia. Linha azul: soma acumulada no intervalo.</p>
-    <canvas id="chart-fluxo" height="280" class="w-full max-h-80"></canvas>
-  </div>
+  <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver transações deste período</a>
 
-  <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm text-brand-600 hover:underline">Ver transações deste período</a>
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 
 {{ serie_fluxo|json_script:"serie-fluxo-data" }}

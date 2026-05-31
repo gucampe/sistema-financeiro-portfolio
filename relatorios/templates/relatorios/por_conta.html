@@ -14,45 +14,49 @@
 {% endblock %}
 
 {% block content %}
-<div class="relative mx-auto max-w-5xl px-4 pb-16 pt-4 sm:px-6 lg:px-8">
-  {% include 'relatorios/partials/navegacao_relatorios.html' %}
+<div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
   {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <h2 class="text-xl font-semibold mb-1">Por conta</h2>
-  <p class="text-sm text-gray-500 mb-4">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+  <header class="min-w-0">
+    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Por conta</h2>
+    <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+  </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-white rounded-xl border p-4 shadow-sm">
-      <h3 class="font-semibold mb-3">Saldo acumulado (todas as transações)</h3>
-      <p class="text-xs text-gray-500 mb-2">Patrimônio líquido operacional: <strong>{{ saldo_patrimonio|moeda }}</strong></p>
-      <ul class="space-y-2 text-sm">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <section class="card min-w-0 p-6 sm:p-7">
+      <h3 class="text-base font-semibold tracking-tight text-gray-900">Saldo acumulado (todas as transações)</h3>
+      <p class="mt-1 text-sm text-gray-500">Patrimônio líquido operacional: <strong class="text-gray-900">{{ saldo_patrimonio|moeda }}</strong></p>
+      <ul class="mt-4 space-y-2 text-sm">
         {% for c in saldos_por_conta %}
         <li class="flex justify-between gap-2">
-          <span>{{ c.nome }}</span>
-          <span class="tabular-nums font-medium">{{ c.saldo|moeda }}</span>
+          <span class="text-gray-800">{{ c.nome }}</span>
+          <span class="tabular-nums font-medium text-gray-900">{{ c.saldo|moeda }}</span>
         </li>
         {% empty %}
         <li class="text-gray-500">Nenhuma conta ativa.</li>
         {% endfor %}
       </ul>
-    </div>
-    <div class="bg-white rounded-xl border p-4 shadow-sm">
-      <h3 class="font-semibold mb-3">Movimento no período filtrado</h3>
-      <ul class="space-y-2 text-sm">
+    </section>
+    <section class="card min-w-0 p-6 sm:p-7">
+      <h3 class="text-base font-semibold tracking-tight text-gray-900">Movimento no período filtrado</h3>
+      <ul class="mt-4 space-y-2 text-sm">
         {% for m in movimento_por_conta %}
         <li class="flex justify-between gap-2">
-          <a href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}" class="text-brand-600 hover:underline truncate">{{ m.nome }}</a>
-          <span class="tabular-nums shrink-0">{{ m.movimento|moeda }}</span>
+          <a href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}" class="truncate text-brand-600 hover:underline">{{ m.nome }}</a>
+          <span class="shrink-0 tabular-nums font-medium text-gray-900">{{ m.movimento|moeda }}</span>
         </li>
         {% empty %}
         <li class="text-gray-500">Sem movimentação no período.</li>
         {% endfor %}
       </ul>
-    </div>
+    </section>
   </div>
 
-  <div class="mt-4 bg-white rounded-xl border p-4 text-sm text-gray-600">
-    <p><strong>Receitas no período:</strong> {{ totais_periodo.receitas|moeda }} · <strong>Despesas:</strong> {{ totais_periodo.despesas|moeda }}</p>
-  </div>
+  <section class="card min-w-0 p-6 text-sm text-gray-600 sm:p-7">
+    <p><strong class="text-gray-800">Receitas no período:</strong> {{ totais_periodo.receitas|moeda }} · <strong class="text-gray-800">Despesas:</strong> {{ totais_periodo.despesas|moeda }}</p>
+  </section>
+
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 {% endblock %}

@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static moeda %}
+
+{% block title %}Orçamentos por categoria{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Orçamentos</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div id="orcamentos-root"
+     class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8"
+     data-ano="{{ ano }}" data-mes="{{ mes }}"
+     data-salvar-url="{% url 'relatorios:orcamentos_salvar' %}"
+     data-toggle-url-template="{% url 'relatorios:orcamentos_toggle_ativo' 0 %}">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
+
+  {% if not tem_orcamentos %}
+  <section class="card min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-10">
+    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Orçamentos</h2>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-gray-500">
+      Planeje seus limites e acompanhe seus gastos por categoria.
+    </p>
+    <h3 class="mt-8 text-base font-semibold text-gray-900">Controle seus gastos criando limites por categoria</h3>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-gray-500">
+      Defina quanto deseja gastar em cada área, acompanhe o progresso ao longo do mês e evite estouros antes que aconteçam.
+    </p>
+    <div class="mx-auto mt-8 grid max-w-md grid-cols-1 gap-3 text-left sm:grid-cols-3">
+      <div class="rounded-xl border border-gray-100 bg-white/60 px-4 py-3 opacity-70">
+        <p class="text-sm font-medium text-gray-800">Alimentação</p>
+        <p class="text-xs text-gray-500">R$ 800 / mês</p>
+      </div>
+      <div class="rounded-xl border border-gray-100 bg-white/60 px-4 py-3 opacity-70">
+        <p class="text-sm font-medium text-gray-800">Transporte</p>
+        <p class="text-xs text-gray-500">R$ 500 / mês</p>
+      </div>
+      <div class="rounded-xl border border-gray-100 bg-white/60 px-4 py-3 opacity-70">
+        <p class="text-sm font-medium text-gray-800">Lazer</p>
+        <p class="text-xs text-gray-500">R$ 300 / mês</p>
+      </div>
+    </div>
+    <button type="button" id="btn-primeiro-orcamento" class="btn btn-primary btn-sm mt-8">Criar primeiro orçamento</button>
+  </section>
+
+  {% else %}
+  {# Hero: resumo do mês (primeiro elemento visível) #}
+  {% include 'relatorios/partials/orcamentos_painel_topo.html' %}
+
+  {% include 'relatorios/partials/orcamentos_lista_cabecalho.html' %}
+
+  {% if linhas_orcamento %}
+  <ul class="-mt-1 space-y-4">
+    {% for linha in linhas_orcamento %}
+    <li class="card min-w-0 {% if forloop.first %}px-6 pb-6 pt-4 sm:px-7 sm:pb-7 sm:pt-5{% else %}p-6 sm:p-7{% endif %}" data-orcamento-card data-categoria-id="{{ linha.categoria_id }}" {% if linha.orcamento_id %}data-orcamento-id="{{ linha.orcamento_id }}"{% endif %}>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style="background: {{ linha.cor }}"></span>
+            <h4 class="truncate font-medium text-gray-900">{{ linha.nome }}</h4>
+            {% if not linha.ativo %}
+            <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Pausado</span>
+            {% elif linha.planejado <= 0 %}
+            <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Fora da vigência</span>
+            {% else %}
+            <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold
+              {% if linha.status == 'excedido' %}bg-rose-100 text-rose-800
+              {% elif linha.status == 'risco' %}bg-amber-100 text-amber-900
+              {% else %}bg-emerald-100 text-emerald-800{% endif %}">
+              {{ linha.status_label }}
+            </span>
+            {% endif %}
+          </div>
+
+          {% if linha.planejado > 0 %}
+          <div class="mt-5 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçado</p>
+              <p class="mt-1 font-semibold tabular-nums text-gray-900">{{ linha.planejado|moeda }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Gasto</p>
+              <p class="mt-1 font-semibold tabular-nums text-gray-800">{{ linha.realizado|moeda }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Disponível</p>
+              {% if linha.disponivel < 0 %}
+              <p class="mt-1 font-semibold tabular-nums text-rose-700">{{ linha.disponivel|moeda }}</p>
+              <p class="text-xs text-rose-600">Acima do limite</p>
+              {% else %}
+              <p class="mt-1 font-semibold tabular-nums text-emerald-700">{{ linha.disponivel|moeda }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Consumido</p>
+              <p class="mt-1 font-semibold tabular-nums text-gray-800">{% if linha.percentual %}{{ linha.percentual|floatformat:0 }}%{% else %}—{% endif %}</p>
+            </div>
+          </div>
+
+          <div class="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+            <div class="h-full rounded-full transition-all {% if linha.status == 'excedido' %}bg-rose-500{% elif linha.status == 'risco' %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
+                 style="width: {{ linha.percentual_exibicao|floatformat:0 }}%; max-width: 100%;"></div>
+          </div>
+          {% else %}
+          <p class="mt-3 text-sm text-gray-500">Sem limite vigente em {{ mes_rotulo }}/{{ ano }}. Gasto no mês: {{ linha.realizado|moeda }}</p>
+          {% endif %}
+
+          {% if linha.historico %}
+          <details class="mt-4 group">
+            <summary class="cursor-pointer text-sm font-medium text-brand-600 hover:text-brand-700">Últimos meses</summary>
+            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+              {% for h in linha.historico %}
+              <li>{{ h.rotulo }}: {% if h.percentual %}{{ h.percentual|floatformat:0 }}%{% else %}—{% endif %}</li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% endif %}
+        </div>
+
+        <div class="flex shrink-0 flex-wrap gap-2">
+          <a href="{% url 'transacoes:historico' %}?{{ drill_mes_qs }}&categoria={{ linha.categoria_id }}" class="btn btn-secondary btn-sm">Ver transações</a>
+          {% if linha.orcamento_id %}
+          <button type="button" class="btn btn-secondary btn-sm js-editar-orcamento"
+                  data-orcamento-id="{{ linha.orcamento_id }}"
+                  data-categoria-id="{{ linha.categoria_id }}"
+                  {% if linha.orcamento_obj %}
+                  data-valor="{{ linha.orcamento_obj.valor_planejado }}"
+                  data-inicio-ano="{{ linha.orcamento_obj.inicio_ano }}"
+                  data-inicio-mes="{{ linha.orcamento_obj.inicio_mes }}"
+                  data-fim-ano="{{ linha.orcamento_obj.fim_ano|default:'' }}"
+                  data-fim-mes="{{ linha.orcamento_obj.fim_mes|default:'' }}"
+                  {% endif %}
+                  data-ativo="{% if linha.ativo %}1{% else %}0{% endif %}">Editar</button>
+          <button type="button" class="btn btn-secondary btn-sm js-toggle-orcamento"
+                  data-orcamento-id="{{ linha.orcamento_id }}"
+                  data-ativo="{% if linha.ativo %}1{% else %}0{% endif %}">
+            {% if linha.ativo %}Pausar{% else %}Reativar{% endif %}
+          </button>
+          {% else %}
+          <button type="button" class="btn btn-primary btn-sm js-criar-orcamento-categoria" data-categoria-id="{{ linha.categoria_id }}">Definir limite</button>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <section class="-mt-1 card min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-8">
+    <p class="font-medium text-gray-800">Nenhuma categoria com orçamento neste mês</p>
+    <p class="mt-1 text-sm text-gray-500">Use outro período ou crie um novo limite com o botão acima.</p>
+  </section>
+  {% endif %}
+  {% endif %}
+
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
+</div>
+
+{% include 'relatorios/partials/modal_orcamento.html' %}
+<script src="{% static 'relatorios/js/orcamentos.js' %}" defer></script>
+{% endblock %}

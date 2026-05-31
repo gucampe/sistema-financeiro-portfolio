@@ -30,6 +30,7 @@ def gerar_insights_dashboard(
     *,
     totais_atual: dict[str, Decimal],
     top_despesa: list[dict[str, Any]],
+    orcamento_linhas: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, str]]:
     """Lista curta de insights para a home."""
     itens: list[InsightItem] = []
@@ -102,7 +103,10 @@ def gerar_insights_dashboard(
                 )
             )
 
-    return [i.as_dict() for i in itens[:5]]
+    out = [i.as_dict() for i in itens]
+    if orcamento_linhas:
+        out = avaliar_alertas_orcamento(orcamento_linhas) + out
+    return out[:8]
 
 
 def avaliar_alertas_orcamento(orcamento_linhas: list[dict[str, Any]]) -> list[dict[str, str]]:

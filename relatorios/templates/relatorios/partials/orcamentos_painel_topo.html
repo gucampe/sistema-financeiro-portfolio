@@ -1,0 +1,120 @@
+{% load moeda %}
+
+{% if tem_orcamentos %}
+<section class="space-y-4" aria-label="Resumo do orçamento do mês">
+  {% if painel_mes.tem_vigentes %}
+  <article class="card min-w-0 overflow-hidden p-6 sm:p-8" id="orcamento-hero-resumo">
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-0.5">
+        <div class="flex items-start justify-between gap-3">
+          <p class="min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento de {{ mes_rotulo }}/{{ ano }}</p>
+          <button type="button" id="btn-novo-orcamento" class="btn btn-primary btn-sm shrink-0">
+            <span class="text-base leading-none" aria-hidden="true">+</span>
+            <span>Novo orçamento</span>
+          </button>
+        </div>
+        <div class="min-w-0">
+        {% if painel_mes.percentual is not None %}
+        <p class="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+          Você consumiu <span class="tabular-nums {% if painel_mes.status == 'excedido' %}text-rose-700{% elif painel_mes.status == 'risco' %}text-amber-700{% else %}text-emerald-700{% endif %}">{{ painel_mes.percentual|floatformat:0 }}%</span> do orçamento mensal
+        </p>
+        <p class="mt-1 text-sm text-gray-500">
+          {% if painel_mes.status == 'excedido' %}Gastos acima do total planejado neste mês.{% elif painel_mes.status == 'risco' %}Atenção: você está próximo do limite global.{% else %}Situação saudável no conjunto das categorias vigentes.{% endif %}
+        </p>
+        {% else %}
+        <p class="text-xl font-semibold tracking-tight text-gray-900">Sem limite planejado vigente</p>
+        <p class="mt-1 text-sm text-gray-500">Defina valores nas categorias para acompanhar o consumo.</p>
+        {% endif %}
+
+        {% if painel_mes.percentual is not None %}
+        <div class="mt-5 h-3 overflow-hidden rounded-full bg-gray-100" role="progressbar"
+             aria-valuenow="{{ painel_mes.percentual_exibicao|floatformat:0 }}"
+             aria-valuemin="0" aria-valuemax="100"
+             aria-label="Consumo do orçamento mensal">
+          <div class="h-full rounded-full transition-all duration-300
+            {% if painel_mes.status == 'excedido' %}bg-rose-500{% elif painel_mes.status == 'risco' %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
+               style="width: {{ painel_mes.percentual_exibicao|floatformat:0 }}%; max-width: 100%;"></div>
+        </div>
+        {% if painel_mes.percentual and painel_mes.percentual > 100 %}
+        <p class="mt-2 text-xs font-medium text-rose-600">Consumo real: {{ painel_mes.percentual|floatformat:0 }}% do orçado (barra limitada a 100% na visualização)</p>
+        {% endif %}
+        {% endif %}
+        </div>
+      </div>
+
+      <dl class="grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 sm:gap-6 sm:pt-6">
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçado</dt>
+          <dd class="mt-1 text-xl font-semibold tabular-nums text-gray-900">{{ painel_mes.planejado|moeda }}</dd>
+        </div>
+        <div class="sm:border-x sm:border-gray-100 sm:px-4">
+          <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Gasto</dt>
+          <dd class="mt-1 text-xl font-semibold tabular-nums text-gray-800">{{ painel_mes.realizado|moeda }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Disponível</dt>
+          {% if painel_mes.disponivel < 0 %}
+          <dd class="mt-1 text-xl font-semibold tabular-nums text-rose-700">{{ painel_mes.disponivel|moeda }}</dd>
+          <dd class="text-xs font-medium text-rose-600">Acima do limite</dd>
+          {% else %}
+          <dd class="mt-1 text-xl font-semibold tabular-nums text-emerald-700">{{ painel_mes.disponivel|moeda }}</dd>
+          {% endif %}
+        </div>
+      </dl>
+    </div>
+  </article>
+
+  <div class="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
+    <div class="card min-w-0 p-4 sm:p-5">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700" aria-hidden="true">
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+        </span>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Saudáveis</p>
+          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.ok }}</p>
+          <p class="text-xs text-gray-500">categorias</p>
+        </div>
+      </div>
+    </div>
+    <div class="card min-w-0 p-4 sm:p-5">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800" aria-hidden="true">
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+        </span>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Em atenção</p>
+          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.risco }}</p>
+          <p class="text-xs text-gray-500">categorias</p>
+        </div>
+      </div>
+    </div>
+    <div class="card min-w-0 p-4 sm:p-5">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-800" aria-hidden="true">
+          <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+        </span>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Estouradas</p>
+          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.excedido }}</p>
+          <p class="text-xs text-gray-500">categorias</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <article class="card min-w-0 p-6 sm:p-8" id="orcamento-hero-resumo">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0 flex-1">
+        <p class="font-medium text-gray-800">Nenhum limite vigente em {{ mes_rotulo }}/{{ ano }}</p>
+        <p class="mt-1 text-sm text-gray-500">Ajuste a vigência dos orçamentos ou cadastre limites para este mês.</p>
+      </div>
+      <button type="button" id="btn-novo-orcamento" class="btn btn-primary btn-sm shrink-0">
+        <span class="text-base leading-none" aria-hidden="true">+</span>
+        <span>Novo orçamento</span>
+      </button>
+    </div>
+  </article>
+  {% endif %}
+</section>
+{% endif %}
