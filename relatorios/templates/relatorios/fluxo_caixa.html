@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load moeda %}
+{% load static moeda %}
 
-{% block title %}Fluxo de caixa{% endblock %}
+{% block title %}Entradas x Saídas{% endblock %}
 
 {% block breadcrumb %}
 <nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
   <ol class="app-header-breadcrumb__list">
     <li class="app-header-breadcrumb__item min-w-0">
-      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Fluxo de caixa</span>
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Entradas x Saídas</span>
     </li>
   </ol>
 </nav>
@@ -17,35 +16,23 @@
 {% block content %}
 <div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
-  {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <header class="min-w-0">
-    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Fluxo de caixa</h2>
-    <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
-  </header>
-
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Receitas</p>
-      <p class="mt-2 text-2xl font-semibold tabular-nums text-emerald-700">{{ totais.receitas|moeda }}</p>
+  <div class="grid min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
+    <span class="invisible justify-self-start" aria-hidden="true">.</span>
+    <div class="justify-self-center">
+      {% with nav_mes_compact=True %}
+      {% include 'partials/navegacao_mes_periodo.html' %}
+      {% endwith %}
     </div>
-    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Despesas</p>
-      <p class="mt-2 text-2xl font-semibold tabular-nums text-rose-700">{{ totais.despesas|moeda }}</p>
-    </div>
-    <div class="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:p-5">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resultado (fluxo)</p>
-      <p class="mt-2 text-2xl font-semibold tabular-nums text-brand-600">{{ resultado_fluxo|moeda }}</p>
-    </div>
+    <span class="invisible justify-self-end" aria-hidden="true">.</span>
   </div>
 
-  <section class="card min-w-0 p-6 sm:p-7">
-    <h3 class="text-base font-semibold tracking-tight text-gray-900">Saldo acumulado no período</h3>
-    <p class="mt-1 text-sm text-gray-500">Linha cinza: movimento líquido por dia. Linha azul: soma acumulada no intervalo.</p>
-    <canvas id="chart-fluxo" height="280" class="mt-4 w-full max-h-80"></canvas>
-  </section>
-
-  <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}" class="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver transações deste período</a>
+  {% include 'relatorios/partials/fluxo_caixa_resumo.html' %}
+  {% include 'relatorios/partials/fluxo_caixa_dinamica.html' %}
+  {% include 'relatorios/partials/fluxo_caixa_grafico.html' %}
+  {% include 'relatorios/partials/fluxo_caixa_interpretacao.html' %}
+  {% include 'relatorios/partials/fluxo_caixa_movimentacoes.html' %}
+  {% include 'relatorios/partials/fluxo_caixa_acao_transacoes.html' %}
 
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
@@ -58,27 +45,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('chart-fluxo');
   if (!el || !canvas) return;
   const data = JSON.parse(el.textContent);
+  const fmt = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const ctx = canvas.getContext('2d');
   new Chart(ctx, {
-    type: 'line',
     data: {
       labels: data.labels,
       datasets: [
         {
-          label: 'Líquido do dia',
-          data: data.liquido,
-          borderColor: '#9ca3af',
-          backgroundColor: 'rgba(156,163,175,0.1)',
-          fill: true,
-          tension: 0.2,
+          type: 'bar',
+          label: 'Entradas',
+          data: data.entradas,
+          backgroundColor: 'rgba(16, 185, 129, 0.65)',
+          borderRadius: 2,
+          order: 2,
           yAxisID: 'y',
         },
         {
-          label: 'Acumulado',
+          type: 'bar',
+          label: 'Saídas',
+          data: data.saidas,
+          backgroundColor: 'rgba(244, 63, 94, 0.65)',
+          borderRadius: 2,
+          order: 3,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Saldo acumulado',
           data: data.acumulado,
-          borderColor: '#2563eb',
+          borderColor: '#d1d5db',
           backgroundColor: 'transparent',
-          tension: 0.2,
+          borderWidth: 1.5,
+          borderDash: [5, 5],
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 3,
+          order: 1,
           yAxisID: 'y1',
         },
       ],
@@ -87,20 +89,31 @@ document.addEventListener('DOMContentLoaded', () => {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      stacked: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 10, padding: 12, font: { size: 11 } },
+        },
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.dataset.label}: ${fmt(item.raw)}`,
+          },
+        },
+      },
       scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8, font: { size: 10 }, color: '#9ca3af' },
+        },
         y: {
-          type: 'linear',
           position: 'left',
-          title: { display: true, text: 'Dia' },
-          ticks: { callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR') },
+          grid: { color: 'rgba(0,0,0,0.03)' },
+          ticks: { maxTicksLimit: 4, font: { size: 10 }, color: '#9ca3af', callback: (v) => fmt(v) },
         },
         y1: {
-          type: 'linear',
           position: 'right',
           grid: { drawOnChartArea: false },
-          title: { display: true, text: 'Acumulado' },
-          ticks: { callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR') },
+          ticks: { maxTicksLimit: 4, font: { size: 10 }, color: '#d1d5db', callback: (v) => fmt(v) },
         },
       },
     },

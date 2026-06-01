@@ -17,6 +17,14 @@ from usuarios.utils import primeiro_nome
 
 from relatorios.forms import OrcamentoCategoriaForm
 from relatorios.models import OrcamentoCategoria
+from relatorios.services.fluxo_caixa import (
+    destaques_fluxo_periodo,
+    dinamica_fluxo_periodo,
+    filtros_mes,
+    interpretacao_dinamica_fluxo,
+    nav_qs_extra_filtros,
+    resumo_minimo_periodo,
+)
 from relatorios.services.orcamentos import (
     MESES_PT,
     historico_utilizacao_categoria,
@@ -35,7 +43,6 @@ from relatorios.services.agregacoes import (
     resultado_fluxo,
     saldos_por_conta_totais,
     serie_fluxo_diario,
-    top_categorias,
     totais_por_tipo,
 )
 from relatorios.services.filtros import RelatorioFiltros, parse_comparativo_secundario, parse_relatorio_filtros
@@ -86,7 +93,6 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
         totais_mes = comparacao["atual"]
         patrimonio = contas_dashboard(user, limit=5)
         cartoes = resumo_cartoes_dashboard(user)
-        fluxo_caixa = fluxo_caixa_futuro_dashboard(user)
         metas = metas_financeiras(user)
         tem_orcamentos_cadastrados = usuario_tem_orcamentos_cadastrados(user)
         hoje = date.today()
@@ -129,7 +135,6 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
                 "resultado_mes": resultado_mes,
                 "patrimonio": patrimonio,
                 "cartoes_dashboard": cartoes,
-                "fluxo_caixa": fluxo_caixa,
                 "metas_financeiras": metas,
                 "tem_orcamentos_cadastrados": tem_orcamentos_cadastrados,
                 "tem_orcamentos_vigentes": tem_orcamentos_vigentes,
@@ -280,15 +285,43 @@ class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
-        filtros = ctx["filtros"]
+        base_filtros = ctx["filtros"]
+        ano, mes = _parse_ano_mes(self.request, default=base_filtros.data_inicio)
+        filtros = filtros_mes(base_filtros, ano, mes)
         qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
         tot = totais_por_tipo(qs)
+        serie = serie_fluxo_diario(qs, filtros)
+        resultado = resultado_fluxo(tot)
+        destaques = destaques_fluxo_periodo(qs, filtros, serie)
+        dinamica = dinamica_fluxo_periodo(serie, destaques)
+        nav_mes = navegacao_mes_context(ano, mes, nav_qs_extra=nav_qs_extra_filtros(base_filtros))
+        mes_rotulo = MESES_PT[mes - 1]
+
+        ctx["filtros"] = filtros
+        ctx["filtros_querystring"] = filtros.to_query_string()
+        ctx["drill_transacoes_qs"] = filtros.to_drill_transacoes_query_string()
         ctx.update(
             {
-                "serie_fluxo": serie_fluxo_diario(qs, filtros),
+                "serie_fluxo": serie,
                 "totais": tot,
-                "resultado_fluxo": resultado_fluxo(tot),
+                "resultado_fluxo": resultado,
+                "destaques_fluxo": destaques,
+                "resumo_minimo": resumo_minimo_periodo(serie, resultado),
+                "dinamica": dinamica,
+                "interpretacao": interpretacao_dinamica_fluxo(dinamica, tot),
                 "relatorio_nav": "fluxo_caixa",
+                "ano": ano,
+                "mes": mes,
+                "mes_rotulo": mes_rotulo,
+                "data_mes": nav_mes["data_mes"],
+                "ano_anterior": nav_mes["ano_anterior"],
+                "mes_anterior": nav_mes["mes_anterior"],
+                "ano_proximo": nav_mes["ano_proximo"],
+                "mes_proximo": nav_mes["mes_proximo"],
+                "ano_hoje": nav_mes["ano_hoje"],
+                "mes_hoje": nav_mes["mes_hoje"],
+                "meses_dropdown": nav_mes["meses_dropdown"],
+                "nav_qs_extra": nav_mes["nav_qs_extra"],
             }
         )
         return ctx

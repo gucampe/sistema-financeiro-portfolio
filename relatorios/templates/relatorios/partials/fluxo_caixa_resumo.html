@@ -1,0 +1,18 @@
+{% load moeda %}
+
+<div class="flex flex-wrap items-baseline gap-x-8 gap-y-3 border-b border-gray-100 pb-4 text-sm" aria-label="Resumo mínimo do período">
+  <div>
+    <span class="text-gray-500">Saldo inicial</span>
+    <span class="ml-2 font-semibold tabular-nums text-gray-800">{{ resumo_minimo.saldo_inicial|moeda }}</span>
+  </div>
+  <div>
+    <span class="text-gray-500">Saldo final</span>
+    <span class="ml-2 font-semibold tabular-nums text-gray-800">{{ resumo_minimo.saldo_final|moeda }}</span>
+  </div>
+  <div>
+    <span class="text-gray-500">Variação líquida</span>
+    <span class="ml-2 font-semibold tabular-nums {% if resumo_minimo.variacao_liquida > 0 %}text-emerald-700{% elif resumo_minimo.variacao_liquida < 0 %}text-rose-700{% else %}text-gray-700{% endif %}">
+      {% if resumo_minimo.variacao_liquida > 0 %}+{% endif %}{{ resumo_minimo.variacao_liquida|moeda }}
+    </span>
+  </div>
+</div>

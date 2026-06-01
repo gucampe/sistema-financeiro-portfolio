@@ -286,7 +286,7 @@ def saldos_por_conta_totais(usuario) -> tuple[list[dict[str, Any]], Decimal]:
 
 
 def serie_fluxo_diario(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> dict[str, Any]:
-    """Entradas/saídas líquidas por dia + saldo acumulado no período (fluxo)."""
+    """Entradas/saídas por dia, líquido diário e saldo acumulado no período."""
     expr_dia = Sum(
         Case(
             When(tipo="receita", then=F("valor")),
@@ -303,9 +303,20 @@ def serie_fluxo_diario(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> di
         d = raw_d if isinstance(raw_d, date) else _as_date(raw_d)
         by_day[d] = row["liquido"] or Decimal("0")
 
+    by_entrada: dict[date, Decimal] = {}
+    by_saida: dict[date, Decimal] = {}
+    for row in qs.filter(tipo="receita").values("data").annotate(total=Sum("valor")).iterator(chunk_size=2000):
+        d = row["data"] if isinstance(row["data"], date) else _as_date(row["data"])
+        by_entrada[d] = row["total"] or Decimal("0")
+    for row in qs.filter(tipo="despesa").values("data").annotate(total=Sum("valor")).iterator(chunk_size=2000):
+        d = row["data"] if isinstance(row["data"], date) else _as_date(row["data"])
+        by_saida[d] = row["total"] or Decimal("0")
+
     labels: list[str] = []
     liquidos: list[float] = []
     acumulado: list[float] = []
+    entradas: list[float] = []
+    saidas: list[float] = []
     cur = filtros.data_inicio
     acc = Decimal("0")
     while cur <= filtros.data_fim:
@@ -314,8 +325,16 @@ def serie_fluxo_diario(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> di
         labels.append(cur.strftime("%d/%m"))
         liquidos.append(float(liq))
         acumulado.append(float(acc))
+        entradas.append(float(by_entrada.get(cur, Decimal("0"))))
+        saidas.append(float(by_saida.get(cur, Decimal("0"))))
         cur += timedelta(days=1)
-    return {"labels": labels, "liquido": liquidos, "acumulado": acumulado}
+    return {
+        "labels": labels,
+        "liquido": liquidos,
+        "acumulado": acumulado,
+        "entradas": entradas,
+        "saidas": saidas,
+    }
 
 
 def resumo_comparativo(

@@ -1,0 +1,32 @@
+{% load moeda %}
+
+{% if dinamica.pico_entrada or dinamica.pico_saida or dinamica.dias_com_movimento %}
+<section class="space-y-3" aria-label="Dinâmica do fluxo">
+  <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500">Dinâmica do mês</h3>
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+    {% if dinamica.pico_entrada %}
+    <div class="rounded-xl border border-emerald-100 bg-emerald-50/40 px-4 py-3">
+      <p class="text-xs text-emerald-800/80">Maior entrada</p>
+      <p class="mt-0.5 font-semibold tabular-nums text-emerald-700">{{ dinamica.pico_entrada.valor|moeda }}</p>
+      <p class="text-xs text-gray-600">em {{ dinamica.pico_entrada.rotulo }}</p>
+    </div>
+    {% endif %}
+    {% if dinamica.pico_saida %}
+    <div class="rounded-xl border border-rose-100 bg-rose-50/40 px-4 py-3">
+      <p class="text-xs text-rose-800/80">Maior saída</p>
+      <p class="mt-0.5 font-semibold tabular-nums text-rose-700">{{ dinamica.pico_saida.valor|moeda }}</p>
+      <p class="text-xs text-gray-600">em {{ dinamica.pico_saida.rotulo }}</p>
+    </div>
+    {% endif %}
+    <div class="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3">
+      <p class="text-xs text-gray-500">Dias com movimentação</p>
+      <p class="mt-0.5 font-semibold tabular-nums text-gray-800">{{ dinamica.dias_com_movimento }} <span class="text-sm font-normal text-gray-500">de {{ dinamica.total_dias }}</span></p>
+      {% if dinamica.fluxo_irregular %}
+      <p class="text-xs text-amber-700">Fluxo concentrado</p>
+      {% else %}
+      <p class="text-xs text-gray-500">Distribuição no mês</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}

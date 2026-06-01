@@ -313,3 +313,202 @@ class OrcamentosViewsTests(TestCase):
         self.assertEqual(res.status_code, 200)
         o.refresh_from_db()
         self.assertFalse(o.ativo)
+
+
+class FluxoCaixaServicoTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="fluxo@t.com", nome="F", password="x")
+        self.client.force_login(self.user)
+        from contas.models import Conta
+
+        self.conta = Conta.objects.create(usuario=self.user, nome="Conta", tipo="corrente")
+        self.cat_rec = Categoria.objects.create(
+            usuario=self.user, nome="Receita Fluxo Test", tipo="receita", ativa=True
+        )
+        self.cat_desp = Categoria.objects.create(
+            usuario=self.user, nome="Despesa Fluxo Test", tipo="despesa", ativa=True
+        )
+
+    def test_destaques_maior_entrada_e_pior_dia(self):
+        from relatorios.services.agregacoes import aplicar_filtros_relatorio, serie_fluxo_diario
+        from relatorios.services.fluxo_caixa import destaques_fluxo_periodo
+        from relatorios.selectors import transacoes_base_qs
+
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_rec,
+            tipo="receita",
+            valor=Decimal("2500"),
+            data=date(2026, 5, 10),
+            descricao="Salário",
+        )
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_desp,
+            tipo="despesa",
+            valor=Decimal("890"),
+            data=date(2026, 5, 12),
+            descricao="Fatura",
+        )
+        filtros = RelatorioFiltros(
+            data_inicio=date(2026, 5, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        qs = aplicar_filtros_relatorio(transacoes_base_qs(self.user), filtros)
+        serie = serie_fluxo_diario(qs, filtros)
+        dest = destaques_fluxo_periodo(qs, filtros, serie)
+        self.assertEqual(dest["maior_entrada"]["valor"], Decimal("2500"))
+        self.assertEqual(dest["maior_entrada"]["titulo"], "Receita Fluxo Test")
+        self.assertEqual(dest["maior_saida"]["valor"], Decimal("890"))
+        self.assertIsNotNone(dest["melhor_dia"])
+
+    def test_resumo_minimo_periodo(self):
+        from relatorios.services.fluxo_caixa import resumo_minimo_periodo
+
+        serie = {
+            "liquido": [100.0, -50.0, 20.0],
+            "acumulado": [100.0, 50.0, 70.0],
+        }
+        resumo = resumo_minimo_periodo(serie, Decimal("70"))
+        self.assertEqual(resumo["saldo_inicial"], Decimal("0"))
+        self.assertEqual(resumo["saldo_final"], Decimal("70"))
+        self.assertEqual(resumo["variacao_liquida"], Decimal("70"))
+        self.assertTrue(resumo["tem_movimentacao"])
+
+    def test_dinamica_fluxo_periodo(self):
+        from relatorios.services.fluxo_caixa import dinamica_fluxo_periodo
+
+        serie = {
+            "labels": ["01/05", "02/05", "03/05", "04/05", "05/05"],
+            "entradas": [0.0, 500.0, 0.0, 0.0, 100.0],
+            "saidas": [0.0, 0.0, 300.0, 0.0, 50.0],
+        }
+        dest = {"melhor_dia": {"rotulo": "02/05", "valor": Decimal("500")}, "pior_dia": None}
+        din = dinamica_fluxo_periodo(serie, dest)
+        self.assertEqual(din["pico_entrada"]["valor"], Decimal("500"))
+        self.assertEqual(din["pico_entrada"]["rotulo"], "02/05")
+        self.assertEqual(din["pico_saida"]["valor"], Decimal("300"))
+        self.assertEqual(din["dias_com_movimento"], 3)
+        self.assertTrue(din["entradas_pontuais"])
+
+    def test_interpretacao_dinamica_fluxo(self):
+        from relatorios.services.fluxo_caixa import interpretacao_dinamica_fluxo
+
+        dinamica = {
+            "fluxo_irregular": True,
+            "entradas_pontuais": True,
+            "dias_com_movimento": 3,
+            "total_dias": 31,
+            "pico_saida": {"rotulo": "12/05", "valor": Decimal("890")},
+        }
+        totais = {"receitas": Decimal("5200"), "despesas": Decimal("2850")}
+        frases = interpretacao_dinamica_fluxo(dinamica, totais)
+        self.assertTrue(len(frases) >= 1)
+        self.assertTrue(any("irregular" in f.lower() or "pontuais" in f.lower() for f in frases))
+
+    def test_interpretacao_acionavel(self):
+        from relatorios.services.fluxo_caixa import interpretacao_acionavel
+
+        totais = {"receitas": Decimal("5200"), "despesas": Decimal("2850")}
+        top_d = [{"nome": "Alimentação", "total": Decimal("890"), "percentual": Decimal("31")}]
+        top_r = [{"nome": "Salário", "total": Decimal("5000"), "percentual": Decimal("96")}]
+        comp = {"tem_base": True, "despesas_pct": Decimal("12")}
+        frases = interpretacao_acionavel("Maio", totais, Decimal("2350"), comp, top_d, top_r)
+        self.assertTrue(len(frases) >= 1)
+        self.assertTrue(any("Alimentação" in f or "Salário" in f for f in frases))
+
+    def test_interpretacao_periodo_positivo(self):
+        from relatorios.services.fluxo_caixa import interpretacao_fluxo_periodo
+
+        totais = {"receitas": Decimal("5200"), "despesas": Decimal("2850")}
+        serie = {"liquido": [100.0] * 20 + [-50.0] * 11, "acumulado": list(range(31))}
+        msg = interpretacao_fluxo_periodo(totais, serie)
+        self.assertIn("positivo", msg.lower())
+
+    def test_insights_rapidos(self):
+        from relatorios.services.fluxo_caixa import insights_rapidos
+
+        totais = {"receitas": Decimal("5200"), "despesas": Decimal("2850")}
+        dest = {
+            "maior_saida": {"titulo": "Alimentação", "valor": Decimal("890"), "rotulo": "12/05"},
+            "maior_entrada": {"titulo": "Salário", "valor": Decimal("5000"), "rotulo": "05/05"},
+        }
+        ind = {"dias_positivos": 18, "dias_negativos": 7}
+        ins = insights_rapidos(totais, Decimal("2350"), dest, ind)
+        self.assertEqual(ins["modo"], "completo")
+        self.assertTrue(any("saldo positivo" in i.lower() for i in ins["itens"]))
+        self.assertTrue(any("Alimentação" in i for i in ins["itens"]))
+        self.assertTrue(any("poupou" in i for i in ins["itens"]))
+
+    def test_contexto_periodo_negativo(self):
+        from relatorios.services.fluxo_caixa import insights_rapidos
+
+        totais = {"receitas": Decimal("1000"), "despesas": Decimal("1500")}
+        ins = insights_rapidos(totais, Decimal("-500"), {}, {"dias_positivos": 5, "dias_negativos": 10})
+        self.assertTrue(any("negativo" in i.lower() for i in ins["itens"]))
+
+    def test_serie_fluxo_entradas_saidas(self):
+        from relatorios.services.agregacoes import aplicar_filtros_relatorio, serie_fluxo_diario
+        from relatorios.selectors import transacoes_base_qs
+
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_rec,
+            tipo="receita",
+            valor=Decimal("100"),
+            data=date(2026, 5, 5),
+            descricao="entrada teste",
+        )
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_desp,
+            tipo="despesa",
+            valor=Decimal("40"),
+            data=date(2026, 5, 5),
+            descricao="saida teste",
+        )
+        filtros = RelatorioFiltros(
+            data_inicio=date(2026, 5, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        qs = aplicar_filtros_relatorio(transacoes_base_qs(self.user), filtros)
+        serie = serie_fluxo_diario(qs, filtros)
+        self.assertIn("entradas", serie)
+        self.assertIn("saidas", serie)
+        idx = serie["labels"].index("05/05")
+        self.assertEqual(serie["entradas"][idx], 100.0)
+        self.assertEqual(serie["saidas"][idx], 40.0)
+
+    def test_resumo_o_que_aconteceu(self):
+        from relatorios.services.fluxo_caixa import resumo_o_que_aconteceu
+
+        totais = {"receitas": Decimal("5200"), "despesas": Decimal("2850")}
+        resumo = resumo_o_que_aconteceu("Maio", totais, Decimal("2350"), {})
+        self.assertEqual(resumo["modo"], "completo")
+
+    def test_indicadores_saude(self):
+        from relatorios.services.fluxo_caixa import indicadores_saude_fluxo
+
+        totais = {"receitas": Decimal("100"), "despesas": Decimal("50")}
+        serie = {"liquido": [10.0, -5.0, 20.0]}
+        destaques = {"melhor_dia": {"valor": Decimal("20"), "rotulo": "03/05"}}
+        ind = indicadores_saude_fluxo(totais, serie, destaques)
+        self.assertEqual(ind["dias_positivos"], 2)
+        self.assertEqual(ind["dias_negativos"], 1)
+
+    def test_tela_fluxo_caixa_ok(self):
+        res = self.client.get(reverse("relatorios:fluxo_caixa"), {"ano": 2026, "mes": 5})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "Entradas x Saídas")
+        self.assertContains(res, "Saldo inicial")
+        self.assertContains(res, "Como seu dinheiro se movimentou")
+        self.assertContains(res, "Ver transações do período")
+        self.assertContains(res, "chart-fluxo")
+        self.assertNotContains(res, "Resumo do período")
+        self.assertNotContains(res, "vs mês anterior")
