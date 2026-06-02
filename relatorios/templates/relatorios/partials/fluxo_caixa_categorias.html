@@ -1,0 +1,50 @@
+{% load moeda %}
+
+{% if top_despesas or top_receitas %}
+<section class="rounded-xl border border-gray-100 bg-white/50 px-4 py-5 sm:px-5" aria-label="Categorias que mais impactaram o mês">
+  <h3 class="text-sm font-semibold text-gray-800">Categorias que mais impactaram o mês</h3>
+  <p class="mt-0.5 text-xs text-gray-500">De onde veio o resultado do período</p>
+
+  <div class="mt-4 grid gap-6 sm:grid-cols-2">
+    {% if top_despesas %}
+    <div>
+      <p class="text-xs font-medium uppercase tracking-wide text-rose-700/80">Principais saídas</p>
+      <ul class="mt-2.5 space-y-2.5">
+        {% for cat in top_despesas %}
+        <li>
+          <div class="flex items-center justify-between gap-2 text-sm">
+            <span class="truncate text-gray-800">{{ cat.nome }}</span>
+            <span class="shrink-0 font-semibold tabular-nums text-rose-700">{{ cat.total|moeda }}</span>
+          </div>
+          <div class="mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
+            <div class="h-full rounded-full bg-rose-400/80" style="width: {{ cat.percentual|floatformat:0 }}%; max-width: 100%;"></div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if top_receitas %}
+    <div>
+      <p class="text-xs font-medium uppercase tracking-wide text-emerald-700/80">Principais entradas</p>
+      <ul class="mt-2.5 space-y-2.5">
+        {% for cat in top_receitas %}
+        <li>
+          <div class="flex items-center justify-between gap-2 text-sm">
+            <span class="truncate text-gray-800">{{ cat.nome }}</span>
+            <span class="shrink-0 font-semibold tabular-nums text-emerald-700">{{ cat.total|moeda }}</span>
+          </div>
+          <div class="mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
+            <div class="h-full rounded-full bg-emerald-400/80" style="width: {{ cat.percentual|floatformat:0 }}%; max-width: 100%;"></div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% elif top_despesas %}
+    <p class="flex items-center text-sm text-gray-400">Sem entradas categorizadas neste período.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

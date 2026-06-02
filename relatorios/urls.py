@@ -8,13 +8,11 @@ from relatorios.api_views import (
     ApiTopCategoriasView,
 )
 from relatorios.views import (
-    ComparativoView,
     DespesasPorCategoriaView,
     FluxoCaixaView,
     HomeRelatorioView,
     OrcamentosView,
     PorContaView,
-    ReceitasPorCategoriaView,
     salvar_orcamento,
     toggle_ocultar_valores_dashboard,
     toggle_orcamento_ativo,
@@ -27,9 +25,7 @@ urlpatterns = [
     path("relatorios/toggle-ocultar-valores/", toggle_ocultar_valores_dashboard, name="toggle_ocultar_valores"),
     path("relatorios/fluxo-caixa/", FluxoCaixaView.as_view(), name="fluxo_caixa"),
     path("relatorios/despesas-por-categoria/", DespesasPorCategoriaView.as_view(), name="despesas_categoria"),
-    path("relatorios/receitas-por-categoria/", ReceitasPorCategoriaView.as_view(), name="receitas_categoria"),
     path("relatorios/por-conta/", PorContaView.as_view(), name="por_conta"),
-    path("relatorios/comparativo/", ComparativoView.as_view(), name="comparativo"),
     path("relatorios/orcamentos/", OrcamentosView.as_view(), name="orcamentos"),
     path("relatorios/orcamentos/salvar/", salvar_orcamento, name="orcamentos_salvar"),
     path("relatorios/orcamentos/<int:pk>/toggle-ativo/", toggle_orcamento_ativo, name="orcamentos_toggle_ativo"),

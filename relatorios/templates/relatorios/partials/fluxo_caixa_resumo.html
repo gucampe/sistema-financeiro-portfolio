@@ -1,18 +1,31 @@
 {% load moeda %}
 
-<div class="flex flex-wrap items-baseline gap-x-8 gap-y-3 border-b border-gray-100 pb-4 text-sm" aria-label="Resumo mínimo do período">
-  <div>
-    <span class="text-gray-500">Saldo inicial</span>
-    <span class="ml-2 font-semibold tabular-nums text-gray-800">{{ resumo_minimo.saldo_inicial|moeda }}</span>
+<div class="rounded-2xl border border-gray-200/80 bg-gradient-to-b from-white to-gray-50/50 px-4 py-4 sm:px-5 sm:py-5" aria-label="Resumo do período">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+    <div class="min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
+      <p class="text-xs font-medium uppercase tracking-wide text-emerald-700/90">Entradas</p>
+      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-emerald-700 sm:text-2xl">{{ totais.receitas|moeda }}</p>
+    </div>
+    <div class="min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
+      <p class="text-xs font-medium uppercase tracking-wide text-rose-700/90">Saídas</p>
+      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-rose-700 sm:text-2xl">{{ totais.despesas|moeda }}</p>
+    </div>
+    <div class="min-w-0">
+      <p class="text-xs font-medium uppercase tracking-wide text-brand-600">Resultado líquido</p>
+      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-brand-700 sm:text-2xl">
+        {% if resultado_fluxo > 0 %}+{% endif %}{{ resultado_fluxo|moeda }}
+      </p>
+    </div>
   </div>
-  <div>
-    <span class="text-gray-500">Saldo final</span>
-    <span class="ml-2 font-semibold tabular-nums text-gray-800">{{ resumo_minimo.saldo_final|moeda }}</span>
-  </div>
-  <div>
-    <span class="text-gray-500">Variação líquida</span>
-    <span class="ml-2 font-semibold tabular-nums {% if resumo_minimo.variacao_liquida > 0 %}text-emerald-700{% elif resumo_minimo.variacao_liquida < 0 %}text-rose-700{% else %}text-gray-700{% endif %}">
-      {% if resumo_minimo.variacao_liquida > 0 %}+{% endif %}{{ resumo_minimo.variacao_liquida|moeda }}
+  <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-100 pt-4 text-xs text-gray-500 sm:text-sm">
+    <span>Saldo inicial <strong class="ml-1 font-semibold tabular-nums text-gray-700">{{ resumo_minimo.saldo_inicial|moeda }}</strong></span>
+    <span class="hidden text-gray-300 sm:inline" aria-hidden="true">·</span>
+    <span>Saldo final <strong class="ml-1 font-semibold tabular-nums text-gray-700">{{ resumo_minimo.saldo_final|moeda }}</strong></span>
+    <span class="hidden text-gray-300 sm:inline" aria-hidden="true">·</span>
+    <span>Variação no período
+      <strong class="ml-1 font-semibold tabular-nums {% if resumo_minimo.variacao_liquida > 0 %}text-emerald-700{% elif resumo_minimo.variacao_liquida < 0 %}text-rose-700{% else %}text-gray-700{% endif %}">
+        {% if resumo_minimo.variacao_liquida > 0 %}+{% endif %}{{ resumo_minimo.variacao_liquida|moeda }}
+      </strong>
     </span>
   </div>
 </div>

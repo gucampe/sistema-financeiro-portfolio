@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -39,13 +39,13 @@ from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
     aplicar_filtros_relatorio,
     movimento_por_conta,
-    resumo_comparativo,
     resultado_fluxo,
     saldos_por_conta_totais,
     serie_fluxo_diario,
+    top_categorias,
     totais_por_tipo,
 )
-from relatorios.services.filtros import RelatorioFiltros, parse_comparativo_secundario, parse_relatorio_filtros
+from relatorios.services.filtros import parse_relatorio_filtros
 from relatorios.services.dashboard import (
     comparacao_mensal,
     fluxo_caixa_futuro_dashboard,
@@ -309,6 +309,8 @@ class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):
                 "resumo_minimo": resumo_minimo_periodo(serie, resultado),
                 "dinamica": dinamica,
                 "interpretacao": interpretacao_dinamica_fluxo(dinamica, tot),
+                "top_despesas": top_categorias(qs, "despesa", limit=4),
+                "top_receitas": top_categorias(qs, "receita", limit=4),
                 "relatorio_nav": "fluxo_caixa",
                 "ano": ano,
                 "mes": mes,
@@ -346,25 +348,6 @@ class DespesasPorCategoriaView(RelatorioFiltrosMixin, TemplateView):
         return ctx
 
 
-class ReceitasPorCategoriaView(RelatorioFiltrosMixin, TemplateView):
-    template_name = "relatorios/receitas_categoria.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        filtros = ctx["filtros"]
-        qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
-        top = top_categorias(qs, "receita", limit=30)
-        ctx.update(
-            {
-                "top_categorias": top,
-                "totais": totais_por_tipo(qs),
-                "relatorio_nav": "receitas_categoria",
-            }
-        )
-        return ctx
-
-
 class PorContaView(RelatorioFiltrosMixin, TemplateView):
     template_name = "relatorios/por_conta.html"
 
@@ -388,45 +371,6 @@ class PorContaView(RelatorioFiltrosMixin, TemplateView):
                 "saldo_patrimonio": saldo_total,
                 "totais_periodo": totais_por_tipo(qs),
                 "relatorio_nav": "por_conta",
-            }
-        )
-        return ctx
-
-
-class ComparativoView(RelatorioFiltrosMixin, TemplateView):
-    template_name = "relatorios/comparativo.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        primario = ctx["filtros"]
-        secundario = parse_comparativo_secundario(self.request.GET, usuario=user, primario=primario)
-        if secundario is None:
-            span = (primario.data_fim - primario.data_inicio).days + 1
-            fim_b = primario.data_inicio - timedelta(days=1)
-            ini_b = fim_b - timedelta(days=span - 1)
-            secundario = RelatorioFiltros(
-                data_inicio=ini_b,
-                data_fim=fim_b,
-                conta_ids=primario.conta_ids,
-                categoria_ids=primario.categoria_ids,
-                tipos=primario.tipos,
-                preset="custom",
-                meio_pagamento=primario.meio_pagamento,
-                modo_data=primario.modo_data,
-            )
-
-        qs_a = aplicar_filtros_relatorio(transacoes_base_qs(user), primario)
-        qs_b = aplicar_filtros_relatorio(transacoes_base_qs(user), secundario)
-        comp = resumo_comparativo(qs_a, qs_b)
-
-        ctx.update(
-            {
-                "filtros_a": primario,
-                "filtros_b": secundario,
-                "filtros_querystring": primario.to_query_string(),
-                "comparativo": comp,
-                "relatorio_nav": "comparativo",
             }
         )
         return ctx

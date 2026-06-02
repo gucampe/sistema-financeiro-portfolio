@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load moeda %}
 
-{% block title %}Despesas por categoria{% endblock %}
+{% block title %}Por categoria{% endblock %}
 
 {% block breadcrumb %}
 <nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
   <ol class="app-header-breadcrumb__list">
     <li class="app-header-breadcrumb__item min-w-0">
-      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Despesas por categoria</span>
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Por categoria</span>
     </li>
   </ol>
 </nav>
@@ -19,7 +19,7 @@
   {% include 'relatorios/partials/filtros_barra.html' %}
 
   <header class="min-w-0">
-    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Despesas por categoria</h2>
+    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Por categoria</h2>
     <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }} · Total: {{ totais.despesas|moeda }}</p>
   </header>
 

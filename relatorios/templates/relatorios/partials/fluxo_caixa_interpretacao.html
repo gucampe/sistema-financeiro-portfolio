@@ -1,7 +1,7 @@
 {% if interpretacao %}
-<article class="rounded-2xl border border-gray-100 bg-surface-muted/20 px-5 py-4 sm:px-6 sm:py-5" aria-label="Leitura do fluxo">
-  <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Leitura do mês</h3>
-  <ul class="space-y-2">
+<article class="rounded-xl border border-gray-100/80 bg-surface-muted/15 px-4 py-4 sm:px-5 sm:py-4" aria-label="Leitura do fluxo">
+  <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Leitura do mês</h3>
+  <ul class="mt-2 space-y-1.5">
     {% for frase in interpretacao %}
     <li class="text-sm leading-relaxed text-gray-700">{{ frase }}</li>
     {% endfor %}
