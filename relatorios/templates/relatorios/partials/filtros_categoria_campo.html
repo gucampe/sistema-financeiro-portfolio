@@ -1,5 +1,5 @@
 {% comment %}Seletor de categorias — sid; mode: picker (subview) | dropdown{% endcomment %}
-<div class="filtros-categoria" data-categoria-filter data-cat-mode="{{ mode }}" data-cat-sid="{{ sid }}">
+<div class="filtros-categoria min-w-0" data-categoria-filter data-cat-mode="{{ mode }}" data-cat-sid="{{ sid }}">
   {% if not hide_label %}
   <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Categorias</span>
   {% endif %}
@@ -18,7 +18,7 @@
   <div data-cat-chips class="mt-1.5 flex flex-wrap gap-1.5 empty:hidden"></div>
 
   {% if mode == 'dropdown' %}
-  <div class="relative">
+  <div class="relative min-w-0">
     <div
       id="cat-dropdown-{{ sid }}"
       data-cat-dropdown
@@ -34,7 +34,7 @@
       </div>
     </div>
   </div>
-  {% else %}
+  {% elif render_picker|default_if_none:True %}
   <div
     id="cat-picker-{{ sid }}"
     data-cat-picker
@@ -55,7 +55,7 @@
     <div class="sticky top-0 z-10 shrink-0 border-b border-gray-100 bg-white px-4 py-2.5">
       <input type="text" data-cat-search class="input !py-2.5 text-base" placeholder="Buscar categoria..." autocomplete="off" />
     </div>
-    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-2">
+    <div class="cat-picker__list min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-2">
       {% include 'relatorios/partials/filtros_categoria_opcoes.html' %}
     </div>
     <footer class="shrink-0 border-t border-gray-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">

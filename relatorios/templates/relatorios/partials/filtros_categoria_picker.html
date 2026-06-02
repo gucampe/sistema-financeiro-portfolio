@@ -1,0 +1,28 @@
+{% comment %}Subview de categorias (portal de filtros). Requer sid.{% endcomment %}
+<div
+  id="cat-picker-{{ sid }}"
+  data-cat-picker
+  class="cat-picker cat-picker--portal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cat-picker-title-{{ sid }}"
+  aria-hidden="true"
+  data-open="false"
+>
+  <div class="cat-picker__backdrop" data-cat-picker-backdrop aria-hidden="true"></div>
+  <header class="flex shrink-0 items-center gap-2 border-b border-gray-100 px-3 py-3">
+    <button type="button" data-cat-picker-back class="inline-flex shrink-0 items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40" aria-label="Voltar">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+    </button>
+    <h3 id="cat-picker-title-{{ sid }}" class="flex-1 truncate text-base font-semibold text-gray-900">Categorias</h3>
+  </header>
+  <div class="shrink-0 border-b border-gray-100 bg-white px-4 py-2.5">
+    <input type="text" data-cat-search class="input !py-2.5 text-base" placeholder="Buscar categoria..." autocomplete="off" />
+  </div>
+  <div class="cat-picker__list min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-2">
+    {% include 'relatorios/partials/filtros_categoria_opcoes.html' %}
+  </div>
+  <footer class="shrink-0 border-t border-gray-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <button type="button" data-cat-picker-done class="btn btn-primary btn-sm w-full justify-center">Concluir</button>
+  </footer>
+</div>

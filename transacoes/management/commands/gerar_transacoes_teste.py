@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        usuario = Usuario.objects.filter(email="teste2@gmail.com").first() or Usuario.objects.last()
+        usuario = Usuario.objects.filter(email="teste4@teste.com").first() or Usuario.objects.last()
         conta = Conta.objects.filter(usuario=usuario, ativa=True).first()
 
         categorias = list(Categoria.objects.filter(usuario=usuario))

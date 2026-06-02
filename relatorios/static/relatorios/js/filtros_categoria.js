@@ -21,6 +21,17 @@
     );
   };
 
+  const pickerForRoot = (root) => {
+    const sid = root.dataset.catSid;
+    if (sid) {
+      const byId = document.getElementById(`cat-picker-${sid}`);
+      if (byId) return byId;
+    }
+    return root.querySelector('[data-cat-picker]');
+  };
+
+  const scopeForRoot = (root, picker) => picker || root;
+
   const initRoot = (root) => {
     if (root.dataset.catInit === '1') return;
     root.dataset.catInit = '1';
@@ -31,9 +42,10 @@
     const triggerCount = root.querySelector('[data-cat-trigger-count]');
     const chips = root.querySelector('[data-cat-chips]');
     const dropdown = root.querySelector('[data-cat-dropdown]');
-    const picker = root.querySelector('[data-cat-picker]');
-    const searches = () => Array.from(root.querySelectorAll('[data-cat-search]'));
-    const checkboxes = () => Array.from(root.querySelectorAll('input[name="categoria"]'));
+    const picker = mode === 'picker' ? pickerForRoot(root) : null;
+    const optionScope = () => scopeForRoot(root, picker);
+    const searches = () => Array.from(optionScope().querySelectorAll('[data-cat-search]'));
+    const checkboxes = () => Array.from(optionScope().querySelectorAll('input[name="categoria"]'));
 
     if (!trigger || !chips) return;
 
@@ -94,17 +106,18 @@
     };
 
     const filterOptions = () => {
+      const scope = optionScope();
       const activeSearch = searches().find((el) => {
         const pickerOpen = picker?.dataset.open === 'true';
         if (picker && pickerOpen) return picker.contains(el);
         return dropdown?.dataset.open === 'true' && dropdown.contains(el);
       });
       const term = (activeSearch?.value || '').toLowerCase().trim();
-      root.querySelectorAll('[data-cat-option]').forEach((opt) => {
+      scope.querySelectorAll('[data-cat-option]').forEach((opt) => {
         const name = opt.getAttribute('data-cat-name') || '';
         opt.classList.toggle('hidden', !!term && !name.includes(term));
       });
-      root.querySelectorAll('[data-cat-group]').forEach((group) => {
+      scope.querySelectorAll('[data-cat-group]').forEach((group) => {
         const hasVisible = !!group.querySelector('[data-cat-option]:not(.hidden)');
         group.classList.toggle('hidden', !hasVisible);
       });
@@ -116,7 +129,9 @@
     chips.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-remove-cat]');
       if (!btn) return;
-      const cb = root.querySelector(`input[name="categoria"][value="${btn.getAttribute('data-remove-cat')}"]`);
+      const cb = optionScope().querySelector(
+        `input[name="categoria"][value="${btn.getAttribute('data-remove-cat')}"]`
+      );
       if (!cb) return;
       cb.checked = false;
       syncUI();
@@ -147,7 +162,7 @@
       });
 
       document.addEventListener('click', (e) => {
-        if (!root.contains(e.target)) closeDropdown();
+        if (!root.contains(e.target) && !dropdown.contains(e.target)) closeDropdown();
       });
 
       bindEscape();
@@ -157,22 +172,48 @@
       const backBtn = picker.querySelector('[data-cat-picker-back]');
       const doneBtn = picker.querySelector('[data-cat-picker-done]');
       const pickerBackdrop = picker.querySelector('[data-cat-picker-backdrop]');
+      const form = root.closest('form');
+      const scrollEl = form?.querySelector('.filtros-panel-form__scroll');
+      let lockedScrollTop = 0;
+      let scrollLockHandler = null;
+
+      const lockUnderlyingScroll = () => {
+        if (!scrollEl) return;
+        lockedScrollTop = scrollEl.scrollTop;
+        scrollLockHandler = () => {
+          scrollEl.scrollTop = lockedScrollTop;
+        };
+        scrollEl.addEventListener('scroll', scrollLockHandler, { passive: true });
+      };
+
+      const unlockUnderlyingScroll = () => {
+        if (!scrollEl || !scrollLockHandler) return;
+        scrollEl.removeEventListener('scroll', scrollLockHandler);
+        scrollLockHandler = null;
+        scrollEl.scrollTop = lockedScrollTop;
+      };
 
       const closePicker = () => {
         picker.dataset.open = 'false';
         picker.setAttribute('aria-hidden', 'true');
         trigger.setAttribute('aria-expanded', 'false');
+        unlockUnderlyingScroll();
+        form?.classList.remove('filtros-panel-form--cat-open');
         OPEN.delete(closePicker);
       };
 
       const openPicker = () => {
         OPEN.forEach((close) => close());
         OPEN.clear();
+        lockUnderlyingScroll();
+        form?.classList.add('filtros-panel-form--cat-open');
         picker.dataset.open = 'true';
         picker.setAttribute('aria-hidden', 'false');
         trigger.setAttribute('aria-expanded', 'true');
         OPEN.add(closePicker);
-        picker.querySelector('[data-cat-search]')?.focus();
+        requestAnimationFrame(() => {
+          picker.querySelector('[data-cat-search]')?.focus({ preventScroll: true });
+        });
       };
 
       trigger.addEventListener('click', (e) => {
@@ -184,7 +225,7 @@
       const finish = (e) => {
         e?.preventDefault();
         closePicker();
-        trigger.focus();
+        trigger.focus({ preventScroll: true });
       };
 
       backBtn?.addEventListener('click', finish);

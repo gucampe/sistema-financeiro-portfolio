@@ -1925,10 +1925,6 @@ html {
   max-height: 14rem;
 }
 
-.max-h-64 {
-  max-height: 16rem;
-}
-
 .max-h-72 {
   max-height: 18rem;
 }
@@ -3269,10 +3265,6 @@ html {
 
 .pl-2 {
   padding-left: 0.5rem;
-}
-
-.pr-0\.5 {
-  padding-right: 0.125rem;
 }
 
 .pr-10 {

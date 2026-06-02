@@ -43,6 +43,26 @@
 
 .filtros-portal__content {
   overflow: hidden;
+  position: relative;
+}
+
+.filtros-panel-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.filtros-panel-form--cat-open .filtros-panel-form__scroll,
+.filtros-panel-form--cat-open .filtros-panel-form__footer {
+  pointer-events: none;
+  user-select: none;
+}
+
+.filtros-panel-form__scroll {
+  scrollbar-gutter: stable;
 }
 
 /* Mobile: bottom sheet */
@@ -158,37 +178,100 @@
 /* ---------- Picker de categorias (subview) ---------- */
 
 .cat-picker {
-  position: fixed;
-  z-index: 80;
   display: flex;
   flex-direction: column;
   min-height: 0;
   background: #fff;
   pointer-events: none;
+}
+
+.cat-picker:not(.cat-picker--portal) {
+  position: fixed;
+  z-index: 80;
   opacity: 0;
   transition:
     transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
     opacity 0.2s ease;
 }
 
-.cat-picker[data-open="true"] {
+.cat-picker:not(.cat-picker--portal)[data-open="true"] {
   pointer-events: auto;
   opacity: 1;
 }
 
+/* Picker dentro do portal de filtros — overlay no painel (evita bug de fixed + transform) */
+.cat-picker--portal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  background: #fff;
+  opacity: 1;
+  visibility: hidden;
+  transform: translate3d(100%, 0, 0);
+  isolation: isolate;
+  will-change: transform;
+  backface-visibility: hidden;
+  transition:
+    transform 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 0s linear 0.32s;
+}
+
+.filtros-portal .cat-picker--portal[data-open="true"] {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  transition:
+    transform 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+    visibility 0s linear 0s;
+}
+
 @media (max-width: 1023px) {
-  .cat-picker {
+  .cat-picker--portal {
+    transform: translate3d(0, 100%, 0);
+  }
+
+  .filtros-portal .cat-picker--portal[data-open="true"] {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.filtros-portal .cat-picker--portal .cat-picker__backdrop {
+  display: none;
+}
+
+.cat-picker__list {
+  -webkit-overflow-scrolling: touch;
+}
+
+.cat-options-list {
+  overflow-x: hidden;
+}
+
+.cat-dropdown .cat-options-list {
+  max-height: 12rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 1023px) {
+  .cat-picker:not(.cat-picker--portal) {
     inset: 0;
     transform: translateY(100%);
   }
 
-  .cat-picker[data-open="true"] {
+  .cat-picker:not(.cat-picker--portal)[data-open="true"] {
     transform: translateY(0);
   }
 }
 
 @media (min-width: 1024px) {
-  .cat-picker {
+  .cat-picker:not(.cat-picker--portal) {
     top: 1rem;
     right: 1rem;
     bottom: 1rem;
@@ -199,7 +282,7 @@
     transform: translateX(calc(100% + 1rem));
   }
 
-  .cat-picker[data-open="true"] {
+  .cat-picker:not(.cat-picker--portal)[data-open="true"] {
     transform: translateX(0);
   }
 }
@@ -230,15 +313,27 @@
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+  transform: translateY(-0.25rem);
   transition:
-    max-height 0.2s ease,
-    opacity 0.2s ease;
+    max-height 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.24s ease,
+    transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .cat-dropdown[data-open="true"] {
-  max-height: 16rem;
+  max-height: min(16rem, 50dvh);
   opacity: 1;
   pointer-events: auto;
+  overflow: hidden;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-picker,
+  .cat-picker--portal,
+  .cat-dropdown {
+    transition: none;
+  }
 }
 
 /* ---------- Por categoria (análise) ---------- */
