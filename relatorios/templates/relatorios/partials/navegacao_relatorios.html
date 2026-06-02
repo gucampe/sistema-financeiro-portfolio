@@ -1,14 +1,18 @@
-<nav class="relatorios-tabs border-b border-gray-200 text-sm font-medium" aria-label="Relatórios">
-  <div class="mx-auto flex w-max max-w-full justify-center gap-x-6 overflow-x-auto overflow-y-hidden whitespace-nowrap overscroll-x-contain px-2 sm:px-4">
-  <a href="{% url 'relatorios:home' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
-     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'home' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Visão geral</a>
-  <a href="{% url 'relatorios:orcamentos' %}"
-     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'orcamentos' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Orçamentos</a>
-  <a href="{% url 'relatorios:fluxo_caixa' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
-     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'fluxo_caixa' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Entradas x Saídas</a>
-  <a href="{% url 'relatorios:despesas_categoria' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
-     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'despesas_categoria' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Por categoria</a>
-  <a href="{% url 'relatorios:por_conta' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
-     class="inline-flex shrink-0 items-center border-b-2 border-transparent py-3 -mb-px {% if relatorio_nav == 'por_conta' %}border-brand-600 text-brand-600{% else %}text-gray-600 hover:border-gray-300 hover:text-brand-600{% endif %}">Por conta</a>
+<nav class="relatorios-tabs" aria-label="Relatórios">
+  <div class="relatorios-tabs__track">
+    <div class="relatorios-tabs__fade relatorios-tabs__fade--left" aria-hidden="true"></div>
+    <div class="relatorios-tabs__scroll">
+      <a href="{% url 'relatorios:home' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+         class="relatorios-tab {% if relatorio_nav == 'home' %}is-active{% endif %}">Visão geral</a>
+      <a href="{% url 'relatorios:orcamentos' %}"
+         class="relatorios-tab {% if relatorio_nav == 'orcamentos' %}is-active{% endif %}">Orçamentos</a>
+      <a href="{% url 'relatorios:fluxo_caixa' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+         class="relatorios-tab {% if relatorio_nav == 'fluxo_caixa' %}is-active{% endif %}">Entradas x Saídas</a>
+      <a href="{% url 'relatorios:despesas_categoria' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+         class="relatorios-tab {% if relatorio_nav == 'despesas_categoria' %}is-active{% endif %}">Por categoria</a>
+      <a href="{% url 'relatorios:por_conta' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+         class="relatorios-tab {% if relatorio_nav == 'por_conta' %}is-active{% endif %}">Por conta</a>
+    </div>
+    <div class="relatorios-tabs__fade relatorios-tabs__fade--right" aria-hidden="true"></div>
   </div>
 </nav>

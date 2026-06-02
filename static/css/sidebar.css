@@ -598,13 +598,6 @@ html.sidebar-open .app-sidebar-overlay {
   }
 }
 
-/* ---------- Relatórios: abas (evita salto ao trocar de guia) ---------- */
-
-.relatorios-tabs {
-  overflow-anchor: none;
-  overflow-y: hidden;
-}
-
 /* ---------- Header: breadcrumb (MVP — um nível; <ol> prepara evolução) ---------- */
 
 .app-header-breadcrumb {

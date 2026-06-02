@@ -1,0 +1,25 @@
+{% comment %}Lista de checkboxes de categorias (despesa + receita).{% endcomment %}
+<div class="max-h-64 min-h-0 space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain pr-0.5" data-cat-list>
+  <div data-cat-group="despesa" class="min-w-0 space-y-1.5">
+    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Despesas</p>
+    {% for cat in categorias_filtro %}
+      {% if cat.tipo == "despesa" %}
+      <label data-cat-option data-cat-name="{{ cat.nome|lower }}" class="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-700 transition hover:bg-gray-50 active:bg-gray-100">
+        <input type="checkbox" name="categoria" value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+        <span class="min-w-0 flex-1 truncate">{{ cat.nome }}</span>
+      </label>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div data-cat-group="receita" class="min-w-0 space-y-1.5">
+    <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Receitas</p>
+    {% for cat in categorias_filtro %}
+      {% if cat.tipo == "receita" %}
+      <label data-cat-option data-cat-name="{{ cat.nome|lower }}" class="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-700 transition hover:bg-gray-50 active:bg-gray-100">
+        <input type="checkbox" name="categoria" value="{{ cat.id }}" {% if cat.id in filtros.categoria_ids %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-0" />
+        <span class="min-w-0 flex-1 truncate">{{ cat.nome }}</span>
+      </label>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
