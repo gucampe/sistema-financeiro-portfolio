@@ -1,7 +1,7 @@
 <section class="card min-w-0 p-5 sm:p-7" aria-label="Fluxo diário">
   <div class="flex flex-col gap-0.5">
     <h2 class="text-lg font-semibold tracking-tight text-gray-900 sm:text-xl">Como seu dinheiro se movimentou</h2>
-    <p class="text-sm text-gray-500">Intensidade de entradas e saídas em {{ mes_rotulo }}</p>
+    <p class="text-sm text-gray-500">Intensidade de entradas e saídas · {{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
   </div>
   <div class="relative mt-6 h-60 w-full sm:h-72 lg:h-[22rem]">
     <canvas id="chart-fluxo" class="absolute inset-0 h-full w-full"></canvas>

@@ -1,5 +1,5 @@
 /**
- * Portal de filtros da Visão Geral — mobile sheet / notebook overlay / XL drawer.
+ * Portal de filtros — painel lateral compartilhado nas páginas analíticas.
  */
 (() => {
   const portal = document.getElementById('filtros-portal');
@@ -7,13 +7,18 @@
 
   const backdrop = document.getElementById('filtros-portal-backdrop');
   const panel = document.getElementById('filtros-portal-panel');
-  const openBtn = document.getElementById('btn-abrir-filtros');
+  const openBtns = document.querySelectorAll('.js-abrir-filtros-portal');
   const closeBtn = document.getElementById('btn-fechar-filtros-portal');
 
-  if (!panel || !openBtn) return;
+  if (!panel || openBtns.length === 0) return;
 
   let open = false;
   let bodyLocked = false;
+  let lastOpenBtn = openBtns[0];
+
+  const setButtonsExpanded = (expanded) => {
+    openBtns.forEach((btn) => btn.setAttribute('aria-expanded', expanded ? 'true' : 'false'));
+  };
 
   const lockScroll = () => {
     if (!document.documentElement.classList.contains('sidebar-open')) {
@@ -33,7 +38,7 @@
     open = next;
     portal.dataset.open = next ? 'true' : 'false';
     portal.setAttribute('aria-hidden', next ? 'false' : 'true');
-    openBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+    setButtonsExpanded(next);
     if (next) {
       lockScroll();
       closeBtn?.focus();
@@ -46,27 +51,30 @@
   const toggle = () => setOpen(!open);
   const close = () => setOpen(false);
 
-  openBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggle();
+  openBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lastOpenBtn = btn;
+      toggle();
+    });
   });
 
   closeBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     close();
-    openBtn.focus();
+    lastOpenBtn.focus();
   });
 
   backdrop?.addEventListener('click', () => {
     close();
-    openBtn.focus();
+    lastOpenBtn.focus();
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || !open) return;
     if (document.querySelector('.cat-picker[data-open="true"]')) return;
     close();
-    openBtn.focus();
+    lastOpenBtn.focus();
   });
 
   window.addEventListener('resize', () => {

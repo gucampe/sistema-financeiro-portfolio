@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load moeda %}
+{% load static moeda %}
 
 {% block title %}Por categoria{% endblock %}
 
@@ -16,45 +16,26 @@
 {% block content %}
 <div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
-  {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <header class="min-w-0">
-    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Por categoria</h2>
-    <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }} · Total: {{ totais.despesas|moeda }}</p>
-  </header>
+  <div class="flex flex-col gap-8 sm:gap-10 lg:gap-12">
+    {% include 'relatorios/partials/despesas_categoria_hero.html' %}
 
-  <div class="card min-w-0 overflow-hidden p-0">
-    <div class="table-scroll">
-      <table class="w-full min-w-[28rem] text-sm">
-        <thead class="bg-gray-50 text-left text-gray-600">
-          <tr>
-            <th class="px-4 py-3">Categoria</th>
-            <th class="px-4 py-3 text-right">Valor</th>
-            <th class="px-4 py-3 text-right">% do total</th>
-            <th class="px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in top_categorias %}
-          <tr class="border-t border-gray-100 hover:bg-gray-50">
-            <td class="px-4 py-2">
-              <span class="inline-block w-2 h-2 rounded-full mr-2 align-middle" style="background: {{ row.cor }}"></span>
-              {{ row.nome }}
-            </td>
-            <td class="px-4 py-2 text-right tabular-nums font-medium">{{ row.total|moeda }}</td>
-            <td class="px-4 py-2 text-right text-gray-600 tabular-nums">{{ row.percentual|floatformat:1 }}%</td>
-            <td class="px-4 py-2 text-right">
-              <a href="{% url 'transacoes:historico' %}?{{ drill_transacoes_qs }}&categoria={{ row.categoria_id }}" class="text-brand-600 hover:underline">Lançamentos</a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">Sem despesas no período.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    {% if analise_categorias.tem_dados %}
+      {% include 'relatorios/partials/despesas_categoria_grafico.html' %}
+      {% include 'relatorios/partials/despesas_categoria_lista.html' %}
+      {% include 'relatorios/partials/despesas_categoria_insights.html' %}
+    {% else %}
+      <section class="rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-14 text-center sm:px-10">
+        <p class="text-lg font-semibold text-gray-900">Nenhuma despesa no período</p>
+        <p class="mx-auto mt-2 max-w-md text-sm text-gray-500">Ajuste os filtros ou registre transações de despesa para ver a análise por categoria.</p>
+      </section>
+    {% endif %}
   </div>
 
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
+
+{% if analise_categorias.tem_dados %}
+<script src="{% static 'relatorios/js/despesas_categoria.js' %}"></script>
+{% endif %}
 {% endblock %}

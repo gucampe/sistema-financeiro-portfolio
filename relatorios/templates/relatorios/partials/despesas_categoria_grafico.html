@@ -1,0 +1,28 @@
+{% load moeda %}
+
+<section class="card min-w-0 overflow-hidden p-5 sm:p-7" aria-label="Distribuição por categoria">
+  <div class="mb-6 min-w-0">
+    <h3 class="text-lg font-semibold tracking-tight text-gray-900">Distribuição do gasto</h3>
+    <p class="mt-1 text-sm text-gray-500">Principais categorias por impacto no período</p>
+  </div>
+
+  <ul class="cat-bars space-y-4" role="list">
+    {% for cat in grafico_categorias %}
+    <li class="cat-bars__row min-w-0">
+      <div class="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
+        <span class="min-w-0 truncate font-medium text-gray-800">{{ cat.nome }}</span>
+        <span class="shrink-0 tabular-nums text-gray-600">
+          <span class="font-semibold text-gray-900">{{ cat.total|moeda }}</span>
+          <span class="text-gray-400"> · </span>{{ cat.percentual|floatformat:0 }}%
+        </span>
+      </div>
+      <div class="cat-bars__track h-2.5 overflow-hidden rounded-full bg-gray-100" role="presentation">
+        <div
+          class="cat-bars__fill h-full rounded-full transition-[width] duration-500 ease-out"
+          style="width: {{ cat.percentual|floatformat:1 }}%; background-color: {{ cat.cor|default:'#94a3b8' }};"
+        ></div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>

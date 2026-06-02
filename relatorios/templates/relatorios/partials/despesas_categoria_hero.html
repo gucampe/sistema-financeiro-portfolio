@@ -1,0 +1,53 @@
+{% load moeda %}
+
+<section class="overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-rose-50/20 p-5 shadow-sm sm:p-7" aria-label="Resumo de despesas por categoria">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0 space-y-1">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Para onde vai o seu dinheiro</p>
+      <h2 class="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Despesas por categoria</h2>
+      <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+    </div>
+    <div class="flex w-full shrink-0 sm:w-auto sm:justify-end">
+      {% include 'relatorios/partials/filtros_hero_botao.html' %}
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <article class="rounded-2xl border border-gray-100 bg-white/85 p-4 shadow-sm backdrop-blur-sm">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Maior gasto</p>
+      <p class="mt-1 truncate text-base font-semibold text-gray-900">{{ hero_categorias.maior_gasto_nome }}</p>
+      <p class="mt-0.5 text-sm tabular-nums text-gray-700">{{ hero_categorias.maior_gasto_valor|moeda }}</p>
+      <p class="mt-1 text-xs font-medium text-rose-600">{{ hero_categorias.maior_gasto_pct|floatformat:0 }}% das despesas</p>
+    </article>
+
+    <article class="rounded-2xl border border-gray-100 bg-white/85 p-4 shadow-sm backdrop-blur-sm">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Maior crescimento</p>
+      {% if hero_categorias.maior_crescimento_nome and hero_categorias.maior_crescimento_pct is not None %}
+      <p class="mt-1 truncate text-base font-semibold text-gray-900">{{ hero_categorias.maior_crescimento_nome }}</p>
+      <p class="mt-1 text-sm font-medium text-amber-700">↑ {{ hero_categorias.maior_crescimento_pct|floatformat:0 }}%</p>
+      <p class="text-xs text-gray-500">vs período anterior</p>
+      {% else %}
+      <p class="mt-2 text-sm text-gray-500">Sem aumento relevante no período</p>
+      {% endif %}
+    </article>
+
+    <article class="rounded-2xl border border-gray-100 bg-white/85 p-4 shadow-sm backdrop-blur-sm">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total de despesas</p>
+      <p class="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-gray-900">{{ hero_categorias.total_despesas|moeda }}</p>
+      <p class="text-xs text-gray-500">no período filtrado</p>
+    </article>
+
+    <article class="rounded-2xl border border-gray-100 bg-white/85 p-4 shadow-sm backdrop-blur-sm">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Vs período anterior</p>
+      {% if hero_categorias.delta_total_pct is not None %}
+      <p class="mt-1 text-2xl font-semibold tabular-nums {% if hero_categorias.delta_total_pct > 0 %}text-rose-700{% elif hero_categorias.delta_total_pct < 0 %}text-emerald-700{% else %}text-gray-700{% endif %}">
+        {% if hero_categorias.delta_total_pct > 0 %}↑{% elif hero_categorias.delta_total_pct < 0 %}↓{% endif %}
+        {{ hero_categorias.delta_total_pct|floatformat:0 }}%
+      </p>
+      <p class="mt-0.5 text-xs text-gray-500 truncate" title="{{ hero_categorias.rotulo_periodo_anterior }}">{{ hero_categorias.rotulo_periodo_anterior }}</p>
+      {% else %}
+      <p class="mt-2 text-sm text-gray-500">Sem base comparativa</p>
+      {% endif %}
+    </article>
+  </div>
+</section>

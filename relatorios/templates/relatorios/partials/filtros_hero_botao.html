@@ -1,0 +1,10 @@
+{% comment %}Botão Filtros no canto do hero/primeiro card — abre #filtros-portal.{% endcomment %}
+<button
+  type="button"
+  class="js-abrir-filtros-portal btn btn-secondary btn-sm w-full sm:w-auto"
+  aria-haspopup="dialog"
+  aria-controls="filtros-portal-panel"
+  aria-expanded="false"
+>
+  Filtros{% if filtros_ativos_count %} ({{ filtros_ativos_count }}){% endif %}
+</button>

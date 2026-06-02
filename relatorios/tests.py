@@ -8,6 +8,10 @@ from django.urls import reverse
 
 from categorias.models import Categoria
 from relatorios.models import OrcamentoCategoria
+from relatorios.services.despesas_categoria import (
+    filtros_periodo_anterior,
+    montar_analise_despesas_categoria,
+)
 from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 from relatorios.services.insights import avaliar_alertas_orcamento, gerar_insights_dashboard
 from relatorios.services.orcamentos import (
@@ -80,6 +84,59 @@ class RelatorioFiltrosParseTests(TestCase):
             preset="ultimos_30d",
         )
         self.assertEqual(f.contagem_filtros_ativos(), 4)
+
+
+class DespesasCategoriaAnaliseTests(TestCase):
+    def setUp(self):
+        from contas.models import Conta
+
+        self.user = User.objects.create_user(email="cat-analise@t.com", nome="C", password="x")
+        self.conta = Conta.objects.create(usuario=self.user, nome="Conta analise", ativa=True)
+        self.cat_a = Categoria.objects.create(
+            usuario=self.user, nome="Moradia analise", tipo="despesa", ativa=True, cor="#6366f1"
+        )
+        self.cat_b = Categoria.objects.create(
+            usuario=self.user, nome="Lazer analise", tipo="despesa", ativa=True, cor="#f43f5e"
+        )
+
+    def _tx(self, categoria, valor, dia, mes=5, ano=2026):
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=categoria,
+            tipo="despesa",
+            valor=Decimal(str(valor)),
+            descricao=f"Teste {categoria.nome}",
+            data=date(ano, mes, dia),
+        )
+
+    def test_filtros_periodo_anterior_mesma_duracao(self):
+        f = RelatorioFiltros(
+            data_inicio=date(2026, 5, 10),
+            data_fim=date(2026, 5, 20),
+            preset="custom",
+        )
+        ant = filtros_periodo_anterior(f)
+        self.assertEqual((ant.data_fim - ant.data_inicio).days, (f.data_fim - f.data_inicio).days)
+
+    def test_montar_analise_ordena_e_compara(self):
+        self._tx(self.cat_a, 400, 5)
+        self._tx(self.cat_a, 100, 8)
+        self._tx(self.cat_b, 50, 6)
+        # período anterior: só moradia menor
+        self._tx(self.cat_a, 200, 5, mes=4)
+
+        f = RelatorioFiltros(
+            data_inicio=date(2026, 5, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        analise = montar_analise_despesas_categoria(self.user, f, limite_lista=10)
+        self.assertTrue(analise["tem_dados"])
+        self.assertEqual(analise["categorias"][0]["nome"], "Moradia analise")
+        self.assertEqual(analise["hero"].maior_gasto_nome, "Moradia analise")
+        self.assertGreater(analise["categorias"][0]["delta_pct"], 0)
+        self.assertGreaterEqual(len(analise["insights"]), 1)
 
 
 class OrcamentoCategoriaModelTests(TestCase):

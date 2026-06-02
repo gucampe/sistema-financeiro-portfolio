@@ -22,14 +22,12 @@ from relatorios.services.fluxo_caixa import (
     dinamica_fluxo_periodo,
     filtros_mes,
     interpretacao_dinamica_fluxo,
-    nav_qs_extra_filtros,
     resumo_minimo_periodo,
 )
 from relatorios.services.orcamentos import (
     MESES_PT,
     historico_utilizacao_categoria,
     listar_orcamentos_mes,
-    navegacao_mes_context,
     painel_mes_orcamento,
     resumo_linhas_orcamento,
     usuario_tem_orcamentos_cadastrados,
@@ -45,6 +43,7 @@ from relatorios.services.agregacoes import (
     top_categorias,
     totais_por_tipo,
 )
+from relatorios.services.despesas_categoria import montar_analise_despesas_categoria
 from relatorios.services.filtros import parse_relatorio_filtros
 from relatorios.services.dashboard import (
     comparacao_mensal,
@@ -175,7 +174,7 @@ def _parse_ano_mes(request, default: date | None = None) -> tuple[int, int]:
     return ano, mes
 
 
-class OrcamentosView(LoginRequiredMixin, TemplateView):
+class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
     template_name = "relatorios/orcamentos.html"
 
     def get_context_data(self, **kwargs):
@@ -183,12 +182,10 @@ class OrcamentosView(LoginRequiredMixin, TemplateView):
 
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
-        filtros = parse_relatorio_filtros(self.request.GET, usuario=user)
         ano, mes = _parse_ano_mes(self.request)
         linhas = listar_orcamentos_mes(user, ano, mes, incluir_inativos=True)
         resumo = resumo_linhas_orcamento(linhas)
         painel_mes = painel_mes_orcamento(linhas, resumo)
-        nav_mes = navegacao_mes_context(ano, mes)
 
         historico_por_categoria: dict[int, list] = {}
         orcamento_ids = [l.orcamento_id for l in linhas if l.orcamento_id]
@@ -211,23 +208,12 @@ class OrcamentosView(LoginRequiredMixin, TemplateView):
         ctx.update(
             {
                 "relatorio_nav": "orcamentos",
-                "filtros_querystring": filtros.to_query_string(),
                 "ano": ano,
                 "mes": mes,
                 "mes_rotulo": MESES_PT[mes - 1],
                 "linhas_orcamento": linhas,
                 "resumo_orcamento": resumo,
                 "painel_mes": painel_mes,
-                "nav_mes": nav_mes,
-                "data_mes": nav_mes["data_mes"],
-                "ano_anterior": nav_mes["ano_anterior"],
-                "mes_anterior": nav_mes["mes_anterior"],
-                "ano_proximo": nav_mes["ano_proximo"],
-                "mes_proximo": nav_mes["mes_proximo"],
-                "ano_hoje": nav_mes["ano_hoje"],
-                "mes_hoje": nav_mes["mes_hoje"],
-                "meses_dropdown": nav_mes["meses_dropdown"],
-                "nav_qs_extra": nav_mes["nav_qs_extra"],
                 "tem_orcamentos": usuario_tem_orcamentos_cadastrados(user),
                 "historico_por_categoria": historico_por_categoria,
                 "drill_mes_qs": drill_qs,
@@ -286,15 +272,18 @@ class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
         base_filtros = ctx["filtros"]
-        ano, mes = _parse_ano_mes(self.request, default=base_filtros.data_inicio)
-        filtros = filtros_mes(base_filtros, ano, mes)
+        if self.request.GET.get("ano") and self.request.GET.get("mes"):
+            ano, mes = _parse_ano_mes(self.request, default=base_filtros.data_inicio)
+            filtros = filtros_mes(base_filtros, ano, mes)
+        else:
+            filtros = base_filtros
+            ano, mes = filtros.data_inicio.year, filtros.data_inicio.month
         qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
         tot = totais_por_tipo(qs)
         serie = serie_fluxo_diario(qs, filtros)
         resultado = resultado_fluxo(tot)
         destaques = destaques_fluxo_periodo(qs, filtros, serie)
         dinamica = dinamica_fluxo_periodo(serie, destaques)
-        nav_mes = navegacao_mes_context(ano, mes, nav_qs_extra=nav_qs_extra_filtros(base_filtros))
         mes_rotulo = MESES_PT[mes - 1]
 
         ctx["filtros"] = filtros
@@ -315,15 +304,6 @@ class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):
                 "ano": ano,
                 "mes": mes,
                 "mes_rotulo": mes_rotulo,
-                "data_mes": nav_mes["data_mes"],
-                "ano_anterior": nav_mes["ano_anterior"],
-                "mes_anterior": nav_mes["mes_anterior"],
-                "ano_proximo": nav_mes["ano_proximo"],
-                "mes_proximo": nav_mes["mes_proximo"],
-                "ano_hoje": nav_mes["ano_hoje"],
-                "mes_hoje": nav_mes["mes_hoje"],
-                "meses_dropdown": nav_mes["meses_dropdown"],
-                "nav_qs_extra": nav_mes["nav_qs_extra"],
             }
         )
         return ctx
@@ -336,11 +316,15 @@ class DespesasPorCategoriaView(RelatorioFiltrosMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
         filtros = ctx["filtros"]
+        analise = montar_analise_despesas_categoria(user, filtros)
         qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
-        top = top_categorias(qs, "despesa", limit=30)
         ctx.update(
             {
-                "top_categorias": top,
+                "analise_categorias": analise,
+                "hero_categorias": analise["hero"],
+                "categorias": analise["categorias"],
+                "grafico_categorias": analise["grafico"],
+                "insights_categorias": analise["insights"],
                 "totais": totais_por_tipo(qs),
                 "relatorio_nav": "despesas_categoria",
             }

@@ -23,7 +23,10 @@
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
   {% if not tem_orcamentos %}
-  <section class="card min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-10">
+  <section class="card relative min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-10">
+    <div class="mb-4 flex justify-end sm:absolute sm:right-6 sm:top-6 sm:mb-0">
+      {% include 'relatorios/partials/filtros_hero_botao.html' %}
+    </div>
     <h2 class="text-lg font-semibold tracking-tight text-gray-900">Orçamentos</h2>
     <p class="mx-auto mt-2 max-w-lg text-sm text-gray-500">
       Planeje seus limites e acompanhe seus gastos por categoria.
