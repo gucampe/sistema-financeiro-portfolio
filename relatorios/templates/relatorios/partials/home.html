@@ -363,8 +363,14 @@
   {# Portal de filtros — overlay (não altera largura do dashboard) #}
   <div id="filtros-portal" class="filtros-portal" data-open="false" aria-hidden="true">
     <div id="filtros-portal-backdrop" class="filtros-portal__backdrop" aria-hidden="true"></div>
-    <aside id="filtros-portal-panel" class="filtros-portal__panel" role="dialog" aria-modal="true" aria-labelledby="filtros-portal-title">
-      <header class="filtros-portal__header">
+    <aside
+      id="filtros-portal-panel"
+      class="filtros-portal__panel flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-3xl border border-gray-200/70 bg-white/95 shadow-2xl shadow-black/10 backdrop-blur-xl"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filtros-portal-title"
+    >
+      <header class="filtros-portal__header shrink-0">
         <div>
           <h2 id="filtros-portal-title" class="text-base font-semibold text-gray-900">Filtros</h2>
           <p class="text-xs text-gray-500">Refine os dados do painel</p>
@@ -373,7 +379,7 @@
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </header>
-      <div class="filtros-portal__content">
+      <div class="filtros-portal__content flex min-h-0 flex-col">
         {% with filtros_embed="panel" %}
           {% include 'relatorios/partials/filtros_relatorio_form.html' %}
         {% endwith %}
@@ -396,6 +402,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="{% static 'relatorios/js/dash.js' %}"></script>
 <script src="{% static 'relatorios/js/filtros_categoria.js' %}"></script>
+<script src="{% static 'relatorios/js/filtros_preset.js' %}"></script>
 <script src="{% static 'relatorios/js/filtros_dashboard.js' %}"></script>
 <script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>

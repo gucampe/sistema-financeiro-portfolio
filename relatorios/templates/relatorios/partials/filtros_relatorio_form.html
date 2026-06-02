@@ -7,15 +7,15 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
   method="get"
   action="{{ request.path }}"
   id="{% if filtros_embed == 'panel' %}form-filtros-panel{% else %}form-filtros-bar{% endif %}"
-  class="{% if filtros_embed == 'panel' %}filtros-panel-form{% else %}flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-0 lg:gap-y-5{% endif %}"
+  class="{% if filtros_embed == 'panel' %}filtros-panel-form flex flex-col{% else %}flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-x-0 lg:gap-y-5{% endif %}"
 >
   {% if filtros_embed == 'panel' %}
   {% with sid='panel' %}
-  <div class="filtros-panel-form__scroll">
+  <div class="filtros-panel-form__scroll overscroll-contain">
     <section class="filtros-secao" aria-labelledby="filtro-secao-periodo">
       <h4 id="filtro-secao-periodo" class="filtros-secao__title">Período</h4>
       <div class="space-y-3">
-        <select id="filtro-preset-{{ sid }}" name="preset" class="input w-full">
+        <select id="filtro-preset-{{ sid }}" name="preset" class="input w-full" data-filtro-preset>
           <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
           <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
           <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
@@ -23,19 +23,22 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
           <option value="este_ano" {% if filtros.preset == "este_ano" %}selected{% endif %}>Este ano</option>
           <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
         </select>
-      </div>
-    </section>
-
-    <section class="filtros-secao" aria-labelledby="filtro-secao-datas">
-      <h4 id="filtro-secao-datas" class="filtros-secao__title">Datas</h4>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="space-y-1.5">
-          <label for="filtro-inicio-{{ sid }}" class="text-xs font-medium text-gray-600">De</label>
-          <input id="filtro-inicio-{{ sid }}" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full tabular-nums" />
-        </div>
-        <div class="space-y-1.5">
-          <label for="filtro-fim-{{ sid }}" class="text-xs font-medium text-gray-600">Até</label>
-          <input id="filtro-fim-{{ sid }}" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full tabular-nums" />
+        <div
+          data-filtro-datas
+          class="mt-3 space-y-3{% if filtros.preset != 'custom' %} hidden{% endif %}"
+          {% if filtros.preset != 'custom' %}aria-hidden="true"{% endif %}
+        >
+          <p class="text-xs font-medium text-gray-600">Intervalo personalizado</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label for="filtro-inicio-{{ sid }}" class="text-xs font-medium text-gray-600">De</label>
+              <input id="filtro-inicio-{{ sid }}" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full tabular-nums" {% if filtros.preset != 'custom' %}disabled{% endif %} />
+            </div>
+            <div class="space-y-1.5">
+              <label for="filtro-fim-{{ sid }}" class="text-xs font-medium text-gray-600">Até</label>
+              <input id="filtro-fim-{{ sid }}" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full tabular-nums" {% if filtros.preset != 'custom' %}disabled{% endif %} />
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -90,7 +93,7 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
   <div class="flex flex-1 flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end lg:max-w-xl lg:pr-6 lg:border-r lg:border-gray-100">
     <div class="flex flex-1 flex-col gap-1.5 sm:max-w-xs">
       <label for="filtro-preset-bar" class="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Período</label>
-      <select id="filtro-preset-bar" name="preset" class="input w-full">
+      <select id="filtro-preset-bar" name="preset" class="input w-full" data-filtro-preset>
         <option value="este_mes" {% if filtros.preset == "este_mes" %}selected{% endif %}>Este mês</option>
         <option value="mes_anterior" {% if filtros.preset == "mes_anterior" %}selected{% endif %}>Mês anterior</option>
         <option value="ultimos_30d" {% if filtros.preset == "ultimos_30d" %}selected{% endif %}>Últimos 30 dias</option>
@@ -99,14 +102,18 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
         <option value="custom" {% if filtros.preset == "custom" %}selected{% endif %}>Personalizado</option>
       </select>
     </div>
-    <div class="flex flex-wrap items-end gap-3">
+    <div
+      data-filtro-datas
+      class="flex flex-wrap items-end gap-3{% if filtros.preset != 'custom' %} hidden{% endif %}"
+      {% if filtros.preset != 'custom' %}aria-hidden="true"{% endif %}
+    >
       <div class="flex flex-1 flex-col gap-1.5 sm:w-36">
         <label for="filtro-inicio-bar" class="text-[11px] font-semibold text-gray-500">De</label>
-        <input id="filtro-inicio-bar" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full tabular-nums" />
+        <input id="filtro-inicio-bar" type="date" name="inicio" value="{{ filtros.data_inicio|date:'Y-m-d' }}" class="input w-full tabular-nums" {% if filtros.preset != 'custom' %}disabled{% endif %} />
       </div>
       <div class="flex flex-1 flex-col gap-1.5 sm:w-36">
         <label for="filtro-fim-bar" class="text-[11px] font-semibold text-gray-500">Até</label>
-        <input id="filtro-fim-bar" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full tabular-nums" />
+        <input id="filtro-fim-bar" type="date" name="fim" value="{{ filtros.data_fim|date:'Y-m-d' }}" class="input w-full tabular-nums" {% if filtros.preset != 'custom' %}disabled{% endif %} />
       </div>
     </div>
   </div>
