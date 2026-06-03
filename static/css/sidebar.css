@@ -224,10 +224,13 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__brand-text {
   gap: 0.5rem;
   margin: 0 0.25rem;
   padding: 0.65rem 0.85rem;
+  border: none;
   border-radius: 0.5rem;
   font-weight: 600;
   font-size: 0.875rem;
+  font-family: inherit;
   text-decoration: none;
+  cursor: pointer;
   color: #fff;
   background: linear-gradient(
     135deg,

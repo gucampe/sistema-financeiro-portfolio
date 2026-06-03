@@ -1,0 +1,33 @@
+{% load moeda static icon_filters %}
+
+<section class="card min-w-0 overflow-hidden p-5 sm:p-7" aria-label="Alocação patrimonial">
+  <div class="mb-6 min-w-0">
+    <h3 class="text-lg font-semibold tracking-tight text-gray-900">Distribuição do patrimônio</h3>
+    <p class="mt-1 text-sm text-gray-500">Proporção do saldo acumulado por conta</p>
+  </div>
+
+  <ul class="conta-bars space-y-4" role="list">
+    {% for c in grafico_contas %}
+    <li class="conta-bars__row min-w-0">
+      <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
+        <span class="flex min-w-0 items-center gap-2.5">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50 ring-1 ring-gray-100" aria-hidden="true">
+            <img src="{% static c.icone|conta_icon_path %}" alt="" class="h-4 w-4 object-contain" loading="lazy" />
+          </span>
+          <span class="min-w-0 truncate font-medium text-gray-800">{{ c.nome }}</span>
+        </span>
+        <span class="shrink-0 tabular-nums text-gray-600">
+          <span class="font-semibold text-gray-900">{{ c.saldo|moeda }}</span>
+          <span class="text-gray-400"> · </span>{{ c.percentual_patrimonio|floatformat:0 }}%
+        </span>
+      </div>
+      <div class="conta-bars__track h-2.5 overflow-hidden rounded-full bg-gray-100" role="presentation">
+        <div
+          class="conta-bars__fill h-full rounded-full transition-[width] duration-500 ease-out"
+          style="width: {{ c.percentual_patrimonio|floatformat:1 }}%; background-color: {{ c.cor|default:'#94a3b8' }};"
+        ></div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>

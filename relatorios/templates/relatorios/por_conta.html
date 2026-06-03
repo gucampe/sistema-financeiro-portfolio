@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% load moeda %}
+{% load static moeda %}
 
-{% block title %}Relatórios por conta{% endblock %}
+{% block title %}Por conta{% endblock %}
 
 {% block breadcrumb %}
 <nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
@@ -16,47 +16,26 @@
 {% block content %}
 <div class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
-  {% include 'relatorios/partials/filtros_barra.html' %}
 
-  <header class="min-w-0">
-    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Por conta</h2>
-    <p class="mt-1 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
-  </header>
+  <div class="flex flex-col gap-8 sm:gap-10 lg:gap-12">
+    {% include 'relatorios/partials/por_conta_hero.html' %}
 
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <section class="card min-w-0 p-6 sm:p-7">
-      <h3 class="text-base font-semibold tracking-tight text-gray-900">Saldo acumulado (todas as transações)</h3>
-      <p class="mt-1 text-sm text-gray-500">Patrimônio líquido operacional: <strong class="text-gray-900">{{ saldo_patrimonio|moeda }}</strong></p>
-      <ul class="mt-4 space-y-2 text-sm">
-        {% for c in saldos_por_conta %}
-        <li class="flex justify-between gap-2">
-          <span class="text-gray-800">{{ c.nome }}</span>
-          <span class="tabular-nums font-medium text-gray-900">{{ c.saldo|moeda }}</span>
-        </li>
-        {% empty %}
-        <li class="text-gray-500">Nenhuma conta ativa.</li>
-        {% endfor %}
-      </ul>
-    </section>
-    <section class="card min-w-0 p-6 sm:p-7">
-      <h3 class="text-base font-semibold tracking-tight text-gray-900">Movimento no período filtrado</h3>
-      <ul class="mt-4 space-y-2 text-sm">
-        {% for m in movimento_por_conta %}
-        <li class="flex justify-between gap-2">
-          <a href="{% url 'transacoes:historico' %}?{{ m.drill_qs }}" class="truncate text-brand-600 hover:underline">{{ m.nome }}</a>
-          <span class="shrink-0 tabular-nums font-medium text-gray-900">{{ m.movimento|moeda }}</span>
-        </li>
-        {% empty %}
-        <li class="text-gray-500">Sem movimentação no período.</li>
-        {% endfor %}
-      </ul>
-    </section>
+    {% if analise_contas.tem_patrimonio %}
+      {% include 'relatorios/partials/por_conta_grafico.html' %}
+      {% include 'relatorios/partials/por_conta_lista.html' %}
+      {% include 'relatorios/partials/por_conta_insights.html' %}
+    {% else %}
+      <section class="rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-14 text-center sm:px-10">
+        <p class="text-lg font-semibold text-gray-900">Nenhuma movimentação por conta</p>
+        <p class="mx-auto mt-2 max-w-md text-sm text-gray-500">Cadastre contas e registre transações para ver a distribuição do seu patrimônio.</p>
+      </section>
+    {% endif %}
   </div>
-
-  <section class="card min-w-0 p-6 text-sm text-gray-600 sm:p-7">
-    <p><strong class="text-gray-800">Receitas no período:</strong> {{ totais_periodo.receitas|moeda }} · <strong class="text-gray-800">Despesas:</strong> {{ totais_periodo.despesas|moeda }}</p>
-  </section>
 
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
+
+{% if analise_contas.tem_patrimonio %}
+<script src="{% static 'relatorios/js/por_conta.js' %}"></script>
+{% endif %}
 {% endblock %}

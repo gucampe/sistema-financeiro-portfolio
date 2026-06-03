@@ -170,6 +170,11 @@
       });
     });
 
+    var sidebarAdicionar = document.getElementById("sidebar-btn-adicionar");
+    if (sidebarAdicionar) {
+      sidebarAdicionar.addEventListener("click", closeMobileIfNeeded);
+    }
+
     if (collapseBtn) {
       collapseBtn.addEventListener("click", function () {
         if (!isDesktop()) {

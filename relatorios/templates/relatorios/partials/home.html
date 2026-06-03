@@ -361,36 +361,12 @@
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 
-<button type="button" id="btn-adicionar" class="hidden" aria-hidden="true" tabindex="-1"></button>
-
 {{ top_despesas_chart|json_script:"top-despesas-data" }}
-
-{% include 'transacoes/partials/adicionar_transacao.html' with form=form categorias_despesa=categorias_despesa categorias_receita=categorias_receita %}
 
 <script>
   window.filtrosQueryString = "{{ filtros_querystring|escapejs }}";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="{% static 'relatorios/js/dash.js' %}"></script>
-<script src="{% static 'js/icon_combobox.js' %}"></script>
-<script src="{% static 'transacoes/js/adicionar_transacao.js' %}"></script>
-<script>
-(function () {
-  document.querySelectorAll('[data-abrir-transacao]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const tipo = btn.getAttribute('data-abrir-transacao') || 'despesa';
-      const selectTipo = document.getElementById('tipo');
-      const overlay = document.getElementById('overlay-adicionar');
-      const modalHeader = document.getElementById('titulo-modal-transacao');
-      if (selectTipo) selectTipo.value = tipo;
-      selectTipo?.dispatchEvent(new Event('change', { bubbles: true }));
-      if (modalHeader) {
-        modalHeader.textContent = tipo === 'receita' ? 'Nova Receita' : 'Nova Despesa';
-      }
-      overlay && (overlay.dataset.editando = '');
-      globalThis.GranaGoModal?.open(overlay, { trigger: btn });
-    });
-  });
-})();
 
 {% endblock %}

@@ -61,6 +61,12 @@
     </div>
   {% endblock %}
 
+    {% if request.user.is_authenticated and form %}
+    {% include 'transacoes/partials/adicionar_transacao.html' %}
+    <script src="{% static 'js/icon_combobox.js' %}" defer></script>
+    <script src="{% static 'transacoes/js/adicionar_transacao.js' %}" defer></script>
+    {% endif %}
+
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
     <script src="{% static 'js/sidebar.js' %}" defer></script>
   </body>

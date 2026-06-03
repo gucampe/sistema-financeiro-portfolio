@@ -12,6 +12,7 @@ from relatorios.services.despesas_categoria import (
     filtros_periodo_anterior,
     montar_analise_despesas_categoria,
 )
+from relatorios.services.por_conta import montar_analise_por_conta
 from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 from relatorios.services.insights import avaliar_alertas_orcamento, gerar_insights_dashboard
 from relatorios.services.orcamentos import (
@@ -137,6 +138,55 @@ class DespesasCategoriaAnaliseTests(TestCase):
         self.assertEqual(analise["hero"].maior_gasto_nome, "Moradia analise")
         self.assertGreater(analise["categorias"][0]["delta_pct"], 0)
         self.assertGreaterEqual(len(analise["insights"]), 1)
+
+
+class PorContaAnaliseTests(TestCase):
+    def setUp(self):
+        from contas.models import Conta
+
+        self.user = User.objects.create_user(email="conta-analise@t.com", nome="P", password="x")
+        self.conta_a = Conta.objects.create(
+            usuario=self.user, nome="Principal", tipo="corrente", ativa=True, icone="bank"
+        )
+        self.conta_b = Conta.objects.create(
+            usuario=self.user, nome="Reserva", tipo="poupanca", ativa=True, icone="bank"
+        )
+        self.cat = Categoria.objects.create(
+            usuario=self.user, nome="Mercado conta", tipo="despesa", ativa=True
+        )
+
+    def _tx(self, conta, tipo, valor, dia, mes=5, ano=2026, categoria=None):
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=conta,
+            categoria=categoria or self.cat,
+            tipo=tipo,
+            valor=Decimal(str(valor)),
+            descricao=f"Teste {tipo}",
+            data=date(ano, mes, dia),
+        )
+
+    def test_montar_analise_patrimonio_e_movimento(self):
+        self._tx(self.conta_a, "receita", 1000, 5, categoria=None)
+        self._tx(self.conta_a, "despesa", 200, 8)
+        self._tx(self.conta_b, "receita", 500, 6, categoria=None)
+        self._tx(self.conta_b, "despesa", 50, 10)
+
+        f = RelatorioFiltros(
+            data_inicio=date(2026, 5, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        analise = montar_analise_por_conta(self.user, f)
+        self.assertTrue(analise["tem_dados"])
+        self.assertTrue(analise["tem_patrimonio"])
+        self.assertEqual(analise["hero"].maior_saldo_nome, "Principal")
+        self.assertGreater(analise["patrimonio_total"], 0)
+        self.assertGreaterEqual(len(analise["contas"]), 2)
+        self.assertGreaterEqual(len(analise["insights"]), 1)
+        principal = next(c for c in analise["contas"] if c["nome"] == "Principal")
+        self.assertGreater(principal["saldo"], 0)
+        self.assertGreater(principal["quantidade_transacoes"], 0)
 
 
 class OrcamentoCategoriaModelTests(TestCase):

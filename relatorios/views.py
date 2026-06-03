@@ -36,14 +36,13 @@ from relatorios.services.orcamentos import (
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
     aplicar_filtros_relatorio,
-    movimento_por_conta,
     resultado_fluxo,
-    saldos_por_conta_totais,
     serie_fluxo_diario,
     top_categorias,
     totais_por_tipo,
 )
 from relatorios.services.despesas_categoria import montar_analise_despesas_categoria
+from relatorios.services.por_conta import montar_analise_por_conta
 from relatorios.services.filtros import parse_relatorio_filtros
 from relatorios.services.dashboard import (
     comparacao_mensal,
@@ -339,21 +338,14 @@ class PorContaView(RelatorioFiltrosMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
         filtros = ctx["filtros"]
-        qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
-        saldos_lista, saldo_total = saldos_por_conta_totais(user)
-        mov = [
-            {
-                **m,
-                "drill_qs": filtros.to_drill_transacoes_periodo_e_conta(m["conta_id"]),
-            }
-            for m in movimento_por_conta(qs, user)
-        ]
+        analise = montar_analise_por_conta(user, filtros)
         ctx.update(
             {
-                "movimento_por_conta": mov,
-                "saldos_por_conta": saldos_lista,
-                "saldo_patrimonio": saldo_total,
-                "totais_periodo": totais_por_tipo(qs),
+                "analise_contas": analise,
+                "hero_contas": analise["hero"],
+                "contas": analise["contas"],
+                "grafico_contas": analise["grafico"],
+                "insights_contas": analise["insights"],
                 "relatorio_nav": "por_conta",
             }
         )

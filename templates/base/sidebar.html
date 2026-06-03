@@ -33,12 +33,17 @@
     </a>
     {% endif %}
 
-    <a class="app-sidebar__cta" href="{% url 'transacoes:adicionar' %}" title="Adicionar transação">
+    <button
+      type="button"
+      id="sidebar-btn-adicionar"
+      class="app-sidebar__cta"
+      title="Adicionar transação"
+    >
       <svg class="app-sidebar__cta-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 5v14M5 12h14" />
       </svg>
       <span class="app-sidebar__cta-text">Adicionar transação</span>
-    </a>
+    </button>
 
     <nav class="app-sidebar__nav" aria-label="Seções">
       <ul class="app-sidebar__list">

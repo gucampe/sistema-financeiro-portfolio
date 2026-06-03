@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const preCartao = params.get("pre_cartao");
 
   const btnAbrir = document.getElementById("btn-adicionar");
+  const btnSidebarAbrir = document.getElementById("sidebar-btn-adicionar");
   const overlay = document.getElementById("overlay-adicionar");
   const form = document.getElementById("form-adicionar");
   const selectTipo = document.getElementById("tipo");
@@ -209,15 +210,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.abrirModalEditarTransacao = abrirModalEditar;
 
-  btnAbrir?.addEventListener("click", () => {
+  function abrirModalNovaTransacao(triggerEl, { tipo: tipoOverride, titulo } = {}) {
     overlay.dataset.editando = "";
     atualizarBotaoExcluirModal("");
-    if (modalHeader) modalHeader.textContent = "Nova Transação";
+    if (tipoOverride && selectTipo) {
+      selectTipo.value = tipoOverride;
+      selectTipo.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    if (modalHeader) {
+      modalHeader.textContent =
+        titulo || (tipoOverride === "receita" ? "Nova Receita" : tipoOverride === "despesa" ? "Nova Despesa" : "Nova Transação");
+    }
     const tipo = selectTipo?.value || "despesa";
     if (!tipo) return;
     limparErroContaAjax();
     popularCategorias(tipo);
-    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
+    globalThis.GranaGoModal?.open(overlay, { trigger: triggerEl || undefined });
+  }
+
+  [btnAbrir, btnSidebarAbrir].filter(Boolean).forEach((btn) => {
+    btn.addEventListener("click", () => abrirModalNovaTransacao(btn));
+  });
+
+  document.querySelectorAll("[data-abrir-transacao]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tipo = btn.getAttribute("data-abrir-transacao") || "despesa";
+      abrirModalNovaTransacao(btn, {
+        tipo,
+        titulo: tipo === "receita" ? "Nova Receita" : "Nova Despesa",
+      });
+    });
   });
 
   const fecharModal = () => {
