@@ -18,16 +18,29 @@
   inset: 0;
   background: rgb(15 23 42 / 0.45);
   opacity: 0;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.38s ease-out;
 }
 
 .filtros-portal[data-open="true"] .filtros-portal__backdrop {
   opacity: 1;
+  transition: opacity 0.22s ease-in;
 }
 
 .filtros-portal__panel {
   position: absolute;
-  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  opacity: 0;
+  transition:
+    transform 0.36s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.34s ease-out,
+    visibility 0s linear 0.36s;
+}
+
+.filtros-portal[data-open="true"] .filtros-portal__panel {
+  opacity: 1;
+  transition:
+    transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.2s ease-in,
+    visibility 0s linear 0s;
 }
 
 .filtros-portal__header {
@@ -37,7 +50,7 @@
   gap: 0.75rem;
   border-bottom: 1px solid rgb(243 244 246 / 0.9);
   background: rgb(255 255 255 / 0.72);
-  padding: 0.875rem 1rem;
+  padding: 0.875rem 1.25rem;
   backdrop-filter: blur(12px);
 }
 
@@ -62,7 +75,8 @@
 }
 
 .filtros-panel-form__scroll {
-  scrollbar-gutter: stable;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 /* Mobile: bottom sheet */
@@ -77,10 +91,14 @@
     max-height: min(92dvh, 40rem);
     border-radius: 1.25rem;
     border-left-width: 0;
+    visibility: hidden;
+    pointer-events: none;
     transform: translateY(calc(100% + 1rem));
   }
 
   .filtros-portal[data-open="true"] .filtros-portal__panel {
+    visibility: visible;
+    pointer-events: auto;
     transform: translateY(0);
   }
 
@@ -101,65 +119,90 @@
   }
 }
 
-/* Notebook e desktop: altura natural; scroll só quando o conteúdo passa do teto da tela */
+/* Desktop: mesma posição Y aberto/fechado; animação só no eixo X */
 @media (min-width: 1024px) {
   .filtros-portal__panel {
-    top: 50%;
-    right: 1rem;
+    top: var(--filtros-panel-top, 1rem);
+    right: var(--filtros-panel-inset-right, 1rem);
     bottom: auto;
     left: auto;
-    width: min(26.25rem, calc(100vw - 2rem));
+    width: var(--filtros-panel-width, 22rem);
+    max-width: min(
+      var(--filtros-panel-width, 22rem),
+      calc(100vw - var(--filtros-panel-inset-right, 1rem) - 1rem)
+    );
     height: auto;
-    max-height: calc(100dvh - 2rem);
-    transform: translate(calc(100% + 1.25rem), -50%);
+    max-height: var(--filtros-panel-max-height, calc(100dvh - 2rem));
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(calc(100% + var(--filtros-panel-slide-gap, 0.75rem)));
   }
 
   .filtros-portal[data-open="true"] .filtros-portal__panel {
-    transform: translate(0, -50%);
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
   }
 
   /* max-height = teto, não altura fixa: sem scroll se tudo couber na tela */
   .filtros-panel-form__scroll {
     flex: 0 1 auto;
-    max-height: calc(100dvh - 11rem);
+    max-height: calc(var(--filtros-panel-max-height, calc(100dvh - 2rem)) - 7.5rem);
     overflow-y: auto;
   }
 }
 
-@media (min-width: 1440px) {
-  .filtros-portal__panel {
-    right: 1.5rem;
-    width: 22rem;
-    transform: translate(calc(100% + 1.5rem), -50%);
-  }
-
-  .filtros-portal[data-open="true"] .filtros-portal__panel {
-    transform: translate(0, -50%);
+@media (min-width: 1536px) {
+  .filtros-portal {
+    --filtros-panel-width: 24rem;
   }
 }
 
 /* ---------- Formulário em painel ---------- */
 
 .filtros-panel-form__scroll {
-  padding: 1rem 1rem 0.75rem;
+  padding: 1rem 1.25rem 0.75rem;
 }
 
 .filtros-panel-form__footer {
   display: flex;
   flex-shrink: 0;
-  gap: 0.5rem;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.625rem;
   border-top: 1px solid rgb(243 244 246 / 0.9);
   background: rgb(255 255 255 / 0.82);
-  padding: 0.875rem 1rem;
+  padding: 0.875rem 1.25rem;
   padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
   backdrop-filter: blur(12px);
 }
 
+.filtros-panel-form__footer .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 12rem;
+}
+
 .filtros-secao {
+  box-sizing: border-box;
+  width: 100%;
   border-radius: 0.875rem;
   border: 1px solid rgb(243 244 246);
   background: rgb(249 250 251 / 0.65);
   padding: 0.875rem 1rem;
+}
+
+.filtros-panel-form .filtros-categoria {
+  width: 100%;
+}
+
+/* Badge de contagem não sobrepõe a seta do combobox */
+.filtros-panel-form [data-cat-trigger-count] {
+  margin-right: 1.25rem;
+}
+
+#filtro-secao-tipos .flex.flex-wrap {
+  justify-content: center;
 }
 
 .filtros-secao + .filtros-secao {
@@ -329,6 +372,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .filtros-portal__backdrop,
+  .filtros-portal__panel {
+    transition: none;
+  }
+
   .cat-picker,
   .cat-picker--portal,
   .cat-dropdown {

@@ -19,6 +19,7 @@
 
 <div
   id="dashboard-root"
+  data-filtros-layout-anchor
   class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl"
   data-ocultar="{% if ocultar_valores_dashboard %}1{% else %}0{% endif %}"
 >
@@ -27,7 +28,7 @@
   <div id="dashboard-layout" class="relative flex w-full flex-col gap-6">
 
     {# HEADER — Boas-vindas + KPIs #}
-    <section id="secao-resumo-hero">
+    <section id="secao-resumo-hero" data-filtros-vertical-anchor>
       <article class="overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 p-6 shadow-sm sm:p-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0 space-y-1">

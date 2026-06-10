@@ -12,6 +12,42 @@ function moedaTick(value) {
   return `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+const CORES_GRAFICO_CATEGORIAS = [
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#14B8A6',
+  '#F97316',
+  '#6366F1',
+];
+
+function coresDistintasGrafico(items) {
+  const usadas = new Set();
+  let pi = 0;
+  return items.map((item, index) => {
+    let cor = (item.cor || '').trim();
+    if (!cor || usadas.has(cor)) {
+      for (let n = 0; n < CORES_GRAFICO_CATEGORIAS.length; n += 1) {
+        const candidata = CORES_GRAFICO_CATEGORIAS[pi % CORES_GRAFICO_CATEGORIAS.length];
+        pi += 1;
+        if (!usadas.has(candidata)) {
+          cor = candidata;
+          break;
+        }
+      }
+      if (!cor || usadas.has(cor)) {
+        cor = CORES_GRAFICO_CATEGORIAS[index % CORES_GRAFICO_CATEGORIAS.length];
+      }
+    }
+    usadas.add(cor);
+    return cor;
+  });
+}
+
 const DASHBOARD_MQ_LG = '(min-width: 1024px)';
 
 function initDashboardMasonry() {
@@ -174,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (catCanvas && topData.length) {
       const cctx = catCanvas.getContext('2d');
       if (cctx) {
+        const sliceColors = coresDistintasGrafico(topData);
         new Chart(cctx, {
           type: 'doughnut',
           data: {
@@ -181,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [
               {
                 data: topData.map((x) => (Number.isFinite(Number(x.total)) ? Number(x.total) : 0)),
-                backgroundColor: topData.map((x) => x.cor || '#6B7280'),
+                backgroundColor: sliceColors,
                 borderWidth: 2,
                 borderColor: '#ffffff',
                 hoverOffset: 8,

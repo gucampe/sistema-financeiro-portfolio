@@ -8,7 +8,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from django.db.models import QuerySet, Sum
+from django.db.models import Q, QuerySet, Sum
 
 from relatorios.models import OrcamentoCategoria
 from relatorios.selectors import transacoes_base_qs
@@ -117,9 +117,52 @@ def montar_linha_orcamento(
 
 
 def filtros_mes(ano: int, mes: int) -> RelatorioFiltros:
+    """Mesmo critério de calendário do histórico: cartão por data_competencia, demais por data."""
     inicio = date(ano, mes, 1)
     fim = date(ano, mes, calendar.monthrange(ano, mes)[1])
-    return RelatorioFiltros(data_inicio=inicio, data_fim=fim, preset="custom", modo_data="fluxo")
+    return RelatorioFiltros(
+        data_inicio=inicio,
+        data_fim=fim,
+        preset="custom",
+        modo_data="competencia_cartao",
+    )
+
+
+def _filtros_orcamento_despesas(filtros: RelatorioFiltros) -> RelatorioFiltros:
+    """Período e dimensões do drawer; despesas sempre em competência de cartão."""
+    return RelatorioFiltros(
+        data_inicio=filtros.data_inicio,
+        data_fim=filtros.data_fim,
+        conta_ids=filtros.conta_ids,
+        categoria_ids=filtros.categoria_ids,
+        tipos=(),
+        preset=filtros.preset,
+        meio_pagamento=filtros.meio_pagamento,
+        modo_data="competencia_cartao",
+    )
+
+
+def periodo_orcamento_multi_mes(filtros: RelatorioFiltros) -> bool:
+    return (filtros.data_inicio.year, filtros.data_inicio.month) != (
+        filtros.data_fim.year,
+        filtros.data_fim.month,
+    )
+
+
+def rotulo_periodo_orcamento(filtros: RelatorioFiltros) -> str:
+    if periodo_orcamento_multi_mes(filtros):
+        return (
+            f"{filtros.data_inicio.strftime('%d/%m/%Y')} – "
+            f"{filtros.data_fim.strftime('%d/%m/%Y')}"
+        )
+    return f"{MESES_PT[filtros.data_inicio.month - 1]} de {filtros.data_inicio.year}"
+
+
+def referencia_mes_orcamento(filtros: RelatorioFiltros) -> tuple[int, int]:
+    """Mês de referência para vigência na UI e histórico (último mês do intervalo)."""
+    if not periodo_orcamento_multi_mes(filtros):
+        return filtros.data_inicio.year, filtros.data_inicio.month
+    return filtros.data_fim.year, filtros.data_fim.month
 
 
 def queryset_despesas_orcamento(usuario, filtros: RelatorioFiltros) -> QuerySet[Transacao]:
@@ -128,11 +171,53 @@ def queryset_despesas_orcamento(usuario, filtros: RelatorioFiltros) -> QuerySet[
     return aplicar_filtros_relatorio(qs, filtros)
 
 
-def realizado_por_categoria(usuario, ano: int, mes: int) -> dict[int, Decimal]:
-    filtros = filtros_mes(ano, mes)
-    qs = queryset_despesas_orcamento(usuario, filtros)
+def _realizado_map_por_nome_categoria(usuario, por_id: dict[int, Decimal]) -> dict[int, Decimal]:
+    """Alinha gastos entre categoria do usuário e global padrão com o mesmo nome."""
+    if not por_id:
+        return por_id
+    from categorias.models import Categoria
+
+    por_nome: dict[str, Decimal] = {}
+    for cat in Categoria.objects.filter(pk__in=por_id).only("id", "nome"):
+        por_nome[cat.nome] = por_nome.get(cat.nome, Decimal("0")) + por_id[cat.id]
+
+    out = dict(por_id)
+    for nome, total in por_nome.items():
+        ids = Categoria.objects.filter(
+            Q(usuario=usuario) | Q(padrao=True),
+            nome=nome,
+            tipo="despesa",
+        ).values_list("pk", flat=True)
+        for cid in ids:
+            out[cid] = total
+    return out
+
+
+def realizado_por_categoria_filtros(usuario, filtros: RelatorioFiltros) -> dict[int, Decimal]:
+    fo = _filtros_orcamento_despesas(filtros)
+    qs = queryset_despesas_orcamento(usuario, fo)
     rows = qs.values("categoria_id").annotate(gasto=Sum("valor"))
-    return {r["categoria_id"]: r["gasto"] or Decimal("0") for r in rows if r["categoria_id"]}
+    por_id = {r["categoria_id"]: r["gasto"] or Decimal("0") for r in rows if r["categoria_id"]}
+    return _realizado_map_por_nome_categoria(usuario, por_id)
+
+
+def realizado_por_categoria(usuario, ano: int, mes: int) -> dict[int, Decimal]:
+    return realizado_por_categoria_filtros(usuario, filtros_mes(ano, mes))
+
+
+def planejado_por_categoria_periodo(
+    usuario,
+    filtros: RelatorioFiltros,
+    *,
+    incluir_inativos: bool = False,
+) -> dict[int, Decimal]:
+    from relatorios.services.agregacoes import _meses_no_intervalo
+
+    out: dict[int, Decimal] = {}
+    for y, m in _meses_no_intervalo(filtros.data_inicio, filtros.data_fim):
+        for cid, o in planejado_mes(usuario, y, m, incluir_inativos=incluir_inativos).items():
+            out[cid] = out.get(cid, Decimal("0")) + o.valor_planejado
+    return out
 
 
 def planejado_mes(usuario, ano: int, mes: int, *, incluir_inativos: bool = False) -> dict[int, OrcamentoCategoria]:
@@ -146,15 +231,19 @@ def planejado_mes(usuario, ano: int, mes: int, *, incluir_inativos: bool = False
     return out
 
 
-def listar_orcamentos_mes(
+def listar_orcamentos(
     usuario,
-    ano: int,
-    mes: int,
+    filtros: RelatorioFiltros,
     *,
+    ano_ref: int,
+    mes_ref: int,
     incluir_inativos: bool = False,
+    incluir_gasto_sem_orcamento: bool = False,
 ) -> list[LinhaOrcamento]:
-    real_map = realizado_por_categoria(usuario, ano, mes)
-    orc_map = planejado_mes(usuario, ano, mes, incluir_inativos=incluir_inativos)
+    """Lista orçamentos cadastrados; gastos no intervalo de filtros."""
+    fo = _filtros_orcamento_despesas(filtros)
+    real_map = realizado_por_categoria_filtros(usuario, fo)
+    planejado_map = planejado_por_categoria_periodo(usuario, fo, incluir_inativos=incluir_inativos)
 
     if incluir_inativos:
         qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
@@ -162,11 +251,13 @@ def listar_orcamentos_mes(
         qs = OrcamentoCategoria.objects.filter(usuario=usuario, ativo=True).select_related("categoria")
 
     linhas: list[LinhaOrcamento] = []
+    nomes_cadastrados: set[str] = set()
     for o in qs.order_by("categoria__nome"):
-        vigente = o.vigente_em(ano, mes)
-        if not incluir_inativos and not vigente:
+        vigente_ref = o.vigente_em(ano_ref, mes_ref)
+        if not incluir_inativos and not vigente_ref:
             continue
-        planejado = o.valor_planejado if vigente else Decimal("0")
+        nomes_cadastrados.add(o.categoria.nome)
+        planejado = planejado_map.get(o.categoria_id, Decimal("0"))
         realizado = real_map.get(o.categoria_id, Decimal("0"))
         linhas.append(
             montar_linha_orcamento(
@@ -181,29 +272,48 @@ def listar_orcamentos_mes(
             )
         )
 
-    for cid, gasto in real_map.items():
-        if cid in orc_map or any(l.categoria_id == cid for l in linhas):
-            continue
+    if incluir_gasto_sem_orcamento:
         from categorias.models import Categoria
 
-        cat = Categoria.objects.filter(pk=cid).first()
-        if not cat:
-            continue
-        linhas.append(
-            montar_linha_orcamento(
-                orcamento_id=None,
-                categoria_id=cid,
-                nome=cat.nome,
-                cor=cat.cor,
-                icone=cat.icone,
-                planejado=Decimal("0"),
-                realizado=gasto,
-                ativo=False,
+        for cid, gasto in real_map.items():
+            if gasto <= 0 or any(l.categoria_id == cid for l in linhas):
+                continue
+            cat = Categoria.objects.filter(pk=cid).first()
+            if not cat or cat.nome in nomes_cadastrados:
+                continue
+            nomes_cadastrados.add(cat.nome)
+            linhas.append(
+                montar_linha_orcamento(
+                    orcamento_id=None,
+                    categoria_id=cid,
+                    nome=cat.nome,
+                    cor=cat.cor,
+                    icone=cat.icone,
+                    planejado=Decimal("0"),
+                    realizado=gasto,
+                    ativo=True,
+                )
             )
-        )
 
     linhas.sort(key=lambda x: (-x.planejado, x.nome))
     return linhas
+
+
+def listar_orcamentos_mes(
+    usuario,
+    ano: int,
+    mes: int,
+    *,
+    incluir_inativos: bool = False,
+) -> list[LinhaOrcamento]:
+    filtros = filtros_mes(ano, mes)
+    return listar_orcamentos(
+        usuario,
+        filtros,
+        ano_ref=ano,
+        mes_ref=mes,
+        incluir_inativos=incluir_inativos,
+    )
 
 
 def resumo_linhas_orcamento(linhas: list[LinhaOrcamento]) -> dict[str, Decimal]:
@@ -306,18 +416,9 @@ def listar_orcamentos_dashboard(usuario, *, limite: int = 3) -> list[LinhaOrcame
 
 def orcamento_vs_realizado(usuario, filtros: RelatorioFiltros) -> list[dict[str, Any]]:
     """Compatível com relatórios multi-mês: agrega planejado e realizado no intervalo."""
-    from relatorios.services.agregacoes import _meses_no_intervalo
-
-    real_map: dict[int, Decimal] = {}
-    qs = queryset_despesas_orcamento(usuario, filtros)
-    for row in qs.values("categoria_id").annotate(gasto=Sum("valor")):
-        if row["categoria_id"]:
-            real_map[row["categoria_id"]] = row["gasto"] or Decimal("0")
-
-    planejado_por_cat: dict[int, Decimal] = {}
-    for y, m in _meses_no_intervalo(filtros.data_inicio, filtros.data_fim):
-        for cid, o in planejado_mes(usuario, y, m).items():
-            planejado_por_cat[cid] = planejado_por_cat.get(cid, Decimal("0")) + o.valor_planejado
+    fo = _filtros_orcamento_despesas(filtros)
+    real_map = realizado_por_categoria_filtros(usuario, fo)
+    planejado_por_cat = planejado_por_categoria_periodo(usuario, fo)
 
     categoria_ids = set(planejado_por_cat) | set(real_map.keys())
     out: list[dict[str, Any]] = []

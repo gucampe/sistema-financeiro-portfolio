@@ -6,13 +6,14 @@
   <button
     type="button"
     data-cat-trigger
-    class="input flex w-full items-center justify-between gap-2 text-left"
+    class="input relative flex w-full items-center gap-2 text-left"
     aria-haspopup="dialog"
     aria-expanded="false"
     aria-controls="cat-picker-{{ sid }}"
   >
-    <span data-cat-trigger-label class="truncate">Selecionar categorias</span>
+    <span data-cat-trigger-label class="min-w-0 flex-1 truncate">Selecionar categorias</span>
     <span data-cat-trigger-count class="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 px-1.5 text-[10px] font-semibold tabular-nums text-gray-600">0</span>
+    <span data-combobox-chevron aria-hidden="true"></span>
   </button>
 
   <div data-cat-chips class="mt-1.5 flex flex-wrap gap-1.5 empty:hidden"></div>

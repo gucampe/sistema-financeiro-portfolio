@@ -12,9 +12,65 @@
 
   if (!panel || openBtns.length === 0) return;
 
+  const DESKTOP_MQ = window.matchMedia('(min-width: 1024px)');
+  const PANEL_GAP_PX = 12;
+  const MIN_INSET_PX = 16;
+
+  const getLayoutAnchor = () =>
+    portal.closest('[data-filtros-layout-anchor]') ||
+    document.querySelector('[data-filtros-layout-anchor]');
+
+  const getVerticalAnchor = () => {
+    const layout = getLayoutAnchor();
+    const scoped = layout
+      ? layout.querySelector(
+          '[data-filtros-vertical-anchor], #secao-resumo-hero, #orcamento-hero-resumo'
+        )
+      : null;
+    return (
+      scoped ||
+      document.querySelector(
+        '[data-filtros-vertical-anchor], #secao-resumo-hero, #orcamento-hero-resumo'
+      )
+    );
+  };
+
+  const updatePanelLayout = () => {
+    if (!DESKTOP_MQ.matches) {
+      portal.style.removeProperty('--filtros-panel-inset-right');
+      portal.style.removeProperty('--filtros-panel-top');
+      portal.style.removeProperty('--filtros-panel-max-height');
+      return;
+    }
+
+    const anchor = getLayoutAnchor();
+    if (!anchor) {
+      portal.style.setProperty('--filtros-panel-inset-right', '1rem');
+    } else {
+      const rect = anchor.getBoundingClientRect();
+      const insetRight = Math.max(MIN_INSET_PX, window.innerWidth - rect.right + PANEL_GAP_PX);
+      portal.style.setProperty('--filtros-panel-inset-right', `${Math.round(insetRight)}px`);
+    }
+
+    const vAnchor = getVerticalAnchor();
+    const bottomGapPx = 16;
+    if (vAnchor) {
+      const top = Math.max(0, Math.round(vAnchor.getBoundingClientRect().top));
+      portal.style.setProperty('--filtros-panel-top', `${top}px`);
+      portal.style.setProperty(
+        '--filtros-panel-max-height',
+        `calc(100dvh - ${top}px - ${bottomGapPx}px)`
+      );
+    } else {
+      portal.style.setProperty('--filtros-panel-top', '1rem');
+      portal.style.setProperty('--filtros-panel-max-height', 'calc(100dvh - 2rem)');
+    }
+  };
+
   let open = false;
   let bodyLocked = false;
   let lastOpenBtn = openBtns[0];
+  let layoutObserver = null;
 
   const setButtonsExpanded = (expanded) => {
     openBtns.forEach((btn) => btn.setAttribute('aria-expanded', expanded ? 'true' : 'false'));
@@ -40,6 +96,7 @@
     portal.setAttribute('aria-hidden', next ? 'false' : 'true');
     setButtonsExpanded(next);
     if (next) {
+      updatePanelLayout();
       lockScroll();
       closeBtn?.focus();
     } else {
@@ -48,7 +105,37 @@
     }
   };
 
-  const toggle = () => setOpen(!open);
+  const bindLayoutTracking = () => {
+    const anchor = getLayoutAnchor();
+    if (!anchor) return;
+    layoutObserver?.disconnect();
+    layoutObserver = new ResizeObserver(() => updatePanelLayout());
+    layoutObserver.observe(anchor);
+    const vAnchor = getVerticalAnchor();
+    if (vAnchor && vAnchor !== anchor) layoutObserver.observe(vAnchor);
+    const main = document.getElementById('mainContent');
+    if (main) layoutObserver.observe(main);
+  };
+
+  updatePanelLayout();
+  bindLayoutTracking();
+  window.addEventListener('resize', () => {
+    updatePanelLayout();
+    if (open && !DESKTOP_MQ.matches) close();
+  });
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (open && DESKTOP_MQ.matches) updatePanelLayout();
+    },
+    { passive: true, capture: true }
+  );
+  DESKTOP_MQ.addEventListener('change', updatePanelLayout);
+
+  const toggle = () => {
+    if (!open && DESKTOP_MQ.matches) updatePanelLayout();
+    setOpen(!open);
+  };
   const close = () => setOpen(false);
 
   openBtns.forEach((btn) => {
@@ -77,9 +164,6 @@
     lastOpenBtn.focus();
   });
 
-  window.addEventListener('resize', () => {
-    if (open) close();
-  });
 })();
 
 /**

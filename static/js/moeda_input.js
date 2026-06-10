@@ -77,6 +77,41 @@
     setCents(input, Math.floor(getCents(input) / 10));
   }
 
+  function hasTextSelection(input) {
+    if (
+      typeof input.selectionStart !== "number" ||
+      typeof input.selectionEnd !== "number"
+    ) {
+      return false;
+    }
+    return input.selectionStart !== input.selectionEnd;
+  }
+
+  function clearMoedaValue(input) {
+    input.dataset.moedaCents = "0";
+    if (allowEmpty(input)) {
+      input.value = "";
+    } else {
+      input.value = formatCents(0);
+    }
+  }
+
+  function handleDelete(input) {
+    if (hasTextSelection(input)) {
+      clearMoedaValue(input);
+    } else {
+      removeLastDigit(input);
+    }
+  }
+
+  function insertDigit(input, digit) {
+    if (hasTextSelection(input)) {
+      setCents(input, digit);
+    } else {
+      appendDigit(input, digit);
+    }
+  }
+
   function bindMoedaEvents(input) {
     input.addEventListener("keydown", function (e) {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -84,14 +119,14 @@
       if (e.key >= "0" && e.key <= "9") {
         e.preventDefault();
         input.dataset.moedaTouched = "1";
-        appendDigit(input, parseInt(e.key, 10));
+        insertDigit(input, parseInt(e.key, 10));
         return;
       }
 
       if (e.key === "Backspace" || e.key === "Delete") {
         e.preventDefault();
         input.dataset.moedaTouched = "1";
-        removeLastDigit(input);
+        handleDelete(input);
       }
     });
 
@@ -101,17 +136,18 @@
       if (e.inputType === "insertText" && e.data && /^\d$/.test(e.data)) {
         e.preventDefault();
         input.dataset.moedaTouched = "1";
-        appendDigit(input, parseInt(e.data, 10));
+        insertDigit(input, parseInt(e.data, 10));
         return;
       }
 
       if (
         e.inputType === "deleteContentBackward" ||
-        e.inputType === "deleteContentForward"
+        e.inputType === "deleteContentForward" ||
+        e.inputType === "deleteContent"
       ) {
         e.preventDefault();
         input.dataset.moedaTouched = "1";
-        removeLastDigit(input);
+        handleDelete(input);
       }
     });
 

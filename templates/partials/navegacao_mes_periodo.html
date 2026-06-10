@@ -12,7 +12,7 @@
     <details class="group">
       <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1 text-sm font-medium text-gray-600 transition hover:text-gray-900">
         <span class="truncate">{{ data_mes|date:"F Y" }}</span>
-        <span class="shrink-0 text-[10px] opacity-60 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+        <span data-field-chevron class="opacity-80 group-open:rotate-180 transition-transform" aria-hidden="true"></span>
       </summary>
       <div class="absolute left-1/2 top-full z-50 mt-1 min-w-[10rem] max-h-72 -translate-x-1/2 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg ring-1 ring-gray-200">
         {% for item in meses_dropdown %}
@@ -51,7 +51,7 @@
     <details class="group">
       <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-brand-600">
         <span class="truncate">{{ data_mes|date:"F Y" }}</span>
-        <span class="text-xs opacity-70 shrink-0 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+        <span data-field-chevron class="opacity-80 group-open:rotate-180 transition-transform" aria-hidden="true"></span>
       </summary>
       <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-50 min-w-[10rem] py-1.5 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200 max-h-72 overflow-y-auto">
         {% for item in meses_dropdown %}

@@ -37,11 +37,26 @@
       input.value = String(value);
     };
 
+    const preset = form.querySelector('[name="preset"]');
+    const inicioInput = form.querySelector('[name="inicio"]:not(:disabled)');
     const fimInput = form.querySelector('[name="fim"]:not(:disabled)');
-    if (fimInput?.value) {
-      const d = new Date(`${fimInput.value}T12:00:00`);
+
+    const syncFromDateInput = (input) => {
+      if (!input?.value) return false;
+      const d = new Date(`${input.value}T12:00:00`);
       ensureHidden('ano', d.getFullYear());
       ensureHidden('mes', d.getMonth() + 1);
+      return true;
+    };
+
+    if (syncFromDateInput(fimInput) || syncFromDateInput(inicioInput)) {
+      return;
+    }
+
+    if (preset?.value && preset.value !== 'custom' && root.dataset.filtroInicio && root.dataset.filtroFim) {
+      const fim = new Date(`${root.dataset.filtroFim}T12:00:00`);
+      ensureHidden('ano', fim.getFullYear());
+      ensureHidden('mes', fim.getMonth() + 1);
       return;
     }
 

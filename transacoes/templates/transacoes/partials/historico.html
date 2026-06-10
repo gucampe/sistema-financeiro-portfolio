@@ -17,7 +17,7 @@
 
 {% block content %}
 <div class="page-shell">
-  <div class="w-full max-w-5xl mx-auto">
+  <div data-filtros-layout-anchor class="w-full max-w-5xl mx-auto">
 
     <!-- Topo -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-5 px-1 sm:px-0">
@@ -47,101 +47,58 @@
     <!-- Lista -->
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white pb-28 shadow-sm sm:pb-24">
 
-      <!-- Header do histórico: grid evita sobreposição do título com a navegação em ~1366px -->
-      <div class="relative z-10 grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[1100px]:items-center px-4 sm:px-5 py-4 border-b border-gray-100">
+      <!-- Header: título | navegação de mês | Filtros (direita) -->
+      <div data-filtros-vertical-anchor class="relative z-10 grid grid-cols-1 gap-3 min-[1100px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] min-[1100px]:items-center min-[1100px]:gap-4 px-4 sm:px-5 py-4 border-b border-gray-100">
 
         <h2 class="text-base font-semibold text-fg min-[1100px]:justify-self-start">
           Histórico recente
         </h2>
 
-        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 min-w-0 shrink-0">
+        <div class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 min-[1100px]:contents">
+          <div class="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:gap-4 min-[1100px]:col-start-2 min-[1100px]:flex-initial min-[1100px]:justify-center">
+            <a
+              href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+              aria-label="Mês anterior"
+            >‹</a>
 
-          <!-- botão mês anterior -->
-          <a 
-            href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
-          >
-            ‹
-          </a>
-        
-          <!-- mês atual + dropdown -->
-          <div class="text-center relative min-w-0">
-            <details id="dropdown-meses" class="group">
-              <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-brand-600">
-                <span class="truncate">{{ data_mes|date:"F Y" }}</span>
-                <span class="text-xs opacity-70 shrink-0 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
-              </summary>
-              <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-50 min-w-[10rem] py-1.5 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200 max-h-72 overflow-y-auto">
-                {% for item in meses_dropdown %}
-                <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
-                  {{ item.data_mes|date:"F Y" }}
-                </a>
-                {% endfor %}
-              </div>
-            </details>
+            <div class="relative min-w-0 text-center">
+              <details id="dropdown-meses" class="group">
+                <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-brand-600">
+                  <span class="truncate">{{ data_mes|date:"F Y" }}</span>
+                  <span data-field-chevron class="opacity-80 group-open:rotate-180 transition-transform" aria-hidden="true"></span>
+                </summary>
+                <div class="absolute left-1/2 top-full z-50 mt-1.5 max-h-72 min-w-[10rem] -translate-x-1/2 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg ring-1 ring-gray-200">
+                  {% for item in meses_dropdown %}
+                  <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
+                    {{ item.data_mes|date:"F Y" }}
+                  </a>
+                  {% endfor %}
+                </div>
+              </details>
+            </div>
+
+            <a
+              href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+              aria-label="Próximo mês"
+            >›</a>
+
+            {% if ano != ano_hoje or mes != mes_hoje %}
+            <a
+              href="?ano={% now 'Y' %}&mes={% now 'm' %}"
+              class="inline-flex shrink-0 items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300 sm:px-4"
+            >
+              Ir pra hoje
+            </a>
+            {% endif %}
           </div>
-        
-          <!-- botão próximo mês -->
-          <a 
-            href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
-          >
-            ›
-          </a>
 
-          {% if ano != ano_hoje or mes != mes_hoje %}
-          <a 
-            href="?ano={% now 'Y' %}&mes={% now 'm' %}"
-            class="inline-flex shrink-0 items-center justify-center rounded-lg bg-gray-200 px-3 sm:px-4 py-2 text-sm font-medium text-gray-800 transition hover:scale-105 hover:bg-gray-300"
-          >
-            Ir pra hoje
-          </a>
-          {% endif %}
-        </div>
-
-        <div class="hidden min-[1100px]:block" aria-hidden="true"></div>
-
-      </div>
-
-      <!-- Filtro rápido de período -->
-      <div class="px-4 sm:px-5 py-3 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div class="flex flex-wrap gap-2 items-center min-w-0 flex-1">
-          <a href="?periodo=hoje" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'hoje' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Hoje</a>
-          <a href="?periodo=semana" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'semana' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Essa semana</a>
-          <a href="?periodo=mes" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'mes' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Este mês</a>
-          <a href="?periodo=3m" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == '3m' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">3 meses</a>
-          <a href="?periodo=12m" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == '12m' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">12 meses</a>
-          <a href="?periodo=ano" class="rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.periodo == 'ano' %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">Ano atual</a>
-          <div class="relative">
-            <details id="dropdown-personalizado" class="group">
-              <summary class="inline-flex cursor-pointer list-none items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium transition {% if request.GET.inicio and request.GET.fim %}bg-blue-600 text-white hover:bg-blue-700{% else %}bg-gray-200 text-gray-800 hover:bg-gray-300{% endif %}">
-                Personalizado
-                <span class="text-xs opacity-70 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
-              </summary>
-              <div class="absolute right-0 top-full mt-1.5 z-50 min-w-[16rem] p-4 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 border border-gray-200">
-                <form method="get" action="" class="space-y-3">
-                  <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">De:</label>
-                    <input type="date" name="inicio" value="{{ request.GET.inicio }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Até:</label>
-                    <input type="date" name="fim" value="{{ request.GET.fim }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  </div>
-                  <button type="submit" class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">Aplicar</button>
-                </form>
-              </div>
-            </details>
+          <div class="ml-auto shrink-0 min-[1100px]:col-start-3 min-[1100px]:ml-0 min-[1100px]:justify-self-end">
+            {% include 'relatorios/partials/filtros_hero_botao.html' %}
           </div>
         </div>
-        <div class="shrink-0 self-start sm:self-center sm:ml-auto">
-          {% if request.GET.periodo or request.GET.inicio or request.GET.fim %}
-          <a href="?ano={{ ano }}&mes={{ mes }}" class="inline-flex items-center gap-1 rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-800 transition hover:bg-gray-300">
-            <i class="fa-solid fa-xmark text-xs"></i>
-            Limpar filtro
-          </a>
-          {% endif %}
-        </div>
+
       </div>
 
       {% static 'contas/icons/genericos/bank.svg' as icon_fallback_url %}
@@ -318,6 +275,10 @@
     </div>
   </div>
 </div>
+
+<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-filtros.css' %}" />
+{% include 'relatorios/partials/filtros_portal.html' %}
+{% include 'relatorios/partials/shell_relatorio_filtros_scripts.html' %}
 
 <script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
 <script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>

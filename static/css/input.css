@@ -15,6 +15,8 @@
     --color-surface-muted: theme('colors.surface.muted');
     --color-fg: theme('colors.fg.DEFAULT');
     --color-fg-muted: theme('colors.fg.muted');
+    /* Chevron padrão (select + combobox) — Heroicons mini chevron-down */
+    --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
   }
 }
 
@@ -56,6 +58,53 @@
 
   .input {
     @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-fg shadow-sm outline-none transition placeholder:text-fg-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0;
+  }
+
+  /* Select nativo: seta padrão (--icon-chevron-down), afastada da borda direita */
+  select.input,
+  .input:is(select) {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2.25rem;
+    background-color: #fff;
+    background-image: var(--icon-chevron-down);
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+    cursor: pointer;
+  }
+
+  /* Combobox / seletor customizado (botão que abre lista) */
+  [data-combobox-trigger],
+  [data-cat-trigger] {
+    position: relative;
+    padding-right: 2.25rem;
+  }
+
+  /* Ícone de seta reutilizável (combobox, dropdown de mês, etc.) */
+  [data-field-chevron],
+  [data-combobox-chevron] {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    background-image: var(--icon-chevron-down);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    vertical-align: middle;
+    pointer-events: none;
+  }
+
+  [data-combobox-trigger] > [data-combobox-chevron],
+  [data-cat-trigger] > [data-combobox-chevron] {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    margin: 0;
+    transform: translateY(-50%);
+    vertical-align: unset;
   }
 
   .input-moeda,

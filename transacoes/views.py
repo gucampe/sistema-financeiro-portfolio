@@ -1,3 +1,4 @@
+import calendar
 import io
 import json
 from datetime import date, datetime, timedelta
@@ -12,6 +13,7 @@ from django.db.models import DateField, F, Q, Sum
 from django.db.models.functions import Coalesce, TruncMonth
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from ofxparse.ofxparse import OfxParserException
 
@@ -20,6 +22,8 @@ from cartoes.models import Cartao, Fatura
 from cartoes.services.gestao_faturas import calcular_resumo_pagamento, total_fatura
 from contas.models import Conta
 from usuarios.models import Perfil
+
+from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 
 from .forms import TransacaoForm
 from .models import Transacao
@@ -268,15 +272,11 @@ def _categoria_fallback_import_ofx(usuario, tipo_transacao: str) -> Categoria | 
         nomes = ("Diversos", "Receitas diversas")
     else:
         return None
-    qs = Categoria.objects.filter(
-        Q(usuario=usuario) | Q(padrao=True),
-        ativa=True,
-        tipo=tipo_c,
-    )
     for nome in nomes:
-        hit = qs.filter(nome=nome).first()
-        if hit:
-            return hit
+        hit = _categorias_ativas_unicas_por_nome(usuario, tipo=tipo_c)
+        for cat in hit:
+            if cat.nome == nome:
+                return cat
     return None
 
 
@@ -289,29 +289,58 @@ def _validation_error_para_json(exc: ValidationError):
     return {"__all__": [m for m in exc.messages]}
 
 
-def _int_ids_from_request(request, key: str) -> list[int]:
-    out: list[int] = []
-    for v in request.GET.getlist(key):
-        try:
-            out.append(int(v))
-        except (TypeError, ValueError):
-            continue
-    return out
+_HISTORICO_FILTRO_GET_KEYS = frozenset(
+    {"preset", "inicio", "fim", "conta", "categoria", "tipo"}
+)
 
 
-def _categorias_importacao_preview_payload(usuario):
-    """Listas de categorias ativas (usuário + padrão) para montar selects no preview."""
+def _historico_usa_filtros_relatorio(get) -> bool:
+    return bool(_HISTORICO_FILTRO_GET_KEYS & set(get.keys()))
+
+
+def _filtros_historico_para_exibicao(ano: int, mes: int, get, usuario) -> RelatorioFiltros:
+    if _historico_usa_filtros_relatorio(get):
+        return parse_relatorio_filtros(get, usuario=usuario)
+    _, ultimo_dia = calendar.monthrange(ano, mes)
+    return RelatorioFiltros(
+        data_inicio=date(ano, mes, 1),
+        data_fim=date(ano, mes, ultimo_dia),
+        preset="este_mes",
+    )
+
+
+def _categorias_ativas_unicas_por_nome(usuario, *, tipo: str | None = None):
+    """
+    Categorias ativas (usuário + padrão global), uma por nome/tipo.
+    Se existir cópia do usuário e categoria padrão com o mesmo nome, mantém a do usuário.
+    """
     qs = Categoria.objects.filter(
         Q(usuario=usuario) | Q(padrao=True),
         ativa=True,
     )
+    if tipo:
+        qs = qs.filter(tipo=tipo)
+    por_chave: dict[tuple[str, str], Categoria] = {}
+    for cat in qs.order_by("tipo", "nome", "padrao", "pk"):
+        chave = (cat.tipo, cat.nome.strip().casefold())
+        atual = por_chave.get(chave)
+        if atual is None:
+            por_chave[chave] = cat
+            continue
+        if cat.usuario_id == usuario.id and atual.usuario_id != usuario.id:
+            por_chave[chave] = cat
+    return sorted(por_chave.values(), key=lambda c: (c.tipo, c.nome))
+
+
+def _categorias_importacao_preview_payload(usuario):
+    """Listas de categorias ativas (usuário + padrão) para montar selects no preview."""
     receita = [
         {"id": c.id, "nome": c.nome, "tipo": c.tipo}
-        for c in qs.filter(tipo="receita").order_by("nome")
+        for c in _categorias_ativas_unicas_por_nome(usuario, tipo="receita")
     ]
     despesa = [
         {"id": c.id, "nome": c.nome, "tipo": c.tipo}
-        for c in qs.filter(tipo="despesa").order_by("nome")
+        for c in _categorias_ativas_unicas_por_nome(usuario, tipo="despesa")
     ]
     return {"receita": receita, "despesa": despesa}
 
@@ -372,38 +401,14 @@ def adicionar_transacao(request):
         mes_proximo = mes + 1
         ano_proximo = ano
 
+    usa_filtros_relatorio = _historico_usa_filtros_relatorio(request.GET)
+    filtros = _filtros_historico_para_exibicao(ano, mes, request.GET, request.user)
+
     data_inicial = None
     data_fim = None
-    inicio_str = request.GET.get("inicio")
-    fim_str = request.GET.get("fim")
-    if inicio_str and fim_str:
-        try:
-            data_inicial = datetime.strptime(inicio_str, "%Y-%m-%d").date()
-            data_fim = datetime.strptime(fim_str, "%Y-%m-%d").date()
-        except (ValueError, TypeError):
-            data_inicial = None
-            data_fim = None
-
-    if data_inicial is None:
-        periodo = request.GET.get("periodo")
-        if periodo == "hoje":
-            data_inicial = hoje
-            data_fim = hoje
-        elif periodo == "semana":
-            # segunda-feira da semana atual (weekday: 0=segunda, 6=domingo)
-            data_inicial = hoje - timedelta(days=hoje.weekday())
-        elif periodo == "mes":
-            data_inicial = date(hoje.year, hoje.month, 1)
-        elif periodo == "ano":
-            data_inicial = date(hoje.year, 1, 1)
-        elif periodo == "3m":
-            total_meses = hoje.year * 12 + (hoje.month - 1) - 3
-            data_inicial = date(total_meses // 12, (total_meses % 12) + 1, 1)
-        elif periodo == "12m":
-            total_meses = hoje.year * 12 + (hoje.month - 1) - 12
-            data_inicial = date(total_meses // 12, (total_meses % 12) + 1, 1)
-        else:
-            data_inicial = None
+    if usa_filtros_relatorio:
+        data_inicial = filtros.data_inicio
+        data_fim = filtros.data_fim
 
     if data_inicial is not None:
         transacoes = (
@@ -420,12 +425,14 @@ def adicionar_transacao(request):
         )
         transacoes = _anotar_data_exibicao(transacoes).order_by("-data_exibicao", "-id")
 
-    conta_filtro_ids = _int_ids_from_request(request, "conta")
-    categoria_filtro_ids = _int_ids_from_request(request, "categoria")
+    conta_filtro_ids = list(filtros.conta_ids) if usa_filtros_relatorio else []
+    categoria_filtro_ids = list(filtros.categoria_ids) if usa_filtros_relatorio else []
     if conta_filtro_ids:
         transacoes = transacoes.filter(conta_id__in=conta_filtro_ids)
     if categoria_filtro_ids:
         transacoes = transacoes.filter(categoria_id__in=categoria_filtro_ids)
+    if usa_filtros_relatorio and filtros.tipos:
+        transacoes = transacoes.filter(tipo__in=filtros.tipos)
 
     transacoes_list = list(transacoes)
     if data_inicial is not None:
@@ -465,6 +472,8 @@ def adicionar_transacao(request):
         tqs = tqs.filter(conta_id__in=conta_filtro_ids)
     if categoria_filtro_ids:
         tqs = tqs.filter(categoria_id__in=categoria_filtro_ids)
+    if usa_filtros_relatorio and filtros.tipos:
+        tqs = tqs.filter(tipo__in=filtros.tipos)
     tqs = tqs.exclude(_q_compras_em_fatura()).exclude(_q_pagamento_de_fatura())
     totais = tqs.aggregate(
         total_receitas=Sum("valor", filter=Q(tipo="receita")),
@@ -573,6 +582,15 @@ def adicionar_transacao(request):
         "total_despesas": total_despesas,
         "saldo_mes": saldo_mes,
         "meses_dropdown": meses_dropdown,
+        "filtros": filtros,
+        "filtros_ativos_count": filtros.contagem_filtros_ativos() if usa_filtros_relatorio else 0,
+        "filtros_limpar_url": f"{reverse('transacoes:historico')}?ano={ano}&mes={mes}",
+        "contas_ativas": Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome"),
+        "categorias_filtro": Categoria.objects.filter(
+            Q(usuario=request.user) | Q(padrao=True),
+            ativa=True,
+        ).order_by("tipo", "nome"),
+        "usa_filtros_relatorio": usa_filtros_relatorio,
     }
     return render(request, 'transacoes/partials/historico.html', context)
 

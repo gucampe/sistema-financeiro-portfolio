@@ -26,10 +26,15 @@ from relatorios.services.fluxo_caixa import (
 )
 from relatorios.services.orcamentos import (
     MESES_PT,
+    _filtros_orcamento_despesas,
     historico_utilizacao_categoria,
+    listar_orcamentos,
     listar_orcamentos_mes,
     painel_mes_orcamento,
+    periodo_orcamento_multi_mes,
+    referencia_mes_orcamento,
     resumo_linhas_orcamento,
+    rotulo_periodo_orcamento,
     usuario_tem_orcamentos_cadastrados,
     usuario_tem_orcamentos_vigentes_mes,
 )
@@ -177,12 +182,18 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
     template_name = "relatorios/orcamentos.html"
 
     def get_context_data(self, **kwargs):
-        import calendar
-
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
-        ano, mes = _parse_ano_mes(self.request)
-        linhas = listar_orcamentos_mes(user, ano, mes, incluir_inativos=True)
+        base_filtros = ctx["filtros"]
+        filtros_periodo = _filtros_orcamento_despesas(base_filtros)
+        ano_ref, mes_ref = referencia_mes_orcamento(base_filtros)
+        linhas = listar_orcamentos(
+            user,
+            filtros_periodo,
+            ano_ref=ano_ref,
+            mes_ref=mes_ref,
+            incluir_inativos=False,
+        )
         resumo = resumo_linhas_orcamento(linhas)
         painel_mes = painel_mes_orcamento(linhas, resumo)
 
@@ -200,16 +211,17 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
             linha.historico = historico_por_categoria.get(linha.categoria_id, [])
             linha.orcamento_obj = orcamentos_map.get(linha.orcamento_id)
 
-        inicio_mes = date(ano, mes, 1)
-        fim_mes = date(ano, mes, calendar.monthrange(ano, mes)[1])
-        drill_qs = f"inicio={inicio_mes.isoformat()}&fim={fim_mes.isoformat()}&tipo=despesa"
+        drill_qs = f"{filtros_periodo.to_drill_transacoes_query_string()}&tipo=despesa"
+        multi_mes = periodo_orcamento_multi_mes(base_filtros)
 
         ctx.update(
             {
                 "relatorio_nav": "orcamentos",
-                "ano": ano,
-                "mes": mes,
-                "mes_rotulo": MESES_PT[mes - 1],
+                "ano": ano_ref,
+                "mes": mes_ref,
+                "mes_rotulo": MESES_PT[mes_ref - 1],
+                "periodo_orcamento_rotulo": rotulo_periodo_orcamento(base_filtros),
+                "periodo_orcamento_multi_mes": multi_mes,
                 "linhas_orcamento": linhas,
                 "resumo_orcamento": resumo,
                 "painel_mes": painel_mes,
@@ -218,7 +230,7 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
                 "drill_mes_qs": drill_qs,
                 "form_orcamento": OrcamentoCategoriaForm(
                     usuario=user,
-                    initial={"inicio_ano": ano, "inicio_mes": mes, "ativo": True},
+                    initial={"inicio_ano": ano_ref, "inicio_mes": mes_ref, "ativo": True},
                 ),
             }
         )
@@ -244,8 +256,21 @@ def salvar_orcamento(request):
         return JsonResponse({"status": "erro", "errors": errors}, status=400)
 
     obj = form.save()
-    ano, mes = _parse_ano_mes(request)
-    linhas = listar_orcamentos_mes(user, ano, mes, incluir_inativos=True)
+    base_filtros = parse_relatorio_filtros(request.GET, usuario=user)
+    if not (request.GET.get("inicio") or request.GET.get("preset")):
+        ano, mes = _parse_ano_mes(request)
+        from relatorios.services.orcamentos import filtros_mes as filtros_mes_orc
+
+        base_filtros = filtros_mes_orc(ano, mes)
+    filtros_periodo = _filtros_orcamento_despesas(base_filtros)
+    ano_ref, mes_ref = referencia_mes_orcamento(base_filtros)
+    linhas = listar_orcamentos(
+        user,
+        filtros_periodo,
+        ano_ref=ano_ref,
+        mes_ref=mes_ref,
+        incluir_inativos=False,
+    )
     linha = next((l for l in linhas if l.orcamento_id == obj.pk), None)
     payload = linha.as_dict() if linha else {"orcamento_id": obj.pk}
     return JsonResponse({"status": "ok", "linha": payload})

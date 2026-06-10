@@ -273,8 +273,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  let salvando = false;
+
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (salvando) return;
+    salvando = true;
+    const btnSalvar = document.getElementById("btn-salvar-transacao");
+    if (btnSalvar) btnSalvar.disabled = true;
     syncHiddensFromUnified();
     const editandoId = overlay.dataset.editando;
     const actionAttr = form.getAttribute("action") || "";
@@ -316,6 +322,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      salvando = false;
+      if (btnSalvar) btnSalvar.disabled = false;
+
       const erroContaEl = document.getElementById("erro-conta-ajax");
       if (erroContaEl && data.errors && data.errors.conta && data.errors.conta.length) {
         erroContaEl.textContent = data.errors.conta[0];
@@ -329,6 +338,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error(error);
       alert("Erro de comunicação. Verifique a conexão e tente de novo.");
+      salvando = false;
+      if (btnSalvar) btnSalvar.disabled = false;
     }
   });
 

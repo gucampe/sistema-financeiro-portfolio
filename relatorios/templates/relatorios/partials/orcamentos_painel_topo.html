@@ -3,11 +3,11 @@
 {% if tem_orcamentos %}
 <section class="space-y-4" aria-label="Resumo do orçamento do mês">
   {% if painel_mes.tem_vigentes %}
-  <article class="card min-w-0 overflow-hidden p-6 sm:p-8" id="orcamento-hero-resumo">
+  <article data-filtros-vertical-anchor class="card min-w-0 overflow-hidden p-6 sm:p-8" id="orcamento-hero-resumo">
     <div class="flex flex-col gap-6">
       <div class="flex flex-col gap-0.5">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p class="min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento de {{ mes_rotulo }}/{{ ano }}</p>
+          <p class="min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento — {{ periodo_orcamento_rotulo }}</p>
           <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
             {% include 'relatorios/partials/filtros_hero_botao.html' %}
             <button type="button" id="btn-novo-orcamento" class="btn btn-primary btn-sm w-full sm:w-auto shrink-0">
@@ -19,7 +19,7 @@
         <div class="min-w-0">
         {% if painel_mes.percentual is not None %}
         <p class="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-          Você consumiu <span class="tabular-nums {% if painel_mes.status == 'excedido' %}text-rose-700{% elif painel_mes.status == 'risco' %}text-amber-700{% else %}text-emerald-700{% endif %}">{{ painel_mes.percentual|floatformat:0 }}%</span> do orçamento mensal
+          Você consumiu <span class="tabular-nums {% if painel_mes.status == 'excedido' %}text-rose-700{% elif painel_mes.status == 'risco' %}text-amber-700{% else %}text-emerald-700{% endif %}">{{ painel_mes.percentual|floatformat:0 }}%</span> do orçamento {% if periodo_orcamento_multi_mes %}no período{% else %}mensal{% endif %}
         </p>
         <p class="mt-1 text-sm text-gray-500">
           {% if painel_mes.status == 'excedido' %}Gastos acima do total planejado neste mês.{% elif painel_mes.status == 'risco' %}Atenção: você está próximo do limite global.{% else %}Situação saudável no conjunto das categorias vigentes.{% endif %}
@@ -106,10 +106,10 @@
     </div>
   </div>
   {% else %}
-  <article class="card min-w-0 p-6 sm:p-8" id="orcamento-hero-resumo">
+  <article data-filtros-vertical-anchor class="card min-w-0 p-6 sm:p-8" id="orcamento-hero-resumo">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0 flex-1">
-        <p class="font-medium text-gray-800">Nenhum limite vigente em {{ mes_rotulo }}/{{ ano }}</p>
+        <p class="font-medium text-gray-800">Nenhum limite vigente em {{ periodo_orcamento_rotulo }}</p>
         <p class="mt-1 text-sm text-gray-500">Ajuste a vigência dos orçamentos ou cadastre limites para este mês.</p>
       </div>
       <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
