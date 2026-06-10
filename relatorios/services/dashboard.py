@@ -11,8 +11,8 @@ from django.db.models import Exists, OuterRef, Sum
 from django.utils import timezone
 
 from cartoes.models import Cartao, Fatura
-from cartoes.services.faturas import obter_ou_criar_fatura
-from cartoes.services.gestao_faturas import calcular_resumo_pagamento, total_fatura
+from cartoes.services.faturas import faturas_atuais_cartoes, obter_ou_criar_fatura
+from cartoes.services.gestao_faturas import calcular_resumos_pagamento_bulk, calcular_resumo_pagamento, total_fatura
 from contas.models import Conta
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
@@ -26,6 +26,43 @@ from relatorios.services.agregacoes import (
 )
 from relatorios.services.filtros import RelatorioFiltros
 from transacoes.models import Transacao
+
+# Paleta para gráficos quando categorias repetem a cor padrão ou não têm cor definida.
+CORES_GRAFICO_CATEGORIAS = (
+    "#3B82F6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#8B5CF6",
+    "#EC4899",
+    "#06B6D4",
+    "#14B8A6",
+    "#F97316",
+    "#6366F1",
+)
+
+
+def cores_distintas_para_categorias(
+    categorias: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Garante uma cor diferente por fatia no gráfico de rosca e na legenda."""
+    usadas: set[str] = set()
+    out: list[dict[str, Any]] = []
+    pi = 0
+    for cat in categorias:
+        cor = (cat.get("cor") or "").strip()
+        if not cor or cor in usadas:
+            for _ in range(len(CORES_GRAFICO_CATEGORIAS)):
+                candidata = CORES_GRAFICO_CATEGORIAS[pi % len(CORES_GRAFICO_CATEGORIAS)]
+                pi += 1
+                if candidata not in usadas:
+                    cor = candidata
+                    break
+            else:
+                cor = CORES_GRAFICO_CATEGORIAS[len(out) % len(CORES_GRAFICO_CATEGORIAS)]
+        usadas.add(cor)
+        out.append({**cat, "cor": cor})
+    return out
 
 
 def saudacao_periodo() -> str:
@@ -113,7 +150,7 @@ def top_despesas_mes_atual(user, *, limit: int = 5) -> list[dict[str, Any]]:
     hoje = timezone.localdate()
     filtros = _filtros_mes(hoje.year, hoje.month)
     qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
-    return top_categorias(qs, "despesa", limit=limit)
+    return cores_distintas_para_categorias(top_categorias(qs, "despesa", limit=limit))
 
 
 def ultimas_movimentacoes(user, *, limit: int = 10):
@@ -219,11 +256,19 @@ def _status_alerta_cartao(dias: int, saldo: Decimal) -> str:
 
 def resumo_cartoes_dashboard(user) -> dict[str, Any]:
     hoje = timezone.localdate()
+    cartoes_qs = list(Cartao.objects.filter(usuario=user, ativa=True).order_by("nome"))
+    if not cartoes_qs:
+        return {"cartoes": [], "total_faturas": Decimal("0"), "quantidade": 0}
+
+    faturas_map = faturas_atuais_cartoes(cartoes_qs, hoje)
+    faturas = list(faturas_map.values())
+    resumos = calcular_resumos_pagamento_bulk(faturas, hoje)
+
     cartoes: list[dict[str, Any]] = []
     total_faturas = Decimal("0")
-    for cartao in Cartao.objects.filter(usuario=user, ativa=True).order_by("nome"):
-        fatura = obter_ou_criar_fatura(cartao, hoje)
-        resumo = calcular_resumo_pagamento(fatura, hoje)
+    for cartao in cartoes_qs:
+        fatura = faturas_map[cartao.id]
+        resumo = resumos[fatura.id]
         saldo = resumo.saldo or Decimal("0")
         total_faturas += saldo
         dias = (fatura.data_vencimento - hoje).days

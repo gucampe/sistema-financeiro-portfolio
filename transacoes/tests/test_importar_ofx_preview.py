@@ -125,6 +125,28 @@ class ImportarOfxPreviewViewTests(TestCase):
         self.assertEqual(l0["ofx_fitid"], "sample-fitid-1")
         self.assertIn("duplicata_por_fitid", l0)
 
+    def test_categorias_despesa_sem_duplicar_diversos(self):
+        """Usuário já tem Diversos (signal); categoria padrão global não deve duplicar no select."""
+        self.client.force_login(self.user)
+        Categoria.objects.create(
+            usuario=None,
+            nome="Diversos",
+            tipo="despesa",
+            padrao=True,
+            ativa=True,
+        )
+        with open(SAMPLE_OFX, "rb") as fp:
+            r = self.client.post(
+                reverse("transacoes:importar_ofx_preview"),
+                {"conta_id": str(self.conta.pk), "arquivo": fp},
+            )
+        self.assertEqual(r.status_code, 200)
+        nomes = [c["nome"] for c in r.json()["categorias"]["despesa"]]
+        self.assertEqual(nomes.count("Diversos"), 1)
+        ids_diversos = [c["id"] for c in r.json()["categorias"]["despesa"] if c["nome"] == "Diversos"]
+        cat_usuario = Categoria.objects.get(usuario=self.user, nome="Diversos", tipo="despesa")
+        self.assertEqual(ids_diversos, [cat_usuario.id])
+
     def test_campo_file_alternativo(self):
         self.client.force_login(self.user)
         with open(SAMPLE_OFX, "rb") as fp:

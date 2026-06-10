@@ -55,6 +55,15 @@ def calcular_resumo_pagamento(fatura: Fatura, hoje: date | None = None) -> Resum
     hoje = hoje or timezone.localdate()
     total = total_fatura(fatura)
     pago = valor_pago_fatura(fatura)
+    return _resumo_from_totais(fatura, total, pago, hoje)
+
+
+def _resumo_from_totais(
+    fatura: Fatura,
+    total: Decimal,
+    pago: Decimal,
+    hoje: date,
+) -> ResumoPagamentoFatura:
     saldo = total - pago
 
     if total <= _zero() and pago <= _zero():
@@ -69,6 +78,68 @@ def calcular_resumo_pagamento(fatura: Fatura, hoje: date | None = None) -> Resum
         status = Fatura.StatusPagamento.PENDENTE
 
     return ResumoPagamentoFatura(total=total, pago=pago, saldo=saldo, status_pagamento=status)
+
+
+def calcular_resumos_pagamento_bulk(
+    faturas: list[Fatura],
+    hoje: date | None = None,
+) -> dict[int, ResumoPagamentoFatura]:
+    """Resumos de pagamento para várias faturas em consultas agregadas."""
+    hoje = hoje or timezone.localdate()
+    if not faturas:
+        return {}
+
+    fatura_ids = [f.id for f in faturas]
+    usuario_id = faturas[0].usuario_id
+
+    totais = {
+        row["fatura_id"]: row["s"] or _zero()
+        for row in Transacao.objects.filter(
+            usuario_id=usuario_id,
+            fatura_id__in=fatura_ids,
+            tipo="despesa",
+        )
+        .values("fatura_id")
+        .annotate(s=Sum("valor"))
+    }
+    pagos = {
+        row["pagamento_de_fatura_id"]: row["s"] or _zero()
+        for row in Transacao.objects.filter(
+            usuario_id=usuario_id,
+            pagamento_de_fatura_id__in=fatura_ids,
+            tipo="despesa",
+        )
+        .values("pagamento_de_fatura_id")
+        .annotate(s=Sum("valor"))
+    }
+
+    return {
+        fatura.id: _resumo_from_totais(
+            fatura,
+            totais.get(fatura.id, _zero()),
+            pagos.get(fatura.id, _zero()),
+            hoje,
+        )
+        for fatura in faturas
+    }
+
+
+def totais_faturas_bulk(faturas: list[Fatura]) -> dict[int, Decimal]:
+    """Totais de lançamentos por fatura em uma consulta."""
+    if not faturas:
+        return {}
+    fatura_ids = [f.id for f in faturas]
+    usuario_id = faturas[0].usuario_id
+    return {
+        row["fatura_id"]: row["s"] or _zero()
+        for row in Transacao.objects.filter(
+            usuario_id=usuario_id,
+            fatura_id__in=fatura_ids,
+            tipo="despesa",
+        )
+        .values("fatura_id")
+        .annotate(s=Sum("valor"))
+    }
 
 
 def recalcular_fatura(fatura: Fatura) -> ResumoPagamentoFatura:

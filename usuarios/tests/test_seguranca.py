@@ -1,0 +1,223 @@
+"""Contrato LEAN — Segurança e Permissões (16 unit + 2 skipped)."""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+from django.test import Client, TestCase
+from django.urls import reverse
+
+from cartoes.models import Fatura
+from transacoes.models import Transacao
+from usuarios.forms import PreferenciasFinanceirasForm
+from usuarios.tests.helpers.asserts_seguranca import (
+    assert_contagem_inalterada,
+    assert_form_invalid,
+    assert_http_200,
+    assert_http_302_login,
+    assert_http_403,
+    assert_http_404,
+    assert_http_not_403,
+    assert_json_404,
+    assert_recurso_ausente_para_usuario,
+)
+from usuarios.tests.helpers.seguranca_fixtures import (
+    client_csrf_strict,
+    csrf_token,
+    disparar_import_cross_tenant,
+    par_usuarios,
+    seed_cartao_fatura_a,
+    seed_recurso_b,
+    seed_transacao_a,
+)
+
+
+@pytest.mark.seguranca
+class TestSegurancaUnit(TestCase):
+    # --- HTTP: AUTH ---
+
+    def test_unit_sec_01_anonimo_configuracoes_redireciona_login(self):
+        resp = Client().get(reverse("usuarios:configuracoes"))
+        assert_http_302_login(resp)
+
+    def test_unit_sec_02_logado_configuracoes_ok(self):
+        par = par_usuarios()
+        resp = par.client_a.get(reverse("usuarios:configuracoes"))
+        assert_http_200(resp)
+
+    # --- FORM ---
+
+    def test_unit_sec_03_form_rejeita_categoria_de_b(self):
+        par = par_usuarios()
+        form = PreferenciasFinanceirasForm(
+            data={
+                "moeda": "BRL",
+                "tipo_transacao_padrao": "despesa",
+                "conta_padrao": str(par.conta_a.pk),
+                "categoria_padrao": str(par.cat_b.pk),
+                "ocultar_valores_dashboard": False,
+            },
+            instance=par.perfil_a,
+            user=par.user_a,
+        )
+        assert_form_invalid(form, "categoria_padrao")
+
+    def test_unit_sec_04_form_rejeita_conta_de_b(self):
+        par = par_usuarios()
+        form = PreferenciasFinanceirasForm(
+            data={
+                "moeda": "BRL",
+                "tipo_transacao_padrao": "despesa",
+                "conta_padrao": str(par.conta_b.pk),
+                "categoria_padrao": str(par.cat_a.pk),
+                "ocultar_valores_dashboard": False,
+            },
+            instance=par.perfil_a,
+            user=par.user_a,
+        )
+        assert_form_invalid(form, "conta_padrao")
+
+    # --- HTTP: IDOR ---
+
+    def test_unit_sec_05_idor_get_editar_transacao_b(self):
+        par = par_usuarios()
+        pk_b = seed_recurso_b(par, "transacao")
+        url = reverse("transacoes:editar", kwargs={"pk": pk_b})
+        resp = par.client_a.get(f"{url}?ajax=1")
+        assert_http_404(resp)
+
+    def test_unit_sec_06_idor_post_excluir_transacao_b(self):
+        par = par_usuarios()
+        pk_b = seed_recurso_b(par, "transacao")
+        url = reverse("transacoes:excluir", kwargs={"pk": pk_b})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_07_idor_post_arquivar_conta_b(self):
+        par = par_usuarios()
+        id_b = seed_recurso_b(par, "conta")
+        url = reverse("contas:arquivar", kwargs={"id": id_b})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_08_idor_post_excluir_cartao_b(self):
+        par = par_usuarios()
+        id_b = seed_recurso_b(par, "cartao")
+        url = reverse("cartoes:excluir", kwargs={"id": id_b})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_09_idor_get_fatura_detalhe_b(self):
+        par = par_usuarios()
+        fatura_id = seed_recurso_b(par, "fatura")
+        fatura = Fatura.objects.get(pk=fatura_id)
+        url = reverse(
+            "cartoes:fatura_detalhe",
+            kwargs={"cartao_id": fatura.cartao_id, "fatura_id": fatura_id},
+        )
+        resp = par.client_a.get(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_10_idor_get_export_job_b(self):
+        par = par_usuarios()
+        job_id = seed_recurso_b(par, "export_job")
+        url = reverse("relatorios:api_export_job_detail", kwargs={"pk": job_id})
+        resp = par.client_a.get(url)
+        assert_json_404(resp)
+
+    # --- HTTP: API anônima ---
+
+    def test_unit_sec_11_anonimo_api_serie_tendencia(self):
+        url = reverse("relatorios:api_serie_tendencia")
+        resp = Client().get(f"{url}?preset=este_mes")
+        assert_http_302_login(resp)
+
+    def test_unit_sec_12_anonimo_post_api_export_csv(self):
+        url = reverse("relatorios:api_export_csv")
+        resp = Client().post(url, data={"preset": "este_mes"})
+        assert_http_302_login(resp)
+
+    # --- HTTP: import cross-tenant ---
+
+    def test_unit_sec_13_import_conta_b_retorna_404(self):
+        par = par_usuarios()
+        url = reverse("transacoes:importar_ofx_confirmar")
+        payload = {
+            "conta_id": par.conta_b.pk,
+            "linhas": [
+                {
+                    "data": "2026-04-01",
+                    "valor": "50.00",
+                    "tipo": "despesa",
+                    "descricao": "Import cross",
+                }
+            ],
+        }
+        resp = par.client_a.post(
+            url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        assert_http_404(resp)
+
+    # --- ESTADO ---
+
+    def test_unit_sec_14_import_nao_altera_contagem_a(self):
+        par = par_usuarios()
+        antes, depois = disparar_import_cross_tenant(par)
+        assert_contagem_inalterada(antes, depois)
+
+    def test_unit_sec_15_recurso_b_ausente_para_usuario_a(self):
+        par = par_usuarios()
+        pk_b = seed_recurso_b(par, "transacao")
+        assert_recurso_ausente_para_usuario(par.user_a, Transacao, pk_b)
+
+    # --- HTTP: CSRF bloco único ---
+
+    def test_unit_sec_16_csrf_estados_e_endpoints_mutaveis(self):
+        par = par_usuarios()
+        client = client_csrf_strict(par.user_a)
+        token = csrf_token(client)
+
+        tx_pk = seed_transacao_a(par)
+        url_excluir = reverse("transacoes:excluir", kwargs={"pk": tx_pk})
+
+        resp_sem = client.post(url_excluir)
+        assert_http_403(resp_sem)
+
+        resp_inv = client.post(
+            url_excluir,
+            HTTP_X_CSRFTOKEN="invalido",
+        )
+        assert_http_403(resp_inv)
+
+        resp_ok = client.post(
+            url_excluir,
+            HTTP_X_CSRFTOKEN=token,
+        )
+        assert_http_not_403(resp_ok)
+
+        cartao_id, fatura_id = seed_cartao_fatura_a(par)
+        url_pagar = reverse(
+            "cartoes:pagar_fatura",
+            kwargs={"cartao_id": cartao_id, "fatura_id": fatura_id},
+        )
+        resp_pagar = client.post(url_pagar)
+        assert_http_403(resp_pagar)
+
+        url_export = reverse("relatorios:api_export_csv")
+        resp_export = client.post(url_export, data={"preset": "este_mes"})
+        assert_http_403(resp_export)
+
+
+@pytest.mark.seguranca
+@pytest.mark.skip(reason="SKIP-SEC-RL-01: rate limit não implementado")
+def test_skip_sec_rl_01_login_throttle():
+    """Contrato futuro: >N POST /login/ mesmo IP em 60s → status 429."""
+
+
+@pytest.mark.seguranca
+@pytest.mark.skip(reason="SKIP-SEC-AUD-01: auditoria não implementada")
+def test_skip_sec_aud_01_pagamento_fatura_audit():
+    """Contrato futuro: pagamento fatura gera registro usuario + acao + recurso_id."""

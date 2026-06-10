@@ -16,7 +16,9 @@ from relatorios.services.por_conta import montar_analise_por_conta
 from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 from relatorios.services.insights import avaliar_alertas_orcamento, gerar_insights_dashboard
 from relatorios.services.orcamentos import (
+    _filtros_orcamento_despesas,
     classificar_status,
+    listar_orcamentos,
     listar_orcamentos_dashboard,
     listar_orcamentos_mes,
     montar_linha_orcamento,
@@ -28,6 +30,20 @@ from relatorios.services.orcamentos import (
 from transacoes.models import Transacao
 
 User = get_user_model()
+
+
+class CoresGraficoCategoriasTests(TestCase):
+    def test_cores_distintas_quando_todas_iguais(self):
+        from relatorios.services.dashboard import cores_distintas_para_categorias
+
+        entrada = [
+            {"nome": "A", "cor": "#4F46E5", "total": 100},
+            {"nome": "B", "cor": "#4F46E5", "total": 80},
+            {"nome": "C", "cor": "#4F46E5", "total": 50},
+        ]
+        saida = cores_distintas_para_categorias(entrada)
+        cores = [c["cor"] for c in saida]
+        self.assertEqual(len(cores), len(set(cores)))
 
 
 class RelatorioFiltrosParseTests(TestCase):
@@ -298,6 +314,167 @@ class OrcamentosServicoTests(TestCase):
         self.assertEqual(nav["nav_qs_extra"], "")
         nav_extra = navegacao_mes_context(2026, 5, nav_qs_extra="&foo=1")
         self.assertEqual(nav_extra["nav_qs_extra"], "&foo=1")
+
+    def test_nao_exibe_gastos_sem_orcamento_como_pausado(self):
+        """Categorias só com transação não devem aparecer como orçamento pausado."""
+        from contas.models import Conta
+
+        cat_extra = Categoria.objects.create(
+            usuario=self.user, nome="Extra sem orc", tipo="despesa", ativa=True
+        )
+        conta = Conta.objects.create(usuario=self.user, nome="C-extra", tipo="corrente")
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=conta,
+            categoria=cat_extra,
+            tipo="despesa",
+            valor=Decimal("80"),
+            data=date(2026, 5, 10),
+            descricao="extra",
+        )
+        filtros = RelatorioFiltros(
+            data_inicio=date(2026, 5, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        linhas = listar_orcamentos(
+            self.user,
+            _filtros_orcamento_despesas(filtros),
+            ano_ref=2026,
+            mes_ref=5,
+            incluir_inativos=False,
+            incluir_gasto_sem_orcamento=False,
+        )
+        nomes = {l.nome for l in linhas}
+        self.assertIn("A", nomes)
+        self.assertNotIn("Extra sem orc", nomes)
+        self.assertTrue(all(l.orcamento_id for l in linhas))
+
+    def test_listar_orcamentos_usa_intervalo_filtro_nao_ano_mes_nav(self):
+        """Gastos no período do drawer, mesmo com ano/mes de navegação em outro mês."""
+        from contas.models import Conta
+
+        conta = Conta.objects.create(usuario=self.user, nome="C-nav", tipo="corrente")
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=conta,
+            categoria=self.cat_a,
+            tipo="despesa",
+            valor=Decimal("120"),
+            data=date(2026, 4, 15),
+            descricao="abril",
+        )
+        filtros = RelatorioFiltros(
+            data_inicio=date(2026, 4, 1),
+            data_fim=date(2026, 4, 30),
+            preset="custom",
+        )
+        linhas = listar_orcamentos(
+            self.user,
+            _filtros_orcamento_despesas(filtros),
+            ano_ref=2026,
+            mes_ref=6,
+            incluir_inativos=True,
+        )
+        linha = next(l for l in linhas if l.categoria_id == self.cat_a.pk)
+        self.assertEqual(linha.realizado, Decimal("120"))
+
+    def test_listar_orcamentos_soma_planejado_em_periodo_multimes(self):
+        OrcamentoCategoria.objects.filter(usuario=self.user, categoria=self.cat_a).update(
+            inicio_ano=2026,
+            inicio_mes=1,
+            fim_ano=None,
+            fim_mes=None,
+        )
+        filtros = RelatorioFiltros(
+            data_inicio=date(2026, 4, 1),
+            data_fim=date(2026, 5, 31),
+            preset="custom",
+        )
+        linhas = listar_orcamentos(
+            self.user,
+            _filtros_orcamento_despesas(filtros),
+            ano_ref=2026,
+            mes_ref=5,
+            incluir_inativos=True,
+        )
+        linha = next(l for l in linhas if l.categoria_id == self.cat_a.pk)
+        self.assertEqual(linha.planejado, Decimal("200"))
+
+    def test_realizado_cartao_no_mes_da_competencia(self):
+        """Compra em maio com vencimento em junho deve contar no orçamento de junho."""
+        from contas.models import Conta
+        from cartoes.models import Cartao
+        from cartoes.services.faturas import obter_ou_criar_fatura
+
+        conta = Conta.objects.create(usuario=self.user, nome="C", tipo="corrente")
+        cartao = Cartao.objects.create(
+            usuario=self.user,
+            nome="Visa",
+            dia_fechamento=10,
+            dia_vencimento=20,
+            conta_padrao=conta,
+        )
+        data_compra = date(2026, 5, 28)
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=conta,
+            cartao=cartao,
+            categoria=self.cat_a,
+            tipo="despesa",
+            valor=Decimal("75"),
+            data=data_compra,
+            descricao="compra cartão",
+        )
+        fatura = obter_ou_criar_fatura(cartao, data_compra)
+        self.assertEqual(fatura.data_vencimento.month, 6)
+
+        linhas_maio = listar_orcamentos_mes(self.user, 2026, 5)
+        linha_maio = next(l for l in linhas_maio if l.categoria_id == self.cat_a.pk)
+        self.assertEqual(linha_maio.realizado, Decimal("0"))
+
+        linhas_junho = listar_orcamentos_mes(self.user, 2026, 6)
+        linha_junho = next(l for l in linhas_junho if l.categoria_id == self.cat_a.pk)
+        self.assertEqual(linha_junho.realizado, Decimal("75"))
+
+    def test_realizado_alinha_categoria_padrao_e_do_usuario(self):
+        """Orçamento na categoria global; lançamento na cópia do usuário com mesmo nome."""
+        cat_padrao = Categoria.objects.create(
+            nome="Padrao Orc",
+            tipo="despesa",
+            ativa=True,
+            padrao=True,
+        )
+        cat_user = Categoria.objects.create(
+            usuario=self.user,
+            nome="Padrao Orc",
+            tipo="despesa",
+            ativa=True,
+        )
+        OrcamentoCategoria.objects.filter(usuario=self.user).delete()
+        OrcamentoCategoria.objects.create(
+            usuario=self.user,
+            categoria=cat_padrao,
+            valor_planejado=Decimal("200"),
+            inicio_ano=2026,
+            inicio_mes=5,
+            ativo=True,
+        )
+        from contas.models import Conta
+
+        conta = Conta.objects.create(usuario=self.user, nome="C2", tipo="corrente")
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=conta,
+            categoria=cat_user,
+            tipo="despesa",
+            valor=Decimal("42"),
+            data=date(2026, 5, 12),
+            descricao="gasto user cat",
+        )
+        linhas = listar_orcamentos_mes(self.user, 2026, 5)
+        linha = next(l for l in linhas if l.categoria_id == cat_padrao.pk)
+        self.assertEqual(linha.realizado, Decimal("42"))
 
     def test_exclui_pagamento_de_fatura(self):
         from contas.models import Conta

@@ -49,3 +49,10 @@ Thumbs.db
 
 *.zip
 static/css/output.css
+
+# E2E
+e2e/artifacts/
+e2e/.auth/
+playwright-report/
+test-results/
+pytest_cache/

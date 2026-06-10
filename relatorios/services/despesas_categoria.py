@@ -4,6 +4,7 @@ Análise de despesas por categoria — hero, comparação temporal e insights.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
@@ -128,6 +129,125 @@ def _detalhe_categoria(qs, filtros: RelatorioFiltros, categoria_id: int, total: 
     }
 
 
+def _contagens_por_categoria(qs, categoria_ids: list[int]) -> dict[int, int]:
+    if not categoria_ids:
+        return {}
+    return dict(
+        qs.filter(tipo="despesa", categoria_id__in=categoria_ids)
+        .values("categoria_id")
+        .annotate(n=Count("id"))
+        .values_list("categoria_id", "n")
+    )
+
+
+def _tendencias_por_categoria(
+    qs,
+    filtros: RelatorioFiltros,
+    categoria_ids: list[int],
+) -> dict[int, dict[str, Any]]:
+    if not categoria_ids:
+        return {}
+
+    by_cat_day: dict[int, dict[date, Decimal]] = defaultdict(dict)
+    rows = (
+        qs.filter(tipo="despesa", categoria_id__in=categoria_ids)
+        .values("categoria_id", "data")
+        .annotate(total=Sum("valor"))
+        .order_by("categoria_id", "data")
+    )
+    for row in rows:
+        cid = row["categoria_id"]
+        d = row["data"]
+        if hasattr(d, "date"):
+            d = d.date()
+        by_cat_day[cid][d] = row["total"] or Decimal("0")
+
+    out: dict[int, dict[str, Any]] = {}
+    for cid in categoria_ids:
+        by_day = by_cat_day.get(cid, {})
+        labels: list[str] = []
+        valores: list[float] = []
+        cur = filtros.data_inicio
+        while cur <= filtros.data_fim:
+            labels.append(cur.strftime("%d/%m"))
+            valores.append(float(by_day.get(cur, Decimal("0"))))
+            cur += timedelta(days=1)
+        max_valor = max(valores) if valores else 0.0
+        escala = max_valor if max_valor > 0 else 1.0
+        barras_pct = [int(round(v / escala * 100)) for v in valores]
+        out[cid] = {"labels": labels, "valores": valores, "max_valor": escala, "barras_pct": barras_pct}
+    return out
+
+
+def _detalhes_categorias_bulk(
+    qs,
+    filtros: RelatorioFiltros,
+    rows: list[dict[str, Any]],
+) -> dict[int, dict[str, Any]]:
+    cids = [row["categoria_id"] for row in rows if row.get("categoria_id")]
+    if not cids:
+        return {}
+
+    qs_desp = qs.filter(tipo="despesa", categoria_id__in=cids)
+    tendencias = _tendencias_por_categoria(qs, filtros, cids)
+
+    contas_por_cat: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    conta_rows = (
+        qs_desp.values("categoria_id", "conta__nome")
+        .annotate(total=Sum("valor"), n=Count("id"))
+        .order_by("categoria_id", "-total")
+    )
+    for row in conta_rows:
+        cid = row["categoria_id"]
+        if len(contas_por_cat[cid]) >= 5:
+            continue
+        contas_por_cat[cid].append(row)
+
+    top_por_cat: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    tx_rows = qs_desp.select_related("conta").order_by(
+        "categoria_id", "-valor", "-data"
+    ).values("categoria_id", "descricao", "valor", "data", "conta__nome")
+    for row in tx_rows:
+        cid = row["categoria_id"]
+        if len(top_por_cat[cid]) >= 5:
+            continue
+        top_por_cat[cid].append(row)
+
+    detalhes: dict[int, dict[str, Any]] = {}
+    for row in rows:
+        cid = row.get("categoria_id")
+        if cid is None:
+            continue
+        total = row["total"]
+        transacoes = [
+            {
+                "descricao": t["descricao"],
+                "valor": t["valor"],
+                "data": t["data"],
+                "conta": t["conta__nome"] or "—",
+            }
+            for t in top_por_cat.get(cid, [])
+        ]
+        contas = []
+        for conta_row in contas_por_cat.get(cid, []):
+            t = conta_row["total"] or Decimal("0")
+            pct = (t / total * 100) if total else Decimal("0")
+            contas.append(
+                {
+                    "nome": conta_row["conta__nome"] or "—",
+                    "total": t,
+                    "percentual": pct,
+                    "quantidade": conta_row["n"],
+                }
+            )
+        detalhes[cid] = {
+            "transacoes": transacoes,
+            "contas": contas,
+            "tendencia": tendencias.get(cid, {"labels": [], "valores": [], "max_valor": 1.0, "barras_pct": []}),
+        }
+    return detalhes
+
+
 def _insight_items(
     categorias: list[dict[str, Any]],
     total_despesas: Decimal,
@@ -237,6 +357,9 @@ def montar_analise_despesas_categoria(
     total_ant = qs_ant.filter(tipo="despesa").aggregate(s=Sum("valor"))["s"] or Decimal("0")
 
     base_top = top_categorias(qs, "despesa", limit=limite_lista)
+    cids = [row["categoria_id"] for row in base_top if row.get("categoria_id")]
+    contagens = _contagens_por_categoria(qs, cids)
+    detalhes_map = _detalhes_categorias_bulk(qs, filtros, base_top)
 
     categorias: list[dict[str, Any]] = []
     for row in base_top:
@@ -247,8 +370,8 @@ def montar_analise_despesas_categoria(
         ant = totais_ant_map.get(cid, Decimal("0"))
         delta_pct = _delta_pct(total, ant)
         direcao = _direcao_variacao(total, ant)
-        n_tx = qs.filter(tipo="despesa", categoria_id=cid).count()
-        detalhe = _detalhe_categoria(qs, filtros, cid, total)
+        n_tx = contagens.get(cid, 0)
+        detalhe = detalhes_map.get(cid, {"transacoes": [], "contas": [], "tendencia": {}})
         categorias.append(
             {
                 **row,
