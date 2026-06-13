@@ -1,0 +1,635 @@
+/* Orçamentos — UX mobile (<640px). Desktop inalterado. */
+
+@media (max-width: 639px) {
+  #orcamentos-root {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-bottom: 3.5rem;
+  }
+
+  /* ---------- Hero resumo ---------- */
+
+  #orcamento-hero-resumo {
+    padding: 1.25rem 1.375rem;
+    border-radius: 1.25rem;
+  }
+
+  #orcamento-hero-resumo > .flex {
+    gap: 1.25rem;
+  }
+
+  #orcamento-hero-resumo .orc-hero__header-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    align-items: center;
+  }
+
+  #orcamento-hero-resumo .orc-hero__periodo {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: rgb(107 114 128);
+  }
+
+  #orcamento-hero-resumo .orc-hero__ctas {
+    display: contents;
+  }
+
+  #orcamento-hero-resumo .orc-hero__filtros-wrap {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+  }
+
+  #orcamento-hero-resumo .orc-hero__cta-primary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    flex: none;
+    min-height: 2.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  #orcamento-hero-resumo .orc-hero__filtros-wrap .js-abrir-filtros-portal {
+    width: auto;
+    min-height: 1.875rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: rgb(107 114 128);
+    background: rgb(249 250 251);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 9999px;
+    box-shadow: none;
+  }
+
+  #orcamento-hero-resumo .orc-hero__filtros-wrap .js-abrir-filtros-portal:hover,
+  #orcamento-hero-resumo .orc-hero__filtros-wrap .js-abrir-filtros-portal:focus-visible {
+    color: rgb(75 85 99);
+    background: rgb(243 244 246);
+    border-color: rgb(209 213 219);
+  }
+
+  .orc-hero-headline {
+    margin-top: 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
+  .orc-hero-subtitle {
+    margin-top: 0.5rem;
+    max-width: 22rem;
+  }
+
+  .orc-hero__progress {
+    margin-top: 1.25rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+    background: rgb(243 244 246);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.04);
+  }
+
+  .orc-hero__progress > div {
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  }
+
+  .orc-hero__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgb(243 244 246);
+  }
+
+  .orc-hero__metrics > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 0.625rem 0.5rem;
+    border-radius: 0.75rem;
+    background: rgb(249 250 251);
+  }
+
+  .orc-hero__metrics dt {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(107 114 128);
+  }
+
+  .orc-hero__metrics dd {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    color: rgb(17 24 39);
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .orc-hero__metrics--gasto dd {
+    color: rgb(31 41 55);
+  }
+
+  .orc-hero__metrics--disponivel dd.text-emerald-700 {
+    color: rgb(4 120 87);
+  }
+
+  .orc-hero__metrics--disponivel dd.text-rose-700 {
+    color: rgb(190 18 60);
+  }
+
+  .orc-hero__metrics--disponivel dd.text-xs {
+    margin-top: 0.125rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* ---------- Mini status cards ---------- */
+
+  .orc-status-grid {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.125rem;
+    margin: 0 -0.125rem;
+    padding-left: 0.125rem;
+    padding-right: 0.125rem;
+  }
+
+  .orc-status-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .orc-status-card {
+    flex: 1 1 0;
+    min-width: 6.5rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 1rem;
+    scroll-snap-align: start;
+  }
+
+  .orc-status-card__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    text-align: center;
+  }
+
+  .orc-status-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .orc-status-card__icon span {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .orc-status-card__inner > .min-w-0 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .orc-status-card__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+    color: rgb(107 114 128);
+    line-height: 1.2;
+  }
+
+  .orc-status-card__value {
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: rgb(17 24 39);
+  }
+
+  .orc-status-card__hint {
+    font-size: 0.6875rem;
+    color: rgb(156 163 175);
+  }
+
+  /* ---------- Painel topo → lista ---------- */
+
+  #orcamentos-root section[aria-label="Resumo do orçamento do mês"] > * + * {
+    margin-top: 0.5rem;
+  }
+
+  /* ---------- Lista por categoria ---------- */
+
+  .orc-lista-titulo {
+    margin-top: 0.375rem;
+    margin-bottom: 0.25rem;
+    padding: 0 0.125rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+    color: rgb(107 114 128);
+  }
+
+  #orcamentos-root .orc-lista-titulo + ul.space-y-4 {
+    margin-top: -0.25rem;
+  }
+
+  #orcamentos-root ul.space-y-4 {
+    gap: 0.75rem;
+  }
+
+  #orcamentos-root ul.space-y-4 > li {
+    padding: 1rem 1.125rem !important;
+    border-radius: 1.25rem;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .orc-cat-card__main {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .orc-cat-card__chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.125rem;
+    transition: transform 0.2s ease;
+  }
+
+  .orc-cat-card.is-expanded .orc-cat-card__chevron {
+    transform: rotate(180deg);
+  }
+
+  .orc-cat-card.is-expanded {
+    border-color: rgb(209 213 219);
+    background: rgb(255 255 255);
+    box-shadow: 0 4px 14px rgb(15 23 42 / 0.06);
+  }
+
+  .orc-cat-card:not(.is-expanded) .orc-cat-card__secondary-metrics,
+  .orc-cat-card:not(.is-expanded) .orc-cat-history {
+    display: none;
+  }
+
+  .orc-cat-actions-panel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 1px solid transparent;
+    transition:
+      max-height 0.25s ease,
+      opacity 0.2s ease,
+      margin-top 0.2s ease,
+      padding-top 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .orc-cat-card.is-expanded .orc-cat-actions-panel {
+    max-height: 10rem;
+    opacity: 1;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top-color: rgb(243 244 246);
+  }
+
+  .orc-cat-card.is-expanded .orc-cat-card__secondary-metrics,
+  .orc-cat-card.is-expanded .orc-cat-history {
+    display: block;
+  }
+
+  .orc-cat-card__layout {
+    gap: 0;
+  }
+
+  .orc-cat-card__main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .orc-cat-card__header {
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .orc-cat-card__header h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .orc-cat-card__badge {
+    padding: 0.1875rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    border-radius: 9999px;
+  }
+
+  .orc-cat-card__badge--ok {
+    background: rgb(209 250 229);
+    color: rgb(6 95 70);
+  }
+
+  .orc-cat-card__badge--risco {
+    background: rgb(254 243 199);
+    color: rgb(146 64 14);
+  }
+
+  .orc-cat-card__badge--excedido {
+    background: rgb(255 228 230);
+    color: rgb(159 18 57);
+  }
+
+  .orc-cat-card__badge--neutral {
+    background: rgb(243 244 246);
+    color: rgb(75 85 99);
+  }
+
+  .orc-cat-card__focus {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .orc-cat-card__consumo-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .orc-cat-card__consumo-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+  }
+
+  .orc-cat-card__consumo-valor {
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: rgb(31 41 55);
+    letter-spacing: -0.02em;
+  }
+
+  .orc-cat-card__consumo-pct {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: rgb(107 114 128);
+  }
+
+  .orc-cat-card__disponivel {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.75rem;
+    background: rgb(249 250 251);
+  }
+
+  .orc-cat-card__disponivel-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+  }
+
+  .orc-cat-card__disponivel-valor {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .orc-cat-card__disponivel-valor--ok {
+    color: rgb(4 120 87);
+  }
+
+  .orc-cat-card__disponivel-valor--neg {
+    color: rgb(190 18 60);
+  }
+
+  .orc-cat-card__disponivel-hint {
+    font-size: 0.6875rem;
+    color: rgb(190 18 60);
+    margin-top: -0.25rem;
+    padding-left: 0.75rem;
+  }
+
+  .orc-cat-card__progress {
+    margin-top: 0.75rem;
+    height: 0.4375rem;
+    border-radius: 9999px;
+    background: rgb(243 244 246);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.04);
+  }
+
+  .orc-cat-card__progress > div {
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+  }
+
+  /* Métricas desktop — ocultas no mobile quando há layout focado */
+  .orc-cat-metrics--desktop {
+    display: none;
+  }
+
+  .orc-cat-metrics--mobile {
+    display: block;
+  }
+
+  .orc-cat-card__secondary-metrics {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgb(229 231 235);
+  }
+
+  .orc-cat-card__secondary-metric {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .orc-cat-card__secondary-metric dt {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: rgb(156 163 175);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .orc-cat-card__secondary-metric dd {
+    margin-top: 0.125rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: rgb(107 114 128);
+  }
+
+  /* Histórico integrado */
+  .orc-cat-history {
+    margin-top: 0.75rem;
+    border-radius: 0.75rem;
+    background: rgb(249 250 251);
+    overflow: hidden;
+  }
+
+  .orc-cat-history summary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgb(79 70 229);
+    list-style: none;
+  }
+
+  .orc-cat-history summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .orc-cat-history summary::after {
+    content: "›";
+    float: right;
+    font-size: 1rem;
+    line-height: 1;
+    color: rgb(156 163 175);
+    transition: transform 0.15s ease;
+  }
+
+  .orc-cat-history[open] summary::after {
+    transform: rotate(90deg);
+  }
+
+  .orc-cat-history ul {
+    margin: 0;
+    padding: 0 0.75rem 0.625rem;
+    border-top: 1px solid rgb(243 244 246);
+  }
+
+  .orc-cat-history li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    font-size: 0.75rem;
+    color: rgb(75 85 99);
+  }
+
+  /* Ações expansíveis */
+  .orc-cat-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    width: 100%;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    transform: translateY(-0.25rem);
+    transition: transform 0.2s ease;
+  }
+
+  .orc-cat-card.is-expanded .orc-cat-actions {
+    transform: translateY(0);
+  }
+
+  .orc-cat-actions .btn {
+    flex: 1 1 calc(50% - 0.1875rem);
+    min-width: 0;
+    min-height: 2.125rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.625rem;
+  }
+
+  .orc-cat-actions .btn-secondary {
+    background: rgb(249 250 251);
+    border-color: rgb(229 231 235);
+    color: rgb(55 65 81);
+  }
+
+  .orc-cat-actions a.btn-secondary {
+    text-align: center;
+  }
+
+  .orc-cat-actions .btn-primary {
+    flex: 1 1 100%;
+  }
+
+  /* Sem limite vigente — texto compacto */
+  .orc-cat-card__sem-limite {
+    margin-top: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: rgb(107 114 128);
+  }
+}
+
+/* Desktop: painel de ações sempre visível */
+@media (min-width: 640px) {
+  .orc-cat-metrics--mobile {
+    display: none;
+  }
+
+  .orc-cat-card__main {
+    cursor: default;
+  }
+
+  .orc-cat-actions-panel {
+    max-height: none;
+    overflow: visible;
+    opacity: 1;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .orc-cat-card .orc-cat-card__secondary-metrics,
+  .orc-cat-card .orc-cat-history {
+    display: block;
+  }
+
+  .orc-cat-actions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    transform: none;
+  }
+}

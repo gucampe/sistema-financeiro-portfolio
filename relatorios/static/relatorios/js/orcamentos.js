@@ -171,4 +171,70 @@
       }
     });
   });
+
+  const mobileCardsMq = window.matchMedia("(max-width: 639px)");
+
+  function setCardExpanded(card, expanded) {
+    card.classList.toggle("is-expanded", expanded);
+    card.setAttribute("aria-expanded", String(expanded));
+    const main = card.querySelector(".orc-cat-card__main");
+    if (main) main.setAttribute("aria-expanded", String(expanded));
+  }
+
+  function collapseMobileCards(exceptCard) {
+    root.querySelectorAll("[data-orcamento-card]").forEach((card) => {
+      if (card !== exceptCard) setCardExpanded(card, false);
+    });
+  }
+
+  function syncMobileCardA11y() {
+    root.querySelectorAll("[data-orcamento-card]").forEach((card) => {
+      const main = card.querySelector(".orc-cat-card__main");
+      const panel = card.querySelector(".orc-cat-actions-panel");
+      if (!main) return;
+
+      if (mobileCardsMq.matches) {
+        main.setAttribute("role", "button");
+        main.setAttribute("tabindex", "0");
+        main.setAttribute("aria-expanded", String(card.classList.contains("is-expanded")));
+        if (panel?.id) main.setAttribute("aria-controls", panel.id);
+      } else {
+        main.removeAttribute("role");
+        main.removeAttribute("tabindex");
+        main.removeAttribute("aria-controls");
+        main.removeAttribute("aria-expanded");
+        setCardExpanded(card, false);
+      }
+    });
+  }
+
+  function initMobileCardExpand() {
+    root.querySelectorAll("[data-orcamento-card]").forEach((card) => {
+      const main = card.querySelector(".orc-cat-card__main");
+      const history = card.querySelector(".orc-cat-history");
+      const actionsPanel = card.querySelector(".orc-cat-actions-panel");
+
+      history?.addEventListener("click", (e) => e.stopPropagation());
+      actionsPanel?.addEventListener("click", (e) => e.stopPropagation());
+
+      main?.addEventListener("click", () => {
+        if (!mobileCardsMq.matches) return;
+        const willExpand = !card.classList.contains("is-expanded");
+        setCardExpanded(card, willExpand);
+        if (willExpand) collapseMobileCards(card);
+      });
+
+      main?.addEventListener("keydown", (e) => {
+        if (!mobileCardsMq.matches) return;
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        main.click();
+      });
+    });
+
+    syncMobileCardA11y();
+    mobileCardsMq.addEventListener("change", syncMobileCardA11y);
+  }
+
+  initMobileCardExpand();
 })();

@@ -6,11 +6,13 @@
   <article data-filtros-vertical-anchor class="card min-w-0 overflow-hidden p-6 sm:p-8" id="orcamento-hero-resumo">
     <div class="flex flex-col gap-6">
       <div class="flex flex-col gap-0.5">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p class="min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento — {{ periodo_orcamento_rotulo }}</p>
-          <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-            {% include 'relatorios/partials/filtros_hero_botao.html' %}
-            <button type="button" id="btn-novo-orcamento" class="btn btn-primary btn-sm w-full sm:w-auto shrink-0">
+        <div class="orc-hero__header-bar flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <p class="orc-hero__periodo min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento — {{ periodo_orcamento_rotulo }}</p>
+          <div class="orc-hero__ctas flex w-full shrink-0 flex-row items-center gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+            <div class="orc-hero__filtros-wrap shrink-0">
+              {% include 'relatorios/partials/filtros_hero_botao.html' %}
+            </div>
+            <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm min-w-0 w-full flex-1 sm:w-auto sm:flex-none shrink-0">
               <span class="text-base leading-none" aria-hidden="true">+</span>
               <span>Novo orçamento</span>
             </button>
@@ -18,10 +20,18 @@
         </div>
         <div class="min-w-0">
         {% if painel_mes.percentual is not None %}
-        <p class="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+        {# Mobile: headline compacta do desktop #}
+        <p class="orc-hero-headline sm:hidden text-xl font-semibold leading-snug tracking-tight text-gray-900">
           Você consumiu <span class="tabular-nums {% if painel_mes.status == 'excedido' %}text-rose-700{% elif painel_mes.status == 'risco' %}text-amber-700{% else %}text-emerald-700{% endif %}">{{ painel_mes.percentual|floatformat:0 }}%</span> do orçamento {% if periodo_orcamento_multi_mes %}no período{% else %}mensal{% endif %}
         </p>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="orc-hero-subtitle mt-1.5 text-sm leading-relaxed text-gray-500 sm:hidden">
+          {% if painel_mes.status == 'excedido' %}Gastos acima do total planejado neste mês.{% elif painel_mes.status == 'risco' %}Atenção: você está próximo do limite global.{% else %}Situação saudável no conjunto das categorias vigentes.{% endif %}
+        </p>
+        {# Desktop: headline original #}
+        <p class="hidden sm:block text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+          Você consumiu <span class="tabular-nums {% if painel_mes.status == 'excedido' %}text-rose-700{% elif painel_mes.status == 'risco' %}text-amber-700{% else %}text-emerald-700{% endif %}">{{ painel_mes.percentual|floatformat:0 }}%</span> do orçamento {% if periodo_orcamento_multi_mes %}no período{% else %}mensal{% endif %}
+        </p>
+        <p class="mt-1 hidden text-sm text-gray-500 sm:block">
           {% if painel_mes.status == 'excedido' %}Gastos acima do total planejado neste mês.{% elif painel_mes.status == 'risco' %}Atenção: você está próximo do limite global.{% else %}Situação saudável no conjunto das categorias vigentes.{% endif %}
         </p>
         {% else %}
@@ -30,7 +40,7 @@
         {% endif %}
 
         {% if painel_mes.percentual is not None %}
-        <div class="mt-5 h-3 overflow-hidden rounded-full bg-gray-100" role="progressbar"
+        <div class="orc-hero__progress mt-5 h-3 overflow-hidden rounded-full bg-gray-100 sm:mt-5" role="progressbar"
              aria-valuenow="{{ painel_mes.percentual_exibicao|floatformat:0 }}"
              aria-valuemin="0" aria-valuemax="100"
              aria-label="Consumo do orçamento mensal">
@@ -45,16 +55,16 @@
         </div>
       </div>
 
-      <dl class="grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 sm:gap-6 sm:pt-6">
-        <div>
+      <dl class="orc-hero__metrics grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 sm:gap-6 sm:pt-6">
+        <div class="orc-hero__metrics--orcado">
           <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçado</dt>
           <dd class="mt-1 text-xl font-semibold tabular-nums text-gray-900">{{ painel_mes.planejado|moeda }}</dd>
         </div>
-        <div class="sm:border-x sm:border-gray-100 sm:px-4">
+        <div class="orc-hero__metrics--gasto sm:border-x sm:border-gray-100 sm:px-4">
           <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Gasto</dt>
           <dd class="mt-1 text-xl font-semibold tabular-nums text-gray-800">{{ painel_mes.realizado|moeda }}</dd>
         </div>
-        <div>
+        <div class="orc-hero__metrics--disponivel">
           <dt class="text-xs font-semibold uppercase tracking-wider text-gray-500">Disponível</dt>
           {% if painel_mes.disponivel < 0 %}
           <dd class="mt-1 text-xl font-semibold tabular-nums text-rose-700">{{ painel_mes.disponivel|moeda }}</dd>
@@ -67,40 +77,40 @@
     </div>
   </article>
 
-  <div class="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
-    <div class="card min-w-0 p-4 sm:p-5">
-      <div class="flex items-center gap-3">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700" aria-hidden="true">
+  <div class="orc-status-grid grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
+    <div class="orc-status-card card min-w-0 p-4 sm:p-5">
+      <div class="orc-status-card__inner flex items-center gap-3 sm:flex-row">
+        <span class="orc-status-card__icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700" aria-hidden="true">
           <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
         </span>
         <div class="min-w-0">
-          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Saudáveis</p>
-          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.ok }}</p>
-          <p class="text-xs text-gray-500">categorias</p>
+          <p class="orc-status-card__label text-xs font-semibold uppercase tracking-wider text-gray-500">Saudáveis</p>
+          <p class="orc-status-card__value text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.ok }}</p>
+          <p class="orc-status-card__hint text-xs text-gray-500">categorias</p>
         </div>
       </div>
     </div>
-    <div class="card min-w-0 p-4 sm:p-5">
-      <div class="flex items-center gap-3">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800" aria-hidden="true">
+    <div class="orc-status-card card min-w-0 p-4 sm:p-5">
+      <div class="orc-status-card__inner flex items-center gap-3 sm:flex-row">
+        <span class="orc-status-card__icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800" aria-hidden="true">
           <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
         </span>
         <div class="min-w-0">
-          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Em atenção</p>
-          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.risco }}</p>
-          <p class="text-xs text-gray-500">categorias</p>
+          <p class="orc-status-card__label text-xs font-semibold uppercase tracking-wider text-gray-500">Em atenção</p>
+          <p class="orc-status-card__value text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.risco }}</p>
+          <p class="orc-status-card__hint text-xs text-gray-500">categorias</p>
         </div>
       </div>
     </div>
-    <div class="card min-w-0 p-4 sm:p-5">
-      <div class="flex items-center gap-3">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-800" aria-hidden="true">
+    <div class="orc-status-card card min-w-0 p-4 sm:p-5">
+      <div class="orc-status-card__inner flex items-center gap-3 sm:flex-row">
+        <span class="orc-status-card__icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-800" aria-hidden="true">
           <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
         </span>
         <div class="min-w-0">
-          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Estouradas</p>
-          <p class="text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.excedido }}</p>
-          <p class="text-xs text-gray-500">categorias</p>
+          <p class="orc-status-card__label text-xs font-semibold uppercase tracking-wider text-gray-500">Estouradas</p>
+          <p class="orc-status-card__value text-2xl font-semibold tabular-nums text-gray-900">{{ painel_mes.contagem_saude.excedido }}</p>
+          <p class="orc-status-card__hint text-xs text-gray-500">categorias</p>
         </div>
       </div>
     </div>
@@ -112,9 +122,11 @@
         <p class="font-medium text-gray-800">Nenhum limite vigente em {{ periodo_orcamento_rotulo }}</p>
         <p class="mt-1 text-sm text-gray-500">Ajuste a vigência dos orçamentos ou cadastre limites para este mês.</p>
       </div>
-      <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-        {% include 'relatorios/partials/filtros_hero_botao.html' %}
-        <button type="button" id="btn-novo-orcamento" class="btn btn-primary btn-sm w-full sm:w-auto shrink-0">
+      <div class="orc-hero__ctas flex w-full shrink-0 flex-row items-center gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+        <div class="orc-hero__filtros-wrap shrink-0">
+          {% include 'relatorios/partials/filtros_hero_botao.html' %}
+        </div>
+        <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm min-w-0 flex-1 sm:w-auto sm:flex-none shrink-0">
           <span class="text-base leading-none" aria-hidden="true">+</span>
           <span>Novo orçamento</span>
         </button>
