@@ -1750,6 +1750,14 @@ select.\!input,
   order: 2;
 }
 
+.order-3 {
+  order: 3;
+}
+
+.order-4 {
+  order: 4;
+}
+
 .m-0 {
   margin: 0px;
 }
@@ -4707,6 +4715,10 @@ select.\!input,
 
   .sm\:order-3 {
     order: 3;
+  }
+
+  .sm\:order-none {
+    order: 0;
   }
 
   .sm\:-mx-5 {

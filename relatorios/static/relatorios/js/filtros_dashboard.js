@@ -177,15 +177,35 @@
   const fadeL = track.querySelector('.relatorios-tabs__fade--left');
   const fadeR = track.querySelector('.relatorios-tabs__fade--right');
 
+  const MOBILE_TABS_MQ = '(max-width: 1023px)';
+
+  const scrollActiveTab = () => {
+    if (!window.matchMedia(MOBILE_TABS_MQ).matches) return;
+    const active = scroll.querySelector('.relatorios-tab.is-active');
+    if (!active) return;
+
+    const target =
+      active.offsetLeft - scroll.clientWidth / 2 + active.offsetWidth / 2;
+    scroll.scrollLeft = Math.max(
+      0,
+      Math.min(target, scroll.scrollWidth - scroll.clientWidth)
+    );
+  };
+
   const updateFades = () => {
-    if (!window.matchMedia('(max-width: 1023px)').matches) return;
+    if (!window.matchMedia(MOBILE_TABS_MQ).matches) return;
     const max = scroll.scrollWidth - scroll.clientWidth;
     const x = scroll.scrollLeft;
     if (fadeL) fadeL.style.opacity = x > 4 ? '1' : '0';
     if (fadeR) fadeR.style.opacity = max - x > 4 ? '1' : '0';
   };
 
+  const syncTabsScroll = () => {
+    scrollActiveTab();
+    updateFades();
+  };
+
   scroll.addEventListener('scroll', updateFades, { passive: true });
-  window.addEventListener('resize', updateFades);
-  updateFades();
+  window.addEventListener('resize', syncTabsScroll);
+  requestAnimationFrame(syncTabsScroll);
 })();

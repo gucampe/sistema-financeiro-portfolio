@@ -83,17 +83,20 @@
 @media (max-width: 1023px) {
   .filtros-portal__panel {
     top: auto;
-    right: 0.75rem;
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
-    left: 0.75rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
     height: auto;
-    max-height: min(92dvh, 40rem);
-    border-radius: 1.25rem;
+    max-height: min(94dvh, calc(100dvh - env(safe-area-inset-top, 0px)));
+    border-radius: 1.5rem 1.5rem 0 0;
+    border-bottom-width: 0;
     border-left-width: 0;
+    border-right-width: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(calc(100% + 1rem));
+    transform: translateY(100%);
+    box-shadow: 0 -8px 32px rgb(15 23 42 / 0.12);
   }
 
   .filtros-portal[data-open="true"] .filtros-portal__panel {
@@ -477,48 +480,129 @@
 
 @media (max-width: 1023px) {
   .relatorios-tabs {
-    border-bottom: none;
+    position: sticky;
+    top: 3.75rem;
+    z-index: 25;
+    margin-bottom: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-bottom: 1px solid rgb(229 231 235 / 0.65);
+    background: rgb(244 245 247 / 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .relatorios-tabs__track {
+    position: relative;
+  }
+
+  .relatorios-tabs__scroll {
+    gap: 0.375rem;
+    padding: 0.4375rem 1rem;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    -webkit-overflow-scrolling: touch;
   }
 
   .relatorios-tab {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    min-height: 2.75rem;
     border-radius: 9999px;
-    padding: 0.5rem 0.875rem;
-    color: rgb(75 85 99);
-    background: rgb(243 244 246);
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+    background: rgb(255 255 255 / 0.55);
+    border: 1px solid rgb(229 231 235 / 0.8);
+    box-shadow: none;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.15s ease;
   }
 
   .relatorios-tab:hover {
-    color: var(--color-brand-600, #16a34a);
-    background: rgb(236 253 245);
+    color: rgb(55 65 81);
+    background: rgb(255 255 255 / 0.9);
+    border-color: rgb(209 213 219);
+  }
+
+  .relatorios-tab:active {
+    transform: scale(0.98);
   }
 
   .relatorios-tab.is-active {
     color: #fff;
-    background: linear-gradient(
-      135deg,
-      var(--color-brand-500, #22c55e),
-      var(--color-brand-600, #16a34a)
-    );
-    box-shadow: 0 2px 8px rgb(22 163 74 / 0.28);
+    font-weight: 600;
+    background: var(--color-brand-600, #16a34a);
+    border-color: transparent;
+    box-shadow: 0 1px 4px rgb(22 163 74 / 0.22);
+  }
+
+  .relatorios-tab.is-active:hover {
+    color: #fff;
+    background: var(--color-brand-700, #15803d);
+    border-color: transparent;
   }
 
   .relatorios-tabs__fade {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 1.75rem;
+    width: 2rem;
     pointer-events: none;
     z-index: 1;
+    transition: opacity 0.2s ease;
   }
 
   .relatorios-tabs__fade--left {
     left: 0;
-    background: linear-gradient(to right, rgb(255 255 255) 30%, transparent);
+    background: linear-gradient(to right, rgb(244 245 247 / 0.98) 35%, transparent);
   }
 
   .relatorios-tabs__fade--right {
     right: 0;
-    background: linear-gradient(to left, rgb(255 255 255) 30%, transparent);
+    background: linear-gradient(to left, rgb(244 245 247 / 0.98) 35%, transparent);
+  }
+}
+
+/* Visão Geral: padding horizontal menor no mobile estreito */
+@media (max-width: 639px) {
+  #dashboard-root .relatorios-tabs {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  #dashboard-root .relatorios-tabs__scroll {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    scroll-padding-inline: 0.75rem;
+  }
+}
+
+/* Tablet: compensa px-6 do container das páginas de relatório */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .relatorios-tabs {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+  }
+
+  .relatorios-tabs__scroll {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    scroll-padding-inline: 1.5rem;
+  }
+}
+
+/* Espaçamento superior padronizado nas páginas de relatório (mobile/tablet) */
+@media (max-width: 1023px) {
+  #dashboard-root,
+  #orcamentos-root,
+  [data-filtros-layout-anchor] {
+    padding-top: 0.25rem;
   }
 }
 
