@@ -193,6 +193,7 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
             ano_ref=ano_ref,
             mes_ref=mes_ref,
             incluir_inativos=False,
+            exibir_inativos=True,
         )
         resumo = resumo_linhas_orcamento(linhas)
         painel_mes = painel_mes_orcamento(linhas, resumo)
@@ -230,7 +231,7 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
                 "drill_mes_qs": drill_qs,
                 "form_orcamento": OrcamentoCategoriaForm(
                     usuario=user,
-                    initial={"inicio_ano": ano_ref, "inicio_mes": mes_ref, "ativo": True},
+                    initial={"ativo": True},
                 ),
             }
         )
@@ -270,6 +271,7 @@ def salvar_orcamento(request):
         ano_ref=ano_ref,
         mes_ref=mes_ref,
         incluir_inativos=False,
+        exibir_inativos=True,
     )
     linha = next((l for l in linhas if l.orcamento_id == obj.pk), None)
     payload = linha.as_dict() if linha else {"orcamento_id": obj.pk}
@@ -287,6 +289,15 @@ def toggle_orcamento_ativo(request, pk):
         msgs = exc.message_dict if hasattr(exc, "message_dict") else {"__all__": exc.messages}
         return JsonResponse({"status": "erro", "errors": msgs}, status=400)
     return JsonResponse({"status": "ok", "ativo": orcamento.ativo, "id": orcamento.pk})
+
+
+@login_required
+@require_POST
+def excluir_orcamento(request, pk):
+    orcamento = get_object_or_404(OrcamentoCategoria, pk=pk, usuario=request.user)
+    orcamento_id = orcamento.pk
+    orcamento.delete()
+    return JsonResponse({"status": "ok", "id": orcamento_id})
 
 
 class FluxoCaixaView(RelatorioFiltrosMixin, TemplateView):

@@ -65,16 +65,12 @@ class GlobEcossistemaUnitTests(TestCase):
             usuario=self.user,
             categoria=self.cat_desp,
             valor_planejado=Decimal("500.00"),
-            inicio_ano=self.hoje.year,
-            inicio_mes=self.hoje.month,
             ativo=True,
         )
         OrcamentoCategoria.objects.create(
             usuario=self.user,
             categoria=self.cat_alt,
             valor_planejado=Decimal("300.00"),
-            inicio_ano=self.hoje.year,
-            inicio_mes=self.hoje.month,
             ativo=True,
         )
 

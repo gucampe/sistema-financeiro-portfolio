@@ -1,11 +1,13 @@
-"""ORC-REC/VIG/MUL/GRP/PCT/LIM/FAT — orçamentos avançados."""
+"""Testes avançados de orçamentos (recorrência, vigência implícita, multimes, progresso)."""
 
-from datetime import date
+from __future__ import annotations
+
+from datetime import date, datetime
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 
 from categorias.models import Categoria
 from contas.models import Conta
@@ -18,8 +20,8 @@ from relatorios.services.orcamentos import (
     listar_orcamentos_mes,
     montar_linha_orcamento,
     painel_mes_orcamento,
-    planejado_mes,
     periodo_orcamento_multi_mes,
+    planejado_mes,
     referencia_mes_orcamento,
     resumo_linhas_orcamento,
     rotulo_periodo_orcamento,
@@ -35,19 +37,36 @@ from transacoes.models import Transacao
 User = get_user_model()
 
 
+def _criar_orcamento_com_data(
+    *,
+    usuario,
+    categoria,
+    valor_planejado: Decimal,
+    criado_em: datetime,
+    ativo: bool = True,
+) -> OrcamentoCategoria:
+    o = OrcamentoCategoria.objects.create(
+        usuario=usuario,
+        categoria=categoria,
+        valor_planejado=valor_planejado,
+        ativo=ativo,
+    )
+    OrcamentoCategoria.objects.filter(pk=o.pk).update(criado_em=criado_em)
+    o.refresh_from_db()
+    return o
+
+
 class OrcRecorrenciaTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(email="orc-rec@t.com", nome="R", password="x")
         self.cat = Categoria.objects.create(
             usuario=self.user, nome="Rec Cat", tipo="despesa", ativa=True
         )
-        OrcamentoCategoria.objects.create(
+        _criar_orcamento_com_data(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("500"),
-            inicio_ano=2026,
-            inicio_mes=1,
-            ativo=True,
+            criado_em=timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0)),
         )
 
     def test_orc_rec_01_planejado_mes_recorrente(self):
@@ -62,6 +81,17 @@ class OrcRecorrenciaTests(TestCase):
         o.save()
         pm = planejado_mes(self.user, 2026, 2)
         self.assertNotIn(self.cat.id, pm)
+
+    def test_orc_rec_04_inativo_visivel_na_lista_sem_planejado(self):
+        o = OrcamentoCategoria.objects.get(usuario=self.user, categoria=self.cat)
+        o.ativo = False
+        o.save()
+        linhas = listar_orcamentos_mes(self.user, 2026, 2, exibir_inativos=True)
+        linha = next(l for l in linhas if l.categoria_id == self.cat.id)
+        self.assertFalse(linha.ativo)
+        self.assertEqual(linha.planejado, Decimal("0"))
+        resumo = resumo_linhas_orcamento(linhas)
+        self.assertEqual(resumo["planejado"], Decimal("0"))
 
     def test_orc_rec_05_historico_tres_meses(self):
         conta = Conta.objects.create(usuario=self.user, nome="C", tipo="corrente")
@@ -89,43 +119,25 @@ class OrcVigenciaTests(TestCase):
             usuario=self.user, nome="Vig Cat", tipo="despesa", ativa=True
         )
 
-    def test_orc_vig_01_inicio_futuro(self):
-        OrcamentoCategoria.objects.create(
+    def test_orc_vig_01_criado_futuro_nao_listado_mes_anterior(self):
+        _criar_orcamento_com_data(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("300"),
-            inicio_ano=2026,
-            inicio_mes=6,
-            ativo=True,
+            criado_em=timezone.make_aware(datetime(2026, 6, 1, 12, 0, 0)),
         )
         linhas = listar_orcamentos_mes(self.user, 2026, 5)
         nomes = {l.nome for l in linhas}
         self.assertNotIn("Vig Cat", nomes)
 
-    def test_orc_vig_03_fim_aberto(self):
-        o = OrcamentoCategoria.objects.create(
+    def test_orc_vig_03_vigente_indefinidamente_apos_criacao(self):
+        o = _criar_orcamento_com_data(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("300"),
-            inicio_ano=2026,
-            inicio_mes=1,
-            ativo=True,
+            criado_em=timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0)),
         )
         self.assertTrue(o.vigente_em(2027, 12))
-
-    def test_orc_vig_04_fim_antes_inicio_rejeitado(self):
-        o = OrcamentoCategoria(
-            usuario=self.user,
-            categoria=self.cat,
-            valor_planejado=Decimal("100"),
-            inicio_ano=2026,
-            inicio_mes=6,
-            fim_ano=2026,
-            fim_mes=3,
-            ativo=True,
-        )
-        with self.assertRaises(ValidationError):
-            o.save()
 
     def test_orc_vig_06_referencia_ultimo_mes_intervalo(self):
         filtros = RelatorioFiltros(
@@ -143,13 +155,11 @@ class OrcMultimesTests(TestCase):
         self.cat = Categoria.objects.create(
             usuario=self.user, nome="Mul Cat", tipo="despesa", ativa=True
         )
-        OrcamentoCategoria.objects.create(
+        _criar_orcamento_com_data(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("100"),
-            inicio_ano=2026,
-            inicio_mes=1,
-            ativo=True,
+            criado_em=timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0)),
         )
 
     def test_orc_mul_02_gasto_um_mes_intervalo(self):

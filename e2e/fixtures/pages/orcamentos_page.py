@@ -93,8 +93,8 @@ class ModalOrcamentoPage(BasePage):
         )
 
     def preencher_vigencia(self, inicio_ano: int, inicio_mes: int) -> None:
-        self.page.fill("#id_inicio_ano", str(inicio_ano))
-        self.page.fill("#id_inicio_mes", str(inicio_mes))
+        """Vigência implícita pela data de criação — mantido por compatibilidade nos testes."""
+        return
 
     def salvar(self) -> None:
         with self.page.expect_navigation(timeout=45000, wait_until="load"):

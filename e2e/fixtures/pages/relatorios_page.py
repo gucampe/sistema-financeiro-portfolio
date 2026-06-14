@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from decimal import Decimal
 
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Locator, Page, expect
 
 from e2e.fixtures.pages.base_page import BasePage
 from e2e.helpers.moeda import parse_moeda_ptbr
@@ -17,7 +17,7 @@ class FiltrosPortalPage(BasePage):
     PANEL = "#filtros-portal-panel"
 
     def abrir(self) -> None:
-        self.page.locator(self.BTN_ABRIR).first.click()
+        self.click_first_visible(self.BTN_ABRIR)
         expect(self.page.locator(self.PORTAL)).to_have_attribute("data-open", "true")
 
     def fechar_escape(self) -> None:
@@ -75,7 +75,7 @@ class FiltrosPortalPage(BasePage):
             self.page.locator(f'{self.FORM} a.btn').filter(has_text="Limpar").click()
 
     def badge_ativos(self) -> int:
-        texto = self.page.locator(self.BTN_ABRIR).first.inner_text()
+        texto = self.first_visible(self.BTN_ABRIR).inner_text()
         m = re.search(r"Filtros\s*\((\d+)\)", texto)
         return int(m.group(1)) if m else 0
 
@@ -150,18 +150,33 @@ class RelatoriosHomePage(BasePage):
             path = f"{path}?{query.lstrip('?')}"
         self.goto(path)
 
+    def _hero_desktop(self) -> Locator:
+        return self.page.locator(f"{self.HERO} > article")
+
+    def _hero_mobile(self) -> Locator:
+        return self.page.locator(f"{self.HERO} .dash-mobile")
+
     def kpi_receitas(self) -> Decimal:
-        loc = self.page.locator(f"{self.HERO} .text-emerald-700 .dash-valor").first
+        if self._hero_desktop().is_visible():
+            loc = self._hero_desktop().locator("div.grid > div").nth(0).locator(".dash-valor")
+        else:
+            loc = self._hero_mobile().locator(".dash-mobile__summary-meta .text-emerald-600 .dash-valor")
         expect(loc).to_be_visible()
         return parse_moeda_ptbr(loc.inner_text())
 
     def kpi_despesas(self) -> Decimal:
-        loc = self.page.locator(f"{self.HERO} .text-rose-700 .dash-valor").first
+        if self._hero_desktop().is_visible():
+            loc = self._hero_desktop().locator("div.grid > div").nth(1).locator(".dash-valor")
+        else:
+            loc = self._hero_mobile().locator(".dash-mobile__summary-meta .text-rose-600 .dash-valor")
         expect(loc).to_be_visible()
         return parse_moeda_ptbr(loc.inner_text())
 
     def kpi_resultado(self) -> Decimal:
-        loc = self.page.locator(f"{self.HERO} .dash-valor").nth(2)
+        if self._hero_desktop().is_visible():
+            loc = self._hero_desktop().locator("div.grid > div").nth(2).locator(".dash-valor")
+        else:
+            loc = self._hero_mobile().locator(".dash-mobile__summary-value .dash-valor")
         expect(loc).to_be_visible()
         return parse_moeda_ptbr(loc.inner_text())
 
@@ -188,10 +203,10 @@ class RelatoriosHomePage(BasePage):
         return self.page.locator(self.ROOT).get_attribute("data-ocultar") == "1"
 
     def abrir_nova_receita(self) -> None:
-        self.page.locator('[data-abrir-transacao="receita"]').first.click()
+        self.click_first_visible('[data-abrir-transacao="receita"]')
 
     def abrir_nova_despesa(self) -> None:
-        self.page.locator('[data-abrir-transacao="despesa"]').first.click()
+        self.click_first_visible('[data-abrir-transacao="despesa"]')
 
     def ir_para_aba(self, nome: str) -> None:
         with self.page.expect_navigation(timeout=45000, wait_until="load"):

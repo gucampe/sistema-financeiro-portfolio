@@ -10,12 +10,9 @@ class OrcamentoCategoriaAdmin(admin.ModelAdmin):
         "categoria",
         "valor_planejado",
         "ativo",
-        "inicio_ano",
-        "inicio_mes",
-        "fim_ano",
-        "fim_mes",
+        "criado_em",
     )
-    list_filter = ("ativo", "inicio_ano", "inicio_mes")
+    list_filter = ("ativo",)
     search_fields = ("usuario__email", "categoria__nome")
     readonly_fields = ("criado_em", "atualizado_em")
 

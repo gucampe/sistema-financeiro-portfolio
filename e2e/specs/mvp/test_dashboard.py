@@ -22,4 +22,4 @@ def test_dash_01_kpis_refletem_mes(logged_in_page, app_base_url, persona_basic):
 
     assert receitas_ui == totais["receitas"]
     assert despesas_ui == totais["despesas"]
-    expect(page.locator(".dash-valor").first).to_be_visible()
+    expect(dash.first_visible(".dash-valor")).to_be_visible()

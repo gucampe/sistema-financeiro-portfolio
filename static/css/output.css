@@ -2033,6 +2033,10 @@ select.\!input,
   max-height: calc(100dvh - 2rem);
 }
 
+.max-h-\[min\(100dvh\2c 720px\)\] {
+  max-height: min(100dvh,720px);
+}
+
 .max-h-\[min\(90dvh\2c calc\(100dvh-2rem\)\2c calc\(100vh-2rem\)\)\] {
   max-height: min(90dvh,calc(100dvh - 2rem),calc(100vh - 2rem));
 }
@@ -2324,6 +2328,10 @@ select.\!input,
 
 .justify-around {
   justify-content: space-around;
+}
+
+.gap-0 {
+  gap: 0px;
 }
 
 .gap-0\.5 {
@@ -4755,6 +4763,14 @@ select.\!input,
 
   .sm\:mb-6 {
     margin-bottom: 1.5rem;
+  }
+
+  .sm\:mt-1 {
+    margin-top: 0.25rem;
+  }
+
+  .sm\:mt-5 {
+    margin-top: 1.25rem;
   }
 
   .sm\:block {

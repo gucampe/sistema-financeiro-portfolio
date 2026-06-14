@@ -633,3 +633,49 @@
     transform: none;
   }
 }
+
+/* Modal — rodapé e exclusão (mobile-first) */
+.orc-modal-footer__confirm {
+  margin-bottom: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(254 202 202);
+  background: rgb(254 242 242 / 0.85);
+  padding: 0.875rem 1rem;
+}
+
+#overlay-orcamento [data-combobox-root="orcamento-categoria"] [data-combobox-list]:not(.hidden) {
+  z-index: 80;
+}
+
+@media (max-width: 639px) {
+  .orc-modal-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .orc-modal-footer__acoes .btn {
+    min-height: 2.75rem;
+  }
+
+  #overlay-orcamento .modal-panel {
+    max-height: min(calc(100dvh - 1.5rem), 100%);
+    border-radius: 1rem;
+  }
+}
+
+.orc-modal-footer__acoes .btn-primary {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .orc-modal-footer__acoes--edicao {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .orc-modal-footer__acoes--edicao .btn-primary {
+    width: auto;
+    max-width: 14rem;
+    flex-shrink: 0;
+  }
+}

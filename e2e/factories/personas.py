@@ -156,8 +156,6 @@ def seed_persona_ecossistema(email: str = "ecossistema@e2e.granago.test") -> dic
         categoria=cat_desp,
         defaults={
             "valor_planejado": Decimal("500.00"),
-            "inicio_ano": hoje.year,
-            "inicio_mes": hoje.month,
             "ativo": True,
         },
     )
@@ -245,8 +243,6 @@ def seed_persona_cartao_b(email: str = "cartao-b@e2e.granago.test") -> dict:
         categoria=cat_orc,
         defaults={
             "valor_planejado": Decimal("500.00"),
-            "inicio_ano": _hoje().year,
-            "inicio_mes": _hoje().month,
             "ativo": True,
         },
     )
@@ -427,8 +423,6 @@ def seed_persona_relatorios(email: str = "relatorios@e2e.granago.test") -> dict:
         categoria=cat_desp,
         defaults={
             "valor_planejado": Decimal("300.00"),
-            "inicio_ano": hoje.year,
-            "inicio_mes": hoje.month,
             "ativo": True,
         },
     )
@@ -491,8 +485,6 @@ def seed_persona_orcamentos(email: str = "orcamentos@e2e.granago.test") -> dict:
         categoria=cat_moradia,
         defaults={
             "valor_planejado": Decimal("1000.00"),
-            "inicio_ano": hoje.year,
-            "inicio_mes": hoje.month,
             "ativo": True,
         },
     )
@@ -501,8 +493,6 @@ def seed_persona_orcamentos(email: str = "orcamentos@e2e.granago.test") -> dict:
         categoria=cat_transporte,
         defaults={
             "valor_planejado": Decimal("200.00"),
-            "inicio_ano": hoje.year,
-            "inicio_mes": hoje.month,
             "ativo": True,
         },
     )
@@ -511,20 +501,21 @@ def seed_persona_orcamentos(email: str = "orcamentos@e2e.granago.test") -> dict:
         categoria=cat_lazer,
         defaults={
             "valor_planejado": Decimal("150.00"),
-            "inicio_ano": hoje.year,
-            "inicio_mes": hoje.month,
             "ativo": True,
         },
     )
-    OrcamentoCategoria.objects.update_or_create(
+    orc_futuro, _ = OrcamentoCategoria.objects.update_or_create(
         usuario=user,
         categoria=cat_futuro,
         defaults={
             "valor_planejado": Decimal("500.00"),
-            "inicio_ano": prox_ano,
-            "inicio_mes": prox_mes,
             "ativo": True,
         },
+    )
+    from datetime import datetime
+
+    OrcamentoCategoria.objects.filter(pk=orc_futuro.pk).update(
+        criado_em=timezone.make_aware(datetime(prox_ano, prox_mes, 1, 12, 0, 0))
     )
 
     seed_key = "E2E orc seed"

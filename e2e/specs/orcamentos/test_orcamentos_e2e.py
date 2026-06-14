@@ -23,8 +23,6 @@ def test_orc_01_criar_orcamento_via_api(persona_basic):
         usuario=user,
         categoria=cat,
         valor_planejado=Decimal("300.00"),
-        inicio_ano=hoje.year,
-        inicio_mes=hoje.month,
         ativo=True,
     )
     linhas = listar_orcamentos_mes(user, hoje.year, hoje.month)

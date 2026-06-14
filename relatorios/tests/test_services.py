@@ -32,6 +32,24 @@ from transacoes.models import Transacao
 User = get_user_model()
 
 
+def _criar_orcamento_com_data(user, categoria, valor, *, ativo=True, criado_em=None):
+    from datetime import datetime
+
+    from django.utils import timezone
+
+    if criado_em is None:
+        criado_em = timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0))
+    o = OrcamentoCategoria.objects.create(
+        usuario=user,
+        categoria=categoria,
+        valor_planejado=valor,
+        ativo=ativo,
+    )
+    OrcamentoCategoria.objects.filter(pk=o.pk).update(criado_em=criado_em)
+    o.refresh_from_db()
+    return o
+
+
 class CoresGraficoCategoriasTests(TestCase):
     def test_cores_distintas_quando_todas_iguais(self):
         from relatorios.services.dashboard import cores_distintas_para_categorias
@@ -210,20 +228,24 @@ class OrcamentoCategoriaModelTests(TestCase):
         self.user = User.objects.create_user(email="orc@t.com", nome="O", password="x")
         self.cat = Categoria.objects.create(usuario=self.user, nome="Mercado", tipo="despesa", ativa=True)
 
-    def test_vigente_em_respeita_inicio_fim_e_ativo(self):
+    def test_vigente_em_respeita_criado_em_e_ativo(self):
+        from datetime import datetime
+
+        from django.utils import timezone
+
         o = OrcamentoCategoria.objects.create(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("500"),
-            inicio_ano=2026,
-            inicio_mes=3,
-            fim_ano=2026,
-            fim_mes=6,
             ativo=True,
         )
+        OrcamentoCategoria.objects.filter(pk=o.pk).update(
+            criado_em=timezone.make_aware(datetime(2026, 3, 15, 10, 0, 0))
+        )
+        o.refresh_from_db()
+        self.assertTrue(o.vigente_em(2026, 3))
         self.assertTrue(o.vigente_em(2026, 4))
         self.assertFalse(o.vigente_em(2026, 2))
-        self.assertFalse(o.vigente_em(2026, 7))
         o.ativo = False
         o.save()
         self.assertFalse(o.vigente_em(2026, 4))
@@ -231,25 +253,16 @@ class OrcamentoCategoriaModelTests(TestCase):
 
 class OrcamentosServicoTests(TestCase):
     def setUp(self):
+        from datetime import datetime
+
+        from django.utils import timezone
+
         self.user = User.objects.create_user(email="svc@t.com", nome="S", password="x")
         self.cat_a = Categoria.objects.create(usuario=self.user, nome="A", tipo="despesa", ativa=True)
         self.cat_b = Categoria.objects.create(usuario=self.user, nome="B", tipo="despesa", ativa=True)
-        OrcamentoCategoria.objects.create(
-            usuario=self.user,
-            categoria=self.cat_a,
-            valor_planejado=Decimal("100"),
-            inicio_ano=2026,
-            inicio_mes=1,
-            ativo=True,
-        )
-        OrcamentoCategoria.objects.create(
-            usuario=self.user,
-            categoria=self.cat_b,
-            valor_planejado=Decimal("200"),
-            inicio_ano=2026,
-            inicio_mes=1,
-            ativo=True,
-        )
+        criado = timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0))
+        for cat, valor in ((self.cat_a, Decimal("100")), (self.cat_b, Decimal("200"))):
+            _criar_orcamento_com_data(self.user, cat, valor, criado_em=criado)
 
     def test_disponivel_negativo(self):
         linha = montar_linha_orcamento(
@@ -380,11 +393,12 @@ class OrcamentosServicoTests(TestCase):
         self.assertEqual(linha.realizado, Decimal("120"))
 
     def test_listar_orcamentos_soma_planejado_em_periodo_multimes(self):
+        from datetime import datetime
+
+        from django.utils import timezone
+
         OrcamentoCategoria.objects.filter(usuario=self.user, categoria=self.cat_a).update(
-            inicio_ano=2026,
-            inicio_mes=1,
-            fim_ano=None,
-            fim_mes=None,
+            criado_em=timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0))
         )
         filtros = RelatorioFiltros(
             data_inicio=date(2026, 4, 1),
@@ -452,13 +466,10 @@ class OrcamentosServicoTests(TestCase):
             ativa=True,
         )
         OrcamentoCategoria.objects.filter(usuario=self.user).delete()
-        OrcamentoCategoria.objects.create(
-            usuario=self.user,
-            categoria=cat_padrao,
-            valor_planejado=Decimal("200"),
-            inicio_ano=2026,
-            inicio_mes=5,
-            ativo=True,
+        _criar_orcamento_com_data(
+            self.user,
+            cat_padrao,
+            Decimal("200"),
         )
         from contas.models import Conta
 
@@ -572,8 +583,6 @@ class OrcamentosViewsTests(TestCase):
             {
                 "categoria": self.cat.pk,
                 "valor_planejado": "350.00",
-                "inicio_ano": 2026,
-                "inicio_mes": 5,
                 "ativo": "on",
                 "ref_ano": 2026,
                 "ref_mes": 5,
@@ -588,8 +597,6 @@ class OrcamentosViewsTests(TestCase):
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("100"),
-            inicio_ano=2026,
-            inicio_mes=5,
             ativo=True,
         )
         url = reverse("relatorios:orcamentos_toggle_ativo", args=[o.pk])
@@ -597,6 +604,58 @@ class OrcamentosViewsTests(TestCase):
         self.assertEqual(res.status_code, 200)
         o.refresh_from_db()
         self.assertFalse(o.ativo)
+
+    def test_excluir_orcamento(self):
+        o = OrcamentoCategoria.objects.create(
+            usuario=self.user,
+            categoria=self.cat,
+            valor_planejado=Decimal("100"),
+            ativo=True,
+        )
+        url = reverse("relatorios:orcamentos_excluir", args=[o.pk])
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["status"], "ok")
+        self.assertFalse(OrcamentoCategoria.objects.filter(pk=o.pk).exists())
+
+    def test_editar_orcamento_json(self):
+        o = OrcamentoCategoria.objects.create(
+            usuario=self.user,
+            categoria=self.cat,
+            valor_planejado=Decimal("100"),
+            ativo=True,
+        )
+        cat2 = Categoria.objects.create(usuario=self.user, nome="Cat2", tipo="despesa", ativa=True)
+        res = self.client.post(
+            reverse("relatorios:orcamentos_salvar"),
+            {
+                "orcamento_id": o.pk,
+                "categoria": cat2.pk,
+                "valor_planejado": "250.00",
+                "ativo": "on",
+                "ref_ano": 2026,
+                "ref_mes": 5,
+            },
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["status"], "ok")
+        o.refresh_from_db()
+        self.assertEqual(o.categoria_id, cat2.pk)
+        self.assertEqual(o.valor_planejado, Decimal("250.00"))
+
+    def test_excluir_orcamento_idor(self):
+        outro = User.objects.create_user(email="outro@t.com", nome="O", password="x")
+        cat2 = Categoria.objects.create(usuario=outro, nome="Outra", tipo="despesa", ativa=True)
+        o = OrcamentoCategoria.objects.create(
+            usuario=outro,
+            categoria=cat2,
+            valor_planejado=Decimal("50"),
+            ativo=True,
+        )
+        url = reverse("relatorios:orcamentos_excluir", args=[o.pk])
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, 404)
+        self.assertTrue(OrcamentoCategoria.objects.filter(pk=o.pk).exists())
 
 
 class FluxoCaixaServicoTests(TestCase):

@@ -39,10 +39,7 @@ def test_orc_vig_e01_futuro_nao_listado_mes_atual(logged_in_orcamentos_page, app
 @pytest.mark.orcamentos_avancados
 @pytest.mark.django_db(transaction=True)
 def test_orc_vig_e02_criar_orcamento_modal(logged_in_orcamentos_page, app_base_url, persona_orcamentos):
-    from django.utils import timezone
-
     user = persona_orcamentos["user"]
-    hoje = timezone.localdate()
     cat = persona_orcamentos["cat_futuro"]
     OrcamentoCategoria.objects.filter(usuario=user, categoria=cat).delete()
 
@@ -53,7 +50,6 @@ def test_orc_vig_e02_criar_orcamento_modal(logged_in_orcamentos_page, app_base_u
     modal.wait_open()
     modal.selecionar_categoria(cat.id)
     modal.preencher_valor(Decimal("350.00"))
-    modal.preencher_vigencia(hoje.year, hoje.month)
     modal.salvar()
     verify_linha_categoria(user, "Orc Futuro", planejado=Decimal("350.00"))
 
@@ -74,6 +70,12 @@ def test_orc_vig_e03_pausar_orcamento(logged_in_orcamentos_page, app_base_url, p
     modal.pausar_orcamento(orc.id)
     orc.refresh_from_db()
     assert orc.ativo is False
-    assert linha_por_nome(user, "Orc Transporte") is None
+    linha = linha_por_nome(user, "Orc Transporte")
+    assert linha is not None
+    assert linha.ativo is False
+    assert linha.planejado == Decimal("0")
     pag.open()
-    expect(pag.card_categoria("Orc Transporte")).to_have_count(0)
+    card = pag.card_categoria("Orc Transporte")
+    expect(card).to_have_count(1)
+    expect(card).to_contain_text("Pausado")
+    expect(card.get_by_role("button", name="Reativar")).to_be_visible()

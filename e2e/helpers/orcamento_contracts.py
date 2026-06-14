@@ -36,7 +36,9 @@ def linhas_esperadas(user, params: dict | None = None) -> list:
     filtros = parse_relatorio_filtros(q, usuario=user)
     fo = _filtros_orcamento_despesas(filtros)
     ano, mes = referencia_mes_orcamento(filtros)
-    return listar_orcamentos(user, fo, ano_ref=ano, mes_ref=mes)
+    return listar_orcamentos(
+        user, fo, ano_ref=ano, mes_ref=mes, exibir_inativos=True
+    )
 
 
 def linha_por_nome(user, nome: str, params: dict | None = None):

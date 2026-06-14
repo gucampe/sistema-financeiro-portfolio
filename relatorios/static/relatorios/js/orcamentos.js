@@ -6,8 +6,39 @@
   const form = document.getElementById("form-orcamento");
   const erroBox = document.getElementById("erro-orcamento");
   const modalTitulo = document.getElementById("modal-orcamento-titulo");
+  const modalSubtitulo = document.getElementById("modal-orcamento-subtitulo");
+  const btnExcluir = document.getElementById("btn-excluir-orcamento");
+  const btnSalvar = document.getElementById("btn-salvar-orcamento");
+  const painelConfirmExcluir = document.getElementById("orcamento-excluir-confirm");
+  const painelAcoes = document.getElementById("orcamento-modal-acoes");
+  const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao-orcamento");
+  const btnConfirmarExclusao = document.getElementById("btn-confirmar-exclusao-orcamento");
   const salvarUrl = root.dataset.salvarUrl;
   const toggleTemplate = root.dataset.toggleUrlTemplate || "";
+  const excluirTemplate = root.dataset.excluirUrlTemplate || "";
+  const selectCategoria = document.getElementById("id_categoria");
+  const rootCategoria = selectCategoria?.closest("[data-combobox-root]");
+  let categoriaCombobox = null;
+
+  function ensureCategoriaCombobox() {
+    if (!categoriaCombobox && selectCategoria && window.initIconCombobox) {
+      categoriaCombobox = window.initIconCombobox(selectCategoria, "category");
+    }
+    return categoriaCombobox;
+  }
+
+  function fecharComboboxCategoria() {
+    categoriaCombobox?.close();
+  }
+
+  function syncComboboxCategoria() {
+    ensureCategoriaCombobox()?.sync();
+  }
+
+  function initOrcamentoCombobox() {
+    ensureCategoriaCombobox();
+    syncComboboxCategoria();
+  }
 
   function getCsrfToken() {
     return document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
@@ -57,6 +88,39 @@
     erroBox.textContent = "";
   }
 
+  function hideConfirmExcluir() {
+    if (!painelConfirmExcluir) return;
+    painelConfirmExcluir.classList.add("hidden");
+    painelConfirmExcluir.hidden = true;
+    painelAcoes?.classList.remove("hidden");
+  }
+
+  function showConfirmExcluir() {
+    if (!painelConfirmExcluir) return;
+    hideErro();
+    painelConfirmExcluir.classList.remove("hidden");
+    painelConfirmExcluir.hidden = false;
+    painelAcoes?.classList.add("hidden");
+    btnCancelarExclusao?.focus();
+  }
+
+  function setModoEdicao(ativo) {
+    if (btnExcluir) {
+      btnExcluir.classList.toggle("hidden", !ativo);
+      btnExcluir.setAttribute("aria-hidden", ativo ? "false" : "true");
+      btnExcluir.tabIndex = ativo ? 0 : -1;
+    }
+    painelAcoes?.classList.toggle("orc-modal-footer__acoes--edicao", ativo);
+    if (modalSubtitulo) {
+      modalSubtitulo.textContent = ativo
+        ? "Altere categoria, limite ou status. Você também pode excluir o orçamento."
+        : "Defina limite mensal por categoria de despesa.";
+    }
+    if (btnSalvar) {
+      btnSalvar.textContent = ativo ? "Salvar alterações" : "Salvar orçamento";
+    }
+  }
+
   function resetForm() {
     if (!form) return;
     form.reset();
@@ -64,30 +128,36 @@
     document.getElementById("ref_ano").value = root.dataset.ano || "";
     document.getElementById("ref_mes").value = root.dataset.mes || "";
     const cat = document.getElementById("id_categoria");
-    if (cat) cat.disabled = false;
+    if (cat) cat.value = "";
     const ativo = document.getElementById("id_ativo");
     if (ativo) ativo.checked = true;
     if (modalTitulo) modalTitulo.textContent = "Novo orçamento";
+    hideConfirmExcluir();
+    setModoEdicao(false);
+    fecharComboboxCategoria();
+    syncComboboxCategoria();
     initMoeda();
   }
 
   function openNovo(categoriaId, trigger) {
     resetForm();
     hideErro();
+    initOrcamentoCombobox();
     if (categoriaId) {
       const cat = document.getElementById("id_categoria");
       if (cat) cat.value = String(categoriaId);
     }
+    syncComboboxCategoria();
     openModal(trigger);
   }
 
   function openEditar(btn) {
     resetForm();
     hideErro();
+    initOrcamentoCombobox();
     const o = btn.dataset;
     document.getElementById("orcamento_id").value = o.orcamentoId || "";
     document.getElementById("id_categoria").value = o.categoriaId || "";
-    document.getElementById("id_categoria").disabled = true;
     const valorField = document.getElementById("id_valor_planejado");
     if (valorField && o.valor) {
       if (window.MoedaInput) {
@@ -96,24 +166,77 @@
         valorField.value = o.valor;
       }
     }
-    document.getElementById("id_inicio_mes").value = o.inicioMes || "";
-    document.getElementById("id_inicio_ano").value = o.inicioAno || "";
-    document.getElementById("id_fim_mes").value = o.fimMes || "";
-    document.getElementById("id_fim_ano").value = o.fimAno || "";
     document.getElementById("id_ativo").checked = o.ativo === "1";
+    syncComboboxCategoria();
     if (modalTitulo) modalTitulo.textContent = "Editar orçamento";
+    setModoEdicao(true);
     initMoeda();
     openModal(btn);
   }
 
   function fecharModalCleanup() {
     hideErro();
-    const cat = document.getElementById("id_categoria");
-    if (cat) cat.disabled = false;
+    hideConfirmExcluir();
+    fecharComboboxCategoria();
+  }
+
+  function buildOrcamentoFormData() {
+    form.querySelectorAll("[data-moeda-input]").forEach((el) => {
+      window.MoedaInput?.applySubmitValue(el);
+    });
+    const data = new FormData(form);
+    data.set("csrfmiddlewaretoken", getCsrfToken());
+    const ativo = document.getElementById("id_ativo");
+    if (ativo && !ativo.checked) {
+      data.delete("ativo");
+    }
+    return data;
+  }
+
+  async function excluirOrcamento() {
+    const id = document.getElementById("orcamento_id")?.value;
+    if (!id || !excluirTemplate) return;
+    hideErro();
+    btnConfirmarExclusao?.setAttribute("disabled", "disabled");
+    btnCancelarExclusao?.setAttribute("disabled", "disabled");
+    const url = excluirTemplate.replace("/0/", `/${id}/`);
+    const data = new FormData();
+    data.set("csrfmiddlewaretoken", getCsrfToken());
+    try {
+      const res = await fetch(url, { method: "POST", body: data, credentials: "same-origin" });
+      const json = await res.json();
+      if (!res.ok || json.status !== "ok") {
+        const errs = json.errors || {};
+        const msg = Object.values(errs).flat().join(" ") || "Não foi possível excluir.";
+        hideConfirmExcluir();
+        showErro(msg);
+        return;
+      }
+      closeModal();
+      window.location.reload();
+    } catch {
+      hideConfirmExcluir();
+      showErro("Erro de conexão. Tente novamente.");
+    } finally {
+      btnConfirmarExclusao?.removeAttribute("disabled");
+      btnCancelarExclusao?.removeAttribute("disabled");
+    }
   }
 
   if (overlay && globalThis.GranaGoModal) {
     globalThis.GranaGoModal.bind(overlay, { onClose: fecharModalCleanup });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!overlay || !globalThis.GranaGoModal?.isVisible(overlay)) return;
+    if (rootCategoria?.contains(e.target)) return;
+    fecharComboboxCategoria();
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initOrcamentoCombobox);
+  } else {
+    initOrcamentoCombobox();
   }
 
   document.getElementById("btn-novo-orcamento")?.addEventListener("click", (e) => {
@@ -134,11 +257,14 @@
     btn.addEventListener("click", () => openEditar(btn));
   });
 
+  btnExcluir?.addEventListener("click", () => showConfirmExcluir());
+  btnCancelarExclusao?.addEventListener("click", () => hideConfirmExcluir());
+  btnConfirmarExclusao?.addEventListener("click", () => excluirOrcamento());
+
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideErro();
-    const data = new FormData(form);
-    data.set("csrfmiddlewaretoken", getCsrfToken());
+    const data = buildOrcamentoFormData();
     try {
       const res = await fetch(salvarUrl, { method: "POST", body: data, credentials: "same-origin" });
       const json = await res.json();

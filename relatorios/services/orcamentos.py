@@ -238,23 +238,29 @@ def listar_orcamentos(
     ano_ref: int,
     mes_ref: int,
     incluir_inativos: bool = False,
+    exibir_inativos: bool = False,
     incluir_gasto_sem_orcamento: bool = False,
 ) -> list[LinhaOrcamento]:
-    """Lista orçamentos cadastrados; gastos no intervalo de filtros."""
+    """Lista orçamentos cadastrados; gastos no intervalo de filtros.
+
+    ``incluir_inativos``: inativos entram no planejado agregado.
+    ``exibir_inativos``: inativos aparecem na lista (planejado=0, badge Pausado).
+    """
     fo = _filtros_orcamento_despesas(filtros)
     real_map = realizado_por_categoria_filtros(usuario, fo)
     planejado_map = planejado_por_categoria_periodo(usuario, fo, incluir_inativos=incluir_inativos)
 
-    if incluir_inativos:
-        qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
-    else:
-        qs = OrcamentoCategoria.objects.filter(usuario=usuario, ativo=True).select_related("categoria")
+    qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
+    if not exibir_inativos:
+        qs = qs.filter(ativo=True)
 
     linhas: list[LinhaOrcamento] = []
     nomes_cadastrados: set[str] = set()
     for o in qs.order_by("categoria__nome"):
-        vigente_ref = o.vigente_em(ano_ref, mes_ref)
-        if not incluir_inativos and not vigente_ref:
+        if o.ativo:
+            if not o.vigente_em(ano_ref, mes_ref):
+                continue
+        elif not o.cadastrado_ate_mes(ano_ref, mes_ref):
             continue
         nomes_cadastrados.add(o.categoria.nome)
         planejado = planejado_map.get(o.categoria_id, Decimal("0"))
@@ -305,6 +311,7 @@ def listar_orcamentos_mes(
     mes: int,
     *,
     incluir_inativos: bool = False,
+    exibir_inativos: bool = False,
 ) -> list[LinhaOrcamento]:
     filtros = filtros_mes(ano, mes)
     return listar_orcamentos(
@@ -313,6 +320,7 @@ def listar_orcamentos_mes(
         ano_ref=ano,
         mes_ref=mes,
         incluir_inativos=incluir_inativos,
+        exibir_inativos=exibir_inativos,
     )
 
 

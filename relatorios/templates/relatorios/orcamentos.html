@@ -23,7 +23,8 @@
      data-filtro-inicio="{{ filtros.data_inicio|date:'Y-m-d' }}"
      data-filtro-fim="{{ filtros.data_fim|date:'Y-m-d' }}"
      data-salvar-url="{% url 'relatorios:orcamentos_salvar' %}"
-     data-toggle-url-template="{% url 'relatorios:orcamentos_toggle_ativo' 0 %}">
+     data-toggle-url-template="{% url 'relatorios:orcamentos_toggle_ativo' 0 %}"
+     data-excluir-url-template="{% url 'relatorios:orcamentos_excluir' 0 %}">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
   {% if not tem_orcamentos %}
@@ -155,7 +156,14 @@
                  style="width: {{ linha.percentual_exibicao|floatformat:0 }}%; max-width: 100%;"></div>
           </div>
           {% else %}
-          <p class="orc-cat-card__sem-limite mt-3 text-sm text-gray-500">Sem limite vigente em {{ periodo_orcamento_rotulo }}. Gasto no período: {{ linha.realizado|moeda }}</p>
+          <p class="orc-cat-card__sem-limite mt-3 text-sm text-gray-500">
+            {% if linha.orcamento_id and not linha.ativo and linha.orcamento_obj %}
+            Limite mensal pausado: {{ linha.orcamento_obj.valor_planejado|moeda }}.
+            {% else %}
+            Sem limite vigente em {{ periodo_orcamento_rotulo }}.
+            {% endif %}
+            Gasto no período: {{ linha.realizado|moeda }}
+          </p>
           {% endif %}
 
           {% if linha.historico %}
@@ -179,10 +187,6 @@
                   data-categoria-id="{{ linha.categoria_id }}"
                   {% if linha.orcamento_obj %}
                   data-valor="{{ linha.orcamento_obj.valor_planejado }}"
-                  data-inicio-ano="{{ linha.orcamento_obj.inicio_ano }}"
-                  data-inicio-mes="{{ linha.orcamento_obj.inicio_mes }}"
-                  data-fim-ano="{{ linha.orcamento_obj.fim_ano|default:'' }}"
-                  data-fim-mes="{{ linha.orcamento_obj.fim_mes|default:'' }}"
                   {% endif %}
                   data-ativo="{% if linha.ativo %}1{% else %}0{% endif %}">Editar</button>
           <button type="button" class="btn btn-secondary btn-sm js-toggle-orcamento"
@@ -211,5 +215,6 @@
 </div>
 
 {% include 'relatorios/partials/modal_orcamento.html' %}
-<script src="{% static 'relatorios/js/orcamentos.js' %}" defer></script>
+<script src="{% static 'js/icon_combobox.js' %}"></script>
+<script src="{% static 'relatorios/js/orcamentos.js' %}"></script>
 {% endblock %}

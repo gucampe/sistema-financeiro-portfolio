@@ -1,15 +1,15 @@
 <div id="overlay-orcamento" data-modal data-modal-fade="300" class="modal-overlay hidden"
      data-modal-labelledby="modal-orcamento-titulo">
-  <div data-modal-panel class="modal-panel mx-auto w-full max-w-lg">
+  <div data-modal-panel class="modal-panel mx-auto flex max-h-[min(100dvh,720px)] w-full max-w-lg flex-col">
     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5">
       <div class="min-w-0 pr-2">
         <h2 id="modal-orcamento-titulo" class="text-xl font-semibold leading-tight text-fg sm:text-2xl">Novo orçamento</h2>
-        <p class="text-sm text-fg-muted">Defina limite mensal e vigência por categoria de despesa.</p>
+        <p id="modal-orcamento-subtitulo" class="text-sm text-fg-muted">Defina limite mensal por categoria de despesa.</p>
       </div>
       <button type="button" data-modal-close class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 text-fg transition hover:bg-gray-200" aria-label="Fechar modal">✕</button>
     </div>
 
-    <div id="erro-orcamento" class="hidden shrink-0 mx-5 mt-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger sm:mx-6"></div>
+    <div id="erro-orcamento" class="hidden shrink-0 mx-5 mt-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger sm:mx-6" role="alert"></div>
 
     <form id="form-orcamento" method="POST" action="{% url 'relatorios:orcamentos_salvar' %}" class="flex min-h-0 flex-1 flex-col overflow-hidden">
       {% csrf_token %}
@@ -17,34 +17,36 @@
       <input type="hidden" name="ref_ano" id="ref_ano" value="{{ ano }}">
       <input type="hidden" name="ref_mes" id="ref_mes" value="{{ mes }}">
 
-      <div class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">
-        <div>
+      <div class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 orc-modal-body">
+        <div class="min-w-0" data-combobox-root="orcamento-categoria">
           <label for="id_categoria" class="mb-1 block text-sm font-medium text-fg">Categoria</label>
-          {{ form_orcamento.categoria }}
+          <div class="relative mt-1 min-w-0">
+            <select name="categoria" id="id_categoria" required class="sr-only focus:outline-none" tabindex="-1" aria-hidden="true">
+              <option value="">Selecione uma categoria</option>
+              {% for cat in form_orcamento.categoria.field.queryset %}
+              <option value="{{ cat.pk }}" data-icone="{{ cat.icone|default:'fa-tag' }}" data-cor="{{ cat.cor|default:'#4F46E5' }}">{{ cat.nome }}</option>
+              {% endfor %}
+            </select>
+            <button type="button"
+                    data-combobox-trigger
+                    class="relative flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="cb-list-orcamento-categoria">
+              <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+              <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione uma categoria</span>
+              <span data-combobox-chevron aria-hidden="true"></span>
+            </button>
+            <div id="cb-list-orcamento-categoria"
+                 data-combobox-list
+                 role="listbox"
+                 class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                 hidden></div>
+          </div>
         </div>
         <div>
           <label for="id_valor_planejado" class="mb-1 block text-sm font-medium text-fg">Valor mensal</label>
           {{ form_orcamento.valor_planejado }}
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label for="id_inicio_mes" class="mb-1 block text-sm font-medium text-fg">Início (mês)</label>
-            {{ form_orcamento.inicio_mes }}
-          </div>
-          <div>
-            <label for="id_inicio_ano" class="mb-1 block text-sm font-medium text-fg">Início (ano)</label>
-            {{ form_orcamento.inicio_ano }}
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label for="id_fim_mes" class="mb-1 block text-sm font-medium text-fg">Fim (mês) <span class="text-fg-muted font-normal">opcional</span></label>
-            {{ form_orcamento.fim_mes }}
-          </div>
-          <div>
-            <label for="id_fim_ano" class="mb-1 block text-sm font-medium text-fg">Fim (ano)</label>
-            {{ form_orcamento.fim_ano }}
-          </div>
         </div>
         <div class="flex items-center gap-2">
           {{ form_orcamento.ativo }}
@@ -52,8 +54,24 @@
         </div>
       </div>
 
-      <div class="shrink-0 border-t border-gray-100 px-5 py-4 sm:px-6">
-        <button type="submit" class="btn btn-primary btn-block">Salvar orçamento</button>
+      <div class="orc-modal-footer shrink-0 border-t border-gray-100 px-5 py-4 sm:px-6">
+        <div id="orcamento-excluir-confirm" class="orc-modal-footer__confirm hidden" hidden>
+          <p class="text-sm font-medium text-fg">Excluir este orçamento?</p>
+          <p class="mt-1 text-xs leading-relaxed text-fg-muted">O limite será removido permanentemente. Você poderá definir outro depois para a mesma categoria.</p>
+          <div class="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button type="button" id="btn-cancelar-exclusao-orcamento" class="btn btn-secondary btn-sm w-full sm:w-auto">Cancelar</button>
+            <button type="button" id="btn-confirmar-exclusao-orcamento" class="btn btn-danger btn-sm w-full sm:w-auto">Excluir</button>
+          </div>
+        </div>
+
+        <div id="orcamento-modal-acoes" class="orc-modal-footer__acoes flex flex-col-reverse gap-2">
+          <button type="button" id="btn-excluir-orcamento" class="btn btn-danger-soft btn-sm hidden w-full sm:w-auto" aria-hidden="true" tabindex="-1">
+            Excluir orçamento
+          </button>
+          <button type="submit" id="btn-salvar-orcamento" class="btn btn-primary btn-block">
+            Salvar orçamento
+          </button>
+        </div>
       </div>
     </form>
   </div>

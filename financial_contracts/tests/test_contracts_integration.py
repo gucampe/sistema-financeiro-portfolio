@@ -227,15 +227,20 @@ class OrcamentoContractsTests(TestCase):
             cor="#000",
             icone="fa-tag",
         )
+        from datetime import datetime
+
+        from django.utils import timezone
+
         from relatorios.models import OrcamentoCategoria
 
-        OrcamentoCategoria.objects.create(
+        o = OrcamentoCategoria.objects.create(
             usuario=self.user,
             categoria=self.cat,
             valor_planejado=Decimal("500.00"),
-            inicio_ano=2026,
-            inicio_mes=5,
             ativo=True,
+        )
+        OrcamentoCategoria.objects.filter(pk=o.pk).update(
+            criado_em=timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0))
         )
 
     def test_con_orc_01_pagamento_fatura_excluido(self):

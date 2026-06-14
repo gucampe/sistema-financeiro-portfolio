@@ -1,7 +1,10 @@
+import calendar
+from datetime import date
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.utils import timezone
 
 from categorias.models import Categoria
 
@@ -21,10 +24,6 @@ class OrcamentoCategoria(models.Model):
     )
     valor_planejado = models.DecimalField(max_digits=12, decimal_places=2)
     ativo = models.BooleanField(default=True, db_index=True)
-    inicio_ano = models.PositiveIntegerField()
-    inicio_mes = models.PositiveSmallIntegerField()  # 1–12
-    fim_ano = models.PositiveIntegerField(null=True, blank=True)
-    fim_mes = models.PositiveSmallIntegerField(null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -39,26 +38,27 @@ class OrcamentoCategoria(models.Model):
         ]
         ordering = ["categoria__nome"]
 
+    def _data_criacao_local(self) -> date:
+        criado = self.criado_em
+        if criado is None:
+            return timezone.localdate()
+        if timezone.is_aware(criado):
+            return timezone.localtime(criado).date()
+        return criado.date()
+
     def vigente_em(self, ano: int, mes: int) -> bool:
+        """Ativo e criado até o último dia do mês de referência."""
         if not self.ativo:
             return False
-        ref = (ano, mes)
-        if ref < (self.inicio_ano, self.inicio_mes):
-            return False
-        if self.fim_ano is not None and self.fim_mes is not None:
-            if ref > (self.fim_ano, self.fim_mes):
-                return False
-        return True
+        return self.cadastrado_ate_mes(ano, mes)
+
+    def cadastrado_ate_mes(self, ano: int, mes: int) -> bool:
+        """Registro criado até o último dia do mês (independente de ativo)."""
+        ultimo_dia = date(ano, mes, calendar.monthrange(ano, mes)[1])
+        return self._data_criacao_local() <= ultimo_dia
 
     def clean(self):
         super().clean()
-        if self.inicio_mes < 1 or self.inicio_mes > 12:
-            raise ValidationError({"inicio_mes": "Mês de início inválido."})
-        if self.fim_mes is not None and (self.fim_mes < 1 or self.fim_mes > 12):
-            raise ValidationError({"fim_mes": "Mês de fim inválido."})
-        if self.fim_ano is not None and self.fim_mes is not None:
-            if (self.fim_ano, self.fim_mes) < (self.inicio_ano, self.inicio_mes):
-                raise ValidationError({"fim_ano": "A vigência final deve ser posterior ao início."})
         if self.valor_planejado is not None and self.valor_planejado <= 0:
             raise ValidationError({"valor_planejado": "O valor deve ser maior que zero."})
         if self.categoria.tipo != "despesa":
@@ -71,10 +71,7 @@ class OrcamentoCategoria(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        fim = ""
-        if self.fim_ano and self.fim_mes:
-            fim = f" até {self.fim_mes:02d}/{self.fim_ano}"
-        return f"{self.categoria.nome} {self.inicio_mes:02d}/{self.inicio_ano}{fim}: {self.valor_planejado}"
+        return f"{self.categoria.nome}: {self.valor_planejado}/mês"
 
 
 class ExportRelatorioJob(models.Model):

@@ -116,7 +116,7 @@ def test_e2e_dash_05_ocultar_valores_ciclo_completo(
         "data-ocultar", "1"
     )
     expect(
-        logged_in_relatorios_page.locator(f"{RelatoriosHomePage.HERO} .dash-valor").first
+        home.first_visible(f"{RelatoriosHomePage.HERO} .dash-valor")
     ).to_contain_text("•••")
 
 
