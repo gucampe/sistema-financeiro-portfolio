@@ -1,0 +1,29 @@
+# Blueprint Render — deploy automático via GitHub.
+# Documentação: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: sistema-financeiro
+    runtime: python
+    plan: free
+    region: oregon
+    branch: deploy-render-teste
+    buildCommand: pip install -r requirements.txt && npm ci && npx tailwindcss -i static/css/input.css -o static/css/output.css && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    startCommand: python create_superuser.py && gunicorn config.wsgi:application -c gunicorn.conf.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: WEB_CONCURRENCY
+        value: "2"
