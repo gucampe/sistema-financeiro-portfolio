@@ -27,13 +27,15 @@
      data-excluir-url-template="{% url 'relatorios:orcamentos_excluir' 0 %}">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
+  <div class="relatorios-conteudo">
   {% if not tem_orcamentos %}
-  <section class="card relative min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-10">
+  <section class="card rel-empty-state relative min-w-0">
     <div class="mb-4 flex justify-end sm:absolute sm:right-6 sm:top-6 sm:mb-0">
       {% include 'relatorios/partials/filtros_hero_botao.html' %}
     </div>
-    <h2 class="text-lg font-semibold tracking-tight text-gray-900">Orçamentos</h2>
-    <p class="mx-auto mt-2 max-w-lg text-sm text-gray-500">
+    <p class="rel-hero-eyebrow">Limites por categoria</p>
+    <h2 class="rel-hero-title">Orçamentos</h2>
+    <p class="rel-empty-state__desc mt-2">
       Planeje seus limites e acompanhe seus gastos por categoria.
     </p>
     <h3 class="mt-8 text-base font-semibold text-gray-900">Controle seus gastos criando limites por categoria</h3>
@@ -204,12 +206,13 @@
     {% endfor %}
   </ul>
   {% else %}
-  <section class="-mt-1 card min-w-0 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 p-6 text-center sm:p-8">
-    <p class="font-medium text-gray-800">Nenhuma categoria com orçamento neste mês</p>
-    <p class="mt-1 text-sm text-gray-500">Use outro período ou crie um novo limite com o botão acima.</p>
+  <section class="rel-empty-state card min-w-0 -mt-1">
+    <p class="rel-empty-state__titulo">Nenhuma categoria com orçamento neste mês</p>
+    <p class="rel-empty-state__desc">Use outro período ou crie um novo limite com o botão acima.</p>
   </section>
   {% endif %}
   {% endif %}
+  </div>
 
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>

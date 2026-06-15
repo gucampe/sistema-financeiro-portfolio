@@ -1,11 +1,11 @@
 {% load moeda %}
 
-<section data-filtros-vertical-anchor class="overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-indigo-50/25 p-5 shadow-sm sm:p-7" aria-label="Resumo patrimonial por conta">
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+<section data-filtros-vertical-anchor class="rel-hero-shell bg-gradient-to-br from-slate-50 via-white to-indigo-50/25 shadow-sm" aria-label="Resumo patrimonial por conta">
+  <div class="rel-hero-header">
     <div class="min-w-0 space-y-1">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Onde está seu dinheiro</p>
-      <h2 class="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Patrimônio por conta</h2>
-      <p class="text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+      <p class="rel-hero-eyebrow">Onde está seu dinheiro</p>
+      <h2 class="rel-hero-title">Patrimônio por conta</h2>
+      <p class="rel-hero-period">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
     <div class="flex w-full shrink-0 sm:w-auto sm:justify-end">
       {% include 'relatorios/partials/filtros_hero_botao.html' %}

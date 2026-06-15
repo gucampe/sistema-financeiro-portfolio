@@ -1,33 +1,41 @@
 {% load moeda %}
 
-<div data-filtros-vertical-anchor class="rounded-2xl border border-gray-200/80 bg-gradient-to-b from-white to-gray-50/50 px-4 py-4 sm:px-5 sm:py-5" aria-label="Resumo do período">
-  <div class="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-start sm:justify-between">
-    <div class="min-w-0">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resumo do período</p>
-      <p class="mt-0.5 text-sm text-gray-500">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+<div id="flx-resumo" data-filtros-vertical-anchor class="rel-hero-shell bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 shadow-sm" aria-label="Resumo do período">
+  <div class="rel-hero-header">
+    <div class="min-w-0 space-y-1">
+      <p class="rel-hero-eyebrow">Movimentação financeira</p>
+      <h2 class="rel-hero-title">Entradas x Saídas</h2>
+      <p class="rel-hero-period">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
     <div class="flex w-full shrink-0 sm:w-auto sm:justify-end">
       {% include 'relatorios/partials/filtros_hero_botao.html' %}
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-    <div class="min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
-      <p class="text-xs font-medium uppercase tracking-wide text-emerald-700/90">Entradas</p>
-      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-emerald-700 sm:text-2xl">{{ totais.receitas|moeda }}</p>
+  <div class="flx-resumo__grid mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+    <div class="flx-resumo__metric flx-resumo__metric--entradas min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
+      <p class="flx-resumo__label text-xs font-medium uppercase tracking-wide text-emerald-700/90">Entradas</p>
+      <p class="flx-resumo__valor mt-1 text-xl font-semibold tabular-nums tracking-tight text-emerald-700 sm:text-2xl">{{ totais.receitas|moeda }}</p>
     </div>
-    <div class="min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
-      <p class="text-xs font-medium uppercase tracking-wide text-rose-700/90">Saídas</p>
-      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-rose-700 sm:text-2xl">{{ totais.despesas|moeda }}</p>
+    <div class="flx-resumo__metric flx-resumo__metric--saidas min-w-0 border-b border-gray-100 pb-4 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-6">
+      <p class="flx-resumo__label text-xs font-medium uppercase tracking-wide text-rose-700/90">Saídas</p>
+      <p class="flx-resumo__valor mt-1 text-xl font-semibold tabular-nums tracking-tight text-rose-700 sm:text-2xl">{{ totais.despesas|moeda }}</p>
     </div>
-    <div class="min-w-0">
-      <p class="text-xs font-medium uppercase tracking-wide text-brand-600">Resultado líquido</p>
-      <p class="mt-1 text-xl font-semibold tabular-nums tracking-tight text-brand-700 sm:text-2xl">
+    <div class="flx-resumo__metric flx-resumo__metric--resultado min-w-0">
+      <p class="flx-resumo__label text-xs font-medium uppercase tracking-wide text-brand-600">Resultado líquido</p>
+      <p class="flx-resumo__valor mt-1 text-xl font-semibold tabular-nums tracking-tight text-brand-700 sm:text-2xl">
         {% if resultado_fluxo > 0 %}+{% endif %}{{ resultado_fluxo|moeda }}
       </p>
+      {% if resultado_fluxo > 0 %}
+      <p class="flx-resumo__contexto mt-1.5 text-xs leading-relaxed text-brand-600/75 sm:text-sm">Seu fluxo ficou positivo em {{ resultado_fluxo|moeda }} neste período.</p>
+      {% elif resultado_fluxo < 0 %}
+      <p class="flx-resumo__contexto mt-1.5 text-xs leading-relaxed text-gray-500 sm:text-sm">Você gastou mais do que recebeu neste período.</p>
+      {% else %}
+      <p class="flx-resumo__contexto mt-1.5 text-xs leading-relaxed text-gray-500 sm:text-sm">Receitas e despesas se equilibraram neste período.</p>
+      {% endif %}
     </div>
   </div>
-  <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-100 pt-4 text-xs text-gray-500 sm:text-sm">
+  <div class="flx-resumo__meta mt-4 flex flex-col items-start gap-1.5 border-t border-gray-100 pt-4 text-xs text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 sm:text-sm">
     <span>Saldo inicial <strong class="ml-1 font-semibold tabular-nums text-gray-700">{{ resumo_minimo.saldo_inicial|moeda }}</strong></span>
     <span class="hidden text-gray-300 sm:inline" aria-hidden="true">·</span>
     <span>Saldo final <strong class="ml-1 font-semibold tabular-nums text-gray-700">{{ resumo_minimo.saldo_final|moeda }}</strong></span>

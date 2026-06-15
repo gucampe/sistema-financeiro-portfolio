@@ -17,7 +17,7 @@
 <div data-filtros-layout-anchor class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
-  <div class="flex flex-col gap-8 sm:gap-10 lg:gap-12">
+  <div class="relatorios-conteudo">
     {% include 'relatorios/partials/despesas_categoria_hero.html' %}
 
     {% if analise_categorias.tem_dados %}
@@ -25,9 +25,9 @@
       {% include 'relatorios/partials/despesas_categoria_lista.html' %}
       {% include 'relatorios/partials/despesas_categoria_insights.html' %}
     {% else %}
-      <section class="rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-14 text-center sm:px-10">
-        <p class="text-lg font-semibold text-gray-900">Nenhuma despesa no período</p>
-        <p class="mx-auto mt-2 max-w-md text-sm text-gray-500">Ajuste os filtros ou registre transações de despesa para ver a análise por categoria.</p>
+      <section class="rel-empty-state">
+        <p class="rel-empty-state__titulo">Nenhuma despesa no período</p>
+        <p class="rel-empty-state__desc">Ajuste os filtros ou registre transações de despesa para ver a análise por categoria.</p>
       </section>
     {% endif %}
   </div>

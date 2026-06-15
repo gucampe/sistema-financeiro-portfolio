@@ -597,10 +597,18 @@
   }
 }
 
+/* ---------- Botões sm padronizados (referência: + Despesa, Visão Geral) ---------- */
+
+[data-filtros-layout-anchor] .btn.btn-sm,
+.filtros-portal .btn.btn-sm,
+#overlay-orcamento .btn.btn-sm {
+  min-height: 2.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
 /* Espaçamento superior padronizado nas páginas de relatório (mobile/tablet) */
 @media (max-width: 1023px) {
-  #dashboard-root,
-  #orcamentos-root,
   [data-filtros-layout-anchor] {
     padding-top: 0.25rem;
   }

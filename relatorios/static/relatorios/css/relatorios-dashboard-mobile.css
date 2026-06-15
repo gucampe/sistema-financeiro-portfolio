@@ -1,40 +1,14 @@
 /* Visão Geral — UX estrutural mobile (<640px). Desktop inalterado. */
 
 @media (max-width: 639px) {
-  #dashboard-root {
-    padding-bottom: 3.5rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  #dashboard-layout {
-    gap: 0.625rem;
-  }
-
   /* ---------- Header compacto (escala Tailwind: xs/sm/lg/xl/2xl) ---------- */
 
   .dash-mobile__header {
-    padding: 0 0.125rem;
-  }
-
-  .dash-mobile__greeting {
-    font-size: 0.875rem; /* text-sm */
-    line-height: 1.25;
-    color: rgb(75 85 99);
-  }
-
-  .dash-mobile__greeting strong {
-    font-size: 1.125rem; /* text-lg */
-    font-weight: 700;
-    color: rgb(17 24 39);
-    letter-spacing: -0.02em;
+    padding: 0;
   }
 
   .dash-mobile__period {
     margin-top: 0.125rem;
-    font-size: 0.875rem; /* text-sm */
-    line-height: 1.25;
-    color: rgb(107 114 128);
   }
 
   .dash-mobile__summary {
@@ -84,8 +58,6 @@
 
   .dash-mobile__action-primary {
     width: 100%;
-    min-height: 2.5rem;
-    font-weight: 600;
   }
 
   .dash-mobile__action-secondary {
@@ -101,14 +73,9 @@
 
   .dash-mobile__action-secondary .btn {
     width: 100%;
-    min-height: 2.25rem;
   }
 
   /* ---------- Masonry denso ---------- */
-
-  #dashboard-masonry {
-    gap: 0.5rem;
-  }
 
   #dashboard-masonry .dashboard-masonry-item.card {
     padding: 0.75rem;
@@ -119,14 +86,14 @@
     --tw-ring-offset-shadow: 0 0 #0000;
   }
 
-  #dashboard-masonry .dashboard-masonry-item h2 {
+  #dashboard-masonry .dashboard-masonry-item .rel-secao-titulo {
     font-size: 1.125rem; /* text-lg — igual contas/cartões/relatórios */
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.01em;
   }
 
-  #dashboard-masonry .dashboard-masonry-item .dash-section-subtitle {
+  #dashboard-masonry .dashboard-masonry-item .rel-secao-subtitulo {
     margin-top: 0.125rem;
     font-size: 0.875rem; /* text-sm */
     font-weight: 400;
@@ -243,7 +210,7 @@
 
   /* ---------- Empty states compactos ---------- */
 
-  .dash-empty-state {
+  .dash-empty-state.rel-empty-state {
     margin-top: 0.5rem;
     padding: 0.75rem 0.625rem;
     border: none;
@@ -252,13 +219,13 @@
     text-align: center;
   }
 
-  .dash-empty-state__title {
+  .dash-empty-state.rel-empty-state .rel-empty-state__titulo {
     font-size: 0.875rem; /* text-sm */
     font-weight: 600;
     color: rgb(31 41 55);
   }
 
-  .dash-empty-state__desc {
+  .dash-empty-state.rel-empty-state .rel-empty-state__desc {
     margin-top: 0.25rem;
     font-size: 0.875rem; /* text-sm */
     line-height: 1.4;
@@ -348,5 +315,24 @@
 
   .filtros-portal[data-open="true"] .filtros-portal__backdrop {
     background: rgb(15 23 42 / 0.55);
+  }
+
+  #dashboard-masonry {
+    gap: 0.5rem;
+  }
+
+  #dashboard-masonry .dash-mobile {
+    margin: 0;
+  }
+}
+
+/* Visão Geral — gap hero ↔ masonry alinhado ao gap interno dos cards (#dashboard-masonry gap-6) */
+#dashboard-layout.relatorios-conteudo {
+  gap: 0;
+}
+
+@media (min-width: 640px) {
+  #dashboard-layout.relatorios-conteudo {
+    gap: 1.5rem;
   }
 }

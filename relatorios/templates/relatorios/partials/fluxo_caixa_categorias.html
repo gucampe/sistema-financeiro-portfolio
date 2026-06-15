@@ -1,22 +1,31 @@
 {% load moeda %}
 
 {% if top_despesas or top_receitas %}
-<section class="rounded-xl border border-gray-100 bg-white/50 px-4 py-5 sm:px-5" aria-label="Categorias que mais impactaram o mês">
-  <h3 class="text-sm font-semibold text-gray-800">Categorias que mais impactaram o mês</h3>
-  <p class="mt-0.5 text-xs text-gray-500">De onde veio o resultado do período</p>
+<section id="flx-categorias" class="rel-secao-shell rounded-2xl border border-gray-100 bg-white/50 p-5 sm:p-7" aria-label="Categorias que mais impactaram o mês"{% if top_despesas and top_receitas %} data-flx-cat-active="saidas"{% endif %}>
+  <div class="rel-secao-cabecalho">
+    <h3 class="rel-secao-titulo">Categorias que mais impactaram o mês</h3>
+    <p class="rel-secao-subtitulo">De onde veio o resultado do período</p>
+  </div>
 
-  <div class="mt-4 grid gap-6 sm:grid-cols-2">
+  {% if top_despesas and top_receitas %}
+  <div class="flx-categorias__tabs mt-4 flex gap-2 sm:hidden" role="tablist" aria-label="Filtrar categorias">
+    <button type="button" role="tab" id="flx-cat-tab-saidas" class="flx-categorias__tab flx-categorias__tab--active flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition" aria-selected="true" aria-controls="flx-cat-panel-saidas" data-flx-cat-tab="saidas">Saídas</button>
+    <button type="button" role="tab" id="flx-cat-tab-entradas" class="flx-categorias__tab flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition" aria-selected="false" aria-controls="flx-cat-panel-entradas" data-flx-cat-tab="entradas">Entradas</button>
+  </div>
+  {% endif %}
+
+  <div class="flx-categorias__grupos mt-4 grid gap-6 sm:grid-cols-2">
     {% if top_despesas %}
-    <div>
-      <p class="text-xs font-medium uppercase tracking-wide text-rose-700/80">Principais saídas</p>
-      <ul class="mt-2.5 space-y-2.5">
+    <div id="flx-cat-panel-saidas" class="flx-categorias__grupo flx-categorias__grupo--saidas" role="tabpanel" aria-labelledby="flx-cat-tab-saidas">
+      <p class="flx-categorias__grupo-label text-xs font-medium uppercase tracking-wide text-rose-700/80">Principais saídas</p>
+      <ul class="flx-categorias__lista mt-2.5 space-y-2.5">
         {% for cat in top_despesas %}
         <li>
-          <div class="flex items-center justify-between gap-2 text-sm">
+          <div class="flx-categorias__item-row flex items-center justify-between gap-2 text-sm">
             <span class="truncate text-gray-800">{{ cat.nome }}</span>
             <span class="shrink-0 font-semibold tabular-nums text-rose-700">{{ cat.total|moeda }}</span>
           </div>
-          <div class="mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
+          <div class="flx-categorias__barra mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
             <div class="h-full rounded-full bg-rose-400/80" style="width: {{ cat.percentual|floatformat:0 }}%; max-width: 100%;"></div>
           </div>
         </li>
@@ -26,16 +35,16 @@
     {% endif %}
 
     {% if top_receitas %}
-    <div>
-      <p class="text-xs font-medium uppercase tracking-wide text-emerald-700/80">Principais entradas</p>
-      <ul class="mt-2.5 space-y-2.5">
+    <div id="flx-cat-panel-entradas" class="flx-categorias__grupo flx-categorias__grupo--entradas" role="tabpanel" aria-labelledby="flx-cat-tab-entradas">
+      <p class="flx-categorias__grupo-label text-xs font-medium uppercase tracking-wide text-emerald-700/80">Principais entradas</p>
+      <ul class="flx-categorias__lista mt-2.5 space-y-2.5">
         {% for cat in top_receitas %}
         <li>
-          <div class="flex items-center justify-between gap-2 text-sm">
+          <div class="flx-categorias__item-row flex items-center justify-between gap-2 text-sm">
             <span class="truncate text-gray-800">{{ cat.nome }}</span>
             <span class="shrink-0 font-semibold tabular-nums text-emerald-700">{{ cat.total|moeda }}</span>
           </div>
-          <div class="mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
+          <div class="flx-categorias__barra mt-1 h-1 overflow-hidden rounded-full bg-gray-100">
             <div class="h-full rounded-full bg-emerald-400/80" style="width: {{ cat.percentual|floatformat:0 }}%; max-width: 100%;"></div>
           </div>
         </li>
@@ -47,4 +56,28 @@
     {% endif %}
   </div>
 </section>
+
+{% if top_despesas and top_receitas %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('flx-categorias');
+  if (!root) return;
+  const tabs = root.querySelectorAll('[data-flx-cat-tab]');
+  if (tabs.length < 2) return;
+
+  const activate = (name) => {
+    root.dataset.flxCatActive = name;
+    tabs.forEach((tab) => {
+      const active = tab.dataset.flxCatTab === name;
+      tab.classList.toggle('flx-categorias__tab--active', active);
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => activate(tab.dataset.flxCatTab));
+  });
+});
+</script>
+{% endif %}
 {% endif %}

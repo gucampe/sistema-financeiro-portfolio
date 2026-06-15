@@ -1861,6 +1861,10 @@ select.\!input,
   margin-right: 0.5rem;
 }
 
+.mt-0 {
+  margin-top: 0px;
+}
+
 .mt-0\.5 {
   margin-top: 0.125rem;
 }
@@ -2374,10 +2378,6 @@ select.\!input,
   gap: 1.5rem;
 }
 
-.gap-8 {
-  gap: 2rem;
-}
-
 .gap-px {
   gap: 1px;
 }
@@ -2390,11 +2390,6 @@ select.\!input,
 .gap-x-3 {
   -moz-column-gap: 0.75rem;
        column-gap: 0.75rem;
-}
-
-.gap-x-6 {
-  -moz-column-gap: 1.5rem;
-       column-gap: 1.5rem;
 }
 
 .gap-y-1 {
@@ -2669,6 +2664,11 @@ select.\!input,
   border-color: rgb(253 230 138 / var(--tw-border-opacity, 1));
 }
 
+.border-brand-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 250 229 / var(--tw-border-opacity, 1));
+}
+
 .border-brand-200\/60 {
   border-color: rgb(167 243 208 / 0.6);
 }
@@ -2684,10 +2684,6 @@ select.\!input,
 .border-gray-100 {
   --tw-border-opacity: 1;
   border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
-}
-
-.border-gray-100\/80 {
-  border-color: rgb(243 244 246 / 0.8);
 }
 
 .border-gray-200 {
@@ -3011,14 +3007,6 @@ select.\!input,
   background-color: rgb(244 245 247 / var(--tw-bg-opacity, 1));
 }
 
-.bg-surface-muted\/15 {
-  background-color: rgb(241 245 244 / 0.15);
-}
-
-.bg-surface-muted\/30 {
-  background-color: rgb(241 245 244 / 0.3);
-}
-
 .bg-transparent {
   background-color: transparent;
 }
@@ -3059,10 +3047,6 @@ select.\!input,
 
 .bg-white\/95 {
   background-color: rgb(255 255 255 / 0.95);
-}
-
-.bg-gradient-to-b {
-  background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
 
 .bg-gradient-to-br {
@@ -3121,12 +3105,6 @@ select.\!input,
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
-.from-white {
-  --tw-gradient-from: #fff var(--tw-gradient-from-position);
-  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
 .via-white {
   --tw-gradient-to: rgb(255 255 255 / 0)  var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), #fff var(--tw-gradient-via-position), var(--tw-gradient-to);
@@ -3134,6 +3112,10 @@ select.\!input,
 
 .to-brand-600 {
   --tw-gradient-to: #16a34a var(--tw-gradient-to-position);
+}
+
+.to-emerald-50\/20 {
+  --tw-gradient-to: rgb(236 253 245 / 0.2) var(--tw-gradient-to-position);
 }
 
 .to-emerald-50\/30 {
@@ -3150,10 +3132,6 @@ select.\!input,
 
 .to-gray-200\/90 {
   --tw-gradient-to: rgb(229 231 235 / 0.9) var(--tw-gradient-to-position);
-}
-
-.to-gray-50\/50 {
-  --tw-gradient-to: rgb(249 250 251 / 0.5) var(--tw-gradient-to-position);
 }
 
 .to-indigo-50\/25 {
@@ -3304,11 +3282,6 @@ select.\!input,
 .py-12 {
   padding-top: 3rem;
   padding-bottom: 3rem;
-}
-
-.py-14 {
-  padding-top: 3.5rem;
-  padding-bottom: 3.5rem;
 }
 
 .py-2 {
@@ -3539,6 +3512,10 @@ select.\!input,
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
 }
 
+.leading-\[1\.65\] {
+  line-height: 1.65;
+}
+
 .leading-none {
   line-height: 1;
 }
@@ -3674,6 +3651,10 @@ select.\!input,
 .text-brand-600 {
   --tw-text-opacity: 1;
   color: rgb(22 163 74 / var(--tw-text-opacity, 1));
+}
+
+.text-brand-600\/75 {
+  color: rgb(22 163 74 / 0.75);
 }
 
 .text-brand-700 {
@@ -4757,10 +4738,6 @@ select.\!input,
     margin-bottom: 3rem;
   }
 
-  .sm\:mb-5 {
-    margin-bottom: 1.25rem;
-  }
-
   .sm\:mb-6 {
     margin-bottom: 1.5rem;
   }
@@ -4771,6 +4748,10 @@ select.\!input,
 
   .sm\:mt-5 {
     margin-top: 1.25rem;
+  }
+
+  .sm\:mt-6 {
+    margin-top: 1.5rem;
   }
 
   .sm\:block {
@@ -4815,10 +4796,6 @@ select.\!input,
 
   .sm\:max-h-48 {
     max-height: 12rem;
-  }
-
-  .sm\:min-h-0 {
-    min-height: 0px;
   }
 
   .sm\:w-10 {
@@ -4921,10 +4898,6 @@ select.\!input,
     gap: 0.25rem;
   }
 
-  .sm\:gap-10 {
-    gap: 2.5rem;
-  }
-
   .sm\:gap-2 {
     gap: 0.5rem;
   }
@@ -4947,6 +4920,15 @@ select.\!input,
 
   .sm\:gap-8 {
     gap: 2rem;
+  }
+
+  .sm\:gap-x-6 {
+    -moz-column-gap: 1.5rem;
+         column-gap: 1.5rem;
+  }
+
+  .sm\:gap-y-2 {
+    row-gap: 0.5rem;
   }
 
   .sm\:space-y-4 > :not([hidden]) ~ :not([hidden]) {
@@ -4977,8 +4959,12 @@ select.\!input,
     border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
   }
 
-  .sm\:p-10 {
-    padding: 2.5rem;
+  .sm\:border-gray-100\/80 {
+    border-color: rgb(243 244 246 / 0.8);
+  }
+
+  .sm\:bg-surface-muted\/15 {
+    background-color: rgb(241 245 244 / 0.15);
   }
 
   .sm\:p-3 {
@@ -5010,11 +4996,6 @@ select.\!input,
     padding-right: 0px;
   }
 
-  .sm\:px-10 {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
-
   .sm\:px-2 {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
@@ -5023,6 +5004,11 @@ select.\!input,
   .sm\:px-3 {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+  }
+
+  .sm\:px-3\.5 {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
   }
 
   .sm\:px-4 {
@@ -5053,6 +5039,11 @@ select.\!input,
   .sm\:py-2 {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  .sm\:py-2\.5 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
   }
 
   .sm\:py-3 {
@@ -5145,14 +5136,13 @@ select.\!input,
     line-height: 1.25rem;
   }
 
-  .sm\:text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-  }
-
   .sm\:text-xs {
     font-size: 0.75rem;
     line-height: 1rem;
+  }
+
+  .sm\:leading-relaxed {
+    line-height: 1.625;
   }
 
   .sm\:file\:mr-4::file-selector-button {

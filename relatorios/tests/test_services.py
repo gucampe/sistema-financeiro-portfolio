@@ -852,7 +852,7 @@ class FluxoCaixaServicoTests(TestCase):
         self.assertContains(res, "Entradas")
         self.assertContains(res, "Resultado líquido")
         self.assertContains(res, "Como seu dinheiro se movimentou")
-        self.assertContains(res, "Ver transações do período")
+        self.assertContains(res, "Ver todas as transações")
         self.assertContains(res, "chart-fluxo")
         self.assertNotContains(res, "Movimentações de destaque")
         self.assertNotContains(res, "vs mês anterior")

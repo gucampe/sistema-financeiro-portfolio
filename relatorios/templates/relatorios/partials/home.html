@@ -26,52 +26,16 @@
   <link rel="stylesheet" href="{% static 'relatorios/css/relatorios-dashboard-mobile.css' %}" />
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
-  <div id="dashboard-layout" class="relative flex w-full flex-col gap-6">
+  <div id="dashboard-layout" class="relatorios-conteudo relative gap-0 sm:gap-6">
 
-    {# HEADER — Mobile: app nativo | Desktop: inalterado #}
-    <section id="secao-resumo-hero" data-filtros-vertical-anchor>
-
-      {# MOBILE (<sm) — header compacto + quick actions #}
-      <div class="dash-mobile sm:hidden">
-        <header class="dash-mobile__header">
-          <p class="dash-mobile__greeting">
-            <span class="text-brand-600">{{ saudacao }},</span>
-            <strong>{{ nome_usuario|default:"usuário" }}</strong>
-          </p>
-          <p class="dash-mobile__period">{{ rotulo_periodo }}</p>
-        </header>
-
-        <div class="dash-mobile__summary">
-          <p class="dash-mobile__summary-label">Saldo do mês</p>
-          <p class="dash-mobile__summary-value {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
-            <span class="dash-valor" data-valor="{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}{% endif %}</span>
-          </p>
-          <div class="dash-mobile__summary-meta">
-            <span>Rec. <span class="dash-valor font-medium text-emerald-600" data-valor="{{ totais_mes.receitas|moeda }}">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais_mes.receitas|moeda }}{% endif %}</span></span>
-            <span>Desp. <span class="dash-valor font-medium text-rose-600" data-valor="{{ totais_mes.despesas|moeda }}">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais_mes.despesas|moeda }}{% endif %}</span></span>
-          </div>
-        </div>
-
-        <div class="dash-mobile__actions">
-          <button type="button" data-abrir-transacao="despesa" class="dash-mobile__action-primary btn btn-primary btn-sm">
-            + Despesa
-          </button>
-          <div class="dash-mobile__action-secondary">
-            {% include 'relatorios/partials/filtros_hero_botao.html' %}
-            <button type="button" data-abrir-transacao="receita" class="btn btn-emerald btn-sm">
-              Receita
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {# DESKTOP (≥sm) — layout original #}
-      <article class="hidden overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 p-6 shadow-sm sm:block sm:p-8">
+    {# DESKTOP (≥sm) — hero completo #}
+    <section id="secao-resumo-hero" data-filtros-vertical-anchor class="hidden sm:block">
+      <article class="overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 p-6 shadow-sm sm:p-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0 space-y-1">
             <p class="text-sm font-medium text-brand-600">{{ saudacao }},</p>
             <h1 class="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">{{ nome_usuario|default:"usuário" }}</h1>
-            <p class="text-sm text-gray-500">{{ rotulo_periodo }}</p>
+            <p class="rel-hero-period">{{ rotulo_periodo }}</p>
           </div>
           <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
             {% include 'relatorios/partials/filtros_hero_botao.html' %}
@@ -161,12 +125,47 @@
     </section>
 
     <div id="dashboard-masonry" class="dashboard-masonry--pending flex w-full flex-col gap-6 lg:relative">
+
+    {# MOBILE (<sm) — mesmo stack de gap dos demais cards #}
+    <div class="dash-mobile min-w-0 overflow-hidden rounded-xl bg-white p-3 sm:hidden" data-filtros-vertical-anchor aria-label="Resumo do mês">
+      <header class="dash-mobile__header">
+        <p class="dash-mobile__greeting text-xs leading-snug">
+          <span class="font-semibold text-brand-600">{{ saudacao }},</span>
+          <strong class="font-semibold text-gray-900">{{ nome_usuario|default:"usuário" }}</strong>
+        </p>
+        <p class="dash-mobile__period rel-hero-period">{{ rotulo_periodo }}</p>
+      </header>
+
+      <div class="dash-mobile__summary">
+        <p class="dash-mobile__summary-label">Saldo do mês</p>
+        <p class="dash-mobile__summary-value {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
+          <span class="dash-valor" data-valor="{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}{% endif %}</span>
+        </p>
+        <div class="dash-mobile__summary-meta">
+          <span>Rec. <span class="dash-valor font-medium text-emerald-600" data-valor="{{ totais_mes.receitas|moeda }}">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais_mes.receitas|moeda }}{% endif %}</span></span>
+          <span>Desp. <span class="dash-valor font-medium text-rose-600" data-valor="{{ totais_mes.despesas|moeda }}">{% if ocultar_valores_dashboard %}••••{% else %}{{ totais_mes.despesas|moeda }}{% endif %}</span></span>
+        </div>
+      </div>
+
+      <div class="dash-mobile__actions">
+        <button type="button" data-abrir-transacao="despesa" class="dash-mobile__action-primary btn btn-primary btn-sm">
+          + Despesa
+        </button>
+        <div class="dash-mobile__action-secondary">
+          {% include 'relatorios/partials/filtros_hero_botao.html' %}
+          <button type="button" data-abrir-transacao="receita" class="btn btn-emerald btn-sm">
+            Receita
+          </button>
+        </div>
+      </div>
+    </div>
+
     {# SEÇÃO 1 — Patrimônio disponível #}
-    <section class="dashboard-masonry-item card order-1 min-w-0 p-6 sm:order-none sm:p-7">
-      <div class="dash-section-header flex items-start justify-between gap-4">
+    <section class="dashboard-masonry-item card rel-secao-shell order-1 min-w-0 p-5 sm:order-none sm:p-7">
+      <div class="rel-secao-cabecalho dash-section-header flex items-start justify-between gap-4">
         <div class="min-w-0">
-          <h2 class="text-lg font-semibold tracking-tight text-gray-900">Patrimônio disponível</h2>
-          <p class="dash-section-subtitle mt-1 text-sm text-gray-500">Saldo consolidado das suas contas</p>
+          <h2 class="rel-secao-titulo">Patrimônio disponível</h2>
+          <p class="rel-secao-subtitulo">Saldo consolidado das suas contas</p>
         </div>
         <button
           type="button"
@@ -219,20 +218,20 @@
       </div>
       {% endif %}
       {% else %}
-      <div class="dash-empty-state mt-8 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-10 text-center">
-        <p class="dash-empty-state__title font-medium text-gray-800">Nenhuma conta cadastrada</p>
-        <p class="dash-empty-state__desc mt-1 text-sm text-gray-500">Adicione uma conta para acompanhar seu patrimônio.</p>
+      <div class="rel-empty-state dash-empty-state mt-8">
+        <p class="rel-empty-state__titulo">Nenhuma conta cadastrada</p>
+        <p class="rel-empty-state__desc">Adicione uma conta para acompanhar seu patrimônio.</p>
         <a href="{% url 'contas:home' %}" class="btn btn-primary btn-sm mt-5">Cadastrar conta</a>
       </div>
       {% endif %}
     </section>
 
     {# SEÇÃO 2 — Cartões #}
-    <section class="dashboard-masonry-item card order-2 min-w-0 p-6 sm:order-none sm:p-7">
-      <div class="dash-section-header flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <section class="dashboard-masonry-item card rel-secao-shell order-2 min-w-0 p-5 sm:order-none sm:p-7">
+      <div class="rel-secao-cabecalho dash-section-header flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 class="text-lg font-semibold tracking-tight text-gray-900">Cartões</h2>
-          <p class="dash-section-subtitle mt-1 text-sm text-gray-500">
+          <h2 class="rel-secao-titulo">Cartões</h2>
+          <p class="rel-secao-subtitulo">
             {{ cartoes_dashboard.quantidade }} cart{{ cartoes_dashboard.quantidade|pluralize:"ão,ões" }}
             · Faturas abertas:
             <span class="dash-valor font-medium text-gray-800" data-valor="{{ cartoes_dashboard.total_faturas|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{{ cartoes_dashboard.total_faturas|moeda }}{% endif %}</span>
@@ -284,20 +283,20 @@
         {% endfor %}
       </ul>
       {% else %}
-      <div class="dash-empty-state dash-section-body mt-6 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-10 text-center">
-        <p class="dash-empty-state__title font-medium text-gray-800">Nenhum cartão cadastrado</p>
-        <p class="dash-empty-state__desc mt-1 text-sm text-gray-500">Cadastre um cartão para acompanhar faturas e limites.</p>
+      <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
+        <p class="rel-empty-state__titulo">Nenhum cartão cadastrado</p>
+        <p class="rel-empty-state__desc">Cadastre um cartão para acompanhar faturas e limites.</p>
         <a href="{% url 'cartoes:home' %}" class="btn btn-primary btn-sm mt-5">Cadastrar cartão</a>
       </div>
       {% endif %}
     </section>
 
     {# SEÇÃO 3 — Maiores gastos #}
-    <section class="dashboard-masonry-item card order-3 min-w-0 p-6 sm:order-none sm:p-7">
-      <div class="dash-section-header flex items-start justify-between gap-3">
+    <section class="dashboard-masonry-item card rel-secao-shell order-3 min-w-0 p-5 sm:order-none sm:p-7">
+      <div class="rel-secao-cabecalho dash-section-header flex items-start justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold tracking-tight text-gray-900">Para onde seu dinheiro está indo</h2>
-          <p class="dash-section-subtitle mt-1 text-sm text-gray-500">Top categorias de despesa no mês</p>
+          <h2 class="rel-secao-titulo">Para onde seu dinheiro está indo</h2>
+          <p class="rel-secao-subtitulo">Top categorias de despesa no mês</p>
         </div>
         <a href="{% url 'relatorios:despesas_categoria' %}?preset=este_mes" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver análise completa</a>
       </div>
@@ -327,20 +326,20 @@
         </ul>
       </div>
       {% else %}
-      <div class="dash-empty-state dash-section-body mt-6 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-10 text-center">
-        <p class="dash-empty-state__title font-medium text-gray-800">Sem despesas no mês</p>
-        <p class="dash-empty-state__desc mt-1 text-sm text-gray-500">Registre despesas para ver a distribuição por categoria.</p>
+      <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
+        <p class="rel-empty-state__titulo">Sem despesas no mês</p>
+        <p class="rel-empty-state__desc">Registre despesas para ver a distribuição por categoria.</p>
         <button type="button" data-abrir-transacao="despesa" class="btn btn-primary btn-sm mt-5">Registrar despesa</button>
       </div>
       {% endif %}
     </section>
 
     {# SEÇÃO 4 — Orçamento #}
-    <section class="dashboard-masonry-item card order-4 min-w-0 p-6 sm:order-none sm:p-7">
-      <div class="dash-section-header flex items-start justify-between gap-3">
+    <section class="dashboard-masonry-item card rel-secao-shell order-4 min-w-0 p-5 sm:order-none sm:p-7">
+      <div class="rel-secao-cabecalho dash-section-header flex items-start justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold tracking-tight text-gray-900">Orçamento do mês</h2>
-          <p class="dash-section-subtitle mt-1 text-sm text-gray-500">Categorias com maior consumo do limite</p>
+          <h2 class="rel-secao-titulo">Orçamento do mês</h2>
+          <p class="rel-secao-subtitulo">Categorias com maior consumo do limite</p>
         </div>
         {% if tem_orcamentos_cadastrados %}
         <a href="{% url 'relatorios:orcamentos' %}" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver todos</a>
@@ -380,15 +379,15 @@
         {% endfor %}
       </ul>
       {% elif tem_orcamentos_cadastrados %}
-      <div class="dash-empty-state dash-section-body mt-6 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-10 text-center">
-        <p class="dash-empty-state__title font-medium text-gray-800">Nenhum orçamento vigente neste mês</p>
-        <p class="dash-empty-state__desc mt-1 text-sm text-gray-500">Revise a vigência dos seus limites ou cadastre novos para o mês atual.</p>
+      <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
+        <p class="rel-empty-state__titulo">Nenhum orçamento vigente neste mês</p>
+        <p class="rel-empty-state__desc">Revise a vigência dos seus limites ou cadastre novos para o mês atual.</p>
         <a href="{% url 'relatorios:orcamentos' %}" class="btn btn-secondary btn-sm mt-5">Gerenciar orçamentos</a>
       </div>
       {% else %}
-      <div class="dash-empty-state dash-section-body mt-6 rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-10 text-center">
-        <p class="dash-empty-state__title font-medium text-gray-800">Nenhum orçamento definido</p>
-        <p class="dash-empty-state__desc mt-1 text-sm text-gray-500">Configure limites mensais por categoria para acompanhar seus gastos.</p>
+      <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
+        <p class="rel-empty-state__titulo">Nenhum orçamento definido</p>
+        <p class="rel-empty-state__desc">Configure limites mensais por categoria para acompanhar seus gastos.</p>
         <a href="{% url 'relatorios:orcamentos' %}" class="btn btn-primary btn-sm mt-5">Criar orçamento</a>
       </div>
       {% endif %}

@@ -3,19 +3,22 @@
 {% if tem_orcamentos %}
 <section class="space-y-4" aria-label="Resumo do orçamento do mês">
   {% if painel_mes.tem_vigentes %}
-  <article data-filtros-vertical-anchor class="card min-w-0 overflow-hidden p-6 sm:p-8" id="orcamento-hero-resumo">
-    <div class="flex flex-col gap-6">
-      <div class="flex flex-col gap-0.5">
-        <div class="orc-hero__header-bar flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p class="orc-hero__periodo min-w-0 text-xs font-semibold uppercase tracking-wider text-gray-500">Orçamento — {{ periodo_orcamento_rotulo }}</p>
-          <div class="orc-hero__ctas flex w-full shrink-0 flex-row items-center gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-            <div class="orc-hero__filtros-wrap shrink-0">
-              {% include 'relatorios/partials/filtros_hero_botao.html' %}
-            </div>
-            <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm min-w-0 w-full flex-1 sm:w-auto sm:flex-none shrink-0">
+  <article data-filtros-vertical-anchor class="rel-hero-shell card min-w-0 overflow-hidden p-5 sm:p-7" id="orcamento-hero-resumo">
+      <div class="flex flex-col gap-6">
+        <div class="orc-hero__header-bar rel-hero-header">
+          <div class="min-w-0 space-y-1">
+            <p class="rel-hero-eyebrow">Limites por categoria</p>
+            <h2 class="rel-hero-title">Orçamentos</h2>
+            <p class="rel-hero-period">{{ periodo_orcamento_rotulo }}</p>
+          </div>
+          <div class="orc-hero__ctas flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+            <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm w-full shrink-0 sm:w-auto">
               <span class="text-base leading-none" aria-hidden="true">+</span>
               <span>Novo orçamento</span>
             </button>
+            <div class="orc-hero__filtros-wrap flex w-full sm:w-auto sm:justify-end">
+              {% include 'relatorios/partials/filtros_hero_botao.html' %}
+            </div>
           </div>
         </div>
         <div class="min-w-0">
@@ -53,7 +56,6 @@
         {% endif %}
         {% endif %}
         </div>
-      </div>
 
       <dl class="orc-hero__metrics grid grid-cols-1 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3 sm:gap-6 sm:pt-6">
         <div class="orc-hero__metrics--orcado">
@@ -116,20 +118,23 @@
     </div>
   </div>
   {% else %}
-  <article data-filtros-vertical-anchor class="card min-w-0 p-6 sm:p-8" id="orcamento-hero-resumo">
+  <article data-filtros-vertical-anchor class="rel-hero-shell card min-w-0 p-5 sm:p-7" id="orcamento-hero-resumo">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div class="min-w-0 flex-1">
-        <p class="font-medium text-gray-800">Nenhum limite vigente em {{ periodo_orcamento_rotulo }}</p>
-        <p class="mt-1 text-sm text-gray-500">Ajuste a vigência dos orçamentos ou cadastre limites para este mês.</p>
+      <div class="min-w-0 flex-1 space-y-1">
+        <p class="rel-hero-eyebrow">Limites por categoria</p>
+        <h2 class="rel-hero-title">Orçamentos</h2>
+        <p class="rel-hero-period">{{ periodo_orcamento_rotulo }}</p>
+        <p class="pt-2 font-medium text-gray-800">Nenhum limite vigente neste período</p>
+        <p class="text-sm text-gray-500">Ajuste a vigência dos orçamentos ou cadastre limites para este mês.</p>
       </div>
-      <div class="orc-hero__ctas flex w-full shrink-0 flex-row items-center gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-        <div class="orc-hero__filtros-wrap shrink-0">
-          {% include 'relatorios/partials/filtros_hero_botao.html' %}
-        </div>
-        <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm min-w-0 flex-1 sm:w-auto sm:flex-none shrink-0">
+      <div class="orc-hero__ctas flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+        <button type="button" id="btn-novo-orcamento" class="orc-hero__cta-primary btn btn-primary btn-sm w-full shrink-0 sm:w-auto">
           <span class="text-base leading-none" aria-hidden="true">+</span>
           <span>Novo orçamento</span>
         </button>
+        <div class="orc-hero__filtros-wrap flex w-full sm:w-auto sm:justify-end">
+          {% include 'relatorios/partials/filtros_hero_botao.html' %}
+        </div>
       </div>
     </div>
   </article>

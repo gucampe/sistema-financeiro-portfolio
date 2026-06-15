@@ -1,30 +1,30 @@
 {% load moeda %}
 
 {% if dinamica.pico_entrada or dinamica.pico_saida or dinamica.dias_com_movimento %}
-<section class="space-y-3" aria-label="Dinâmica do fluxo">
-  <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Dinâmica do mês</h3>
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+<section id="flx-dinamica" class="space-y-3" aria-label="Dinâmica do fluxo">
+  <h3 class="rel-subsecao-titulo">Dinâmica do mês</h3>
+  <div class="flx-dinamica__grid grid grid-cols-1 gap-2 sm:grid-cols-3">
     {% if dinamica.pico_entrada %}
-    <div class="rounded-lg border border-emerald-100/80 bg-emerald-50/30 px-3.5 py-2.5">
-      <p class="text-xs text-emerald-800/75">Maior entrada no dia</p>
-      <p class="mt-0.5 text-base font-semibold tabular-nums text-emerald-700">{{ dinamica.pico_entrada.valor|moeda }}</p>
-      <p class="text-xs text-gray-500">{{ dinamica.pico_entrada.rotulo }}</p>
+    <div class="flx-dinamica__card rounded-lg border border-emerald-100/80 bg-emerald-50/30 px-4 py-3 sm:px-3.5 sm:py-2.5">
+      <p class="flx-dinamica__card-label text-xs text-emerald-800/75">Maior entrada no dia</p>
+      <p class="flx-dinamica__card-valor mt-0.5 text-lg font-semibold tabular-nums text-emerald-700 sm:text-base">{{ dinamica.pico_entrada.valor|moeda }}</p>
+      <p class="flx-dinamica__card-meta text-xs text-gray-500">{{ dinamica.pico_entrada.rotulo }}</p>
     </div>
     {% endif %}
     {% if dinamica.pico_saida %}
-    <div class="rounded-lg border border-rose-100/80 bg-rose-50/30 px-3.5 py-2.5">
-      <p class="text-xs text-rose-800/75">Maior saída no dia</p>
-      <p class="mt-0.5 text-base font-semibold tabular-nums text-rose-700">{{ dinamica.pico_saida.valor|moeda }}</p>
-      <p class="text-xs text-gray-500">{{ dinamica.pico_saida.rotulo }}</p>
+    <div class="flx-dinamica__card rounded-lg border border-rose-100/80 bg-rose-50/30 px-4 py-3 sm:px-3.5 sm:py-2.5">
+      <p class="flx-dinamica__card-label text-xs text-rose-800/75">Maior saída no dia</p>
+      <p class="flx-dinamica__card-valor mt-0.5 text-lg font-semibold tabular-nums text-rose-700 sm:text-base">{{ dinamica.pico_saida.valor|moeda }}</p>
+      <p class="flx-dinamica__card-meta text-xs text-gray-500">{{ dinamica.pico_saida.rotulo }}</p>
     </div>
     {% endif %}
-    <div class="rounded-lg border border-gray-100 bg-gray-50/40 px-3.5 py-2.5">
-      <p class="text-xs text-gray-500">Dias com movimentação</p>
-      <p class="mt-0.5 text-base font-semibold tabular-nums text-gray-800">{{ dinamica.dias_com_movimento }}<span class="text-sm font-normal text-gray-500"> / {{ dinamica.total_dias }}</span></p>
+    <div class="flx-dinamica__card rounded-lg border border-gray-100 bg-gray-50/40 px-4 py-3 sm:px-3.5 sm:py-2.5">
+      <p class="flx-dinamica__card-label text-xs text-gray-500">Dias com movimentação</p>
+      <p class="flx-dinamica__card-valor mt-0.5 text-lg font-semibold tabular-nums text-gray-800 sm:text-base">{{ dinamica.dias_com_movimento }}<span class="text-sm font-normal text-gray-500"> / {{ dinamica.total_dias }}</span></p>
       {% if dinamica.fluxo_irregular %}
-      <p class="text-xs text-amber-700/90">Concentrado em poucos dias</p>
+      <p class="flx-dinamica__card-meta text-xs text-amber-700/90">Concentrado em poucos dias</p>
       {% else %}
-      <p class="text-xs text-gray-500">Espalhado no calendário</p>
+      <p class="flx-dinamica__card-meta text-xs text-gray-500">Espalhado no calendário</p>
       {% endif %}
     </div>
   </div>

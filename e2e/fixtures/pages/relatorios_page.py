@@ -154,7 +154,7 @@ class RelatoriosHomePage(BasePage):
         return self.page.locator(f"{self.HERO} > article")
 
     def _hero_mobile(self) -> Locator:
-        return self.page.locator(f"{self.HERO} .dash-mobile")
+        return self.page.locator("#dashboard-masonry .dash-mobile")
 
     def kpi_receitas(self) -> Decimal:
         if self._hero_desktop().is_visible():

@@ -1,9 +1,9 @@
 {% load moeda %}
 
 <section class="min-w-0" aria-label="Lista analítica de categorias">
-  <div class="mb-4 min-w-0">
-    <h3 class="text-lg font-semibold tracking-tight text-gray-900">Detalhamento por categoria</h3>
-    <p class="mt-1 text-sm text-gray-500">Clique para ver lançamentos, contas e tendência</p>
+  <div class="rel-secao-cabecalho min-w-0">
+    <h3 class="rel-secao-titulo">Detalhamento por categoria</h3>
+    <p class="rel-secao-subtitulo">Clique para ver lançamentos, contas e tendência</p>
   </div>
 
   <ul class="space-y-3" id="lista-categorias-analise">
@@ -54,7 +54,7 @@
       >
         <div class="grid gap-5 lg:grid-cols-2">
           <div class="min-w-0">
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Maiores lançamentos</h4>
+            <h4 class="rel-subsecao-titulo">Maiores lançamentos</h4>
             {% if cat.detalhe.transacoes %}
             <ul class="mt-3 space-y-2">
               {% for tx in cat.detalhe.transacoes %}
@@ -75,7 +75,7 @@
 
           <div class="min-w-0 space-y-5">
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Contas mais usadas</h4>
+              <h4 class="rel-subsecao-titulo">Contas mais usadas</h4>
               {% if cat.detalhe.contas %}
               <ul class="mt-3 space-y-2">
                 {% for c in cat.detalhe.contas %}
@@ -91,7 +91,7 @@
             </div>
 
             <div>
-              <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Tendência no período</h4>
+              <h4 class="rel-subsecao-titulo">Tendência no período</h4>
               <div class="cat-sparkline mt-3 flex h-14 items-end gap-px rounded-lg bg-white px-2 py-2 ring-1 ring-gray-100" aria-hidden="true">
                 {% for pct in cat.detalhe.tendencia.barras_pct %}
                 <span

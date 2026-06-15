@@ -17,7 +17,7 @@
 <div data-filtros-layout-anchor class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
-  <div class="flex flex-col gap-8 sm:gap-10 lg:gap-12">
+  <div class="relatorios-conteudo">
     {% include 'relatorios/partials/por_conta_hero.html' %}
 
     {% if analise_contas.tem_patrimonio %}
@@ -25,9 +25,9 @@
       {% include 'relatorios/partials/por_conta_lista.html' %}
       {% include 'relatorios/partials/por_conta_insights.html' %}
     {% else %}
-      <section class="rounded-2xl border border-dashed border-gray-200 bg-surface-muted/30 px-6 py-14 text-center sm:px-10">
-        <p class="text-lg font-semibold text-gray-900">Nenhuma movimentação por conta</p>
-        <p class="mx-auto mt-2 max-w-md text-sm text-gray-500">Cadastre contas e registre transações para ver a distribuição do seu patrimônio.</p>
+      <section class="rel-empty-state">
+        <p class="rel-empty-state__titulo">Nenhuma movimentação por conta</p>
+        <p class="rel-empty-state__desc">Cadastre contas e registre transações para ver a distribuição do seu patrimônio.</p>
       </section>
     {% endif %}
   </div>

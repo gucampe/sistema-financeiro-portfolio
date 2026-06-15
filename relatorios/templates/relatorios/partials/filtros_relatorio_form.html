@@ -84,8 +84,8 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
     </section>
   </div>
   <footer class="filtros-panel-form__footer">
-    <button type="submit" class="btn btn-primary btn-sm min-h-[2.75rem] justify-center sm:min-h-0">Aplicar</button>
-    <a href="{% if filtros_limpar_url %}{{ filtros_limpar_url }}{% else %}{{ request.path }}?preset=este_mes{% endif %}" class="btn btn-secondary btn-sm min-h-[2.75rem] justify-center sm:min-h-0">Limpar</a>
+    <button type="submit" class="btn btn-primary btn-sm justify-center">Aplicar</button>
+    <a href="{% if filtros_limpar_url %}{{ filtros_limpar_url }}{% else %}{{ request.path }}?preset=este_mes{% endif %}" class="btn btn-secondary btn-sm justify-center">Limpar</a>
   </footer>
   {% include 'relatorios/partials/filtros_categoria_picker.html' with sid=sid %}
   {% endwith %}

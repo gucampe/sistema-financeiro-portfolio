@@ -1,0 +1,254 @@
+/* Entradas x Saídas — UX mobile (<640px). Desktop inalterado. */
+
+@media (max-width: 639px) {
+  /* ---------- Ordem visual mobile (narrativa da tela) ---------- */
+
+  #flx-resumo {
+    order: 1;
+  }
+
+  #flx-dinamica {
+    order: 2;
+  }
+
+  #flx-grafico {
+    order: 3;
+    margin-top: 0.5rem;
+  }
+
+  #flx-interpretacao {
+    order: 4;
+    margin-top: 0.5rem;
+  }
+
+  #flx-categorias {
+    order: 5;
+    margin-top: 0.5rem;
+  }
+
+  #flx-cta {
+    order: 6;
+  }
+
+  /* ---------- Resumo financeiro (métricas internas) ---------- */
+
+  #flx-resumo .flx-resumo__grid {
+    gap: 0.75rem;
+  }
+
+  #flx-resumo .flx-resumo__metric {
+    padding: 0.875rem 1rem;
+    border: none;
+    border-radius: 0.875rem;
+  }
+
+  #flx-resumo .flx-resumo__metric--entradas {
+    background: rgb(236 253 245 / 0.65);
+    border: 1px solid rgb(167 243 208 / 0.55);
+  }
+
+  #flx-resumo .flx-resumo__metric--saidas {
+    background: rgb(255 241 242 / 0.65);
+    border: 1px solid rgb(254 205 211 / 0.55);
+  }
+
+  #flx-resumo .flx-resumo__metric--resultado {
+    background: rgb(236 253 245 / 0.35);
+    border: 1px solid rgb(187 247 208 / 0.45);
+  }
+
+  #flx-resumo .flx-resumo__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  #flx-resumo .flx-resumo__valor {
+    margin-top: 0.375rem;
+    font-size: 1.375rem;
+    line-height: 1.15;
+  }
+
+  #flx-resumo .flx-resumo__contexto {
+    max-width: 20rem;
+  }
+
+  #flx-resumo .flx-resumo__meta {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  #flx-resumo .flx-resumo__meta strong {
+    font-size: 0.875rem;
+  }
+
+  /* ---------- Gráfico HERO ---------- */
+
+  #flx-grafico {
+    background: linear-gradient(
+      145deg,
+      rgb(248 250 252) 0%,
+      rgb(255 255 255) 52%,
+      rgb(236 253 245 / 0.22) 100%
+    );
+    border: 1px solid rgb(229 231 235 / 0.85);
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 0.04),
+      0 8px 24px rgb(15 23 42 / 0.05);
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+  }
+
+  #flx-grafico .flx-grafico__chart-wrap {
+    margin-top: 0.75rem;
+    height: 15rem;
+  }
+
+  /* ---------- Insights do mês ---------- */
+
+  #flx-interpretacao {
+    background: linear-gradient(
+      135deg,
+      rgb(236 253 245 / 0.45) 0%,
+      rgb(255 255 255) 52%,
+      rgb(248 250 252 / 0.95) 100%
+    );
+    border: 1px solid rgb(187 247 208 / 0.55);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.04);
+  }
+
+  #flx-interpretacao .flx-interpretacao__lista {
+    margin-top: 0.75rem;
+  }
+
+  #flx-interpretacao .flx-interpretacao__lista > li + li {
+    margin-top: 0.625rem;
+  }
+
+  #flx-interpretacao .flx-interpretacao__item {
+    position: relative;
+    padding-left: 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: rgb(55 65 81);
+  }
+
+  #flx-interpretacao .flx-interpretacao__item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: rgb(22 163 74 / 0.55);
+  }
+
+  /* ---------- Dinâmica do mês ---------- */
+
+  #flx-dinamica {
+    gap: 0.875rem;
+  }
+
+  #flx-dinamica .flx-dinamica__grid {
+    gap: 0.75rem;
+  }
+
+  #flx-dinamica .flx-dinamica__card {
+    padding: 0.875rem 1rem;
+    border-radius: 0.875rem;
+  }
+
+  #flx-dinamica .flx-dinamica__card-label {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+
+  #flx-dinamica .flx-dinamica__card-valor {
+    margin-top: 0.375rem;
+    font-size: 1.125rem;
+    line-height: 1.2;
+  }
+
+  #flx-dinamica .flx-dinamica__card-meta {
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  /* ---------- Categorias ---------- */
+
+  #flx-categorias .flx-categorias__tab {
+    border-color: rgb(229 231 235);
+    background: rgb(255 255 255);
+    color: rgb(107 114 128);
+  }
+
+  #flx-categorias .flx-categorias__tab--active {
+    border-color: rgb(187 247 208 / 0.8);
+    background: rgb(236 253 245 / 0.65);
+    color: rgb(21 128 61);
+  }
+
+  #flx-categorias[data-flx-cat-active="saidas"] .flx-categorias__grupo--entradas {
+    display: none;
+  }
+
+  #flx-categorias[data-flx-cat-active="entradas"] .flx-categorias__grupo--saidas {
+    display: none;
+  }
+
+  #flx-categorias .flx-categorias__tabs ~ .flx-categorias__grupos .flx-categorias__grupo-label {
+    display: none;
+  }
+
+  #flx-categorias .flx-categorias__grupos {
+    margin-top: 1rem;
+    gap: 1.5rem;
+  }
+
+  #flx-categorias .flx-categorias__grupo-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  #flx-categorias .flx-categorias__lista {
+    margin-top: 0.75rem;
+  }
+
+  #flx-categorias .flx-categorias__lista > li + li {
+    margin-top: 0.875rem;
+  }
+
+  #flx-categorias .flx-categorias__lista > li:nth-child(n + 4) {
+    display: none;
+  }
+
+  #flx-categorias .flx-categorias__item-row {
+    font-size: 0.875rem;
+    gap: 0.75rem;
+  }
+
+  #flx-categorias .flx-categorias__barra {
+    margin-top: 0.375rem;
+    height: 0.5rem;
+  }
+
+  /* ---------- CTA ---------- */
+
+  #flx-cta {
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
+  }
+
+  #flx-cta .flx-cta__link {
+    display: flex;
+    width: 100%;
+  }
+}
