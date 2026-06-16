@@ -12,11 +12,6 @@
         <h3 class="text-sm font-semibold text-gray-900 tracking-tight">Filtros do relatório</h3>
         <p class="text-xs text-gray-500 mt-0.5 leading-snug">Os mesmos critérios são mantidos ao trocar de aba.</p>
       </div>
-      {% if filtros_querystring %}
-      <div class="w-full sm:w-auto sm:ml-auto">
-        {% include 'relatorios/partials/botao_exportar.html' with export_dominio='transacoes' %}
-      </div>
-      {% endif %}
     </div>
   </div>
   <div class="p-4 sm:p-5">

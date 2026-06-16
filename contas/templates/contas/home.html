@@ -15,6 +15,9 @@
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
+{% include 'partials/lista_contextual_sheet.html' %}
+
 <!-- Toast -->
 <div id="toast-contas"
      class="fixed bottom-4 right-4 px-4 py-3 rounded-lg text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-between gap-4">
@@ -34,7 +37,6 @@
     </div>
 
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center shrink-0">
-      {% include 'relatorios/partials/botao_exportar.html' with export_dominio='contas' %}
       <button type="button"
             id="btn-adicionar-conta"
             class="btn btn-primary btn-sm shrink-0">
@@ -45,7 +47,7 @@
   </div>
 
   <!-- Contas Ativas -->
-  <section class="card-dense mb-6 overflow-hidden">
+  <section class="card-dense mb-6 overflow-visible">
     <div class="px-4 sm:px-6 py-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div class="min-w-0 flex-1">
         <h3 class="text-lg font-semibold text-fg">Contas Ativas</h3>
@@ -60,69 +62,52 @@
     </div>
 
     <div class="border-t border-gray-100">
-      <ul id="lista-contas-ativas" class="divide-y divide-gray-100">
+      <ul id="lista-contas-ativas" class="lista-contextual-list divide-y divide-gray-100">
         {% for conta in contas_ativas %}
-          <li class="conta-item group min-w-0 px-4 sm:px-6 py-4"
-              data-id="{{ conta.id }}">
-            <div class="overflow-x-auto overflow-y-visible -mx-4 px-4 sm:mx-0 sm:px-0 lg:overflow-visible">
-            <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:min-w-[40rem] xl:min-w-0">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center border shrink-0 border-gray-200 bg-gray-100 text-fg">
-                  <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
+          <li class="lista-contextual-item conta-item group relative px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:px-6 max-lg:cursor-pointer lg:cursor-default lg:active:bg-transparent"
+              role="listitem"
+              tabindex="0"
+              aria-label="Conta {{ conta.nome }}"
+              data-id="{{ conta.id }}"
+              data-conta-nome="{{ conta.nome }}"
+              data-conta-tipo="{{ conta.tipo }}"
+              data-conta-saldo="{{ conta.saldo_atual }}"
+              data-conta-icone="{{ conta.icone|default:'bank' }}">
+            <div class="flex min-w-0 items-center gap-2.5 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4">
+              <div class="flex min-w-0 flex-1 items-center gap-2.5">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200/90 bg-white overflow-hidden">
                   {% if conta.icone %}
                   {% if conta.icone in icone_choices_instituicoes %}
-                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="w-full h-full object-contain rounded-lg" alt=""
+                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="h-6 w-6 object-contain" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
                   {% else %}
-                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="w-full h-full object-contain" alt=""
+                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="h-6 w-6 object-contain" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
                   {% endif %}
                   <span class="conta-avatar-inicial text-sm font-semibold" style="display:none;">{{ conta.nome|slice:":1"|upper }}</span>
                   {% else %}
                   <span class="text-sm font-semibold">{{ conta.nome|slice:":1"|upper }}</span>
                   {% endif %}
-                  </div>
                 </div>
-
-                <div class="min-w-0">
-                  <p class="conta-info text-sm sm:text-base font-semibold truncate text-fg">
+                <div class="min-w-0 flex-1">
+                  <p class="conta-info truncate text-sm font-semibold leading-tight text-fg" title="{{ conta.nome }}">
                     {{ conta.nome }}
-                    <span class="font-normal text-fg-muted">
-                      • {{ conta.get_tipo_display }}
-                    </span>
+                    <span class="font-normal text-fg-muted">· {{ conta.get_tipo_display }}</span>
                   </p>
-
-                  <p class="text-xs sm:text-sm mt-0.5 text-fg-muted">
-                    Saldo atual:
-                    <span class="font-semibold text-fg">
-                      {{ conta.saldo_atual|moeda }}
-                    </span>
+                  <p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500">
+                    Saldo atual: <span class="font-medium text-fg">{{ conta.saldo_atual|moeda }}</span>
                   </p>
                 </div>
               </div>
-            </div>
-
-            <div class="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:justify-end">
-              <button type="button"
-                      class="btn-editar-conta inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-gray-100/80 transition hover:bg-gray-200/90 hover:shadow-sm active:scale-[.99]"
-                      data-id="{{ conta.id }}"
-                      data-nome="{{ conta.nome }}"
-                      data-tipo="{{ conta.tipo }}"
-                      data-saldo="{{ conta.saldo_atual }}"
-                      data-icone="{{ conta.icone|default:'bank' }}">
-                Editar
-              </button>
-
-              <form method="post" action="{% url 'contas:arquivar' conta.id %}" class="inline">
-                {% csrf_token %}
-                <button type="submit"
-                        class="inline-flex items-center justify-center px-3 py-2 rounded-xl border border-warning-border text-sm font-medium text-warning bg-warning-soft transition hover:bg-amber-100 hover:shadow-sm active:scale-[.99]">
-                  Arquivar
+              <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
+                <button type="button"
+                        class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+                        aria-label="Ações da conta {{ conta.nome }}"
+                        aria-haspopup="menu"
+                        aria-expanded="false">
+                  <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
                 </button>
-              </form>
-            </div>
-            </div>
+              </div>
             </div>
           </li>
         {% empty %}
@@ -144,7 +129,7 @@
 
   <!-- Contas Arquivadas (melhorado) -->
   <section id="secao-contas-arquivadas"
-           class="card-dense overflow-hidden {% if not contas_arquivadas %}hidden{% endif %}">
+           class="card-dense overflow-visible {% if not contas_arquivadas %}hidden{% endif %}">
     <div class="px-4 sm:px-6 py-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
       <div class="min-w-0 flex-1">
         <h3 class="text-lg font-semibold text-fg">Contas Arquivadas</h3>
@@ -159,72 +144,52 @@
     </div>
 
     <div class="border-t border-gray-100">
-      <ul id="lista-contas-arquivadas" class="divide-y divide-gray-100">
+      <ul id="lista-contas-arquivadas" class="lista-contextual-list divide-y divide-gray-100">
         {% for conta in contas_arquivadas %}
-          <li class="conta-item group min-w-0 px-4 sm:px-6 py-4"
-              data-id="{{ conta.id }}">
-            <div class="overflow-x-auto overflow-y-visible -mx-4 px-4 sm:mx-0 sm:px-0 lg:overflow-visible">
-            <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:min-w-[40rem] xl:min-w-0">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center border shrink-0 border-gray-200 bg-gray-50 text-fg-muted">
-                  <div class="w-full h-full flex items-center justify-center p-1.5 overflow-hidden">
+          <li class="lista-contextual-item conta-item group relative px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:px-6 max-lg:cursor-pointer lg:cursor-default lg:active:bg-transparent"
+              role="listitem"
+              tabindex="0"
+              aria-label="Conta arquivada {{ conta.nome }}"
+              data-id="{{ conta.id }}"
+              data-conta-nome="{{ conta.nome }}"
+              data-conta-tipo="{{ conta.tipo }}"
+              data-conta-saldo="{{ conta.saldo_atual }}"
+              data-conta-icone="{{ conta.icone|default:'bank' }}">
+            <div class="flex min-w-0 items-center gap-2.5 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4">
+              <div class="flex min-w-0 flex-1 items-center gap-2.5">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200/90 bg-gray-50 overflow-hidden">
                   {% if conta.icone %}
                   {% if conta.icone in icone_choices_instituicoes %}
-                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="w-full h-full object-contain rounded-lg" alt=""
+                  <img src="{% static 'contas/icons/instituicoes/' %}{% if conta.icone == 'inter' %}intermedium{% else %}{{ conta.icone }}{% endif %}.png" class="h-6 w-6 object-contain" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
                   {% else %}
-                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="w-full h-full object-contain" alt=""
+                  <img src="{% static 'contas/icons/genericos/' %}{{ conta.icone|default:'bank' }}.svg" class="h-6 w-6 object-contain" alt=""
                        onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
                   {% endif %}
                   <span class="conta-avatar-inicial text-sm font-semibold opacity-80" style="display:none;">{{ conta.nome|slice:":1"|upper }}</span>
                   {% else %}
                   <span class="text-sm font-semibold opacity-80">{{ conta.nome|slice:":1"|upper }}</span>
                   {% endif %}
-                  </div>
                 </div>
-
-                <div class="min-w-0">
-                  <p class="conta-info flex flex-wrap items-center gap-x-2 gap-y-1 text-sm sm:text-base font-semibold text-fg">
-                    <span class="min-w-0 break-words">{{ conta.nome }}</span>
-                    <span class="font-normal shrink-0 text-fg-muted">
-                      • {{ conta.get_tipo_display }}
-                    </span>
-                    <span class="inline-flex shrink-0 text-[11px] px-2 py-0.5 rounded-full border border-warning-border text-warning bg-warning-soft">
-                      Arquivada
-                    </span>
+                <div class="min-w-0 flex-1">
+                  <p class="conta-info truncate text-sm font-semibold leading-tight text-fg" title="{{ conta.nome }}">
+                    {{ conta.nome }}
+                    <span class="font-normal text-fg-muted">· {{ conta.get_tipo_display }}</span>
                   </p>
-
-                  <p class="text-xs sm:text-sm mt-0.5 text-fg-muted">
-                    Saldo atual:
-                    <span class="font-semibold text-fg">
-                      {{ conta.saldo_atual|moeda }}
-                    </span>
+                  <p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500">
+                    Arquivada · Saldo: <span class="font-medium text-fg">{{ conta.saldo_atual|moeda }}</span>
                   </p>
                 </div>
               </div>
-            </div>
-
-            <div class="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:justify-end">
-              <button type="button"
-                      class="btn-editar-conta inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-gray-100/80 transition hover:bg-gray-200/90 hover:shadow-sm active:scale-[.99]"
-                      data-id="{{ conta.id }}"
-                      data-nome="{{ conta.nome }}"
-                      data-tipo="{{ conta.tipo }}"
-                      data-saldo="{{ conta.saldo_atual }}"
-                      data-icone="{{ conta.icone|default:'bank' }}">
-                Editar
-              </button>
-
-              <form method="post" action="{% url 'contas:reativar' conta.id %}" class="inline">
-                {% csrf_token %}
-                <button type="submit"
-                        class="inline-flex items-center justify-center px-3 py-2 rounded-xl border border-success-border text-sm font-medium text-success bg-success-soft transition hover:bg-emerald-100 hover:shadow-sm active:scale-[.99]">
-                  Reativar
+              <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
+                <button type="button"
+                        class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+                        aria-label="Ações da conta {{ conta.nome }}"
+                        aria-haspopup="menu"
+                        aria-expanded="false">
+                  <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
                 </button>
-              </form>
-            </div>
-            </div>
+              </div>
             </div>
           </li>
         {% endfor %}
@@ -236,5 +201,6 @@
 </div>
 
 {% include 'contas/partials/modal_conta.html' %}
+<script src="{% static 'js/lista_contextual.js' %}"></script>
 <script src="{% static 'contas/js/contas.js' %}"></script>
 {% endblock %}

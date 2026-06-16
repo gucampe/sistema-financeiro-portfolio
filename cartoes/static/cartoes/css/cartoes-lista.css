@@ -1,0 +1,39 @@
+/* Cartões — regras específicas da listagem (base em lista-contextual.css) */
+
+.cartoes-list-card {
+  overflow: visible;
+}
+
+#lista-cartoes {
+  overflow: visible;
+}
+
+#lista-cartoes .cartao-item {
+  overflow: visible;
+}
+
+.cartao-acoes-sheet {
+  margin-top: auto;
+  margin-bottom: 0;
+  max-height: min(85dvh, calc(100dvh - 1rem));
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  transform-origin: bottom center;
+}
+
+.cartao-acoes-menu--dropdown.cartao-acoes-menu--open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.cartao-menu-trigger[aria-expanded="true"] {
+  opacity: 1;
+  background-color: rgb(243 244 246);
+  color: rgb(51 65 85);
+}
+
+@media (min-width: 1024px) {
+  #lista-cartoes .cartao-item:focus-visible {
+    outline: none;
+  }
+}

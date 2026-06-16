@@ -1,0 +1,56 @@
+{% load static %}
+{% load moeda %}
+<li class="cartao-item group relative flex min-w-0 items-center gap-2.5 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-0 sm:gap-3 sm:px-5 sm:py-3 max-lg:cursor-pointer lg:cursor-default lg:py-2.5 lg:active:bg-transparent"
+    role="listitem"
+    tabindex="0"
+    data-cartao-id="{{ cartao.id }}"
+    data-cartao-nome="{{ cartao.nome }}"
+    data-cartao-icone="{{ cartao.icone|default:'bank' }}"
+    data-cartao-limite="{{ cartao.limite }}"
+    data-cartao-limite-label="{{ cartao.limite|moeda }}"
+    data-cartao-dia-fechamento="{{ cartao.dia_fechamento }}"
+    data-cartao-dia-vencimento="{{ cartao.dia_vencimento }}"
+    data-cartao-conta-padrao="{{ cartao.conta_padrao_id }}"
+    data-cartao-faturas-url="{% url 'cartoes:faturas' cartao.id %}"
+    aria-label="Cartão {{ cartao.nome }}">
+  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200/90 bg-white">
+    {% if cartao.icone in icone_choices_instituicoes %}
+      <img src="{% static 'contas/icons/instituicoes/' %}{% if cartao.icone == 'inter' %}intermedium{% else %}{{ cartao.icone }}{% endif %}.png"
+           class="h-6 w-6 object-contain" alt="" aria-hidden="true">
+    {% else %}
+      <img src="{% static 'contas/icons/genericos/' %}{{ cartao.icone|default:'bank' }}.svg"
+           class="h-6 w-6 object-contain" alt="" aria-hidden="true">
+    {% endif %}
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <p class="truncate text-sm font-semibold leading-tight text-fg" title="{{ cartao.nome }}">
+      {{ cartao.nome }}
+    </p>
+    <p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500 lg:hidden">
+      Limite <span class="font-medium text-fg">{{ cartao.limite|moeda }}</span>
+      <span class="text-gray-400"> · </span>
+      Fecha dia {{ cartao.dia_fechamento }}
+    </p>
+    <p class="mt-0.5 hidden truncate text-[12px] leading-tight text-gray-500 lg:block">
+      Limite <span class="font-medium text-fg">{{ cartao.limite|moeda }}</span>
+      <span class="text-gray-400"> · </span>
+      Fecha {{ cartao.dia_fechamento }}
+      <span class="text-gray-400"> · </span>
+      Vence {{ cartao.dia_vencimento }}
+      <span class="text-gray-400"> · </span>
+      {{ cartao.conta_padrao.nome }}
+    </p>
+  </div>
+
+  <div class="cartao-item__menu-host relative hidden shrink-0 lg:block">
+    <button type="button"
+            class="cartao-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+            aria-label="Ações do cartão {{ cartao.nome }}"
+            aria-haspopup="menu"
+            aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
+    </button>
+    {% include 'cartoes/partials/cartao_acoes_menu.html' with menu_variant='dropdown' %}
+  </div>
+</li>

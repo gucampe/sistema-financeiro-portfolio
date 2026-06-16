@@ -140,9 +140,137 @@ function limparCores() {
   });
 }
 
+function dadosCategoriaDoItem(item) {
+  if (!item) return null;
+  return {
+    id: item.dataset.id,
+    nome:
+      item.dataset.categoriaNome ||
+      safeText(item.querySelector(".nome-categoria")?.textContent),
+    icone: item.dataset.categoriaIcone || "fa-ellipsis-h",
+    cor: item.dataset.categoriaCor || "#4F46E5",
+    tipo:
+      item.dataset.tipo ||
+      (item.parentElement?.id === "lista-receita" ||
+      item.parentElement?.id === "lista-receita-arquivadas"
+        ? "receita"
+        : "despesa"),
+  };
+}
+
 function getCsrfToken() {
   const el = document.querySelector("[name=csrfmiddlewaretoken]");
   return el ? el.value : "";
+}
+
+function abrirModalEdicaoCategoria(item) {
+  const dados = dadosCategoriaDoItem(item);
+  if (!item?.dataset.editavel || !dados) return;
+  preencherModal(dados.nome, dados.icone, dados.cor, dados.tipo, dados.id);
+}
+
+function iniciarArquivarCategoria(item) {
+  if (!item || isListaArquivadas(item.parentElement)) return;
+  categoriaParaAcao = item;
+  acaoPendente = "arquivar";
+  if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Arquivar categoria?";
+  if (modalAcaoMsg) {
+    modalAcaoMsg.textContent =
+      "A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.";
+  }
+  if (btnConfirmarAcao) {
+    btnConfirmarAcao.textContent = "Arquivar";
+    btnConfirmarAcao.className = "btn btn-warning-soft btn-sm";
+  }
+  globalThis.GranaGoModal?.open(overlayAcao);
+}
+
+function iniciarExclusaoCategoria(item) {
+  if (!item) return;
+  categoriaParaAcao = item;
+  const id = item.dataset.id;
+  const tipo = item.dataset.tipo || "despesa";
+
+  fetch(`/categorias/verificar-exclusao/${id}/`, {
+    method: "GET",
+    headers: { "X-Requested-With": "XMLHttpRequest" },
+  })
+    .then((r) => r.json())
+    .then((result) => {
+      if (result.status === "ok" && result.count === 0) {
+        acaoPendente = "excluir";
+        if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Excluir definitivamente?";
+        if (modalAcaoMsg) {
+          modalAcaoMsg.textContent =
+            "Tem certeza? Esta ação não pode ser desfeita. Só é permitido excluir categorias arquivadas sem transações vinculadas.";
+        }
+        if (btnConfirmarAcao) {
+          btnConfirmarAcao.textContent = "Excluir";
+          btnConfirmarAcao.className = "btn btn-danger btn-sm";
+        }
+        globalThis.GranaGoModal?.open(overlayAcao);
+      } else if (result.status === "ok" && result.count > 0) {
+        abrirModalMigracao(id, tipo, result.count);
+      } else {
+        showToast(result.errors || "Erro ao verificar exclusão.", "erro");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      showToast("Erro ao verificar exclusão.", "erro");
+    });
+}
+
+function restaurarCategoriaItem(item) {
+  if (!item || !isListaArquivadas(item.parentElement)) return;
+  const id = item.dataset.id;
+  const tipo = item.dataset.tipo || "despesa";
+  const dados = dadosCategoriaDoItem(item);
+  const nome = dados?.nome || "";
+  const icone = dados?.icone || "fa-ellipsis-h";
+  const cor = dados?.cor || "#4F46E5";
+
+  const formData = new FormData();
+  formData.append("categoria_id", id);
+  formData.append("csrfmiddlewaretoken", getCsrfToken());
+
+  fetch("/categorias/restaurar/", {
+    method: "POST",
+    body: formData,
+    headers: { "X-Requested-With": "XMLHttpRequest" },
+  })
+    .then((r) => r.json())
+    .then((result) => {
+      if (result.status === "ok") {
+        const tipoFinal = result.tipo || tipo;
+        const targetAtivas = getTargetListaByTipo(tipoFinal);
+        const parentArq = item.parentElement;
+        removeEmptyPlaceholder(targetAtivas);
+        item.remove();
+        if (targetAtivas) {
+          targetAtivas.appendChild(createListItem({ id, nome, icone, cor }, tipoFinal, false));
+        }
+        if (parentArq && countCategorias(parentArq) === 0) {
+          ensureEmptyPlaceholder(
+            parentArq,
+            "Nenhuma categoria arquivada.",
+            parentArq.id === "lista-despesa-arquivadas"
+              ? "empty-despesa-arquivadas"
+              : "empty-receita-arquivadas"
+          );
+        }
+        showToast("Categoria restaurada com sucesso!", "sucesso");
+        if (typeof window.atualizarContadorArquivadas === "function") {
+          window.atualizarContadorArquivadas(result.tipo || tipo, -1);
+        }
+      } else {
+        showToast(result.errors || "Erro ao restaurar categoria!", "erro");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      showToast("Erro inesperado ao restaurar!", "erro");
+    });
 }
 
 function safeText(s) {
@@ -305,10 +433,18 @@ if (colorGrid) {
 // Render helpers (list row)
 // =====================
 const LI_ROW_CLASSES =
-  "group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5";
+  "lista-contextual-item group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5 max-lg:cursor-pointer lg:cursor-default lg:active:bg-transparent";
 
-const BTN_ACAO_BASE =
-  "inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm transition hover:bg-gray-300 sm:px-4 sm:py-2";
+const MENU_HOST_HTML = `
+  <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
+    <button type="button"
+            class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+            aria-haspopup="menu"
+            aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
+    </button>
+  </div>
+`;
 
 function renderIconBox(result) {
   const icone = result.icone || "fa-ellipsis-h";
@@ -320,68 +456,20 @@ function renderIconBox(result) {
   `;
 }
 
-function renderActionsButtons(result, tipo, isArquivada = false) {
-  if (isArquivada) {
-    return `
-      <div class="inline-flex shrink-0 items-center gap-2">
-        <button type="button" class="restaurar-categoria ${BTN_ACAO_BASE} text-gray-800"
-                data-id="${result.id}" title="Restaurar">
-          <i class="fa-solid fa-rotate-left text-xs text-gray-700"></i>
-          <span class="hidden sm:inline">Restaurar</span>
-        </button>
-        <button type="button" class="excluir-definitivamente ${BTN_ACAO_BASE} text-red-600"
-          data-id="${result.id}" title="Excluir definitivamente">
-          <i class="fa-solid fa-trash text-xs"></i>
-          <span class="hidden sm:inline">Excluir</span>
-        </button>
-      </div>
-    `;
-  }
-  return `
-    <div class="inline-flex shrink-0 items-center gap-2">
-      <button
-        type="button"
-        class="editar-categoria ${BTN_ACAO_BASE} text-gray-800"
-        data-id="${result.id}"
-        data-nome="${result.nome}"
-        data-icone="${result.icone}"
-        data-cor="${result.cor}"
-        data-tipo="${tipo}"
-        title="Editar"
-      >
-        <i class="fa-solid fa-pen-to-square text-xs text-gray-700"></i>
-        <span class="hidden sm:inline">Editar</span>
-      </button>
-      <button
-        type="button"
-        class="arquivar-categoria ${BTN_ACAO_BASE} text-amber-700"
-        data-id="${result.id}"
-        title="Arquivar"
-      >
-        <i class="fa-solid fa-archive text-xs"></i>
-        <span class="hidden sm:inline">Arquivar</span>
-      </button>
-    </div>
-  `;
-}
-
 function renderCategoriaRowInner(result, tipo, isArquivada = false) {
   const secondary = isArquivada
     ? '<p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500">Arquivada</p>'
     : "";
-  const actions = renderActionsButtons(result, tipo, isArquivada);
   return `
-    <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4">
-      <div class="flex min-w-0 flex-1 items-center gap-2.5 md:min-w-0">
+    <div class="flex min-w-0 items-center gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4">
+      <div class="flex min-w-0 flex-1 items-center gap-2.5 lg:min-w-0">
         ${renderIconBox(result)}
         <div class="min-w-0 flex-1">
           <p class="nome-categoria truncate text-sm font-semibold leading-tight text-fg" title="${result.nome}">${result.nome}</p>
           ${secondary}
         </div>
       </div>
-      <div class="flex shrink-0 flex-row items-center justify-end gap-1.5 min-w-0 sm:gap-2 md:gap-3">
-        ${actions}
-      </div>
+      ${MENU_HOST_HTML}
     </div>
   `;
 }
@@ -392,8 +480,21 @@ function createListItem(result, tipo, isArquivada = false) {
   li.dataset.categoriaItem = "1";
   li.dataset.id = String(result.id);
   li.dataset.tipo = tipo;
+  li.dataset.editavel = "1";
+  li.dataset.categoriaNome = result.nome;
+  li.dataset.categoriaIcone = result.icone || "fa-ellipsis-h";
+  li.dataset.categoriaCor = result.cor || "#4F46E5";
+  li.tabIndex = 0;
+  li.setAttribute(
+    "aria-label",
+    isArquivada ? `Categoria arquivada ${result.nome}` : `Categoria ${result.nome}`
+  );
   li.className = LI_ROW_CLASSES;
   li.innerHTML = renderCategoriaRowInner(result, tipo, isArquivada);
+  const trigger = li.querySelector(".lista-contextual-menu-trigger");
+  if (trigger) {
+    trigger.setAttribute("aria-label", `Ações da categoria ${result.nome}`);
+  }
   return li;
 }
 
@@ -448,6 +549,9 @@ if (form) {
           }
 
           li.dataset.id = String(categoriaEditandoId);
+          li.dataset.categoriaNome = result.nome;
+          li.dataset.categoriaIcone = result.icone;
+          li.dataset.categoriaCor = result.cor;
           li.innerHTML = renderCategoriaRowInner(
             {
               id: result.id,
@@ -508,143 +612,58 @@ if (form) {
   });
 }
 
-// Delegação em document para listas ativas e arquivadas
-document.addEventListener("click", (e) => {
-  const btnEditar = e.target.closest(".editar-categoria");
-  if (btnEditar) {
-    e.preventDefault();
-    const item = closestCategoriaItem(btnEditar);
-    if (!item) return;
-    if (isListaArquivadas(item.parentElement)) return;
-    const id = item.dataset.id;
-    const nome = btnEditar.dataset.nome || safeText(item.querySelector(".nome-categoria")?.textContent);
-    const icone = btnEditar.dataset.icone || "fa-ellipsis-h";
-    const cor = btnEditar.dataset.cor || "#4F46E5";
-    const tipo =
-      btnEditar.dataset.tipo ||
-      (item.parentElement?.id === "lista-receita" ? "receita" : "despesa");
-    preencherModal(nome, icone, cor, tipo, id);
-    return;
-  }
-
-  const btnArquivar = e.target.closest(".arquivar-categoria");
-  if (btnArquivar) {
-    e.preventDefault();
-    const item = closestCategoriaItem(btnArquivar);
-    if (!item) return;
-    if (isListaArquivadas(item.parentElement)) return;
-    categoriaParaAcao = item;
-    acaoPendente = "arquivar";
-      if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Arquivar categoria?";
-      if (modalAcaoMsg)
-        modalAcaoMsg.textContent =
-          "A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.";
-      if (btnConfirmarAcao) {
-        btnConfirmarAcao.textContent = "Arquivar";
-        btnConfirmarAcao.className = "btn btn-warning-soft btn-sm";
+// Lista contextual (bottom sheet mobile + menu desktop)
+if (globalThis.ListaContextual) {
+  const categoriasRoot =
+    document.querySelector(".page-shell .container") || document.querySelector(".page-shell");
+  if (categoriasRoot) {
+    ListaContextual.create({
+      root: categoriasRoot,
+    itemSelector: `${LIST_ITEM_SELECTOR}[data-editavel]`,
+    canInteract: (item) => !!item.dataset.editavel,
+    getPayload: (item) => ({ el: item, ...dadosCategoriaDoItem(item) }),
+    getTitulo: (item) => dadosCategoriaDoItem(item)?.nome || "",
+    getMeta: (item) =>
+      isListaArquivadas(item.parentElement) ? "Categoria arquivada" : "",
+    getActions: (item) => {
+      if (isListaArquivadas(item.parentElement)) {
+        return [
+          {
+            id: "restaurar",
+            label: "Restaurar categoria",
+            icon: "fa-solid fa-rotate-left",
+          },
+          {
+            id: "excluir",
+            label: "Excluir definitivamente",
+            icon: "fa-solid fa-trash",
+            danger: true,
+          },
+        ];
       }
-    globalThis.GranaGoModal?.open(overlayAcao);
-    return;
+      return [
+        {
+          id: "editar",
+          label: "Editar categoria",
+          icon: "fa-solid fa-pen-to-square",
+        },
+        {
+          id: "arquivar",
+          label: "Arquivar categoria",
+          icon: "fa-solid fa-archive",
+        },
+      ];
+    },
+    onAction: (actionId, _payload, item) => {
+      if (!item) return;
+      if (actionId === "editar") abrirModalEdicaoCategoria(item);
+      else if (actionId === "arquivar") iniciarArquivarCategoria(item);
+      else if (actionId === "restaurar") restaurarCategoriaItem(item);
+      else if (actionId === "excluir") iniciarExclusaoCategoria(item);
+    },
+  });
   }
-
-  const btnExcluirDef = e.target.closest(".excluir-definitivamente");
-  if (btnExcluirDef) {
-    e.preventDefault();
-    const item = closestCategoriaItem(btnExcluirDef);
-    if (!item) return;
-    categoriaParaAcao = item;
-    const id = item.dataset.id;
-    const tipo = item.dataset.tipo || "despesa";
-
-    fetch(`/categorias/verificar-exclusao/${id}/`, {
-      method: "GET",
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-    })
-      .then((r) => r.json())
-      .then((result) => {
-        if (result.status === "ok" && result.count === 0) {
-          acaoPendente = "excluir";
-          if (modalAcaoTitulo) modalAcaoTitulo.textContent = "Excluir definitivamente?";
-          if (modalAcaoMsg)
-            modalAcaoMsg.textContent =
-              "Tem certeza? Esta ação não pode ser desfeita. Só é permitido excluir categorias arquivadas sem transações vinculadas.";
-          if (btnConfirmarAcao) {
-            btnConfirmarAcao.textContent = "Excluir";
-            btnConfirmarAcao.className = "btn btn-danger btn-sm";
-          }
-          globalThis.GranaGoModal?.open(overlayAcao);
-        } else if (result.status === "ok" && result.count > 0) {
-          abrirModalMigracao(id, tipo, result.count);
-        } else {
-          showToast(result.errors || "Erro ao verificar exclusão.", "erro");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        showToast("Erro ao verificar exclusão.", "erro");
-      });
-    return;
-  }
-
-  const btnRestaurar = e.target.closest(".restaurar-categoria");
-  if (btnRestaurar) {
-    e.preventDefault();
-    const item = closestCategoriaItem(btnRestaurar);
-    if (!item || !isListaArquivadas(item.parentElement)) return;
-    const id = item.dataset.id;
-    const tipo = item.dataset.tipo || "despesa";
-    const nome = safeText(item.querySelector(".nome-categoria")?.textContent);
-    const iconEl = item.querySelector("i.fas");
-    const icone = [...(iconEl?.classList || [])].find((c) =>
-      c.startsWith("fa-") && !["fas", "far", "fab"].includes(c)
-    ) || "fa-ellipsis-h";
-    const cor = getCorFromIconEl(iconEl);
-
-    const formData = new FormData();
-    formData.append("categoria_id", id);
-    formData.append("csrfmiddlewaretoken", getCsrfToken());
-
-    fetch("/categorias/restaurar/", {
-      method: "POST",
-      body: formData,
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-    })
-      .then((r) => r.json())
-      .then((result) => {
-        if (result.status === "ok") {
-          const tipoFinal = result.tipo || tipo;
-          const targetAtivas = getTargetListaByTipo(tipoFinal);
-          const parentArq = item.parentElement;
-          removeEmptyPlaceholder(targetAtivas);
-          item.remove();
-          if (targetAtivas) {
-            targetAtivas.appendChild(
-              createListItem({ id, nome, icone, cor }, tipoFinal, false)
-            );
-          }
-          if (parentArq && countCategorias(parentArq) === 0) {
-            ensureEmptyPlaceholder(
-              parentArq,
-              "Nenhuma categoria arquivada.",
-              parentArq.id === "lista-despesa-arquivadas"
-                ? "empty-despesa-arquivadas"
-                : "empty-receita-arquivadas"
-            );
-          }
-          showToast("Categoria restaurada com sucesso!", "sucesso");
-          if (typeof window.atualizarContadorArquivadas === "function") {
-            window.atualizarContadorArquivadas(result.tipo || tipo, -1);
-          }
-        } else {
-          showToast(result.errors || "Erro ao restaurar categoria!", "erro");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        showToast("Erro inesperado ao restaurar!", "erro");
-      });
-  }
-});
+}
 
 // =====================
 // Modal Migração

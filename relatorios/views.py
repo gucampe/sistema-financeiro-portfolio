@@ -390,7 +390,7 @@ class PorContaView(RelatorioFiltrosMixin, TemplateView):
         return ctx
 
 
-class ExportHubView(LoginRequiredMixin, TemplateView):
+class ExportHubView(RelatorioFiltrosMixin, TemplateView):
     template_name = "relatorios/export/hub.html"
 
     def get_context_data(self, **kwargs):

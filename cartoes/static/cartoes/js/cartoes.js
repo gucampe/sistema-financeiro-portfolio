@@ -87,6 +87,8 @@
     globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
   }
 
+  window.abrirModalCartao = abrirModal;
+
   function fecharModal() {
     resetModal();
   }
@@ -125,23 +127,7 @@
         item.classList.remove("border-brand-500", "bg-brand-50");
       });
       itemIcone.classList.add("border-brand-500", "bg-brand-50");
-      return;
     }
-
-    const btnEditar = event.target.closest(".btn-editar-cartao");
-    if (btnEditar) {
-      abrirModal({
-        id: btnEditar.dataset.id,
-        nome: btnEditar.dataset.nome,
-        icone: btnEditar.dataset.icone,
-        limite: btnEditar.dataset.limite,
-        diaFechamento: btnEditar.dataset.diaFechamento,
-        diaVencimento: btnEditar.dataset.diaVencimento,
-        contaPadrao: btnEditar.dataset.contaPadrao,
-      });
-      return;
-    }
-
   });
 
   if (form) {

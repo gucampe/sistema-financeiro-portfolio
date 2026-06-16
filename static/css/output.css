@@ -2275,6 +2275,10 @@ select.\!input,
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.cursor-default {
+  cursor: default;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -2411,18 +2415,9 @@ select.\!input,
   gap: 1px;
 }
 
-.gap-x-2 {
-  -moz-column-gap: 0.5rem;
-       column-gap: 0.5rem;
-}
-
 .gap-x-3 {
   -moz-column-gap: 0.75rem;
        column-gap: 0.75rem;
-}
-
-.gap-y-1 {
-  row-gap: 0.25rem;
 }
 
 .gap-y-2 {
@@ -2509,6 +2504,10 @@ select.\!input,
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overflow-visible {
+  overflow: visible;
 }
 
 .overflow-x-auto {
@@ -2608,6 +2607,11 @@ select.\!input,
   border-right-width: 1px;
 }
 
+.border-x-0 {
+  border-left-width: 0px;
+  border-right-width: 0px;
+}
+
 .border-y {
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -2615,6 +2619,10 @@ select.\!input,
 
 .border-b {
   border-bottom-width: 1px;
+}
+
+.border-b-0 {
+  border-bottom-width: 0px;
 }
 
 .border-t {
@@ -2765,10 +2773,6 @@ select.\!input,
 
 .border-rose-100\/80 {
   border-color: rgb(255 228 230 / 0.8);
-}
-
-.border-success-border {
-  border-color: rgba(22, 163, 74, 0.15);
 }
 
 .border-transparent {
@@ -2965,6 +2969,10 @@ select.\!input,
   background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
 }
 
+.bg-gray-300\/90 {
+  background-color: rgb(209 213 219 / 0.9);
+}
+
 .bg-gray-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
@@ -3046,11 +3054,6 @@ select.\!input,
 .bg-sky-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(240 249 255 / var(--tw-bg-opacity, 1));
-}
-
-.bg-success-soft {
-  --tw-bg-opacity: 1;
-  background-color: rgb(236 253 245 / var(--tw-bg-opacity, 1));
 }
 
 .bg-surface {
@@ -3380,6 +3383,10 @@ select.\!input,
 
 .pb-0\.5 {
   padding-bottom: 0.125rem;
+}
+
+.pb-1 {
+  padding-bottom: 0.25rem;
 }
 
 .pb-16 {
@@ -3877,11 +3884,6 @@ select.\!input,
 .text-slate-700 {
   --tw-text-opacity: 1;
   color: rgb(51 65 85 / var(--tw-text-opacity, 1));
-}
-
-.text-success {
-  --tw-text-opacity: 1;
-  color: rgb(22 163 74 / var(--tw-text-opacity, 1));
 }
 
 .text-warning {
@@ -4415,16 +4417,6 @@ select.\!input,
   border-color: rgb(156 163 175 / 0.8);
 }
 
-.hover\:bg-amber-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 243 199 / var(--tw-bg-opacity, 1));
-}
-
-.hover\:bg-emerald-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(209 250 229 / var(--tw-bg-opacity, 1));
-}
-
 .hover\:bg-emerald-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(4 120 87 / var(--tw-bg-opacity, 1));
@@ -4444,10 +4436,6 @@ select.\!input,
   background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
 }
 
-.hover\:bg-gray-200\/90:hover {
-  background-color: rgb(229 231 235 / 0.9);
-}
-
 .hover\:bg-gray-300:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity, 1));
@@ -4465,11 +4453,6 @@ select.\!input,
 
 .hover\:bg-gray-900\/\[0\.06\]:hover {
   background-color: rgb(17 24 39 / 0.06);
-}
-
-.hover\:bg-red-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-red-50:hover {
@@ -4559,12 +4542,6 @@ select.\!input,
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-.hover\:shadow-sm:hover {
-  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
 .hover\:brightness-105:hover {
   --tw-brightness: brightness(1.05);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -4610,6 +4587,10 @@ select.\!input,
   --tw-ring-offset-width: 0px;
 }
 
+.focus-visible\:opacity-100:focus-visible {
+  opacity: 1;
+}
+
 .focus-visible\:outline-none:focus-visible {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -4653,12 +4634,6 @@ select.\!input,
 .active\:scale-\[\.98\]:active {
   --tw-scale-x: .98;
   --tw-scale-y: .98;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-.active\:scale-\[\.99\]:active {
-  --tw-scale-x: .99;
-  --tw-scale-y: .99;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -4712,6 +4687,10 @@ select.\!input,
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.group:focus-within .group-focus-within\:opacity-100 {
+  opacity: 1;
+}
+
 .group:hover .group-hover\:bg-brand-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(209 250 229 / var(--tw-bg-opacity, 1));
@@ -4720,6 +4699,10 @@ select.\!input,
 .group:hover .group-hover\:text-brand-700 {
   --tw-text-opacity: 1;
   color: rgb(21 128 61 / var(--tw-text-opacity, 1));
+}
+
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
 }
 
 .has-\[\:checked\]\:border-brand-400\/60:has(:checked) {
@@ -4747,6 +4730,12 @@ select.\!input,
 .has-\[\:checked\]\:text-brand-900:has(:checked) {
   --tw-text-opacity: 1;
   color: rgb(20 83 45 / var(--tw-text-opacity, 1));
+}
+
+@media not all and (min-width: 1024px) {
+  .max-lg\:cursor-pointer {
+    cursor: pointer;
+  }
 }
 
 @media (min-width: 400px) {
@@ -4803,6 +4792,11 @@ select.\!input,
 
   .sm\:order-none {
     order: 0;
+  }
+
+  .sm\:-mx-0 {
+    margin-left: -0px;
+    margin-right: -0px;
   }
 
   .sm\:-mx-5 {
@@ -5189,10 +5183,6 @@ select.\!input,
     padding-bottom: 5rem;
   }
 
-  .sm\:pb-24 {
-    padding-bottom: 6rem;
-  }
-
   .sm\:pb-3 {
     padding-bottom: 0.75rem;
   }
@@ -5337,10 +5327,6 @@ select.\!input,
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
-  .md\:grid-cols-\[minmax\(0\2c 1fr\)_auto\] {
-    grid-template-columns: minmax(0,1fr) auto;
-  }
-
   .md\:grid-cols-\[minmax\(0\2c 1fr\)_auto_minmax\(0\2c 1fr\)\] {
     grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   }
@@ -5413,6 +5399,18 @@ select.\!input,
     display: flex;
   }
 
+  .lg\:inline-flex {
+    display: inline-flex;
+  }
+
+  .lg\:grid {
+    display: grid;
+  }
+
+  .lg\:hidden {
+    display: none;
+  }
+
   .lg\:h-\[22rem\] {
     height: 22rem;
   }
@@ -5433,10 +5431,6 @@ select.\!input,
     min-width: 130px;
   }
 
-  .lg\:min-w-\[40rem\] {
-    min-width: 40rem;
-  }
-
   .lg\:max-w-\[14rem\] {
     max-width: 14rem;
   }
@@ -5453,6 +5447,10 @@ select.\!input,
     flex: none;
   }
 
+  .lg\:cursor-default {
+    cursor: default;
+  }
+
   .lg\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -5463,6 +5461,14 @@ select.\!input,
 
   .lg\:grid-cols-6 {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .lg\:grid-cols-\[minmax\(0\2c 1fr\)_auto\] {
+    grid-template-columns: minmax(0,1fr) auto;
+  }
+
+  .lg\:grid-cols-\[minmax\(0\2c 1fr\)_auto_minmax\(0\2c 1fr\)\] {
+    grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   }
 
   .lg\:flex-row {
@@ -5487,6 +5493,14 @@ select.\!input,
 
   .lg\:gap-12 {
     gap: 3rem;
+  }
+
+  .lg\:gap-3 {
+    gap: 0.75rem;
+  }
+
+  .lg\:gap-4 {
+    gap: 1rem;
   }
 
   .lg\:gap-x-0 {
@@ -5526,6 +5540,15 @@ select.\!input,
     padding-right: 2rem;
   }
 
+  .lg\:py-2\.5 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+
+  .lg\:pb-24 {
+    padding-bottom: 6rem;
+  }
+
   .lg\:pl-6 {
     padding-left: 1.5rem;
   }
@@ -5536,6 +5559,14 @@ select.\!input,
 
   .lg\:pt-0 {
     padding-top: 0px;
+  }
+
+  .lg\:text-\[13px\] {
+    font-size: 13px;
+  }
+
+  .lg\:active\:bg-transparent:active {
+    background-color: transparent;
   }
 }
 
@@ -5582,12 +5613,6 @@ select.\!input,
 
   .min-\[1100px\]\:justify-self-end {
     justify-self: end;
-  }
-}
-
-@media (min-width: 1280px) {
-  .xl\:min-w-0 {
-    min-width: 0px;
   }
 }
 

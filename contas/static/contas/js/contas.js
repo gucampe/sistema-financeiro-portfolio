@@ -13,11 +13,41 @@
   const inputIcone = document.getElementById("conta_icone");
   const previewIconeImg = document.getElementById("preview-icone-conta-img");
 
+  let contaEditandoArquivada = false;
+
   const toastEl = document.getElementById("toast-contas");
   const toastMsg = document.getElementById("toast-contas-msg");
   const toastClose = document.getElementById("toast-contas-close");
   const toastColors = { sucesso: "bg-green-600", erro: "bg-red-600" };
   let toastTimeout;
+
+  function dadosContaDoItem(item) {
+    if (!item?.dataset?.id) return null;
+    return {
+      id: item.dataset.id,
+      nome: item.dataset.contaNome,
+      tipo: item.dataset.contaTipo,
+      saldo: item.dataset.contaSaldo,
+      icone: item.dataset.contaIcone || "bank",
+    };
+  }
+
+  function isContaArquivada(item) {
+    return !!item?.closest("#lista-contas-arquivadas");
+  }
+
+  function submeterPostConta(url) {
+    const postForm = document.createElement("form");
+    postForm.method = "POST";
+    postForm.action = url;
+    const csrf = document.createElement("input");
+    csrf.type = "hidden";
+    csrf.name = "csrfmiddlewaretoken";
+    csrf.value = getCsrfToken();
+    postForm.appendChild(csrf);
+    document.body.appendChild(postForm);
+    postForm.submit();
+  }
 
   function getCsrfToken() {
     const el = document.querySelector("[name=csrfmiddlewaretoken]");
@@ -94,8 +124,9 @@
     /* cleanup opcional; visibilidade via GranaGoModal.close / defaultClose */
   }
 
-  function abrirModal(conta) {
+  function abrirModal(conta, { arquivada = false } = {}) {
     if (erroBox) erroBox.classList.add("hidden");
+    contaEditandoArquivada = arquivada;
     if (conta) {
       inputContaId.value = conta.id;
       document.getElementById("conta_nome").value = conta.nome || "";
@@ -110,6 +141,7 @@
       if (grupoSaldoInicial) grupoSaldoInicial.classList.add("hidden");
       if (tituloModal) tituloModal.textContent = "Editar conta";
     } else {
+      contaEditandoArquivada = false;
       inputContaId.value = "";
       form.reset();
       document.getElementById("conta_id").value = "";
@@ -133,6 +165,7 @@
     }
     form.reset();
     inputContaId.value = "";
+    contaEditandoArquivada = false;
     if (inputIcone) inputIcone.value = "bank";
     selecionarIcone("bank");
   }
@@ -262,17 +295,50 @@
     });
   }
 
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".btn-editar-conta");
-    if (btn) {
-      e.preventDefault();
-      abrirModal({
-        id: btn.dataset.id,
-        nome: btn.dataset.nome,
-        tipo: btn.dataset.tipo,
-        saldo: btn.dataset.saldo,
-        icone: btn.dataset.icone,
-      });
+  if (globalThis.ListaContextual) {
+    const contasRoot = document.querySelector(".page-shell .max-w-5xl") || document.querySelector(".page-shell");
+    if (contasRoot) {
+      ListaContextual.create({
+        root: contasRoot,
+      itemSelector: ".lista-contextual-item.conta-item",
+      getPayload: (item) => ({ el: item, ...dadosContaDoItem(item) }),
+      getTitulo: (item) => dadosContaDoItem(item)?.nome || "",
+      getMeta: (item) => (isContaArquivada(item) ? "Conta arquivada" : ""),
+      getActions: (item) => {
+        if (isContaArquivada(item)) {
+          return [
+            {
+              id: "reativar",
+              label: "Reativar conta",
+              icon: "fa-solid fa-rotate-left",
+            },
+          ];
+        }
+        return [
+          {
+            id: "editar",
+            label: "Editar conta",
+            icon: "fa-solid fa-pen-to-square",
+          },
+          {
+            id: "arquivar",
+            label: "Arquivar conta",
+            icon: "fa-solid fa-archive",
+          },
+        ];
+      },
+      onAction: (actionId, _payload, item) => {
+        const conta = dadosContaDoItem(item);
+        if (!conta) return;
+        if (actionId === "editar") {
+          abrirModal(conta, { arquivada: isContaArquivada(item) });
+        } else if (actionId === "arquivar") {
+          submeterPostConta("/contas/" + conta.id + "/arquivar/");
+        } else if (actionId === "reativar") {
+          submeterPostConta("/contas/" + conta.id + "/reativar/");
+        }
+      },
+    });
     }
-  });
+  }
 })();

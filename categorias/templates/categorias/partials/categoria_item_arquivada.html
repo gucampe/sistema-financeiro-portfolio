@@ -3,10 +3,21 @@
   data-categoria-item
   data-id="{{ categoria.id }}"
   data-tipo="{{ categoria.tipo }}"
-  class="group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5"
+  {% if categoria.usuario %}
+  data-editavel="1"
+  data-categoria-nome="{{ categoria.nome }}"
+  data-categoria-icone="{{ categoria.icone }}"
+  data-categoria-cor="{{ categoria.cor }}"
+  class="lista-contextual-item group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5 max-lg:cursor-pointer lg:cursor-default lg:active:bg-transparent"
+  tabindex="0"
+  aria-label="Categoria arquivada {{ categoria.nome }}"
+  {% else %}
+  class="group relative -mx-4 px-4 py-2.5 sm:-mx-5 sm:px-5 cursor-default"
+  aria-label="Categoria padrão {{ categoria.nome }}"
+  {% endif %}
 >
-  <div class="flex min-w-0 items-center gap-2 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4">
-    <div class="flex min-w-0 flex-1 items-center gap-2.5 md:min-w-0">
+  <div class="flex min-w-0 items-center gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4">
+    <div class="flex min-w-0 flex-1 items-center gap-2.5 lg:min-w-0">
       <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ categoria.cor }}20] border-[{{ categoria.cor }}40]">
         <i class="fas {{ categoria.icone }} text-[15px] text-[{{ categoria.cor }}]"></i>
       </div>
@@ -18,23 +29,18 @@
       </div>
     </div>
 
-    <div class="flex shrink-0 flex-row items-center justify-end gap-1.5 min-w-0 sm:gap-2 md:gap-3">
-      {% if categoria.usuario %}
-      <div class="inline-flex shrink-0 items-center gap-2">
-        <button type="button" class="restaurar-categoria inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-gray-800 transition hover:bg-gray-300 sm:px-4 sm:py-2"
-                data-id="{{ categoria.id }}" title="Restaurar">
-          <i class="fa-solid fa-rotate-left text-xs text-gray-700"></i>
-          <span class="hidden sm:inline">Restaurar</span>
-        </button>
-        <button type="button" class="excluir-definitivamente inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2 py-1.5 text-sm text-red-600 transition hover:bg-gray-300 sm:px-4 sm:py-2"
-                data-id="{{ categoria.id }}" title="Excluir definitivamente">
-          <i class="fa-solid fa-trash text-xs"></i>
-          <span class="hidden sm:inline">Excluir</span>
-        </button>
-      </div>
-      {% else %}
-        <span class="shrink-0 text-[13px] text-gray-500">Não editável</span>
-      {% endif %}
+    {% if categoria.usuario %}
+    <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
+      <button type="button"
+              class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+              aria-label="Ações da categoria {{ categoria.nome }}"
+              aria-haspopup="menu"
+              aria-expanded="false">
+        <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
+      </button>
     </div>
+    {% else %}
+    <span class="shrink-0 text-[12px] text-gray-500 lg:text-[13px]">Não editável</span>
+    {% endif %}
   </div>
 </li>
