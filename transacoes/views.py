@@ -987,7 +987,7 @@ def importar_ofx_confirmar(request):
         fitid = _normalizar_fitid_confirmacao(row.get("ofx_fitid"))
         if fitid:
             existente = (
-                Transacao.objects.filter(conta=conta, ofx_fitid=fitid)
+                Transacao.objects.filter(usuario=request.user, conta=conta, ofx_fitid=fitid)
                 .only("data", "valor", "descricao")
                 .first()
             )
@@ -1035,6 +1035,7 @@ def importar_ofx_confirmar(request):
     if fitids_inserir:
         existentes = set(
             Transacao.objects.filter(
+                usuario=request.user,
                 conta=conta,
                 ofx_fitid__in=fitids_inserir,
             ).values_list("ofx_fitid", flat=True)

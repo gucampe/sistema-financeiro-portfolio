@@ -136,7 +136,7 @@ def excluir_categoria(request, id):
         }, status=400)
 
     from transacoes.models import Transacao
-    count = Transacao.objects.filter(categoria=categoria).count()
+    count = Transacao.objects.filter(usuario=request.user, categoria=categoria).count()
     if count > 0:
         return JsonResponse({
             "status": "blocked",
@@ -159,7 +159,7 @@ def verificar_exclusao_categoria(request, id):
         return JsonResponse({"status": "erro", "errors": "Categoria não está arquivada"}, status=400)
 
     from transacoes.models import Transacao
-    count = Transacao.objects.filter(categoria=categoria).count()
+    count = Transacao.objects.filter(usuario=request.user, categoria=categoria).count()
     return JsonResponse({"status": "ok", "count": count})
 
 

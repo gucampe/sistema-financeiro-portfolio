@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -45,6 +46,19 @@ class TestSegurancaUnit(TestCase):
         par = par_usuarios()
         resp = par.client_a.get(reverse("usuarios:configuracoes"))
         assert_http_200(resp)
+
+    def test_unit_sec_02b_usuario_inativo_nao_autentica(self):
+        user = get_user_model().objects.create_user(
+            email="inativo@test.local", password="x", nome="Inativo"
+        )
+        user.ativo = False
+        user.save(update_fields=["ativo"])
+        client = Client(enforce_csrf_checks=False)
+        resp = client.post(
+            reverse("usuarios:login"),
+            {"email": "inativo@test.local", "senha": "x"},
+        )
+        assert_http_302_login(resp)
 
     # --- FORM ---
 
