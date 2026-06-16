@@ -1,0 +1,49 @@
+{% comment %}Drawer/modal de exportação — reutilizável em qualquer tela.{% endcomment %}
+<div id="export-drawer-root" class="hidden" aria-hidden="true">
+  {% csrf_token %}
+  <div class="export-drawer-backdrop js-fechar-export fixed inset-0 z-40 bg-black/40" aria-hidden="true"></div>
+  <div id="export-drawer-panel"
+       class="export-drawer-panel fixed inset-x-0 bottom-0 z-50 flex max-h-[90vh] flex-col rounded-t-2xl bg-white shadow-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:w-full sm:max-w-md sm:rounded-2xl"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="export-drawer-title">
+    <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5">
+      <h2 id="export-drawer-title" class="text-base font-semibold text-gray-900">Exportar dados</h2>
+      <button type="button" class="js-fechar-export rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Fechar">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+      <input type="hidden" id="export-dominio" value="transacoes" />
+      <input type="hidden" id="export-filtros-query" value="" />
+
+      <fieldset class="mb-4">
+        <legend class="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">Formato</legend>
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <label class="export-format-option flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+            <input type="radio" name="export_formato" value="csv" class="text-brand-600" checked />
+            <span class="text-sm font-medium text-gray-800">CSV</span>
+          </label>
+          <label class="export-format-option flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+            <input type="radio" name="export_formato" value="xlsx" class="text-brand-600" />
+            <span class="text-sm font-medium text-gray-800">Excel</span>
+          </label>
+          <label class="export-format-option flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+            <input type="radio" name="export_formato" value="pdf" class="text-brand-600" />
+            <span class="text-sm font-medium text-gray-800">PDF</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <p id="export-resumo" class="mb-4 text-sm text-gray-600">Os filtros ativos da página serão aplicados.</p>
+
+      <div id="export-status" class="hidden rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-700" aria-live="polite"></div>
+    </div>
+
+    <div class="border-t border-gray-100 px-4 py-4 sm:px-5">
+      <button type="button" id="export-btn-confirmar" class="btn btn-primary w-full">Gerar arquivo</button>
+      <a id="export-btn-download" href="#" class="btn btn-emerald mt-2 hidden w-full text-center" download>Baixar arquivo</a>
+    </div>
+  </div>
+</div>

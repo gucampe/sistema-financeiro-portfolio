@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exportar dados{% endblock %}
+
+{% block content %}
+<div class="page-shell">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
+
+  <div class="card-dense p-4 sm:p-6">
+    <h1 class="text-xl font-semibold text-gray-900">Exportar dados</h1>
+    <p class="text-sm text-gray-500 mt-1">Gere arquivos CSV, Excel ou PDF com seus dados financeiros.</p>
+
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <button type="button"
+              class="js-abrir-export btn btn-primary btn-sm w-full sm:w-auto"
+              data-dominio="transacoes"
+              data-filtros-query="preset=este_mes">
+        Nova exportação
+      </button>
+    </div>
+  </div>
+
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
+</div>
+{% endblock %}

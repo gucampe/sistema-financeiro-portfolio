@@ -1,0 +1,27 @@
+# Exemplo de deploy Render — Web + Worker Celery + Redis
+# https://render.com/docs/deploy-celery
+
+services:
+  - type: web
+    name: granago-web
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn config.wsgi --workers 2 --timeout 30
+    envVars:
+      - key: EXPORT_JOB_BACKEND
+        value: celery
+      - key: DEBUG
+        value: "false"
+
+  - type: worker
+    name: granago-export-worker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A config worker -l info --concurrency=2
+    envVars:
+      - key: EXPORT_JOB_BACKEND
+        value: celery
+
+  - type: redis
+    name: granago-redis
+    ipAllowList: []

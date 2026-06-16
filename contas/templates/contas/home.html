@@ -33,12 +33,15 @@
       </p>
     </div>
 
-    <button type="button"
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center shrink-0">
+      {% include 'relatorios/partials/botao_exportar.html' with export_dominio='contas' %}
+      <button type="button"
             id="btn-adicionar-conta"
             class="btn btn-primary btn-sm shrink-0">
       <span class="text-base leading-none">+</span>
       <span>Adicionar conta</span>
     </button>
+    </div>
   </div>
 
   <!-- Contas Ativas -->

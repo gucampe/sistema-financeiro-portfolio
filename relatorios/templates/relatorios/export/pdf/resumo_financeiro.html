@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    @page { size: A4; margin: 1.5cm; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: #1f2937; line-height: 1.4; }
+    h1 { font-size: 18pt; margin: 0 0 4px; color: #111827; }
+    h2 { font-size: 13pt; margin: 20px 0 8px; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    .meta { font-size: 9pt; color: #6b7280; margin-bottom: 16px; }
+    .kpis { display: table; width: 100%; margin: 12px 0; }
+    .kpi { display: table-cell; width: 33%; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; }
+    .kpi-label { font-size: 8pt; color: #6b7280; text-transform: uppercase; }
+    .kpi-value { font-size: 14pt; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; }
+    th { background: #f3f4f6; font-weight: 600; }
+    .footer { margin-top: 24px; font-size: 8pt; color: #9ca3af; text-align: center; }
+    .receita { color: #059669; }
+    .despesa { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <h1>Resumo Financeiro</h1>
+  <p class="meta">{{ periodo_label }} · Gerado em {{ gerado_em }}</p>
+  {% if usuario.nome or usuario.email %}
+  <p class="meta">{{ usuario.nome|default:usuario.email }}</p>
+  {% endif %}
+
+  <h2>Indicadores do período</h2>
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Receitas</div>
+      <div class="kpi-value receita">R$ {{ totais.receita|floatformat:2 }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Despesas</div>
+      <div class="kpi-value despesa">R$ {{ totais.despesa|floatformat:2 }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Saldo</div>
+      <div class="kpi-value">R$ {{ totais.saldo|floatformat:2 }}</div>
+    </div>
+  </div>
+
+  {% if top_despesas %}
+  <h2>Top despesas por categoria</h2>
+  <table>
+    <thead><tr><th>Categoria</th><th>Total</th><th>%</th></tr></thead>
+    <tbody>
+      {% for item in top_despesas %}
+      <tr>
+        <td>{{ item.nome }}</td>
+        <td>R$ {{ item.total|floatformat:2 }}</td>
+        <td>{{ item.percentual|floatformat:1 }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if contas_resumo %}
+  <h2>Saldos por conta</h2>
+  <table>
+    <thead><tr><th>Conta</th><th>Saldo</th></tr></thead>
+    <tbody>
+      {% for c in contas_resumo %}
+      <tr>
+        <td>{{ c.nome }}</td>
+        <td>R$ {{ c.saldo|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <p class="footer">GranaGo — relatório gerado automaticamente. Uso pessoal.</p>
+</body>
+</html>

@@ -1625,6 +1625,10 @@ select.\!input,
   visibility: visible;
 }
 
+.collapse {
+  visibility: collapse;
+}
+
 .static {
   position: static;
 }
@@ -1647,6 +1651,11 @@ select.\!input,
 
 .inset-0 {
   inset: 0px;
+}
+
+.inset-x-0 {
+  left: 0px;
+  right: 0px;
 }
 
 .inset-y-0 {
@@ -2037,6 +2046,10 @@ select.\!input,
   max-height: 6.5rem;
 }
 
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+
 .max-h-\[calc\(100dvh-2rem\)\] {
   max-height: calc(100dvh - 2rem);
 }
@@ -2243,6 +2256,10 @@ select.\!input,
 
 .table-fixed {
   table-layout: fixed;
+}
+
+.border-collapse {
+  border-collapse: collapse;
 }
 
 .origin-top-right {
@@ -2569,6 +2586,11 @@ select.\!input,
   border-bottom-right-radius: 0.5rem;
 }
 
+.rounded-t-2xl {
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
 .border {
   border-width: 1px;
 }
@@ -2842,6 +2864,10 @@ select.\!input,
 
 .bg-amber-50\/90 {
   background-color: rgb(255 251 235 / 0.9);
+}
+
+.bg-black\/40 {
+  background-color: rgb(0 0 0 / 0.4);
 }
 
 .bg-black\/55 {
@@ -4700,6 +4726,16 @@ select.\!input,
   border-color: rgb(52 211 153 / 0.6);
 }
 
+.has-\[\:checked\]\:border-brand-500:has(:checked) {
+  --tw-border-opacity: 1;
+  border-color: rgb(34 197 94 / var(--tw-border-opacity, 1));
+}
+
+.has-\[\:checked\]\:bg-brand-50:has(:checked) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 253 245 / var(--tw-bg-opacity, 1));
+}
+
 .has-\[\:checked\]\:bg-brand-50\/70:has(:checked) {
   background-color: rgb(236 253 245 / 0.7);
 }
@@ -4724,12 +4760,25 @@ select.\!input,
     position: absolute;
   }
 
+  .sm\:inset-x-auto {
+    left: auto;
+    right: auto;
+  }
+
+  .sm\:bottom-auto {
+    bottom: auto;
+  }
+
   .sm\:right-4 {
     right: 1rem;
   }
 
   .sm\:right-6 {
     right: 1.5rem;
+  }
+
+  .sm\:top-20 {
+    top: 5rem;
   }
 
   .sm\:top-4 {
@@ -4786,6 +4835,10 @@ select.\!input,
 
   .sm\:mb-6 {
     margin-bottom: 1.5rem;
+  }
+
+  .sm\:ml-auto {
+    margin-left: auto;
   }
 
   .sm\:mt-1 {
@@ -4868,6 +4921,10 @@ select.\!input,
     width: auto;
   }
 
+  .sm\:w-full {
+    width: 100%;
+  }
+
   .sm\:min-w-0 {
     min-width: 0px;
   }
@@ -4882,6 +4939,10 @@ select.\!input,
 
   .sm\:max-w-lg {
     max-width: 32rem;
+  }
+
+  .sm\:max-w-md {
+    max-width: 28rem;
   }
 
   .sm\:max-w-xs {
@@ -4989,6 +5050,10 @@ select.\!input,
 
   .sm\:self-center {
     align-self: center;
+  }
+
+  .sm\:rounded-2xl {
+    border-radius: 1rem;
   }
 
   .sm\:border-x {
