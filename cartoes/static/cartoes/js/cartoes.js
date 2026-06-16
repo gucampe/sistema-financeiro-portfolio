@@ -93,6 +93,22 @@
 
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
 
+  function consumirQueryNova() {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("nova") !== "1") return false;
+      url.searchParams.delete("nova");
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  if (consumirQueryNova() && btnAbrir) {
+    requestAnimationFrame(() => btnAbrir.click());
+  }
+
   if (overlay && globalThis.GranaGoModal) {
     GranaGoModal.bind(overlay, { onClose: fecharModal });
   }
@@ -146,7 +162,7 @@
         if (result.status === "ok") {
           globalThis.GranaGoModal?.close(overlay);
           showToast(inputCartaoId.value ? "Cartão atualizado com sucesso!" : "Cartão criado com sucesso!");
-          window.location.reload();
+          window.location.assign(window.location.pathname);
           return;
         }
         if (erroBox) {

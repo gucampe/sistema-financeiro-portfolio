@@ -139,6 +139,22 @@
 
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
 
+  function consumirQueryNova() {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("nova") !== "1") return false;
+      url.searchParams.delete("nova");
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  if (consumirQueryNova() && btnAbrir) {
+    requestAnimationFrame(() => btnAbrir.click());
+  }
+
   if (previewIconeWrapper) {
     previewIconeWrapper.addEventListener("click", (e) => {
       e.preventDefault();
@@ -225,7 +241,7 @@
           const editandoId = inputContaId.value ? String(inputContaId.value) : null;
           globalThis.GranaGoModal?.close(overlay);
           showToast(editandoId ? "Conta atualizada!" : "Conta criada!");
-          window.location.reload();
+          window.location.assign(window.location.pathname);
         } else {
           if (erroBox) {
             erroBox.textContent = result.errors || "Erro ao salvar.";

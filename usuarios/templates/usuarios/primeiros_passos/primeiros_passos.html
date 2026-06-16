@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Primeiros passos{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <a href="{% url 'relatorios:home' %}" class="app-header-breadcrumb__link hidden truncate text-sm font-medium text-gray-500 hover:text-brand-600 sm:block">Visão Geral</a>
+    </li>
+    <li class="app-header-breadcrumb__item min-w-0" aria-hidden="true">
+      <span class="app-header-breadcrumb__sep hidden text-gray-300 sm:inline">/</span>
+    </li>
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Primeiros passos</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'usuarios/css/primeiros-passos.css' %}" />
+
+<div id="pp-page" class="page-shell pp-page" data-pp-user-id="{{ request.user.pk }}">
+  <div class="mx-auto w-full max-w-4xl px-4 pb-16 pt-2 sm:px-6 sm:pb-20 sm:pt-4">
+
+    {# Hero #}
+    <header class="pp-hero overflow-hidden rounded-3xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-brand-50/40 p-6 shadow-sm sm:p-8">
+      <p class="text-sm font-medium text-brand-600">Configuração inicial</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+        Seu espaço financeiro está quase pronto
+      </h1>
+      <p class="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 sm:text-base">
+        Complete os passos abaixo para aproveitar melhor o GranaGo. Você pode voltar ao dashboard a qualquer momento.
+      </p>
+
+      <div class="mt-6 space-y-2">
+        <div class="flex items-center justify-between gap-3 text-sm">
+          <span id="pp-progress-label" class="font-medium text-gray-700">
+            {{ primeiros_passos.concluidas }} de {{ primeiros_passos.total }} etapas concluídas
+          </span>
+          <span id="pp-progress-pct" class="tabular-nums font-semibold text-brand-600">{{ primeiros_passos.percentual }}%</span>
+        </div>
+        <div
+          class="h-2.5 overflow-hidden rounded-full bg-gray-100/90"
+          role="progressbar"
+          id="pp-progress-bar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="{{ primeiros_passos.percentual }}"
+          aria-labelledby="pp-progress-label"
+        >
+          <div
+            id="pp-progress-fill"
+            class="pp-progress-fill h-full rounded-full bg-brand-500"
+            style="width: {{ primeiros_passos.percentual }}%"
+          ></div>
+        </div>
+      </div>
+    </header>
+
+    {# Conclusão total #}
+    <section
+      id="pp-done-banner"
+      class="pp-done-banner mt-6 overflow-hidden rounded-2xl border border-emerald-200/80 bg-emerald-50/60 p-5 sm:p-6 {% if not primeiros_passos.total_completo %}hidden{% endif %}"
+    >
+      <div class="flex gap-4">
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600" aria-hidden="true">
+          <i class="fa-solid fa-circle-check text-lg"></i>
+        </span>
+        <div class="min-w-0">
+          <p class="font-semibold text-gray-900">Tudo pronto!</p>
+          <p class="mt-1 text-sm text-gray-600">Seu espaço financeiro já está configurado. Explore o dashboard quando quiser.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <a href="{% url 'relatorios:home' %}" class="btn btn-primary btn-sm w-full sm:w-auto">Ir para o dashboard</a>
+            <button type="button" id="pp-btn-dismiss-done" class="pp-btn-dismiss btn btn-secondary btn-sm w-full sm:w-auto">
+              Não mostrar o atalho novamente
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {# Cards de etapas #}
+    <div id="pp-etapas-grid" class="mt-6 grid gap-4 sm:gap-5">
+      {% for etapa in primeiros_passos.etapas %}
+      <article
+        class="pp-card group rounded-2xl border p-5 transition-all duration-200 sm:p-6 {% if etapa.concluida %}border-emerald-200/80 bg-emerald-50/30{% else %}border-gray-200/80 bg-white shadow-sm hover:border-gray-300/90 hover:shadow-md active:scale-[0.99]{% endif %}"
+        data-pp-etapa="{{ etapa.id }}"
+        data-concluida="{% if etapa.concluida %}1{% else %}0{% endif %}"
+      >
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div class="flex min-w-0 gap-4">
+            <span
+              class="pp-card__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl {% if etapa.concluida %}bg-emerald-100 text-emerald-600{% else %}bg-brand-50 text-brand-600 group-hover:bg-brand-100{% endif %}"
+              aria-hidden="true"
+            >
+              {% if etapa.concluida %}
+              <i class="fa-solid fa-check text-base"></i>
+              {% else %}
+              <i class="{{ etapa.icone }} text-base"></i>
+              {% endif %}
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-base font-semibold text-gray-900 sm:text-lg">{{ etapa.titulo }}</h2>
+                {% if etapa.concluida %}
+                <span class="pp-card__badge rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">Concluído</span>
+                {% elif not etapa.obrigatoria %}
+                <span class="pp-card__badge rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-semibold text-gray-600">Opcional</span>
+                {% else %}
+                <span class="pp-card__badge rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">Pendente</span>
+                {% endif %}
+              </div>
+              <p class="mt-1.5 text-sm leading-relaxed text-gray-500">{{ etapa.descricao }}</p>
+            </div>
+          </div>
+
+          <div class="pp-card__actions flex shrink-0 flex-col gap-2 sm:items-end {% if etapa.concluida %}hidden{% endif %}">
+            {% if etapa.cta_acao == "link_conta" %}
+            <a href="{% url 'contas:home' %}?nova=1" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
+            {% elif etapa.cta_acao == "link_transacoes" %}
+            <a href="{% url 'transacoes:historico' %}" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
+            {% elif etapa.cta_acao == "link_cartao" %}
+            <a href="{% url 'cartoes:home' %}?nova=1" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
+            <button type="button" class="btn btn-secondary btn-sm w-full sm:min-w-[10rem] sm:w-auto" data-pp-skip-cartao>Não uso cartão</button>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <footer class="pp-page-footer mt-8 flex flex-col items-center gap-3 border-t border-gray-100 pt-8 text-center sm:flex-row sm:justify-between sm:text-left">
+      <a href="{% url 'relatorios:home' %}" class="text-sm font-medium text-gray-500 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 rounded px-1">
+        ← Voltar ao dashboard
+      </a>
+      <div class="flex flex-wrap items-center justify-center gap-4 sm:justify-end">
+        <p
+          id="pp-dismiss-feedback"
+          class="pp-dismiss-feedback hidden text-sm font-medium text-emerald-700"
+          role="status"
+          aria-live="polite"
+        >
+          <i class="fa-solid fa-circle-check mr-1" aria-hidden="true"></i>
+          Atalho ocultado no dashboard
+        </p>
+        {% if primeiros_passos.essencial_completo %}
+        <button type="button" id="pp-btn-dismiss-essencial" class="pp-btn-dismiss text-sm font-medium text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 rounded px-1">
+          Não mostrar o atalho novamente
+        </button>
+        {% endif %}
+      </div>
+    </footer>
+  </div>
+</div>
+
+{{ primeiros_passos|json_script:"primeiros-passos-data" }}
+<script>window.__ppUserId = "{{ request.user.pk }}";</script>
+<script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
+{% endblock %}

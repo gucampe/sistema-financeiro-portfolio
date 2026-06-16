@@ -1,9 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
 from django.urls import reverse
+
+from usuarios.services.onboarding import progresso_primeiros_passos
 
 from .forms import (
     ConfiguracoesPasswordChangeForm,
@@ -118,3 +122,21 @@ def configuracoes_alterar_senha(request):
         "usuarios/configuracoes/configuracoes.html",
         _configuracoes_context(request, perfil=perfil, senha_form=form),
     )
+
+
+@login_required
+@never_cache
+def primeiros_passos(request):
+    """Central de configuração inicial — página dedicada."""
+    return render(
+        request,
+        "usuarios/primeiros_passos/primeiros_passos.html",
+        {"primeiros_passos": progresso_primeiros_passos(request.user)},
+    )
+
+
+@login_required
+@require_GET
+def primeiros_passos_status(request):
+    """Status JSON do checklist — atualização client-side sem reload."""
+    return JsonResponse(progresso_primeiros_passos(request.user))
