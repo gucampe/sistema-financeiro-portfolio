@@ -13,6 +13,7 @@ from categorias.models import Categoria
 from contas.models import Conta
 from transacoes.forms import TransacaoForm
 from usuarios.models import Perfil
+from usuarios.services.onboarding import progresso_primeiros_passos
 from usuarios.utils import primeiro_nome
 
 from relatorios.forms import OrcamentoCategoriaForm
@@ -152,6 +153,7 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
                 "categorias_receita": categorias_receita,
                 "form": form,
                 "ocultar_valores_dashboard": perfil.ocultar_valores_dashboard,
+                "primeiros_passos": progresso_primeiros_passos(user),
             }
         )
         return ctx
@@ -385,4 +387,13 @@ class PorContaView(RelatorioFiltrosMixin, TemplateView):
                 "relatorio_nav": "por_conta",
             }
         )
+        return ctx
+
+
+class ExportHubView(RelatorioFiltrosMixin, TemplateView):
+    template_name = "relatorios/export/hub.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["relatorio_nav"] = "exportar"
         return ctx

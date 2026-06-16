@@ -67,6 +67,12 @@
     <script src="{% static 'transacoes/js/adicionar_transacao.js' %}" defer></script>
     {% endif %}
 
+    {% if request.user.is_authenticated %}
+    {% include 'relatorios/export/modal_exportar.html' %}
+    <link rel="stylesheet" href="{% static 'relatorios/css/export.css' %}" />
+    <script src="{% static 'relatorios/js/export.js' %}" defer></script>
+    {% endif %}
+
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
     <script src="{% static 'js/sidebar.js' %}" defer></script>
   </body>

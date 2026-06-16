@@ -1,0 +1,19 @@
+{% if menu_variant == 'dropdown' %}
+<div class="cartao-acoes-menu cartao-acoes-menu--dropdown hidden"
+     role="menu"
+     aria-label="Ações do cartão">
+  <button type="button" class="cartao-acao-item" data-cartao-acao="faturas" role="menuitem">
+    <i class="fa-solid fa-file-invoice text-sm text-gray-500" aria-hidden="true"></i>
+    <span>Ver faturas</span>
+  </button>
+  <button type="button" class="cartao-acao-item" data-cartao-acao="editar" role="menuitem">
+    <i class="fa-solid fa-pen-to-square text-sm text-gray-500" aria-hidden="true"></i>
+    <span>Editar cartão</span>
+  </button>
+  <div class="my-1 border-t border-gray-100" role="separator" aria-hidden="true"></div>
+  <button type="button" class="cartao-acao-item cartao-acao-item--danger" data-cartao-acao="excluir" role="menuitem">
+    <i class="fa-solid fa-trash text-sm" aria-hidden="true"></i>
+    <span>Excluir cartão</span>
+  </button>
+</div>
+{% endif %}

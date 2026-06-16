@@ -1,0 +1,42 @@
+<div id="overlay-cartao-acoes"
+     data-modal
+     data-modal-fade="300"
+     data-modal-panel-scale="0"
+     class="modal-overlay modal-overlay--sheet hidden"
+     data-modal-labelledby="cartao-acoes-sheet-titulo"
+     aria-hidden="true">
+  <div data-modal-panel
+       class="cartao-acoes-sheet modal-panel w-full max-w-lg rounded-t-2xl border-x-0 border-b-0 pb-[env(safe-area-inset-bottom,0px)]">
+    <div class="flex justify-center pt-3 pb-1" aria-hidden="true">
+      <span class="h-1 w-10 rounded-full bg-gray-300/90"></span>
+    </div>
+
+    <div class="px-4 pb-2 pt-1 sm:px-5">
+      <h2 id="cartao-acoes-sheet-titulo" class="truncate text-base font-semibold leading-tight text-fg"></h2>
+      <p id="cartao-acoes-sheet-meta" class="mt-0.5 truncate text-[12px] leading-tight text-gray-500"></p>
+    </div>
+
+    <nav class="px-2 pb-4 sm:px-3" aria-label="Ações do cartão">
+      <ul class="cartao-acoes-sheet__list" role="menu">
+        <li role="none">
+          <button type="button" class="cartao-acao-item cartao-acao-item--sheet" data-cartao-acao="faturas" role="menuitem">
+            <i class="fa-solid fa-file-invoice text-sm text-gray-500" aria-hidden="true"></i>
+            <span>Ver faturas</span>
+          </button>
+        </li>
+        <li role="none">
+          <button type="button" class="cartao-acao-item cartao-acao-item--sheet" data-cartao-acao="editar" role="menuitem">
+            <i class="fa-solid fa-pen-to-square text-sm text-gray-500" aria-hidden="true"></i>
+            <span>Editar cartão</span>
+          </button>
+        </li>
+        <li class="mt-1 border-t border-gray-100 pt-1" role="none">
+          <button type="button" class="cartao-acao-item cartao-acao-item--sheet cartao-acao-item--danger" data-cartao-acao="excluir" role="menuitem">
+            <i class="fa-solid fa-trash text-sm" aria-hidden="true"></i>
+            <span>Excluir cartão</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

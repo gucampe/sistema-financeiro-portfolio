@@ -1,0 +1,15 @@
+{% load static %}
+{# FAB — flutuante no canto inferior direito; navega para /primeiros-passos/ #}
+<a
+  href="{% url 'usuarios:primeiros_passos' %}"
+  id="pp-fab"
+  class="pp-fab group"
+  data-pp-user-id="{{ request.user.pk }}"
+  aria-label="Primeiros passos — {{ primeiros_passos.concluidas }} de {{ primeiros_passos.total }} concluídas"
+>
+  <span class="pp-fab__icon" aria-hidden="true">
+    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+  </span>
+  <span class="pp-fab__label">Primeiros passos</span>
+  <span class="pp-fab__badge" aria-hidden="true">{{ primeiros_passos.concluidas }}/{{ primeiros_passos.total }}</span>
+</a>

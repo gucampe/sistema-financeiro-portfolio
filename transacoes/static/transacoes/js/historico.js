@@ -1,49 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const dropdownMeses = document.getElementById("dropdown-meses");
   const dropdownPersonalizado = document.getElementById("dropdown-personalizado");
-  const MQ_MOBILE = "(max-width: 767px)";
-
-  function isMobileHistorico() {
-    return window.matchMedia(MQ_MOBILE).matches;
-  }
-
-  function ativarToqueLancamento(e) {
-    if (!isMobileHistorico()) return;
-    if (e.target.closest("a, button, summary, input, select, label")) return;
-
-    const faturaRow = e.target.closest(".historico-lancamento-fatura[data-fatura-url]");
-    if (faturaRow) {
-      window.location.href = faturaRow.dataset.faturaUrl;
-      return;
-    }
-
-    const row = e.target.closest(".historico-lancamento[data-transacao-id]");
-    if (!row) return;
-    const id = row.dataset.transacaoId;
-    if (!id || typeof window.abrirModalEditarTransacao !== "function") return;
-    e.preventDefault();
-    window.abrirModalEditarTransacao(id);
-  }
-
-  document.addEventListener("click", ativarToqueLancamento);
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    if (!isMobileHistorico()) return;
-    const faturaRow = e.target.closest(".historico-lancamento-fatura[data-fatura-url]");
-    if (faturaRow) {
-      e.preventDefault();
-      window.location.href = faturaRow.dataset.faturaUrl;
-      return;
-    }
-    const row = e.target.closest(".historico-lancamento[data-transacao-id]");
-    if (!row) return;
-    e.preventDefault();
-    const id = row.dataset.transacaoId;
-    if (id && typeof window.abrirModalEditarTransacao === "function") {
-      window.abrirModalEditarTransacao(id);
-    }
-  });
+  const listRoot =
+    document.getElementById("lista-historico-transacoes") ||
+    document.querySelector("[data-bank-icon-fallback]");
+  const fallbackUrl = listRoot?.dataset.bankIconFallback;
 
   document.addEventListener("click", (e) => {
     if (dropdownMeses && !dropdownMeses.contains(e.target)) {
@@ -54,8 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const listRoot = document.querySelector("[data-bank-icon-fallback]");
-  const fallbackUrl = listRoot?.dataset.bankIconFallback;
   if (fallbackUrl) {
     document.addEventListener(
       "error",
@@ -69,4 +28,71 @@ document.addEventListener("DOMContentLoaded", () => {
       true
     );
   }
+
+  if (!listRoot || !globalThis.ListaContextual) return;
+  if (!listRoot.id && !listRoot.querySelector(".lista-contextual-item")) return;
+
+  function isFaturaRow(item) {
+    return item.classList.contains("historico-lancamento-fatura");
+  }
+
+  function getTitulo(item) {
+    return item.dataset.transacaoDescricao || item.getAttribute("aria-label") || "";
+  }
+
+  ListaContextual.create({
+    root: listRoot,
+    itemSelector: ".lista-contextual-item",
+    getPayload: (item) => ({
+      el: item,
+      transacaoId: item.dataset.transacaoId,
+      faturaUrl: item.dataset.faturaUrl,
+    }),
+    getTitulo,
+    getMeta: (item) => {
+      const meta = item.querySelector("p.text-gray-500, p.text-\\[12px\\].text-gray-500");
+      return meta?.textContent?.trim() || "";
+    },
+    getActions: (item) => {
+      if (isFaturaRow(item)) {
+        return [
+          {
+            id: "fatura",
+            label: "Ver fatura",
+            icon: "fa-solid fa-file-invoice",
+          },
+        ];
+      }
+      return [
+        {
+          id: "editar",
+          label: "Editar transação",
+          icon: "fa-solid fa-pen-to-square",
+        },
+        {
+          id: "excluir",
+          label: "Excluir transação",
+          icon: "fa-solid fa-trash",
+          danger: true,
+        },
+      ];
+    },
+    onAction: (actionId, payload) => {
+      if (actionId === "fatura" && payload?.faturaUrl) {
+        window.location.assign(payload.faturaUrl);
+        return;
+      }
+      if (actionId === "editar" && payload?.transacaoId) {
+        if (typeof window.abrirModalEditarTransacao === "function") {
+          window.abrirModalEditarTransacao(payload.transacaoId);
+        }
+        return;
+      }
+      if (actionId === "excluir" && payload?.transacaoId) {
+        if (typeof window.solicitarExclusaoTransacao === "function") {
+          window.solicitarExclusaoTransacao(payload.transacaoId);
+        }
+      }
+    },
+  });
 });

@@ -24,6 +24,20 @@
   data-ocultar="{% if ocultar_valores_dashboard %}1{% else %}0{% endif %}"
 >
   <link rel="stylesheet" href="{% static 'relatorios/css/relatorios-dashboard-mobile.css' %}" />
+  <link rel="stylesheet" href="{% static 'usuarios/css/primeiros-passos.css' %}" />
+  <script>
+    window.__ppUserId = "{{ request.user.pk }}";
+    (function () {
+      try {
+        var uid = String(window.__ppUserId || "");
+        if (uid && localStorage.getItem("granago_pp_dismissed_" + uid) === "1") {
+          document.documentElement.classList.add("pp-dismissed");
+        }
+        localStorage.removeItem("granago_pp_dismissed");
+        localStorage.removeItem("granago_pp_skip_cartao");
+      } catch (e) {}
+    })();
+  </script>
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
   <div id="dashboard-layout" class="relatorios-conteudo relative gap-0 sm:gap-6">
@@ -398,6 +412,9 @@
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 
+{% include 'usuarios/primeiros_passos/fab.html' %}
+
+{{ primeiros_passos|json_script:"primeiros-passos-data" }}
 {{ top_despesas_chart|json_script:"top-despesas-data" }}
 
 <script>
@@ -405,5 +422,6 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="{% static 'relatorios/js/dash.js' %}"></script>
+<script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
 
 {% endblock %}

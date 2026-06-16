@@ -152,7 +152,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'usuarios.Usuario'  # Substitua 'nome_do_app' pelo nome real do seu app
 AUTHENTICATION_BACKENDS = [
     'usuarios.backends.EmailBackend',
-    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Internationalization
@@ -201,9 +200,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = "relatorios:home"  # após login: página de relatórios
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
-# settings.py
+
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # True se quiser que expire ao fechar o navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
 
 # Segurança básica em produção (Render termina TLS no proxy).
 if not DEBUG:
@@ -211,8 +212,43 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
+
+# --- Exportação de dados / relatórios ---
+EXPORT_JOB_BACKEND = config("EXPORT_JOB_BACKEND", default="thread")
+_CELERY_BROKER = config("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_BROKER_URL = _CELERY_BROKER
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default=_CELERY_BROKER)
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = config("EXPORT_JOB_TIMEOUT_PDF", default=300, cast=int)
+CELERY_TASK_SOFT_TIME_LIMIT = config("EXPORT_JOB_TIMEOUT_CSV", default=180, cast=int)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+EXPORT_JOB_TIMEOUT_CSV = config("EXPORT_JOB_TIMEOUT_CSV", default=180, cast=int)
+EXPORT_JOB_TIMEOUT_PDF = config("EXPORT_JOB_TIMEOUT_PDF", default=300, cast=int)
+EXPORT_MAX_ROWS_CSV = config("EXPORT_MAX_ROWS_CSV", default=100_000, cast=int)
+EXPORT_MAX_ROWS_XLSX = config("EXPORT_MAX_ROWS_XLSX", default=15_000, cast=int)
+EXPORT_MAX_FILE_BYTES = config("EXPORT_MAX_FILE_BYTES", default=50 * 1024 * 1024, cast=int)
+EXPORT_FILE_TTL_HOURS = config("EXPORT_FILE_TTL_HOURS", default=72, cast=int)
+EXPORT_RATE_LIMIT_PER_HOUR = config("EXPORT_RATE_LIMIT_PER_HOUR", default=10, cast=int)
+EXPORT_MAX_CONCURRENT_JOBS = config("EXPORT_MAX_CONCURRENT_JOBS", default=2, cast=int)
+
+FEATURES = {
+    "export_pdf": config("FEATURE_EXPORT_PDF", default=True, cast=bool),
+    "export_xlsx": config("FEATURE_EXPORT_XLSX", default=True, cast=bool),
+    "export_ui": config("FEATURE_EXPORT_UI", default=True, cast=bool),
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "granago-default",
+    }
+}

@@ -65,6 +65,9 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
+{% include 'partials/lista_contextual_sheet.html' %}
+
 <div class="page-shell">
 <div class="container mx-auto max-w-5xl px-1 sm:px-0">
   <!-- Header -->
@@ -100,7 +103,7 @@
       </span>
     </div>
 
-    <ul id="lista-despesa" role="list" aria-label="Categorias de despesa" class="divide-y divide-gray-100">
+    <ul id="lista-despesa" role="list" aria-label="Categorias de despesa" class="lista-contextual-list divide-y divide-gray-100">
       {% for categoria in categorias_ativas_despesa %}
         {% include 'categorias/partials/categoria_item_ativa.html' %}
       {% empty %}
@@ -111,7 +114,7 @@
     </ul>
 
     <ul id="lista-receita" role="list" aria-label="Categorias de receita"
-        class="hidden divide-y divide-gray-100">
+        class="lista-contextual-list hidden divide-y divide-gray-100">
       {% for categoria in categorias_ativas_receita %}
         {% include 'categorias/partials/categoria_item_ativa.html' %}
       {% empty %}
@@ -134,7 +137,7 @@
     </button>
     <div id="conteudo-arquivadas" class="hidden border-t border-gray-100 bg-white">
       <ul id="lista-despesa-arquivadas" role="list" aria-label="Categorias de despesa arquivadas"
-          class="divide-y divide-gray-100">
+          class="lista-contextual-list divide-y divide-gray-100">
         {% for categoria in categorias_arquivadas_despesa %}
           {% include 'categorias/partials/categoria_item_arquivada.html' %}
         {% empty %}
@@ -146,7 +149,7 @@
       </ul>
 
       <ul id="lista-receita-arquivadas" role="list" aria-label="Categorias de receita arquivadas"
-          class="hidden divide-y divide-gray-100">
+          class="lista-contextual-list hidden divide-y divide-gray-100">
         {% for categoria in categorias_arquivadas_receita %}
           {% include 'categorias/partials/categoria_item_arquivada.html' %}
         {% empty %}
@@ -163,6 +166,7 @@
 
 {% include 'categorias/partials/adicionar_categoria_modal.html' %}
 
+<script src="{% static 'js/lista_contextual.js' %}"></script>
 <script src="{% static 'categorias/js/alternar_categoria.js' %}"></script>
 <script src="{% static 'categorias/js/adicionar_categoria.js' %}"></script>
 {% endblock %}

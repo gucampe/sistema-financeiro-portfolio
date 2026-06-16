@@ -12,6 +12,8 @@
          class="relatorios-tab {% if relatorio_nav == 'despesas_categoria' %}is-active{% endif %}">Por categoria</a>
       <a href="{% url 'relatorios:por_conta' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
          class="relatorios-tab {% if relatorio_nav == 'por_conta' %}is-active{% endif %}">Por conta</a>
+      <a href="{% url 'relatorios:exportar' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}"
+         class="relatorios-tab {% if relatorio_nav == 'exportar' %}is-active{% endif %}">Exportar</a>
     </div>
     <div class="relatorios-tabs__fade relatorios-tabs__fade--right" aria-hidden="true"></div>
   </div>

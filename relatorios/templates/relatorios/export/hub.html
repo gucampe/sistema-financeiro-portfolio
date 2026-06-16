@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exportar dados{% endblock %}
+
+{% block breadcrumb %}
+<nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
+  <ol class="app-header-breadcrumb__list">
+    <li class="app-header-breadcrumb__item min-w-0">
+      <span class="app-header-breadcrumb__current block truncate text-lg font-semibold tracking-tight text-gray-800">Exportar dados</span>
+    </li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div data-filtros-layout-anchor class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl">
+  {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
+
+  <div class="relatorios-conteudo">
+    <section data-filtros-vertical-anchor class="rel-hero-shell bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 shadow-sm" aria-label="Exportar dados">
+      <div class="rel-hero-header">
+        <div class="min-w-0 space-y-1">
+          <p class="rel-hero-eyebrow">Relatórios</p>
+          <h1 class="rel-hero-title">Exportar dados</h1>
+          <p class="rel-hero-period">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
+        </div>
+        <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+          {% include 'relatorios/partials/filtros_hero_botao.html' %}
+        </div>
+      </div>
+
+      <p class="mt-4 text-sm text-gray-600 leading-relaxed">
+        Gere arquivos CSV, Excel ou PDF com os dados do período e filtros selecionados.
+      </p>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button type="button"
+                class="js-abrir-export btn btn-primary btn-sm w-full sm:w-auto"
+                data-dominio="transacoes"
+                {% if filtros_querystring %}data-filtros-query="{{ filtros_querystring }}"{% endif %}>
+          Nova exportação
+        </button>
+      </div>
+    </section>
+  </div>
+
+  {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
+</div>
+{% endblock %}

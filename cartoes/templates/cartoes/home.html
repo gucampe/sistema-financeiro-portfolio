@@ -15,6 +15,9 @@
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
+<link rel="stylesheet" href="{% static 'cartoes/css/cartoes-lista.css' %}" />
+
 <div id="toast-cartoes"
      class="fixed bottom-4 right-4 px-4 py-3 rounded-lg text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-between gap-4">
   <span id="toast-cartoes-msg"></span>
@@ -27,7 +30,7 @@
     <div class="min-w-0">
       <h2 class="text-2xl font-semibold text-fg">Cartões</h2>
       <p class="text-sm mt-1 text-fg-muted">
-        Gerencie seus cartões em um só lugar.
+        Seus cartões em um só lugar — limite, faturas e detalhes.
       </p>
     </div>
 
@@ -39,92 +42,43 @@
     </button>
   </div>
 
-  <section class="card-dense overflow-hidden">
-    <div class="px-4 sm:px-6 py-5">
-      <h3 class="text-lg font-semibold text-fg">Cartões Cadastrados</h3>
-      <p class="text-sm mt-1 text-fg-muted">
-        Lista simples de cartões para uso no sistema.
+  <section class="card-dense cartoes-list-card">
+    <div class="border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-4">
+      <h3 class="text-base font-semibold text-fg">Seus cartões</h3>
+      <p class="mt-0.5 text-[12px] leading-tight text-gray-500 lg:hidden">
+        Toque em um cartão para ver as opções.
+      </p>
+      <p class="mt-0.5 hidden text-[12px] leading-tight text-gray-500 lg:block">
+        Use o menu <span class="font-medium text-fg">⋮</span> à direita para ações rápidas.
       </p>
     </div>
 
-    <div class="border-t border-gray-100">
-      <ul id="lista-cartoes" class="divide-y divide-gray-100">
-        {% for cartao in cartoes %}
-          <li class="cartao-item group min-w-0 px-4 sm:px-6 py-4" data-id="{{ cartao.id }}">
-            <div class="overflow-x-auto overflow-y-visible -mx-4 px-4 sm:mx-0 sm:px-0 lg:overflow-visible">
-            <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:min-w-[40rem] xl:min-w-0">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center border shrink-0 border-gray-200 bg-gray-100 text-fg">
-                    {% if cartao.icone in icone_choices_instituicoes %}
-                      <img src="{% static 'contas/icons/instituicoes/' %}{% if cartao.icone == 'inter' %}intermedium{% else %}{{ cartao.icone }}{% endif %}.png" class="w-full h-full object-contain rounded-lg" alt="">
-                    {% else %}
-                      <img src="{% static 'contas/icons/genericos/' %}{{ cartao.icone|default:'bank' }}.svg" class="w-full h-full object-contain" alt="">
-                    {% endif %}
-                  </div>
-
-                  <div class="min-w-0">
-                    <p class="text-sm sm:text-base font-semibold truncate text-fg">{{ cartao.nome }}</p>
-                    <p class="text-xs sm:text-sm mt-0.5 text-fg-muted md:hidden">
-                      Limite: <span class="font-semibold text-fg">{{ cartao.limite|moeda }}</span>
-                    </p>
-                    <p class="hidden text-xs sm:text-sm mt-0.5 text-fg-muted md:block">
-                      Limite: <span class="font-semibold text-fg">{{ cartao.limite|moeda }}</span>
-                      · Fecha dia {{ cartao.dia_fechamento }}
-                      · Vence dia {{ cartao.dia_vencimento }}
-                      · Conta padrão: {{ cartao.conta_padrao.nome }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex w-full shrink-0 flex-row flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end">
-                <a href="{% url 'cartoes:faturas' cartao.id %}"
-                   class="inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-white transition hover:bg-gray-50 hover:shadow-sm active:scale-[.99]">
-                  Faturas
-                </a>
-                <button type="button"
-                        class="btn-editar-cartao inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium text-fg bg-gray-100/80 transition hover:bg-gray-200/90 hover:shadow-sm active:scale-[.99]"
-                        data-id="{{ cartao.id }}"
-                        data-nome="{{ cartao.nome }}"
-                        data-icone="{{ cartao.icone|default:'bank' }}"
-                        data-limite="{{ cartao.limite }}"
-                        data-dia-fechamento="{{ cartao.dia_fechamento }}"
-                        data-dia-vencimento="{{ cartao.dia_vencimento }}"
-                        data-conta-padrao="{{ cartao.conta_padrao_id }}">
-                  Editar
-                </button>
-                <button type="button"
-                        class="btn-excluir-cartao inline-flex items-center justify-center px-3 py-2 rounded-xl border border-danger-border text-sm font-medium text-danger bg-danger-soft transition hover:bg-red-100 hover:shadow-sm active:scale-[.99]"
-                        data-id="{{ cartao.id }}">
-                  Excluir
-                </button>
-              </div>
+    <ul id="lista-cartoes" class="divide-y divide-gray-50" role="list">
+      {% for cartao in cartoes %}
+        {% include 'cartoes/partials/cartao_item.html' %}
+      {% empty %}
+        <li id="empty-cartoes" class="px-4 sm:px-6 py-12 text-center">
+          <div class="mx-auto max-w-sm">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 text-xl">
+              💳
             </div>
-            </div>
-          </li>
-        {% empty %}
-          <li id="empty-cartoes" class="px-4 sm:px-6 py-10 text-center">
-            <div class="mx-auto max-w-sm">
-              <div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center border border-gray-200 bg-gray-100 text-fg">
-                <span class="text-lg">💳</span>
-              </div>
-              <p class="mt-3 font-semibold text-fg">Nenhum cartão cadastrado</p>
-              <p class="text-sm mt-1 text-fg-muted">
-                Clique em <span class="font-semibold">“Adicionar cartão”</span> para criar seu primeiro cartão.
-              </p>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+            <p class="mt-4 font-semibold text-fg">Nenhum cartão cadastrado</p>
+            <p class="mt-1 text-sm text-fg-muted">
+              Adicione seu primeiro cartão para acompanhar faturas e compras.
+            </p>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
   </section>
 </div>
 </div>
 
+{% include 'cartoes/partials/cartao_acoes_sheet.html' %}
 {% include 'cartoes/partials/modal_cartao.html' %}
 {% include 'cartoes/partials/confirmar_exclusao_cartao.html' %}
 <script src="{% static 'js/icon_combobox.js' %}"></script>
 <script src="{% static 'cartoes/js/excluir_cartao.js' %}"></script>
 <script src="{% static 'cartoes/js/cartoes.js' %}"></script>
+<script src="{% static 'cartoes/js/cartoes_acoes.js' %}"></script>
 {% endblock %}

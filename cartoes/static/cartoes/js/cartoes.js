@@ -87,11 +87,29 @@
     globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir || undefined });
   }
 
+  window.abrirModalCartao = abrirModal;
+
   function fecharModal() {
     resetModal();
   }
 
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
+
+  function consumirQueryNova() {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("nova") !== "1") return false;
+      url.searchParams.delete("nova");
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  if (consumirQueryNova() && btnAbrir) {
+    requestAnimationFrame(() => btnAbrir.click());
+  }
 
   if (overlay && globalThis.GranaGoModal) {
     GranaGoModal.bind(overlay, { onClose: fecharModal });
@@ -109,23 +127,7 @@
         item.classList.remove("border-brand-500", "bg-brand-50");
       });
       itemIcone.classList.add("border-brand-500", "bg-brand-50");
-      return;
     }
-
-    const btnEditar = event.target.closest(".btn-editar-cartao");
-    if (btnEditar) {
-      abrirModal({
-        id: btnEditar.dataset.id,
-        nome: btnEditar.dataset.nome,
-        icone: btnEditar.dataset.icone,
-        limite: btnEditar.dataset.limite,
-        diaFechamento: btnEditar.dataset.diaFechamento,
-        diaVencimento: btnEditar.dataset.diaVencimento,
-        contaPadrao: btnEditar.dataset.contaPadrao,
-      });
-      return;
-    }
-
   });
 
   if (form) {
@@ -146,7 +148,7 @@
         if (result.status === "ok") {
           globalThis.GranaGoModal?.close(overlay);
           showToast(inputCartaoId.value ? "Cartão atualizado com sucesso!" : "Cartão criado com sucesso!");
-          window.location.reload();
+          window.location.assign(window.location.pathname);
           return;
         }
         if (erroBox) {
