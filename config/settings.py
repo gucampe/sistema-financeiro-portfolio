@@ -274,7 +274,7 @@ from config.observability import (  # noqa: E402
 init_sentry()
 
 if not DEBUG:
-    MIDDLEWARE.append("minify_html.middleware.MinifyHtmlMiddleware")
+    MIDDLEWARE.append("django_minify_html.middleware.MinifyHtmlMiddleware")
 
 if silk_enabled():
     INSTALLED_APPS.append("silk")

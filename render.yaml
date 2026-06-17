@@ -9,7 +9,7 @@ services:
     region: oregon
     branch: deploy-render-teste
     buildCommand: pip install -r requirements.txt && npm ci && npm run tailwind:build && python manage.py migrate --noinput && python manage.py collectstatic --noinput
-    startCommand: python create_superuser.py && gunicorn config.wsgi:application -c gunicorn.conf.py
+    startCommand: gunicorn config.wsgi:application -c gunicorn.conf.py
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.3"
