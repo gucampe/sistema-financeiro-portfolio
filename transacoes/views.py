@@ -19,7 +19,10 @@ from ofxparse.ofxparse import OfxParserException
 
 from categorias.models import Categoria
 from cartoes.models import Cartao, Fatura
-from cartoes.services.gestao_faturas import calcular_resumo_pagamento, total_fatura
+from cartoes.services.gestao_faturas import (
+    calcular_resumos_pagamento_bulk,
+    totais_faturas_bulk,
+)
 from contas.models import Conta
 from usuarios.models import Perfil
 
@@ -178,13 +181,17 @@ def _montar_itens_historico_com_faturas(
     if conta_filtro_ids:
         faturas_qs = faturas_qs.filter(cartao__conta_padrao_id__in=conta_filtro_ids)
 
+    faturas_list = list(faturas_qs.select_related("cartao", "cartao__conta_padrao"))
+    totais_map = totais_faturas_bulk(faturas_list)
+    resumos_map = calcular_resumos_pagamento_bulk(faturas_list)
+
     extras_valor = Decimal("0")
     sinteticas = []
-    for fat in faturas_qs:
-        tot = total_fatura(fat)
+    for fat in faturas_list:
+        tot = totais_map.get(fat.id, Decimal("0"))
         if tot <= Decimal("0"):
             continue
-        resumo = calcular_resumo_pagamento(fat)
+        resumo = resumos_map[fat.id]
         desc = _descricao_linha_historico_fatura(fat, resumo.status_pagamento)
         sinteticas.append(_linha_historico_pagamento_fatura(fat, tot, descricao=desc))
         if resumo.status_pagamento == Fatura.StatusPagamento.PAGO:
@@ -597,7 +604,11 @@ def adicionar_transacao(request):
 
 @login_required
 def editar_transacao(request, pk):
-    transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
+    transacao = get_object_or_404(
+        Transacao.objects.select_related("categoria", "conta", "cartao", "fatura"),
+        pk=pk,
+        usuario=request.user,
+    )
 
     if request.method == "POST":
         form = TransacaoForm(

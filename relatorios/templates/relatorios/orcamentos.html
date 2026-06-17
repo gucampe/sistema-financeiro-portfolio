@@ -13,9 +13,16 @@
 </nav>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-orcamentos-mobile.css' %}" />
+{% endblock %}
+
+{% block export_modal %}
+{% include 'partials/export_modal_bundle.html' %}
+{% endblock %}
+
 {% block content %}
 {% csrf_token %}
-<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-orcamentos-mobile.css' %}">
 <div id="orcamentos-root"
      data-filtros-layout-anchor
      class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl"
@@ -60,157 +67,12 @@
   </section>
 
   {% else %}
-  {# Hero: resumo do mês (primeiro elemento visível) #}
   {% include 'relatorios/partials/orcamentos_painel_topo.html' %}
-
   {% include 'relatorios/partials/orcamentos_lista_cabecalho.html' %}
 
-  {% if linhas_orcamento %}
-  <ul class="-mt-1 space-y-4">
-    {% for linha in linhas_orcamento %}
-    <li class="orc-cat-card card min-w-0 {% if forloop.first %}px-6 pb-6 pt-4 sm:px-7 sm:pb-7 sm:pt-5{% else %}p-6 sm:p-7{% endif %}" data-orcamento-card data-categoria-id="{{ linha.categoria_id }}" {% if linha.orcamento_id %}data-orcamento-id="{{ linha.orcamento_id }}"{% endif %} aria-expanded="false">
-      <div class="orc-cat-card__layout flex flex-col gap-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div class="orc-cat-card__main min-w-0 flex-1">
-          <div class="orc-cat-card__header flex min-w-0 items-center gap-2">
-            <span class="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style="background: {{ linha.cor }}"></span>
-            <h4 class="min-w-0 flex-1 truncate font-medium text-gray-900">{{ linha.nome }}</h4>
-            {% if linha.orcamento_id and not linha.ativo %}
-            <span class="orc-cat-card__badge orc-cat-card__badge--neutral shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Pausado</span>
-            {% elif not linha.orcamento_id %}
-            <span class="orc-cat-card__badge orc-cat-card__badge--neutral shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Sem limite</span>
-            {% elif linha.planejado <= 0 %}
-            <span class="orc-cat-card__badge orc-cat-card__badge--neutral shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Fora da vigência</span>
-            {% else %}
-            <span class="orc-cat-card__badge shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold
-              {% if linha.status == 'excedido' %}orc-cat-card__badge--excedido bg-rose-100 text-rose-800
-              {% elif linha.status == 'risco' %}orc-cat-card__badge--risco bg-amber-100 text-amber-900
-              {% else %}orc-cat-card__badge--ok bg-emerald-100 text-emerald-800{% endif %}">
-              {{ linha.status_label }}
-            </span>
-            {% endif %}
-            <span class="orc-cat-card__chevron sm:hidden shrink-0" aria-hidden="true">
-              <svg class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-            </span>
-          </div>
-
-          {% if linha.planejado > 0 %}
-          {# Mobile: hierarquia focada #}
-          <div class="orc-cat-metrics--mobile sm:hidden">
-            <div class="orc-cat-card__progress mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
-              <div class="h-full rounded-full transition-all {% if linha.status == 'excedido' %}bg-rose-500{% elif linha.status == 'risco' %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
-                   style="width: {{ linha.percentual_exibicao|floatformat:0 }}%; max-width: 100%;"></div>
-            </div>
-            <div class="orc-cat-card__focus">
-              <div class="orc-cat-card__consumo-row">
-                <div>
-                  <p class="orc-cat-card__consumo-label">Gasto</p>
-                  <p class="orc-cat-card__consumo-valor">{{ linha.realizado|moeda }}</p>
-                </div>
-                <p class="orc-cat-card__consumo-pct">{% if linha.percentual %}{{ linha.percentual|floatformat:0 }}% consumido{% else %}—{% endif %}</p>
-              </div>
-              <div class="orc-cat-card__disponivel">
-                <p class="orc-cat-card__disponivel-label">Disponível</p>
-                {% if linha.disponivel < 0 %}
-                <p class="orc-cat-card__disponivel-valor orc-cat-card__disponivel-valor--neg">{{ linha.disponivel|moeda }}</p>
-                {% else %}
-                <p class="orc-cat-card__disponivel-valor orc-cat-card__disponivel-valor--ok">{{ linha.disponivel|moeda }}</p>
-                {% endif %}
-              </div>
-              {% if linha.disponivel < 0 %}
-              <p class="orc-cat-card__disponivel-hint">Acima do limite</p>
-              {% endif %}
-            </div>
-            <dl class="orc-cat-card__secondary-metrics">
-              <div class="orc-cat-card__secondary-metric">
-                <dt>Orçado</dt>
-                <dd>{{ linha.planejado|moeda }}</dd>
-              </div>
-            </dl>
-          </div>
-
-          {# Desktop: grid original #}
-          <div class="orc-cat-metrics--desktop mt-5 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Orçado</p>
-              <p class="mt-1 font-semibold tabular-nums text-gray-900">{{ linha.planejado|moeda }}</p>
-            </div>
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Gasto</p>
-              <p class="mt-1 font-semibold tabular-nums text-gray-800">{{ linha.realizado|moeda }}</p>
-            </div>
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Disponível</p>
-              {% if linha.disponivel < 0 %}
-              <p class="mt-1 font-semibold tabular-nums text-rose-700">{{ linha.disponivel|moeda }}</p>
-              <p class="text-xs text-rose-600">Acima do limite</p>
-              {% else %}
-              <p class="mt-1 font-semibold tabular-nums text-emerald-700">{{ linha.disponivel|moeda }}</p>
-              {% endif %}
-            </div>
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Consumido</p>
-              <p class="mt-1 font-semibold tabular-nums text-gray-800">{% if linha.percentual %}{{ linha.percentual|floatformat:0 }}%{% else %}—{% endif %}</p>
-            </div>
-          </div>
-
-          <div class="orc-cat-metrics--desktop mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
-            <div class="h-full rounded-full transition-all {% if linha.status == 'excedido' %}bg-rose-500{% elif linha.status == 'risco' %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
-                 style="width: {{ linha.percentual_exibicao|floatformat:0 }}%; max-width: 100%;"></div>
-          </div>
-          {% else %}
-          <p class="orc-cat-card__sem-limite mt-3 text-sm text-gray-500">
-            {% if linha.orcamento_id and not linha.ativo and linha.orcamento_obj %}
-            Limite mensal pausado: {{ linha.orcamento_obj.valor_planejado|moeda }}.
-            {% else %}
-            Sem limite vigente em {{ periodo_orcamento_rotulo }}.
-            {% endif %}
-            Gasto no período: {{ linha.realizado|moeda }}
-          </p>
-          {% endif %}
-
-          {% if linha.historico %}
-          <details class="orc-cat-history mt-4 group">
-            <summary class="cursor-pointer text-sm font-medium text-brand-600 hover:text-brand-700">Últimos meses</summary>
-            <ul class="mt-2 space-y-1 text-sm text-gray-600">
-              {% for h in linha.historico %}
-              <li><span>{{ h.rotulo }}</span><span>{% if h.percentual %}{{ h.percentual|floatformat:0 }}%{% else %}—{% endif %}</span></li>
-              {% endfor %}
-            </ul>
-          </details>
-          {% endif %}
-        </div>
-
-        <div class="orc-cat-actions-panel w-full shrink-0 sm:w-auto" id="orc-cat-actions-{{ forloop.counter }}">
-        <div class="orc-cat-actions flex shrink-0 flex-wrap gap-2">
-          <a href="{% url 'transacoes:historico' %}?{{ drill_mes_qs }}&categoria={{ linha.categoria_id }}" class="btn btn-secondary btn-sm">Ver transações</a>
-          {% if linha.orcamento_id %}
-          <button type="button" class="btn btn-secondary btn-sm js-editar-orcamento"
-                  data-orcamento-id="{{ linha.orcamento_id }}"
-                  data-categoria-id="{{ linha.categoria_id }}"
-                  {% if linha.orcamento_obj %}
-                  data-valor="{{ linha.orcamento_obj.valor_planejado }}"
-                  {% endif %}
-                  data-ativo="{% if linha.ativo %}1{% else %}0{% endif %}">Editar</button>
-          <button type="button" class="btn btn-secondary btn-sm js-toggle-orcamento"
-                  data-orcamento-id="{{ linha.orcamento_id }}"
-                  data-ativo="{% if linha.ativo %}1{% else %}0{% endif %}">
-            {% if linha.ativo %}Pausar{% else %}Reativar{% endif %}
-          </button>
-          {% else %}
-          <button type="button" class="btn btn-primary btn-sm js-criar-orcamento-categoria" data-categoria-id="{{ linha.categoria_id }}">Definir limite</button>
-          {% endif %}
-        </div>
-        </div>
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <section class="rel-empty-state card min-w-0 -mt-1">
-    <p class="rel-empty-state__titulo">Nenhuma categoria com orçamento neste mês</p>
-    <p class="rel-empty-state__desc">Use outro período ou crie um novo limite com o botão acima.</p>
-  </section>
-  {% endif %}
+  <div id="orcamentos-linhas">
+    {% include 'relatorios/partials/orcamentos_linhas_content.html' %}
+  </div>
   {% endif %}
   </div>
 
@@ -218,6 +80,9 @@
 </div>
 
 {% include 'relatorios/partials/modal_orcamento.html' %}
-<script src="{% static 'js/icon_combobox.js' %}"></script>
-<script src="{% static 'relatorios/js/orcamentos.js' %}"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/icon_combobox.js' %}" defer></script>
+<script src="{% static 'relatorios/js/orcamentos.js' %}" defer></script>
 {% endblock %}

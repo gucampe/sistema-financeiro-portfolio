@@ -4,6 +4,19 @@
 
 {% block title %}Visão Geral{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-dashboard-mobile.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/primeiros-passos.css' %}" />
+{% endblock %}
+
+{% block modal_transacao %}
+{% include 'partials/transacao_modal_bundle.html' %}
+{% endblock %}
+
+{% block export_modal %}
+{% include 'partials/export_modal_bundle.html' %}
+{% endblock %}
+
 {% block breadcrumb %}
 <nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
   <ol class="app-header-breadcrumb__list">
@@ -23,8 +36,6 @@
   class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl"
   data-ocultar="{% if ocultar_valores_dashboard %}1{% else %}0{% endif %}"
 >
-  <link rel="stylesheet" href="{% static 'relatorios/css/relatorios-dashboard-mobile.css' %}" />
-  <link rel="stylesheet" href="{% static 'usuarios/css/primeiros-passos.css' %}" />
   <script>
     window.__ppUserId = "{{ request.user.pk }}";
     (function () {
@@ -420,8 +431,10 @@
 <script>
   window.filtrosQueryString = "{{ filtros_querystring|escapejs }}";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="{% static 'relatorios/js/dash.js' %}"></script>
-<script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/chart_loader.js' %}" defer></script>
+<script src="{% static 'relatorios/js/dash.js' %}" defer></script>
+<script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
 {% endblock %}

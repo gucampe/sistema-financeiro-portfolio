@@ -476,28 +476,63 @@ def historico_utilizacao_categoria(
     referencia: date | None = None,
 ) -> list[dict[str, Any]]:
     """Últimos N meses de percentual consumido (texto, sem gráfico)."""
+    bulk = historico_utilizacao_categorias_bulk(
+        usuario,
+        [categoria_id],
+        meses=meses,
+        referencia=referencia,
+    )
+    return bulk.get(categoria_id, [])
+
+
+def historico_utilizacao_categorias_bulk(
+    usuario,
+    categoria_ids: list[int],
+    *,
+    meses: int = 3,
+    referencia: date | None = None,
+) -> dict[int, list[dict[str, Any]]]:
+    """Histórico de utilização para várias categorias com agregações por mês."""
+    ids = list({cid for cid in categoria_ids if cid})
+    if not ids:
+        return {}
+
     ref = referencia or date.today()
     y, m = ref.year, ref.month
-    out: list[dict[str, Any]] = []
+    meses_ref: list[tuple[int, int]] = []
     for _ in range(meses):
-        real_map = realizado_por_categoria(usuario, y, m)
-        orc = planejado_mes(usuario, y, m).get(categoria_id)
-        planejado = orc.valor_planejado if orc else Decimal("0")
-        realizado = real_map.get(categoria_id, Decimal("0"))
-        pct = float(realizado / planejado * 100) if planejado > 0 else None
-        out.append(
-            {
-                "ano": y,
-                "mes": m,
-                "rotulo": f"{MESES_PT[m - 1][:3]}/{y}",
-                "percentual": pct,
-                "planejado": planejado,
-                "realizado": realizado,
-            }
-        )
+        meses_ref.append((y, m))
         if m == 1:
             y -= 1
             m = 12
         else:
             m -= 1
-    return list(reversed(out))
+    meses_ref.reverse()
+
+    realizado_por_mes: dict[tuple[int, int], dict[int, Decimal]] = {}
+    planejado_por_mes: dict[tuple[int, int], dict[int, OrcamentoCategoria]] = {}
+    for ano, mes in meses_ref:
+        realizado_por_mes[(ano, mes)] = realizado_por_categoria(usuario, ano, mes)
+        planejado_por_mes[(ano, mes)] = planejado_mes(usuario, ano, mes)
+
+    resultado: dict[int, list[dict[str, Any]]] = {}
+    for cid in ids:
+        historico: list[dict[str, Any]] = []
+        for ano, mes in meses_ref:
+            real_map = realizado_por_mes[(ano, mes)]
+            orc = planejado_por_mes[(ano, mes)].get(cid)
+            planejado = orc.valor_planejado if orc else Decimal("0")
+            realizado = real_map.get(cid, Decimal("0"))
+            pct = float(realizado / planejado * 100) if planejado > 0 else None
+            historico.append(
+                {
+                    "ano": ano,
+                    "mes": mes,
+                    "rotulo": f"{MESES_PT[mes - 1][:3]}/{ano}",
+                    "percentual": pct,
+                    "planejado": planejado,
+                    "realizado": realizado,
+                }
+            )
+        resultado[cid] = historico
+    return resultado

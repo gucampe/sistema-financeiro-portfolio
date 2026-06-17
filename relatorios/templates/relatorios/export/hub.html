@@ -13,6 +13,10 @@
 </nav>
 {% endblock %}
 
+{% block export_modal %}
+{% include 'partials/export_modal_bundle.html' %}
+{% endblock %}
+
 {% block content %}
 <div data-filtros-layout-anchor class="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-4 sm:px-6 lg:px-8 2xl:max-w-7xl">
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}

@@ -8,7 +8,7 @@ services:
     plan: free
     region: oregon
     branch: deploy-render-teste
-    buildCommand: pip install -r requirements.txt && npm ci && npx tailwindcss -i static/css/input.css -o static/css/output.css && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && npm ci && npm run tailwind:build && python manage.py migrate --noinput && python manage.py collectstatic --noinput
     startCommand: python create_superuser.py && gunicorn config.wsgi:application -c gunicorn.conf.py
     envVars:
       - key: PYTHON_VERSION
@@ -26,48 +26,8 @@ services:
       - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
       - key: WEB_CONCURRENCY
+        value: "1"
+      - key: GUNICORN_THREADS
         value: "2"
       - key: EXPORT_JOB_BACKEND
         value: thread
-      - key: CELERY_BROKER_URL
-        fromService:
-          type: redis
-          name: granago-redis
-          property: connectionString
-      - key: CELERY_RESULT_BACKEND
-        fromService:
-          type: redis
-          name: granago-redis
-          property: connectionString
-
-  - type: worker
-    name: granago-export-worker
-    runtime: python
-    plan: free
-    region: oregon
-    branch: deploy-render-teste
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A config worker -l info --concurrency=2
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.3"
-      - key: DATABASE_URL
-        sync: false
-      - key: EXPORT_JOB_BACKEND
-        value: celery
-      - key: CELERY_BROKER_URL
-        fromService:
-          type: redis
-          name: granago-redis
-          property: connectionString
-      - key: CELERY_RESULT_BACKEND
-        fromService:
-          type: redis
-          name: granago-redis
-          property: connectionString
-
-  - type: redis
-    name: granago-redis
-    plan: free
-    region: oregon
-    ipAllowList: []

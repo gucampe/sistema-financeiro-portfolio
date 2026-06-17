@@ -2,8 +2,9 @@
   "name": "config",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
+    "scripts": {
     "tailwind:watch": "npx tailwindcss -i static/css/input.css -o static/css/output.css --watch",
+    "tailwind:build": "npx tailwindcss -i static/css/input.css -o static/css/output.css --minify",
     "django:runserver": "python manage.py runserver 0.0.0.0:8000",
     "dev": "concurrently \"npm run tailwind:watch\" \"npm run django:runserver\""
   },

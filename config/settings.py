@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_htmx',
     'usuarios',
     'relatorios.apps.RelatoriosConfig',
     'transacoes',  # Certifique-se de que este é o nome correto do seu app financeiro
@@ -75,8 +76,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.middleware.PrefetchUserPerfilMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -92,7 +95,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'usuarios.context_processors.perfil_header',
-                'transacoes.context_processors.modal_transacao_global',
             ],
         },
     },
@@ -180,14 +182,22 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
+_staticfiles_backend = (
+    "whitenoise.storage.CompressedStaticFilesStorage"
+    if DEBUG
+    else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
+
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 60
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -205,6 +215,7 @@ SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Segurança básica em produção (Render termina TLS no proxy).
 if not DEBUG:
@@ -252,3 +263,26 @@ CACHES = {
         "LOCATION": "granago-default",
     }
 }
+
+# --- Observabilidade e otimizações de entrega ---
+from config.observability import (  # noqa: E402
+    debug_toolbar_enabled,
+    init_sentry,
+    silk_enabled,
+)
+
+init_sentry()
+
+if not DEBUG:
+    MIDDLEWARE.append("minify_html.middleware.MinifyHtmlMiddleware")
+
+if silk_enabled():
+    INSTALLED_APPS.append("silk")
+    MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
+    SILKY_PYTHON_PROFILER = True
+    SILKY_META = True
+
+if debug_toolbar_enabled():
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    INTERNAL_IPS = ["127.0.0.1", "localhost"]

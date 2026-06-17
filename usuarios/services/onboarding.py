@@ -5,10 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 
+from django.conf import settings
+from django.core.cache import cache
+
 from cartoes.models import Cartao
 from contas.models import Conta
 from transacoes.models import Transacao
 from usuarios.models import Usuario
+
+ONBOARDING_CACHE_TTL = 0 if settings.DEBUG else 60
 
 
 def usuario_tem_conta_ativa(user: Usuario) -> bool:
@@ -85,6 +90,12 @@ def _etapa_para_dict(etapa: EtapaOnboarding, *, concluida: bool) -> dict[str, An
 
 def progresso_primeiros_passos(user: Usuario) -> dict[str, Any]:
     """Retorna estado do checklist inferido dos dados existentes."""
+    cache_key = f"onboarding:progress:{user.pk}"
+    if ONBOARDING_CACHE_TTL > 0:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+
     etapas: list[dict[str, Any]] = []
     concluidas = 0
 
@@ -103,7 +114,7 @@ def progresso_primeiros_passos(user: Usuario) -> dict[str, Any]:
         for etapa_id in essencial_ids
     )
 
-    return {
+    resultado = {
         "etapas": etapas,
         "concluidas": concluidas,
         "total": total,
@@ -111,3 +122,6 @@ def progresso_primeiros_passos(user: Usuario) -> dict[str, Any]:
         "essencial_completo": essencial_completo,
         "total_completo": concluidas >= total,
     }
+    if ONBOARDING_CACHE_TTL > 0:
+        cache.set(cache_key, resultado, ONBOARDING_CACHE_TTL)
+    return resultado

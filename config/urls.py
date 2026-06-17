@@ -20,5 +20,14 @@ urlpatterns = [
     path('cartoes/', include(('cartoes.urls', 'cartoes'), namespace='cartoes')),
 ]
 
+if getattr(settings, "SILKY_PYTHON_PROFILER", False):
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
+
+if "debug_toolbar" in settings.INSTALLED_APPS:
+    urlpatterns = [
+        path("__debug__/", include("debug_toolbar.urls")),
+        *urlpatterns,
+    ]
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

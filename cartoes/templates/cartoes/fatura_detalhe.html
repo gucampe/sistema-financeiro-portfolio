@@ -195,9 +195,16 @@
 </div>
 <script>window.__PRESELECT_CARTAO_MODAL = "{{ cartao.id }}";</script>
 {% include 'transacoes/partials/confirmar_exclusao.html' %}
-<script src="{% static 'transacoes/js/historico.js' %}"></script>
-<script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
-<script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
+{% endblock %}
+
+{% block modal_transacao %}
+{% include 'partials/transacao_modal_bundle.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'transacoes/js/historico.js' %}" defer></script>
+<script src="{% static 'transacoes/js/excluir_transacao.js' %}" defer></script>
+<script src="{% static 'transacoes/js/editar_transacao.js' %}" defer></script>
 <script>
   (function () {
     const menus = Array.from(document.querySelectorAll(".mover-menu"));

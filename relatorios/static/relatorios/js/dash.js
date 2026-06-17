@@ -204,47 +204,53 @@ document.addEventListener('DOMContentLoaded', () => {
     relayoutMasonry();
   };
 
-  if (typeof Chart !== 'undefined') {
+  function initCategoryChart() {
+    if (typeof Chart === 'undefined') return;
     const catCanvas = document.getElementById('grafico-categorias');
     const topData = parseJsonScript('top-despesas-data') || [];
-    if (catCanvas && topData.length) {
-      const cctx = catCanvas.getContext('2d');
-      if (cctx) {
-        const sliceColors = coresDistintasGrafico(topData);
-        new Chart(cctx, {
-          type: 'doughnut',
-          data: {
-            labels: topData.map((x) => x.nome),
-            datasets: [
-              {
-                data: topData.map((x) => (Number.isFinite(Number(x.total)) ? Number(x.total) : 0)),
-                backgroundColor: sliceColors,
-                borderWidth: 2,
-                borderColor: '#ffffff',
-                hoverOffset: 8,
-              },
-            ],
+    if (!catCanvas || !topData.length) return;
+    const cctx = catCanvas.getContext('2d');
+    if (!cctx) return;
+    const sliceColors = coresDistintasGrafico(topData);
+    new Chart(cctx, {
+      type: 'doughnut',
+      data: {
+        labels: topData.map((x) => x.nome),
+        datasets: [
+          {
+            data: topData.map((x) => (Number.isFinite(Number(x.total)) ? Number(x.total) : 0)),
+            backgroundColor: sliceColors,
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 8,
           },
-          options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: '68%',
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label(ctx) {
-                    const pct = topData[ctx.dataIndex]?.pct;
-                    const val = moedaTick(ctx.parsed);
-                    return pct != null ? ` ${val} (${Math.round(pct)}%)` : ` ${val}`;
-                  },
-                },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label(ctx) {
+                const pct = topData[ctx.dataIndex]?.pct;
+                const val = moedaTick(ctx.parsed);
+                return pct != null ? ` ${val} (${Math.round(pct)}%)` : ` ${val}`;
               },
             },
           },
-        });
-        relayoutMasonry();
-      }
-    }
+        },
+      },
+    });
+    relayoutMasonry();
+  }
+
+  if (typeof GranaGoChartLoader !== 'undefined') {
+    GranaGoChartLoader.load().then(initCategoryChart).catch(() => {});
+  } else if (typeof Chart !== 'undefined') {
+    initCategoryChart();
   }
 });

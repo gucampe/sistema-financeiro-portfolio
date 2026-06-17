@@ -76,6 +76,10 @@ class Transacao(models.Model):
         ordering = ["-data", "-id"]
         indexes = [
             models.Index(fields=["usuario", "data"], name="transacao_usuario_data_idx"),
+            models.Index(fields=["usuario", "data_competencia"], name="transacao_user_comp_idx"),
+            models.Index(fields=["usuario", "tipo", "data"], name="transacao_user_tipo_data_idx"),
+            models.Index(fields=["usuario", "conta", "data"], name="transacao_user_conta_data_idx"),
+            models.Index(fields=["usuario", "fatura"], name="transacao_user_fatura_idx"),
         ]
         constraints = [
             models.UniqueConstraint(

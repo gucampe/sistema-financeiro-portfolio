@@ -1,0 +1,6 @@
+{% load static %}
+{% if form %}
+{% include 'transacoes/partials/adicionar_transacao.html' %}
+<script src="{% static 'js/icon_combobox.js' %}" defer></script>
+<script src="{% static 'transacoes/js/adicionar_transacao.js' %}" defer></script>
+{% endif %}

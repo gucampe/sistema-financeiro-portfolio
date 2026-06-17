@@ -6,19 +6,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GranaGo | {% block title %}{% endblock %}</title>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}">
-    <link rel="alternate icon" type="image/png" href="{% static 'img/icons/logo.png' %}">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/icons/logo.ico' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    {% block app_shell_css %}
+    {% if request.user.is_authenticated %}
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" />
+    {% endif %}
+    {% endblock %}
+    {% block extra_css %}{% endblock %}
   </head>
   <body class="min-h-screen flex flex-col bg-surface font-sans antialiased">
-  <script src="{% static 'js/modal.js' %}"></script>
   {# Evita flash “abre e fecha” ao navegar: aplica recolhido antes do primeiro paint (localStorage). #}
   <script>
     (function () {
@@ -61,19 +68,14 @@
     </div>
   {% endblock %}
 
-    {% if request.user.is_authenticated and form %}
-    {% include 'transacoes/partials/adicionar_transacao.html' %}
-    <script src="{% static 'js/icon_combobox.js' %}" defer></script>
-    <script src="{% static 'transacoes/js/adicionar_transacao.js' %}" defer></script>
-    {% endif %}
+    {% block modal_transacao %}{% endblock %}
+    {% block export_modal %}{% endblock %}
 
-    {% if request.user.is_authenticated %}
-    {% include 'relatorios/export/modal_exportar.html' %}
-    <link rel="stylesheet" href="{% static 'relatorios/css/export.css' %}" />
-    <script src="{% static 'relatorios/js/export.js' %}" defer></script>
-    {% endif %}
-
+    <script src="{% static 'js/modal.js' %}" defer></script>
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
+    {% if request.user.is_authenticated %}
     <script src="{% static 'js/sidebar.js' %}" defer></script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

@@ -334,6 +334,12 @@ def montar_analise_por_conta(
 
     contas_map = {c.id: c for c in Conta.objects.filter(usuario=usuario, ativa=True)}
     total_tx = sum(s["quantidade"] for s in stats.values()) or 1
+    ajustes_por_conta = dict(
+        qs.filter(tipo="ajuste")
+        .values("conta_id")
+        .annotate(n=Count("id"))
+        .values_list("conta_id", "n")
+    )
 
     contas: list[dict[str, Any]] = []
     for saldo_row in saldos_lista:
@@ -348,7 +354,7 @@ def montar_analise_por_conta(
         pct_pat = (saldo / patrimonio_total * 100) if patrimonio_total else Decimal("0")
         pct_mov = (Decimal(n_tx) / Decimal(total_tx) * 100) if total_tx else Decimal("0")
         delta_pct = _delta_pct(mov, mov_ant)
-        n_ajustes = qs.filter(conta_id=cid, tipo="ajuste").count() if n_tx else 0
+        n_ajustes = ajustes_por_conta.get(cid, 0) if n_tx else 0
 
         contas.append(
             {
@@ -408,7 +414,7 @@ def montar_analise_por_conta(
                 "delta_pct": _delta_pct(mov, mov_ant),
                 "delta_pct_abs": None,
                 "direcao": _direcao_variacao(mov, mov_ant),
-                "n_ajustes_periodo": qs.filter(conta_id=cid, tipo="ajuste").count(),
+                "n_ajustes_periodo": ajustes_por_conta.get(cid, 0),
                 "drill_qs": filtros.to_drill_transacoes_periodo_e_conta(cid),
                 "detalhe": _detalhe_conta(qs, filtros, cid),
             }

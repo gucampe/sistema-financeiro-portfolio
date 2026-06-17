@@ -28,7 +28,7 @@ from relatorios.services.fluxo_caixa import (
 from relatorios.services.orcamentos import (
     MESES_PT,
     _filtros_orcamento_despesas,
-    historico_utilizacao_categoria,
+    historico_utilizacao_categorias_bulk,
     listar_orcamentos,
     listar_orcamentos_mes,
     painel_mes_orcamento,
@@ -183,6 +183,11 @@ def _parse_ano_mes(request, default: date | None = None) -> tuple[int, int]:
 class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
     template_name = "relatorios/orcamentos.html"
 
+    def get_template_names(self):
+        if getattr(self.request, "htmx", False):
+            return ["relatorios/partials/orcamentos_linhas.html"]
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
@@ -206,11 +211,18 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
             o.pk: o
             for o in OrcamentoCategoria.objects.filter(usuario=user, pk__in=orcamento_ids)
         }
+        categoria_ids_historico = [
+            linha.categoria_id
+            for linha in linhas
+            if linha.orcamento_id and linha.planejado > 0
+        ]
+        if categoria_ids_historico:
+            historico_por_categoria = historico_utilizacao_categorias_bulk(
+                user,
+                categoria_ids_historico,
+                meses=3,
+            )
         for linha in linhas:
-            if linha.orcamento_id and linha.planejado > 0:
-                historico_por_categoria[linha.categoria_id] = historico_utilizacao_categoria(
-                    user, linha.categoria_id, meses=3
-                )
             linha.historico = historico_por_categoria.get(linha.categoria_id, [])
             linha.orcamento_obj = orcamentos_map.get(linha.orcamento_id)
 

@@ -8,8 +8,11 @@ sqlparse==0.5.3
 psycopg2-binary==2.9.12
 python-decouple==3.8
 gunicorn==23.0.0
-whitenoise==6.9.0
+whitenoise[brotli]==6.9.0
 dj-database-url==2.3.0
 celery==5.4.0
 redis==5.2.1
 weasyprint==63.1
+django-minify-html==1.5.0
+django-htmx==1.21.0
+sentry-sdk==2.19.2

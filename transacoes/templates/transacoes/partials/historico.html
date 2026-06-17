@@ -5,6 +5,15 @@
 
 {% block title %}Lançamentos{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
+<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-filtros.css' %}" />
+{% endblock %}
+
+{% block modal_transacao %}
+{% include 'partials/transacao_modal_bundle.html' %}
+{% endblock %}
+
 {% block breadcrumb %}
 <nav class="app-header-breadcrumb min-w-0 flex-1" aria-label="Você está em">
   <ol class="app-header-breadcrumb__list">
@@ -266,17 +275,17 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="{% static 'relatorios/css/relatorios-filtros.css' %}" />
 {% include 'relatorios/partials/filtros_portal.html' %}
 {% include 'relatorios/partials/shell_relatorio_filtros_scripts.html' %}
 
-<link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
 {% include 'partials/lista_contextual_sheet.html' %}
+{% endblock %}
 
-<script src="{% static 'js/lista_contextual.js' %}"></script>
-<script src="{% static 'transacoes/js/excluir_transacao.js' %}"></script>
-<script src="{% static 'transacoes/js/editar_transacao.js' %}"></script>
-<script src="{% static 'transacoes/js/historico.js' %}"></script>
-<script src="{% static 'transacoes/js/importar_ofx.js' %}"></script>
-<script src="{% static 'transacoes/js/importar_planilha.js' %}"></script>
+{% block extra_js %}
+<script src="{% static 'js/lista_contextual.js' %}" defer></script>
+<script src="{% static 'transacoes/js/excluir_transacao.js' %}" defer></script>
+<script src="{% static 'transacoes/js/editar_transacao.js' %}" defer></script>
+<script src="{% static 'transacoes/js/historico.js' %}" defer></script>
+<script src="{% static 'transacoes/js/importar_ofx.js' %}" defer></script>
+<script src="{% static 'transacoes/js/importar_planilha.js' %}" defer></script>
 {% endblock %}

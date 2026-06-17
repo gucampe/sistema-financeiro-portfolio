@@ -6,3 +6,5 @@ playwright>=1.40.0
 factory-boy>=3.3.0
 freezegun>=1.4.0
 axe-playwright-python>=0.1.0
+django-silk==5.3.0
+django-debug-toolbar==4.4.6
