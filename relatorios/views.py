@@ -1,20 +1,17 @@
 from datetime import date
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required
 
 from categorias.models import Categoria
 from contas.models import Conta
-from transacoes.forms import TransacaoForm
 from usuarios.models import Perfil
-from usuarios.services.onboarding import progresso_primeiros_passos
-from usuarios.utils import primeiro_nome
 
 from relatorios.forms import OrcamentoCategoriaForm
 from relatorios.models import OrcamentoCategoria
@@ -28,16 +25,9 @@ from relatorios.services.fluxo_caixa import (
 from relatorios.services.orcamentos import (
     MESES_PT,
     _filtros_orcamento_despesas,
-    historico_utilizacao_categorias_bulk,
+    historico_utilizacao_categoria,
     listar_orcamentos,
-    listar_orcamentos_mes,
-    painel_mes_orcamento,
-    periodo_orcamento_multi_mes,
     referencia_mes_orcamento,
-    resumo_linhas_orcamento,
-    rotulo_periodo_orcamento,
-    usuario_tem_orcamentos_cadastrados,
-    usuario_tem_orcamentos_vigentes_mes,
 )
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
@@ -50,17 +40,9 @@ from relatorios.services.agregacoes import (
 from relatorios.services.despesas_categoria import montar_analise_despesas_categoria
 from relatorios.services.por_conta import montar_analise_por_conta
 from relatorios.services.filtros import parse_relatorio_filtros
-from relatorios.services.dashboard import (
-    comparacao_mensal,
-    fluxo_caixa_futuro_dashboard,
-    contas_dashboard,
-    metas_financeiras,
-    query_transacoes_mes_atual,
-    resumo_cartoes_dashboard,
-    rotulo_periodo_atual,
-    saudacao_periodo,
-    top_despesas_mes_atual,
-)
+from relatorios.services.dashboard_context import montar_contexto_dashboard
+from relatorios.services.orcamentos_context import montar_contexto_orcamentos
+from relatorios.services.request_cache import RelatorioRequestCache
 
 
 class RelatorioFiltrosMixin(LoginRequiredMixin):
@@ -90,71 +72,13 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        filtros = ctx["filtros"]
-
-        comparacao = comparacao_mensal(user)
-        totais_mes = comparacao["atual"]
-        patrimonio = contas_dashboard(user, limit=5)
-        cartoes = resumo_cartoes_dashboard(user)
-        metas = metas_financeiras(user)
-        tem_orcamentos_cadastrados = usuario_tem_orcamentos_cadastrados(user)
-        hoje = date.today()
-        tem_orcamentos_vigentes = usuario_tem_orcamentos_vigentes_mes(user, hoje.year, hoje.month)
-        top_despesas_mes = top_despesas_mes_atual(user, limit=5)
-        top_despesas_chart = [
-            {
-                "nome": x["nome"],
-                "total": float(x["total"]),
-                "cor": x["cor"] or "#6B7280",
-                "pct": float(x["percentual"]),
-                "categoria_id": x["categoria_id"],
-            }
-            for x in top_despesas_mes
-        ]
-        resultado_mes = comparacao["resultado_atual"]
-
-        categorias_despesa = Categoria.objects.filter(
-            Q(usuario=user) | Q(padrao=True),
-            tipo="despesa",
-            ativa=True,
-        ).order_by("nome")
-        categorias_receita = Categoria.objects.filter(
-            Q(usuario=user) | Q(padrao=True),
-            tipo="receita",
-            ativa=True,
-        ).order_by("nome")
-        perfil, _ = Perfil.objects.get_or_create(usuario=user)
-        initial_tx, tipo_p = perfil.defaults_transacao_form()
-        form = TransacaoForm(usuario=user, tipo_inicial=tipo_p, initial=initial_tx)
-
+        cache = RelatorioRequestCache(self.request.user)
         ctx.update(
-            {
-                "relatorio_nav": "home",
-                "saudacao": saudacao_periodo(),
-                "nome_usuario": primeiro_nome(user.nome),
-                "rotulo_periodo": rotulo_periodo_atual(),
-                "comparacao_mensal": comparacao,
-                "totais_mes": totais_mes,
-                "resultado_mes": resultado_mes,
-                "patrimonio": patrimonio,
-                "cartoes_dashboard": cartoes,
-                "metas_financeiras": metas,
-                "tem_orcamentos_cadastrados": tem_orcamentos_cadastrados,
-                "tem_orcamentos_vigentes": tem_orcamentos_vigentes,
-                "top_despesas_mes": top_despesas_mes,
-                "top_despesas_chart": top_despesas_chart,
-                "periodo_transacoes_qs": query_transacoes_mes_atual(),
-                "icone_choices_instituicoes": [
-                    "nubank", "itau", "santander", "bradesco", "bb", "caixa",
-                    "inter", "sicredi", "sicoob", "picpay", "mercadopago",
-                ],
-                "categorias_despesa": categorias_despesa,
-                "categorias_receita": categorias_receita,
-                "form": form,
-                "ocultar_valores_dashboard": perfil.ocultar_valores_dashboard,
-                "primeiros_passos": progresso_primeiros_passos(user),
-            }
+            montar_contexto_dashboard(
+                self.request.user,
+                cache,
+                categorias_preloaded=ctx.get("categorias_filtro"),
+            )
         )
         return ctx
 
@@ -190,66 +114,23 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        base_filtros = ctx["filtros"]
-        filtros_periodo = _filtros_orcamento_despesas(base_filtros)
-        ano_ref, mes_ref = referencia_mes_orcamento(base_filtros)
-        linhas = listar_orcamentos(
-            user,
-            filtros_periodo,
-            ano_ref=ano_ref,
-            mes_ref=mes_ref,
-            incluir_inativos=False,
-            exibir_inativos=True,
-        )
-        resumo = resumo_linhas_orcamento(linhas)
-        painel_mes = painel_mes_orcamento(linhas, resumo)
-
-        historico_por_categoria: dict[int, list] = {}
-        orcamento_ids = [l.orcamento_id for l in linhas if l.orcamento_id]
-        orcamentos_map = {
-            o.pk: o
-            for o in OrcamentoCategoria.objects.filter(usuario=user, pk__in=orcamento_ids)
-        }
-        categoria_ids_historico = [
-            linha.categoria_id
-            for linha in linhas
-            if linha.orcamento_id and linha.planejado > 0
-        ]
-        if categoria_ids_historico:
-            historico_por_categoria = historico_utilizacao_categorias_bulk(
-                user,
-                categoria_ids_historico,
-                meses=3,
-            )
-        for linha in linhas:
-            linha.historico = historico_por_categoria.get(linha.categoria_id, [])
-            linha.orcamento_obj = orcamentos_map.get(linha.orcamento_id)
-
-        drill_qs = f"{filtros_periodo.to_drill_transacoes_query_string()}&tipo=despesa"
-        multi_mes = periodo_orcamento_multi_mes(base_filtros)
-
-        ctx.update(
-            {
-                "relatorio_nav": "orcamentos",
-                "ano": ano_ref,
-                "mes": mes_ref,
-                "mes_rotulo": MESES_PT[mes_ref - 1],
-                "periodo_orcamento_rotulo": rotulo_periodo_orcamento(base_filtros),
-                "periodo_orcamento_multi_mes": multi_mes,
-                "linhas_orcamento": linhas,
-                "resumo_orcamento": resumo,
-                "painel_mes": painel_mes,
-                "tem_orcamentos": usuario_tem_orcamentos_cadastrados(user),
-                "historico_por_categoria": historico_por_categoria,
-                "drill_mes_qs": drill_qs,
-                "form_orcamento": OrcamentoCategoriaForm(
-                    usuario=user,
-                    initial={"ativo": True},
-                ),
-            }
-        )
+        cache = RelatorioRequestCache(self.request.user)
+        ctx.update(montar_contexto_orcamentos(self.request.user, ctx["filtros"], cache=cache))
         return ctx
+
+
+@login_required
+def historico_categoria_orcamento(request, categoria_id: int):
+    """Partial HTMX: histórico de 3 meses para uma categoria (lazy)."""
+    cache = RelatorioRequestCache(request.user)
+    historico = historico_utilizacao_categoria(
+        request.user, categoria_id, meses=3, cache=cache
+    )
+    return render(
+        request,
+        "relatorios/partials/orcamento_historico_categoria.html",
+        {"historico": historico, "categoria_id": categoria_id},
+    )
 
 
 @login_required

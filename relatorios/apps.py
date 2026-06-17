@@ -5,3 +5,6 @@ class RelatoriosConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "relatorios"
     verbose_name = "Relatórios"
+
+    def ready(self):
+        from relatorios import signals  # noqa: F401

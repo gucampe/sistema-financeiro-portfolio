@@ -15,6 +15,8 @@ class PrefetchUserPerfilMiddleware:
     def __call__(self, request):
         user = getattr(request, "user", None)
         if user is not None and getattr(user, "is_authenticated", False):
+            if hasattr(user, "perfil"):
+                return self.get_response(request)
             request.user = (
                 self._user_model.objects.select_related("perfil")
                 .only(

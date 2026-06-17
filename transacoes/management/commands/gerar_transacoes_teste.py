@@ -12,20 +12,37 @@ from transacoes.models import Transacao
 class Command(BaseCommand):
     help = "Gera transações de teste para desenvolvimento"
 
-    def handle(self, *args, **kwargs):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--email",
+            default="teste4@teste.com",
+            help="E-mail do usuário que receberá as transações de teste",
+        )
+        parser.add_argument(
+            "--quantidade",
+            type=int,
+            default=100,
+            help="Número de transações a criar (padrão: 100)",
+        )
 
-        usuario = Usuario.objects.filter(email="teste4@teste.com").first() or Usuario.objects.last()
+    def handle(self, *args, **kwargs):
+        email = kwargs["email"]
+        quantidade = kwargs["quantidade"]
+
+        usuario = Usuario.objects.filter(email=email).first()
+        if not usuario:
+            usuario = Usuario.objects.last()
         conta = Conta.objects.filter(usuario=usuario, ativa=True).first()
 
         categorias = list(Categoria.objects.filter(usuario=usuario))
 
         if not usuario or not conta or not categorias:
             self.stdout.write(self.style.ERROR(
-                "É necessário existir pelo menos: usuário, conta e categorias."
+                f"É necessário existir pelo menos: usuário ({email}), conta e categorias."
             ))
             return
 
-        for i in range(100):
+        for i in range(quantidade):
 
             tipo = random.choice(["receita", "despesa"])
 
@@ -43,5 +60,7 @@ class Command(BaseCommand):
                 data=data
             )
 
-        self.stdout.write(self.style.SUCCESS("100 transações de teste criadas com sucesso."))
+        self.stdout.write(self.style.SUCCESS(
+            f"{quantidade} transações de teste criadas com sucesso para {usuario.email}."
+        ))
         

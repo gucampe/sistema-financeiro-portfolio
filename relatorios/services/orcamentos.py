@@ -8,12 +8,14 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from django.db.models import Q, QuerySet, Sum
+from django.db.models import Case, F, Q, QuerySet, Sum, When
+from django.db.models.functions import ExtractMonth, ExtractYear
 
 from relatorios.models import OrcamentoCategoria
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import aplicar_filtros_relatorio
 from relatorios.services.filtros import RelatorioFiltros
+from relatorios.services.request_cache import RelatorioRequestCache
 from transacoes.models import Transacao
 
 LIMITE_ATENCAO = 85
@@ -171,11 +173,37 @@ def queryset_despesas_orcamento(usuario, filtros: RelatorioFiltros) -> QuerySet[
     return aplicar_filtros_relatorio(qs, filtros)
 
 
-def _realizado_map_por_nome_categoria(usuario, por_id: dict[int, Decimal]) -> dict[int, Decimal]:
+def _nome_para_ids_map(usuario, *, cache: RelatorioRequestCache | None = None) -> dict[str, list[int]]:
+    """Mapa nome → ids de categorias despesa (1 query, reutilizável no request)."""
+    from categorias.models import Categoria
+
+    def _load() -> dict[str, list[int]]:
+        out: dict[str, list[int]] = {}
+        for pk, nome in Categoria.objects.filter(
+            Q(usuario=usuario) | Q(padrao=True),
+            tipo="despesa",
+        ).values_list("pk", "nome"):
+            out.setdefault(nome, []).append(pk)
+        return out
+
+    if cache is not None:
+        return cache.nome_ids_map(_load)
+    return _load()
+
+
+def _realizado_map_por_nome_categoria(
+    usuario,
+    por_id: dict[int, Decimal],
+    *,
+    nome_ids_map: dict[str, list[int]] | None = None,
+) -> dict[int, Decimal]:
     """Alinha gastos entre categoria do usuário e global padrão com o mesmo nome."""
     if not por_id:
         return por_id
     from categorias.models import Categoria
+
+    if nome_ids_map is None:
+        nome_ids_map = _nome_para_ids_map(usuario)
 
     por_nome: dict[str, Decimal] = {}
     for cat in Categoria.objects.filter(pk__in=por_id).only("id", "nome"):
@@ -183,26 +211,69 @@ def _realizado_map_por_nome_categoria(usuario, por_id: dict[int, Decimal]) -> di
 
     out = dict(por_id)
     for nome, total in por_nome.items():
-        ids = Categoria.objects.filter(
-            Q(usuario=usuario) | Q(padrao=True),
-            nome=nome,
-            tipo="despesa",
-        ).values_list("pk", flat=True)
-        for cid in ids:
+        for cid in nome_ids_map.get(nome, []):
             out[cid] = total
     return out
 
 
-def realizado_por_categoria_filtros(usuario, filtros: RelatorioFiltros) -> dict[int, Decimal]:
+def _filtros_orcamento_cache_key(filtros: RelatorioFiltros) -> str:
+    return (
+        f"{filtros.data_inicio}|{filtros.data_fim}|{filtros.modo_data}|"
+        f"{filtros.conta_ids}|{filtros.categoria_ids}|{filtros.tipos}"
+    )
+
+
+def realizado_por_categoria_filtros(
+    usuario,
+    filtros: RelatorioFiltros,
+    *,
+    cache: RelatorioRequestCache | None = None,
+) -> dict[int, Decimal]:
     fo = _filtros_orcamento_despesas(filtros)
-    qs = queryset_despesas_orcamento(usuario, fo)
-    rows = qs.values("categoria_id").annotate(gasto=Sum("valor"))
-    por_id = {r["categoria_id"]: r["gasto"] or Decimal("0") for r in rows if r["categoria_id"]}
-    return _realizado_map_por_nome_categoria(usuario, por_id)
+    key = _filtros_orcamento_cache_key(fo)
+
+    def _compute() -> dict[int, Decimal]:
+        qs = queryset_despesas_orcamento(usuario, fo)
+        rows = qs.values("categoria_id").annotate(gasto=Sum("valor"))
+        por_id = {r["categoria_id"]: r["gasto"] or Decimal("0") for r in rows if r["categoria_id"]}
+        nome_map = _nome_para_ids_map(usuario, cache=cache)
+        return _realizado_map_por_nome_categoria(usuario, por_id, nome_ids_map=nome_map)
+
+    if cache is not None:
+        return cache.realizado_por_categoria_filtros(key, _compute)
+    return _compute()
 
 
 def realizado_por_categoria(usuario, ano: int, mes: int) -> dict[int, Decimal]:
     return realizado_por_categoria_filtros(usuario, filtros_mes(ano, mes))
+
+
+def planejado_mes(usuario, ano: int, mes: int, *, incluir_inativos: bool = False) -> dict[int, OrcamentoCategoria]:
+    bulk = planejado_por_mes_bulk(usuario, [(ano, mes)], incluir_inativos=incluir_inativos)
+    return bulk.get((ano, mes), {})
+
+
+def planejado_por_mes_bulk(
+    usuario,
+    meses: list[tuple[int, int]],
+    *,
+    incluir_inativos: bool = False,
+) -> dict[tuple[int, int], dict[int, OrcamentoCategoria]]:
+    """Planejado vigente para vários meses com 1 query de orçamentos."""
+    if not meses:
+        return {}
+    qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
+    if not incluir_inativos:
+        qs = qs.filter(ativo=True)
+    orcamentos = list(qs)
+    out: dict[tuple[int, int], dict[int, OrcamentoCategoria]] = {}
+    for ano, mes in meses:
+        mes_map: dict[int, OrcamentoCategoria] = {}
+        for o in orcamentos:
+            if o.vigente_em(ano, mes):
+                mes_map[o.categoria_id] = o
+        out[(ano, mes)] = mes_map
+    return out
 
 
 def planejado_por_categoria_periodo(
@@ -210,25 +281,74 @@ def planejado_por_categoria_periodo(
     filtros: RelatorioFiltros,
     *,
     incluir_inativos: bool = False,
+    cache: RelatorioRequestCache | None = None,
 ) -> dict[int, Decimal]:
     from relatorios.services.agregacoes import _meses_no_intervalo
 
-    out: dict[int, Decimal] = {}
-    for y, m in _meses_no_intervalo(filtros.data_inicio, filtros.data_fim):
-        for cid, o in planejado_mes(usuario, y, m, incluir_inativos=incluir_inativos).items():
-            out[cid] = out.get(cid, Decimal("0")) + o.valor_planejado
-    return out
+    fo = _filtros_orcamento_despesas(filtros)
+    key = f"{_filtros_orcamento_cache_key(fo)}:inativos={incluir_inativos}"
+
+    def _compute() -> dict[int, Decimal]:
+        meses = list(_meses_no_intervalo(fo.data_inicio, fo.data_fim))
+        bulk = planejado_por_mes_bulk(usuario, meses, incluir_inativos=incluir_inativos)
+        out: dict[int, Decimal] = {}
+        for y, m in meses:
+            for cid, o in bulk.get((y, m), {}).items():
+                out[cid] = out.get(cid, Decimal("0")) + o.valor_planejado
+        return out
+
+    if cache is not None:
+        return cache.get_or_set(f"planejado_periodo:{key}", _compute)
+    return _compute()
 
 
-def planejado_mes(usuario, ano: int, mes: int, *, incluir_inativos: bool = False) -> dict[int, OrcamentoCategoria]:
-    qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
-    if not incluir_inativos:
-        qs = qs.filter(ativo=True)
-    out: dict[int, OrcamentoCategoria] = {}
-    for o in qs:
-        if o.vigente_em(ano, mes):
-            out[o.categoria_id] = o
-    return out
+def realizado_por_categoria_meses_bulk(
+    usuario,
+    meses_ref: list[tuple[int, int]],
+    *,
+    cache: RelatorioRequestCache | None = None,
+) -> dict[tuple[int, int], dict[int, Decimal]]:
+    """Realizado por categoria para vários meses com 1 agregação + mapa por nome."""
+    if not meses_ref:
+        return {}
+    meses_set = set(meses_ref)
+    inicio = date(meses_ref[0][0], meses_ref[0][1], 1)
+    last_y, last_m = meses_ref[-1]
+    fim = date(last_y, last_m, calendar.monthrange(last_y, last_m)[1])
+    filtros = RelatorioFiltros(
+        data_inicio=inicio,
+        data_fim=fim,
+        preset="custom",
+        modo_data="competencia_cartao",
+    )
+    qs = queryset_despesas_orcamento(usuario, filtros)
+    qs = qs.annotate(
+        eff_date=Case(
+            When(
+                Q(cartao__isnull=False) & Q(data_competencia__isnull=False),
+                then=F("data_competencia"),
+            ),
+            default=F("data"),
+        ),
+        ref_ano=ExtractYear("eff_date"),
+        ref_mes=ExtractMonth("eff_date"),
+    )
+    rows = qs.values("categoria_id", "ref_ano", "ref_mes").annotate(gasto=Sum("valor"))
+
+    por_mes: dict[tuple[int, int], dict[int, Decimal]] = {key: {} for key in meses_ref}
+    for row in rows:
+        key = (row["ref_ano"], row["ref_mes"])
+        if key not in meses_set:
+            continue
+        cid = row["categoria_id"]
+        if not cid:
+            continue
+        por_mes[key][cid] = por_mes[key].get(cid, Decimal("0")) + (row["gasto"] or Decimal("0"))
+
+    nome_map = _nome_para_ids_map(usuario, cache=cache)
+    for key in por_mes:
+        por_mes[key] = _realizado_map_por_nome_categoria(usuario, por_mes[key], nome_ids_map=nome_map)
+    return por_mes
 
 
 def listar_orcamentos(
@@ -240,6 +360,7 @@ def listar_orcamentos(
     incluir_inativos: bool = False,
     exibir_inativos: bool = False,
     incluir_gasto_sem_orcamento: bool = False,
+    cache: RelatorioRequestCache | None = None,
 ) -> list[LinhaOrcamento]:
     """Lista orçamentos cadastrados; gastos no intervalo de filtros.
 
@@ -247,8 +368,10 @@ def listar_orcamentos(
     ``exibir_inativos``: inativos aparecem na lista (planejado=0, badge Pausado).
     """
     fo = _filtros_orcamento_despesas(filtros)
-    real_map = realizado_por_categoria_filtros(usuario, fo)
-    planejado_map = planejado_por_categoria_periodo(usuario, fo, incluir_inativos=incluir_inativos)
+    real_map = realizado_por_categoria_filtros(usuario, fo, cache=cache)
+    planejado_map = planejado_por_categoria_periodo(
+        usuario, fo, incluir_inativos=incluir_inativos, cache=cache
+    )
 
     qs = OrcamentoCategoria.objects.filter(usuario=usuario).select_related("categoria")
     if not exibir_inativos:
@@ -429,17 +552,28 @@ def orcamento_vs_realizado(usuario, filtros: RelatorioFiltros) -> list[dict[str,
     planejado_por_cat = planejado_por_categoria_periodo(usuario, fo)
 
     categoria_ids = set(planejado_por_cat) | set(real_map.keys())
+    orcamentos_por_cat = {
+        o.categoria_id: o
+        for o in OrcamentoCategoria.objects.filter(usuario=usuario, categoria_id__in=categoria_ids).select_related(
+            "categoria"
+        )
+    }
+    cats_sem_orc = [cid for cid in categoria_ids if cid not in orcamentos_por_cat]
+    categorias_map = {}
+    if cats_sem_orc:
+        from categorias.models import Categoria
+
+        categorias_map = {c.pk: c for c in Categoria.objects.filter(pk__in=cats_sem_orc)}
+
     out: list[dict[str, Any]] = []
     for cid in categoria_ids:
         planejado = planejado_por_cat.get(cid, Decimal("0"))
         realizado = real_map.get(cid, Decimal("0"))
-        o = OrcamentoCategoria.objects.filter(usuario=usuario, categoria_id=cid).select_related("categoria").first()
+        o = orcamentos_por_cat.get(cid)
         if o:
             nome, cor, icone = o.categoria.nome, o.categoria.cor, o.categoria.icone
         else:
-            from categorias.models import Categoria
-
-            c = Categoria.objects.filter(pk=cid).first()
+            c = categorias_map.get(cid)
             nome = c.nome if c else "?"
             cor = c.cor if c else "#6B7280"
             icone = c.icone if c else "fa-ellipsis-h"
@@ -474,6 +608,7 @@ def historico_utilizacao_categoria(
     *,
     meses: int = 3,
     referencia: date | None = None,
+    cache: RelatorioRequestCache | None = None,
 ) -> list[dict[str, Any]]:
     """Últimos N meses de percentual consumido (texto, sem gráfico)."""
     bulk = historico_utilizacao_categorias_bulk(
@@ -481,6 +616,7 @@ def historico_utilizacao_categoria(
         [categoria_id],
         meses=meses,
         referencia=referencia,
+        cache=cache,
     )
     return bulk.get(categoria_id, [])
 
@@ -491,6 +627,7 @@ def historico_utilizacao_categorias_bulk(
     *,
     meses: int = 3,
     referencia: date | None = None,
+    cache: RelatorioRequestCache | None = None,
 ) -> dict[int, list[dict[str, Any]]]:
     """Histórico de utilização para várias categorias com agregações por mês."""
     ids = list({cid for cid in categoria_ids if cid})
@@ -508,12 +645,20 @@ def historico_utilizacao_categorias_bulk(
         else:
             m -= 1
     meses_ref.reverse()
+    meses_key = ",".join(f"{a}-{m}" for a, m in meses_ref)
 
-    realizado_por_mes: dict[tuple[int, int], dict[int, Decimal]] = {}
-    planejado_por_mes: dict[tuple[int, int], dict[int, OrcamentoCategoria]] = {}
-    for ano, mes in meses_ref:
-        realizado_por_mes[(ano, mes)] = realizado_por_categoria(usuario, ano, mes)
-        planejado_por_mes[(ano, mes)] = planejado_mes(usuario, ano, mes)
+    def _realizado_bulk():
+        return realizado_por_categoria_meses_bulk(usuario, meses_ref, cache=cache)
+
+    def _planejado_bulk():
+        return planejado_por_mes_bulk(usuario, meses_ref)
+
+    if cache is not None:
+        realizado_por_mes = cache.get_or_set(f"realizado_meses:{meses_key}", _realizado_bulk)
+        planejado_por_mes = cache.planejado_por_mes_bulk(meses_key, _planejado_bulk)
+    else:
+        realizado_por_mes = _realizado_bulk()
+        planejado_por_mes = _planejado_bulk()
 
     resultado: dict[int, list[dict[str, Any]]] = {}
     for cid in ids:

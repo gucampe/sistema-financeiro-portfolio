@@ -273,8 +273,26 @@ from config.observability import (  # noqa: E402
 
 init_sentry()
 
-if not DEBUG:
-    MIDDLEWARE.append("django_minify_html.middleware.MinifyHtmlMiddleware")
+ENABLE_PERF_MIDDLEWARE = config("ENABLE_PERF_MIDDLEWARE", default=False, cast=bool)
+ENABLE_MINIFY_HTML = config("ENABLE_MINIFY_HTML", default=True, cast=bool)
+ENABLE_DASHBOARD_AGG_CACHE = config("ENABLE_DASHBOARD_AGG_CACHE", default=False, cast=bool)
+
+_redis_url = config("REDIS_URL", default="").strip()
+if _redis_url and ENABLE_DASHBOARD_AGG_CACHE:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _redis_url,
+        }
+    }
+
+if ENABLE_PERF_MIDDLEWARE:
+    MIDDLEWARE.append("config.middleware_perf.PerfTimingMiddleware")
+
+if not DEBUG and ENABLE_MINIFY_HTML:
+    MIDDLEWARE.append("config.minify_middleware.ProjectMinifyHtmlMiddleware")
+elif not DEBUG and not ENABLE_MINIFY_HTML:
+    pass  # minify desligado via A/B
 
 if silk_enabled():
     INSTALLED_APPS.append("silk")
@@ -286,3 +304,6 @@ if debug_toolbar_enabled():
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
     INTERNAL_IPS = ["127.0.0.1", "localhost"]
+
+# Rotas /__benchmark/* — apenas para auditoria (ENABLE_BENCHMARK_ROUTES=1).
+ENABLE_BENCHMARK_ROUTES = config("ENABLE_BENCHMARK_ROUTES", default=False, cast=bool)

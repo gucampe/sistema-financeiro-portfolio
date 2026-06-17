@@ -1,0 +1,53 @@
+{% load moeda %}
+<ul class="lista-contextual-list divide-y divide-gray-100" data-bank-icon-fallback="{{ icon_fallback_url|default:'' }}">
+{% for dia in transacoes_por_dia %}
+<li class="px-4 sm:px-5 py-2 pt-4 border-t border-gray-100 first:border-t-0 first:pt-2 [content-visibility:auto]">
+  <p class="text-[12px] font-medium text-gray-500 mb-2">{{ dia.data|date:"d/m/Y" }}</p>
+  <ul class="divide-y divide-gray-50">
+    {% for transacao in dia.transacoes %}
+      {% include 'transacoes/partials/transacao_linha.html' %}
+    {% endfor %}
+  </ul>
+</li>
+{% empty %}
+<li class="px-4 sm:px-5 py-12 text-center">
+  <div class="max-w-sm mx-auto">
+    <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+      <i class="fa-solid fa-receipt text-gray-400"></i>
+    </div>
+    <p class="text-gray-600 font-medium">Nenhuma transação encontrada</p>
+    <p class="text-sm text-gray-400 mt-1">Seus lançamentos aparecerão aqui.</p>
+  </div>
+</li>
+{% endfor %}
+
+{% if total_pages > 1 %}
+<li class="px-4 sm:px-5 py-4 border-t border-gray-100">
+  <nav class="flex items-center justify-between gap-3" aria-label="Paginação do histórico">
+    {% if page > 1 %}
+    <a
+      href="?ano={{ ano }}&mes={{ mes }}&page={{ page|add:'-1' }}{% if filtros_query_extra %}{{ filtros_query_extra }}{% endif %}"
+      class="btn btn-secondary btn-sm"
+      hx-get="?ano={{ ano }}&mes={{ mes }}&page={{ page|add:'-1' }}{% if filtros_query_extra %}{{ filtros_query_extra }}{% endif %}"
+      hx-target="#historico-linhas"
+      hx-swap="innerHTML"
+    >Anterior</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+    <span class="text-sm text-gray-500">Página {{ page }} de {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a
+      href="?ano={{ ano }}&mes={{ mes }}&page={{ page|add:'1' }}{% if filtros_query_extra %}{{ filtros_query_extra }}{% endif %}"
+      class="btn btn-secondary btn-sm"
+      hx-get="?ano={{ ano }}&mes={{ mes }}&page={{ page|add:'1' }}{% if filtros_query_extra %}{{ filtros_query_extra }}{% endif %}"
+      hx-target="#historico-linhas"
+      hx-swap="innerHTML"
+    >Próxima</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+  </nav>
+</li>
+{% endif %}
+</ul>

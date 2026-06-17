@@ -31,3 +31,13 @@ if "debug_toolbar" in settings.INSTALLED_APPS:
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if getattr(settings, "ENABLE_BENCHMARK_ROUTES", False):
+    from config import benchmark_views
+
+    urlpatterns += [
+        path("__benchmark/ping/", benchmark_views.ping, name="benchmark_ping"),
+        path("__benchmark/ping-auth/", benchmark_views.ping_auth, name="benchmark_ping_auth"),
+        path("__benchmark/ping-template/", benchmark_views.ping_template, name="benchmark_ping_template"),
+        path("__benchmark/ping-db/", benchmark_views.ping_db, name="benchmark_ping_db"),
+    ]

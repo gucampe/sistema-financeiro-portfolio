@@ -1,0 +1,11 @@
+/*!
+ * Font Awesome Free 6.5.2 — subset self-hosted (solid + core, sem brands/regular).
+ */
+@import url("fontawesome.min.css");
+@import url("solid.min.css");
+
+.fa-solid,
+.fas {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}

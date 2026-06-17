@@ -36,3 +36,15 @@ def silk_enabled() -> bool:
 
 def debug_toolbar_enabled() -> bool:
     return config("ENABLE_DEBUG_TOOLBAR", default=False, cast=bool)
+
+
+def perf_span(op: str, description: str):
+    """Context manager para spans Sentry em agregações."""
+    try:
+        import sentry_sdk
+
+        return sentry_sdk.start_span(op=op, name=description)
+    except Exception:
+        from contextlib import nullcontext
+
+        return nullcontext()

@@ -1,8 +1,10 @@
 """
-Orçamentos de queries por rota — baseline para validação de performance.
+Orçamentos de queries por rota — metas pós-otimização Fase 2.
 """
 
 from __future__ import annotations
+
+import gzip
 
 import pytest
 from django.test import Client
@@ -30,7 +32,16 @@ def test_query_budget_relatorios_home(perf_client):
     with CaptureQueriesContext(connection) as ctx:
         response = perf_client["client"].get(url)
     assert response.status_code == 200
-    assert len(ctx) <= 45, f"home excedeu budget: {len(ctx)} queries"
+    assert len(ctx) <= 22, f"home excedeu budget: {len(ctx)} queries"
+
+
+@pytest.mark.django_db
+def test_query_budget_relatorios_orcamentos(perf_client):
+    url = reverse("relatorios:orcamentos")
+    with CaptureQueriesContext(connection) as ctx:
+        response = perf_client["client"].get(url)
+    assert response.status_code == 200
+    assert len(ctx) <= 18, f"orçamentos excedeu budget: {len(ctx)} queries"
 
 
 @pytest.mark.django_db
@@ -39,7 +50,7 @@ def test_query_budget_transacoes_historico(perf_client):
     with CaptureQueriesContext(connection) as ctx:
         response = perf_client["client"].get(url)
     assert response.status_code == 200
-    assert len(ctx) <= 35, f"histórico excedeu budget: {len(ctx)} queries"
+    assert len(ctx) <= 12, f"histórico excedeu budget: {len(ctx)} queries"
 
 
 @pytest.mark.django_db

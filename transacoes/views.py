@@ -13,6 +13,7 @@ from django.db.models import DateField, F, Q, Sum
 from django.db.models.functions import Coalesce, TruncMonth
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 from ofxparse.ofxparse import OfxParserException
@@ -38,6 +39,7 @@ from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 _MAX_OFX_BYTES = 6 * 1024 * 1024
 _MAX_XLSX_BYTES = 6 * 1024 * 1024
 _MAX_LINHAS_IMPORT_OFX = 2000
+HISTORICO_PAGE_SIZE = 50
 
 
 def _redirect_ano_mes_transacao(t: Transacao) -> tuple[int, int]:
@@ -461,10 +463,21 @@ def adicionar_transacao(request):
             categoria_filtro_ids=categoria_filtro_ids or None,
         )
 
+    total_itens = len(transacoes_list)
+    try:
+        page = max(1, int(request.GET.get("page", 1)))
+    except (TypeError, ValueError):
+        page = 1
+    total_pages = max(1, (total_itens + HISTORICO_PAGE_SIZE - 1) // HISTORICO_PAGE_SIZE)
+    if page > total_pages:
+        page = total_pages
+    inicio_pag = (page - 1) * HISTORICO_PAGE_SIZE
+    transacoes_pagina = transacoes_list[inicio_pag : inicio_pag + HISTORICO_PAGE_SIZE]
+
     transacoes_por_dia = [
         {"data": data, "transacoes": list(grupo)}
         for data, grupo in groupby(
-            transacoes_list,
+            transacoes_pagina,
             key=lambda t: getattr(t, "data_exibicao", t.data),
         )
     ]
@@ -493,15 +506,20 @@ def adicionar_transacao(request):
     categorias_despesa = Categoria.objects.filter(
         Q(usuario=request.user) | Q(padrao=True),
         tipo="despesa",
-        ativa=True
+        ativa=True,
     ).order_by("nome")
     categorias_receita = Categoria.objects.filter(
         Q(usuario=request.user) | Q(padrao=True),
         tipo="receita",
-        ativa=True
+        ativa=True,
     ).order_by("nome")
     contas = Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome")
     cartoes = Cartao.objects.filter(usuario=request.user, ativa=True).order_by("nome")
+    contas_ativas = contas
+    categorias_filtro = Categoria.objects.filter(
+        Q(usuario=request.user) | Q(padrao=True),
+        ativa=True,
+    ).order_by("tipo", "nome")
 
     perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
     initial_tx, tipo_padrao_perfil = perfil.defaults_transacao_form()
@@ -569,8 +587,19 @@ def adicionar_transacao(request):
         for d in datas_distintas
     ]
 
+    filtros_query_extra = ""
+    if usa_filtros_relatorio:
+        filtros_query_extra = "&" + filtros.to_query_string()
+
+    icon_fallback_url = static("contas/icons/genericos/bank.svg")
+
     context = {
         "transacoes_por_dia": transacoes_por_dia,
+        "page": page,
+        "total_pages": total_pages,
+        "total_itens": total_itens,
+        "filtros_query_extra": filtros_query_extra,
+        "icon_fallback_url": icon_fallback_url,
         "ano": ano,
         "mes": mes,
         "ano_hoje": ano_hoje,
@@ -592,14 +621,13 @@ def adicionar_transacao(request):
         "filtros": filtros,
         "filtros_ativos_count": filtros.contagem_filtros_ativos() if usa_filtros_relatorio else 0,
         "filtros_limpar_url": f"{reverse('transacoes:historico')}?ano={ano}&mes={mes}",
-        "contas_ativas": Conta.objects.filter(usuario=request.user, ativa=True).order_by("nome"),
-        "categorias_filtro": Categoria.objects.filter(
-            Q(usuario=request.user) | Q(padrao=True),
-            ativa=True,
-        ).order_by("tipo", "nome"),
+        "contas_ativas": contas_ativas,
+        "categorias_filtro": categorias_filtro,
         "usa_filtros_relatorio": usa_filtros_relatorio,
     }
-    return render(request, 'transacoes/partials/historico.html', context)
+    if getattr(request, "htmx", False) and request.GET.get("page"):
+        return render(request, "transacoes/partials/historico_linhas.html", context)
+    return render(request, "transacoes/partials/historico.html", context)
 
 
 @login_required

@@ -4,8 +4,9 @@
   overflow: visible;
 }
 
-.lista-contextual-item {
-  overflow: visible;
+.lista-contextual-list .lista-contextual-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.5rem;
 }
 
 .modal-overlay--sheet {

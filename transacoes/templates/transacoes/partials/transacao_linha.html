@@ -1,0 +1,99 @@
+{% load static %}
+{% load icon_filters %}
+{% load moeda %}
+<li
+  class="lista-contextual-item group relative -mx-4 px-4 py-2.5 transition hover:bg-surface-muted active:bg-surface-muted sm:-mx-5 sm:px-5 max-lg:cursor-pointer lg:cursor-default lg:active:bg-transparent [content-visibility:auto] [contain-intrinsic-size:auto_3.5rem] {% if transacao.is_resumo_fatura %}historico-lancamento-fatura{% else %}historico-lancamento{% endif %}"
+  {% if transacao.is_resumo_fatura %}
+  data-fatura-url="{% url 'cartoes:fatura_detalhe' transacao.cartao.id transacao.fatura.id %}"
+  data-transacao-descricao="{{ transacao.descricao }}"
+  role="listitem"
+  tabindex="0"
+  aria-label="Resumo de fatura {{ transacao.cartao.nome }}"
+  {% else %}
+  data-transacao-id="{{ transacao.id }}"
+  data-transacao-descricao="{{ transacao.descricao }}"
+  role="listitem"
+  tabindex="0"
+  aria-label="Transação {{ transacao.descricao }}"
+  {% endif %}
+>
+  <div class="min-w-0">
+  <div class="flex min-w-0 items-center gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-4">
+
+    <div class="flex min-w-0 flex-1 items-center gap-2.5 lg:min-w-0">
+      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[{{ transacao.categoria.cor }}20] border-[{{ transacao.categoria.cor }}40]">
+        {% with icon_raw=transacao.categoria.icone|default:"fa-tag" %}
+          <i class="fa-solid {{ icon_raw }} text-[15px] text-[{{ transacao.categoria.cor }}]"></i>
+        {% endwith %}
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold leading-tight text-fg" title="{{ transacao.descricao }}">
+          {{ transacao.descricao }}
+        </p>
+        <p class="mt-0.5 hidden truncate text-[12px] leading-tight text-gray-500 lg:block">
+          {% if transacao.is_resumo_fatura %}
+            {{ transacao.categoria.nome }} · {{ transacao.cartao.nome }} · {{ transacao.fatura.competencia|date:"m/Y" }}
+          {% else %}
+            {{ transacao.categoria.nome|default:transacao.categoria }}
+            {% if transacao.cartao_id and transacao.data_competencia and transacao.data != transacao.data_competencia %}
+              <span class="text-fg-muted">· Compra {{ transacao.data|date:"d/m/Y" }}</span>
+            {% endif %}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="hidden min-w-0 justify-center lg:flex">
+      <div class="flex min-w-0 max-w-[11rem] items-center gap-2 lg:max-w-none lg:min-w-[130px]">
+        {% if transacao.is_resumo_fatura %}
+          <img src="{% static transacao.cartao.icone|conta_icon_path %}"
+               alt=""
+               class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
+          <span class="text-[13px] font-medium text-gray-700 truncate">
+            {{ transacao.cartao.nome }}
+          </span>
+        {% elif transacao.conta %}
+          <img src="{% static transacao.conta.icone|conta_icon_path %}"
+               alt=""
+               class="conta-icone-dinamico w-7 h-7 shrink-0 rounded-md object-contain">
+          <span class="text-[13px] font-medium text-gray-700 truncate">
+            {{ transacao.conta.nome }}
+          </span>
+        {% else %}
+          <img src="{% static 'contas/icons/genericos/bank.svg' %}"
+               alt=""
+               class="w-7 h-7 object-contain opacity-60 shrink-0">
+          <span class="text-[13px] text-gray-500 truncate">
+            Sem conta
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex shrink-0 flex-row items-center justify-end gap-1.5 min-w-0 sm:gap-2 lg:gap-3">
+      <p class="shrink-0 text-right text-[15px] font-semibold tracking-tight whitespace-nowrap
+        {% if transacao.tipo == 'despesa' %}text-red-500
+        {% elif transacao.tipo == 'receita' %}text-green-600
+        {% else %}text-gray-700{% endif %}">
+        {% if transacao.tipo == 'despesa' %}
+          -{{ transacao.valor|moeda }}
+        {% elif transacao.tipo == 'receita' %}
+          +{{ transacao.valor|moeda }}
+        {% else %}
+          {{ transacao.valor|moeda }}
+        {% endif %}
+      </p>
+      <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
+        <button type="button"
+                class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
+                aria-label="Ações da transação {{ transacao.descricao }}"
+                aria-haspopup="menu"
+                aria-expanded="false">
+          <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</li>

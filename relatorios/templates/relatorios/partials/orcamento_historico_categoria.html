@@ -1,0 +1,11 @@
+{% load moeda %}
+<ul class="mt-2 space-y-1 text-sm text-gray-600">
+  {% for h in historico %}
+  <li class="flex justify-between gap-2">
+    <span>{{ h.rotulo }}</span>
+    <span>{% if h.percentual %}{{ h.percentual|floatformat:0 }}%{% else %}—{% endif %}</span>
+  </li>
+  {% empty %}
+  <li class="text-gray-400">Sem histórico para este período.</li>
+  {% endfor %}
+</ul>

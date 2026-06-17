@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dropdownMeses = document.getElementById("dropdown-meses");
   const dropdownPersonalizado = document.getElementById("dropdown-personalizado");
   const listRoot =
+    document.getElementById("historico-linhas") ||
     document.getElementById("lista-historico-transacoes") ||
     document.querySelector("[data-bank-icon-fallback]");
   const fallbackUrl = listRoot?.dataset.bankIconFallback;
@@ -94,5 +95,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     },
+  });
+
+  document.body.addEventListener("htmx:afterSwap", (event) => {
+    if (!event.detail?.target?.id?.includes("historico-linhas")) return;
+    const start = event.detail.requestConfig?.perfStart;
+    if (start && performance.measure) {
+      try {
+        performance.measure("htmx-historico-swap", { start, end: performance.now() });
+      } catch (_) {
+        /* ignore duplicate measure */
+      }
+    }
+  });
+
+  document.body.addEventListener("htmx:beforeRequest", (event) => {
+    if (event.detail?.target?.id?.includes("historico-linhas")) {
+      event.detail.requestConfig.perfStart = performance.now();
+    }
   });
 });
