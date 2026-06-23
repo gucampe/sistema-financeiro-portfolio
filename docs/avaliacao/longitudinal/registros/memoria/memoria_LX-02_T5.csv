@@ -1,0 +1,9 @@
+merchant_key,categoria,confirmacoes,correcoes,score
+ifood restaurante,Alimentação,62,0,1.0
+mcdonalds,Restaurantes e bares,62,0,1.0
+drogasil,Saúde,58,0,1.0
+spotify premium,Serviços e Assinaturas,56,0,1.0
+netflix,Serviços e Assinaturas,58,0,1.0
+carrefour,Supermercado,60,0,1.0
+uber trip,Transporte e locomoção,60,0,1.0
+shell posto,Transporte e locomoção,64,0,1.0

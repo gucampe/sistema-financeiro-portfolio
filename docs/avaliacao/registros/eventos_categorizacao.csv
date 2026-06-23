@@ -1,0 +1,248 @@
+id,usuario_email,acao,descricao_original,categoria_sugerida_id,categoria_final_id,fonte,confianca,criado_em
+1,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Donizeth Alves Torres 187,,6,,,2026-06-21T02:47:06.697593+00:00
+2,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        51 614 299 Paulo Henrique,,6,,,2026-06-21T02:47:06.722454+00:00
+3,campelogustavo11@gmail.com,aceita,LIQUIDO DE VENCIMENTO              44357444810,,23,,,2026-06-21T02:47:06.744627+00:00
+4,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Felipe Modesto Santana,,6,,,2026-06-21T02:47:06.771550+00:00
+5,campelogustavo11@gmail.com,aceita,RESGATE CDB/RDB,,23,,,2026-06-21T02:47:06.793765+00:00
+6,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Teresinha de Jesus Campel,,6,,,2026-06-21T02:47:06.815286+00:00
+7,campelogustavo11@gmail.com,aceita,REMUNERACAO APLICACAO AUTOMATICA,,23,,,2026-06-21T02:47:06.835451+00:00
+8,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Banco Santander Brasil S,,6,,,2026-06-21T02:47:06.857941+00:00
+9,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Gustavo Campelo de Santan,,6,,,2026-06-21T02:47:06.877381+00:00
+10,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        QMS INTERNACIONAL PROGRAM,,6,,,2026-06-21T02:47:06.896335+00:00
+11,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Felipe Modesto Santana,,6,,,2026-06-21T02:47:06.912605+00:00
+12,campelogustavo11@gmail.com,aceita,DEBITO AUT. TELEFONE CELULAR       TIM S/A CELULAR,,16,,,2026-06-21T02:47:06.933285+00:00
+13,campelogustavo11@gmail.com,aceita,REMUNERACAO APLICACAO AUTOMATICA,,23,,,2026-06-21T02:47:06.951099+00:00
+14,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Mayara Alves Leao,,6,,,2026-06-21T02:47:06.972242+00:00
+15,campelogustavo11@gmail.com,aceita,RESGATE CDB/RDB,,23,,,2026-06-21T02:47:06.998368+00:00
+16,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Gustavo Campelo de Santan,,6,,,2026-06-21T02:47:07.015240+00:00
+17,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Ivanilde Campelo Marinho,,6,,,2026-06-21T02:47:07.034635+00:00
+18,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Enel Distribuicao Sao Pau,11,11,fuzzy,0.99,2026-06-21T02:47:07.057803+00:00
+19,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Enel Distribuicao Sao Pau,11,11,fuzzy,0.99,2026-06-21T02:47:07.077541+00:00
+20,campelogustavo11@gmail.com,aceita,PIX ENVIADO                        Teresinha de Jesus Campel,,6,,,2026-06-21T02:47:07.094758+00:00
+21,avaliacao-cb-cb02@avaliacao.local,aceita,UBER TRIP SP #0,,171,,,2026-06-22T22:31:53.731262+00:00
+22,avaliacao-cb-cb02@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,152,,,2026-06-22T22:31:53.793320+00:00
+23,avaliacao-cb-cb02@avaliacao.local,aceita,NETFLIX COM #2,,167,,,2026-06-22T22:31:53.852385+00:00
+24,avaliacao-cb-cb02@avaliacao.local,aceita,CARREFOUR COMPRA #3,,168,,,2026-06-22T22:31:53.905546+00:00
+25,avaliacao-cb-cb02@avaliacao.local,aceita,DROGASIL FARMACIA #4,,166,,,2026-06-22T22:31:53.959615+00:00
+26,avaliacao-cb-cb02@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,167,,,2026-06-22T22:31:54.014648+00:00
+27,avaliacao-cb-cb02@avaliacao.local,aceita,SHELL POSTO #6,,171,,,2026-06-22T22:31:54.068459+00:00
+28,avaliacao-cb-cb02@avaliacao.local,aceita,MCDONALDS #7,,164,,,2026-06-22T22:31:54.118980+00:00
+29,avaliacao-cb-cb02@avaliacao.local,aceita,AMAZON COMPRA #8,,155,,,2026-06-22T22:31:54.178874+00:00
+30,avaliacao-cb-cb02@avaliacao.local,aceita,SALARIO EMPRESA #9,,176,,,2026-06-22T22:31:54.235848+00:00
+31,avaliacao-cb-cb02@avaliacao.local,aceita,UBER TRIP SP #10,,171,,,2026-06-22T22:31:54.286841+00:00
+32,avaliacao-cb-cb02@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,152,,,2026-06-22T22:31:54.340058+00:00
+33,avaliacao-cb-cb02@avaliacao.local,aceita,NETFLIX COM #12,,167,,,2026-06-22T22:31:54.395071+00:00
+34,avaliacao-cb-cb02@avaliacao.local,aceita,CARREFOUR COMPRA #13,,168,,,2026-06-22T22:31:54.440490+00:00
+35,avaliacao-cb-cb02@avaliacao.local,aceita,DROGASIL FARMACIA #14,,166,,,2026-06-22T22:31:54.487477+00:00
+36,avaliacao-cb-cb02@avaliacao.local,aceita,SPOTIFY PREMIUM #15,,167,,,2026-06-22T22:31:54.537619+00:00
+37,avaliacao-cb-cb02@avaliacao.local,aceita,SHELL POSTO #16,,171,,,2026-06-22T22:31:54.590385+00:00
+38,avaliacao-cb-cb02@avaliacao.local,aceita,MCDONALDS #17,,164,,,2026-06-22T22:31:54.638491+00:00
+39,avaliacao-cb-cb02@avaliacao.local,aceita,AMAZON COMPRA #18,,155,,,2026-06-22T22:31:54.685939+00:00
+40,avaliacao-cb-cb02@avaliacao.local,aceita,SALARIO EMPRESA #19,,176,,,2026-06-22T22:31:54.740012+00:00
+41,avaliacao-cb-cb02@avaliacao.local,aceita,UBER TRIP SP #20,,171,,,2026-06-22T22:31:54.789932+00:00
+42,avaliacao-cb-cb02@avaliacao.local,aceita,IFOOD RESTAURANTE #21,,152,,,2026-06-22T22:31:54.837786+00:00
+43,avaliacao-cb-cb02@avaliacao.local,aceita,NETFLIX COM #22,,167,,,2026-06-22T22:31:54.887873+00:00
+44,avaliacao-cb-cb02@avaliacao.local,aceita,CARREFOUR COMPRA #23,,168,,,2026-06-22T22:31:54.934273+00:00
+45,avaliacao-cb-cb02@avaliacao.local,aceita,DROGASIL FARMACIA #24,,166,,,2026-06-22T22:31:54.983311+00:00
+46,avaliacao-cb-cb02@avaliacao.local,aceita,SPOTIFY PREMIUM #25,,167,,,2026-06-22T22:31:55.031406+00:00
+47,avaliacao-cb-cb02@avaliacao.local,aceita,SHELL POSTO #26,,171,,,2026-06-22T22:31:55.082035+00:00
+48,avaliacao-cb-cb02@avaliacao.local,aceita,MCDONALDS #27,,164,,,2026-06-22T22:31:55.128654+00:00
+49,avaliacao-cb-cb02@avaliacao.local,aceita,AMAZON COMPRA #28,,155,,,2026-06-22T22:31:55.174664+00:00
+50,avaliacao-cb-cb02@avaliacao.local,aceita,SALARIO EMPRESA #29,,176,,,2026-06-22T22:31:55.225129+00:00
+51,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #0,,196,,,2026-06-22T22:31:59.645987+00:00
+52,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,177,,,2026-06-22T22:31:59.723319+00:00
+53,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #2,,192,,,2026-06-22T22:31:59.798084+00:00
+54,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #3,,193,,,2026-06-22T22:31:59.872928+00:00
+55,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #4,,191,,,2026-06-22T22:31:59.946247+00:00
+56,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,192,,,2026-06-22T22:32:00.030049+00:00
+57,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #6,,196,,,2026-06-22T22:32:00.115277+00:00
+58,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #7,,189,,,2026-06-22T22:32:00.189469+00:00
+59,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #8,,180,,,2026-06-22T22:32:00.269335+00:00
+60,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #9,,201,,,2026-06-22T22:32:00.346281+00:00
+61,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #10,,196,,,2026-06-22T22:32:00.420451+00:00
+62,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,177,,,2026-06-22T22:32:00.503149+00:00
+63,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #12,,192,,,2026-06-22T22:32:00.581020+00:00
+64,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #13,,193,,,2026-06-22T22:32:00.653793+00:00
+65,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #14,,191,,,2026-06-22T22:32:00.732710+00:00
+66,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #15,,192,,,2026-06-22T22:32:00.814165+00:00
+67,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #16,,196,,,2026-06-22T22:32:00.902914+00:00
+68,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #17,,189,,,2026-06-22T22:32:00.979696+00:00
+69,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #18,,180,,,2026-06-22T22:32:01.052900+00:00
+70,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #19,,201,,,2026-06-22T22:32:01.123042+00:00
+71,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #20,,196,,,2026-06-22T22:32:01.214690+00:00
+72,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #21,,177,,,2026-06-22T22:32:01.298876+00:00
+73,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #22,,192,,,2026-06-22T22:32:01.373750+00:00
+74,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #23,,193,,,2026-06-22T22:32:01.465268+00:00
+75,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #24,,191,,,2026-06-22T22:32:01.567877+00:00
+76,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #25,,192,,,2026-06-22T22:32:01.673620+00:00
+77,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #26,,196,,,2026-06-22T22:32:01.758393+00:00
+78,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #27,,189,,,2026-06-22T22:32:01.826010+00:00
+79,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #28,,180,,,2026-06-22T22:32:01.888428+00:00
+80,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #29,,201,,,2026-06-22T22:32:01.959703+00:00
+81,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #30,,196,,,2026-06-22T22:32:02.041553+00:00
+82,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #31,,177,,,2026-06-22T22:32:02.119759+00:00
+83,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #32,,192,,,2026-06-22T22:32:02.179260+00:00
+84,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #33,,193,,,2026-06-22T22:32:02.238571+00:00
+85,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #34,,191,,,2026-06-22T22:32:02.302002+00:00
+86,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #35,,192,,,2026-06-22T22:32:02.358888+00:00
+87,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #36,,196,,,2026-06-22T22:32:02.422386+00:00
+88,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #37,,189,,,2026-06-22T22:32:02.481584+00:00
+89,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #38,,180,,,2026-06-22T22:32:02.536129+00:00
+90,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #39,,201,,,2026-06-22T22:32:02.600505+00:00
+91,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #40,,196,,,2026-06-22T22:32:02.664121+00:00
+92,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #41,,177,,,2026-06-22T22:32:02.727589+00:00
+93,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #42,,192,,,2026-06-22T22:32:02.786206+00:00
+94,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #43,,193,,,2026-06-22T22:32:02.851023+00:00
+95,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #44,,191,,,2026-06-22T22:32:02.909198+00:00
+96,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #45,,192,,,2026-06-22T22:32:02.968018+00:00
+97,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #46,,196,,,2026-06-22T22:32:03.022218+00:00
+98,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #47,,189,,,2026-06-22T22:32:03.082266+00:00
+99,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #48,,180,,,2026-06-22T22:32:03.141728+00:00
+100,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #49,,201,,,2026-06-22T22:32:03.195542+00:00
+101,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #50,,196,,,2026-06-22T22:32:03.253930+00:00
+102,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #51,,177,,,2026-06-22T22:32:03.314158+00:00
+103,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #52,,192,,,2026-06-22T22:32:03.374307+00:00
+104,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #53,,193,,,2026-06-22T22:32:03.432438+00:00
+105,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #54,,191,,,2026-06-22T22:32:03.488898+00:00
+106,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #55,,192,,,2026-06-22T22:32:03.540616+00:00
+107,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #56,,196,,,2026-06-22T22:32:03.598283+00:00
+108,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #57,,189,,,2026-06-22T22:32:03.659648+00:00
+109,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #58,,180,,,2026-06-22T22:32:03.727625+00:00
+110,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #59,,201,,,2026-06-22T22:32:03.785067+00:00
+111,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #60,,196,,,2026-06-22T22:32:03.840497+00:00
+112,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #61,,177,,,2026-06-22T22:32:03.896515+00:00
+113,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #62,,192,,,2026-06-22T22:32:03.952551+00:00
+114,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #63,,193,,,2026-06-22T22:32:04.010509+00:00
+115,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #64,,191,,,2026-06-22T22:32:04.074286+00:00
+116,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #65,,192,,,2026-06-22T22:32:04.135685+00:00
+117,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #66,,196,,,2026-06-22T22:32:04.190323+00:00
+118,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #67,,189,,,2026-06-22T22:32:04.240496+00:00
+119,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #68,,180,,,2026-06-22T22:32:04.294536+00:00
+120,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #69,,201,,,2026-06-22T22:32:04.352419+00:00
+121,avaliacao-cb-cb03@avaliacao.local,aceita,UBER TRIP SP #70,,196,,,2026-06-22T22:32:04.408457+00:00
+122,avaliacao-cb-cb03@avaliacao.local,aceita,IFOOD RESTAURANTE #71,,177,,,2026-06-22T22:32:04.467622+00:00
+123,avaliacao-cb-cb03@avaliacao.local,aceita,NETFLIX COM #72,,192,,,2026-06-22T22:32:04.523885+00:00
+124,avaliacao-cb-cb03@avaliacao.local,aceita,CARREFOUR COMPRA #73,,193,,,2026-06-22T22:32:04.579700+00:00
+125,avaliacao-cb-cb03@avaliacao.local,aceita,DROGASIL FARMACIA #74,,191,,,2026-06-22T22:32:04.640478+00:00
+126,avaliacao-cb-cb03@avaliacao.local,aceita,SPOTIFY PREMIUM #75,,192,,,2026-06-22T22:32:04.695217+00:00
+127,avaliacao-cb-cb03@avaliacao.local,aceita,SHELL POSTO #76,,196,,,2026-06-22T22:32:04.750386+00:00
+128,avaliacao-cb-cb03@avaliacao.local,aceita,MCDONALDS #77,,189,,,2026-06-22T22:32:04.810192+00:00
+129,avaliacao-cb-cb03@avaliacao.local,aceita,AMAZON COMPRA #78,,180,,,2026-06-22T22:32:04.869738+00:00
+130,avaliacao-cb-cb03@avaliacao.local,aceita,SALARIO EMPRESA #79,,201,,,2026-06-22T22:32:04.926083+00:00
+131,avaliacao-cb-cb04@avaliacao.local,aceita,UBER TRIP SP #0,,221,,,2026-06-22T22:32:08.542115+00:00
+132,avaliacao-cb-cb04@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,202,,,2026-06-22T22:32:08.594003+00:00
+133,avaliacao-cb-cb04@avaliacao.local,aceita,NETFLIX COM #2,,217,,,2026-06-22T22:32:08.654130+00:00
+134,avaliacao-cb-cb04@avaliacao.local,aceita,CARREFOUR COMPRA #3,,218,,,2026-06-22T22:32:08.707954+00:00
+135,avaliacao-cb-cb04@avaliacao.local,aceita,DROGASIL FARMACIA #4,,216,,,2026-06-22T22:32:08.758908+00:00
+136,avaliacao-cb-cb05@avaliacao.local,aceita,UBER TRIP SP #0,,247,,,2026-06-22T22:32:12.146589+00:00
+137,avaliacao-cb-cb05@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,228,,,2026-06-22T22:32:12.197372+00:00
+138,avaliacao-cb-cb05@avaliacao.local,aceita,NETFLIX COM #2,,243,,,2026-06-22T22:32:12.251469+00:00
+139,avaliacao-cb-cb05@avaliacao.local,aceita,CARREFOUR COMPRA #3,,244,,,2026-06-22T22:32:12.303988+00:00
+140,avaliacao-cb-cb05@avaliacao.local,aceita,DROGASIL FARMACIA #4,,242,,,2026-06-22T22:32:12.358194+00:00
+141,avaliacao-cb-cb05@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,243,,,2026-06-22T22:32:12.414995+00:00
+142,avaliacao-cb-cb05@avaliacao.local,aceita,SHELL POSTO #6,,247,,,2026-06-22T22:32:12.467265+00:00
+143,avaliacao-cb-cb05@avaliacao.local,aceita,MCDONALDS #7,,240,,,2026-06-22T22:32:12.520076+00:00
+144,avaliacao-cb-cb05@avaliacao.local,aceita,AMAZON COMPRA #8,,231,,,2026-06-22T22:32:12.572768+00:00
+145,avaliacao-cb-cb05@avaliacao.local,aceita,SALARIO EMPRESA #9,,252,,,2026-06-22T22:32:12.637732+00:00
+146,avaliacao-cb-cb05@avaliacao.local,aceita,UBER TRIP SP #10,,247,,,2026-06-22T22:32:12.689956+00:00
+147,avaliacao-cb-cb05@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,228,,,2026-06-22T22:32:12.741484+00:00
+148,avaliacao-cb-cb05@avaliacao.local,aceita,NETFLIX COM #12,,243,,,2026-06-22T22:32:12.800629+00:00
+149,avaliacao-cb-cb05@avaliacao.local,aceita,CARREFOUR COMPRA #13,,244,,,2026-06-22T22:32:12.854709+00:00
+150,avaliacao-cb-cb05@avaliacao.local,aceita,DROGASIL FARMACIA #14,,242,,,2026-06-22T22:32:12.913199+00:00
+151,avaliacao-cb-cb05@avaliacao.local,aceita,SPOTIFY PREMIUM #15,,243,,,2026-06-22T22:32:12.963247+00:00
+152,avaliacao-cb-cb05@avaliacao.local,aceita,SHELL POSTO #16,,247,,,2026-06-22T22:32:13.012738+00:00
+153,avaliacao-cb-cb05@avaliacao.local,aceita,MCDONALDS #17,,240,,,2026-06-22T22:32:13.057268+00:00
+154,avaliacao-cb-cb05@avaliacao.local,aceita,AMAZON COMPRA #18,,231,,,2026-06-22T22:32:13.105262+00:00
+155,avaliacao-cb-cb05@avaliacao.local,aceita,SALARIO EMPRESA #19,,252,,,2026-06-22T22:32:13.154332+00:00
+156,avaliacao-cb-cb06@avaliacao.local,aceita,UBER TRIP SP #0,,272,,,2026-06-22T22:32:16.601417+00:00
+157,avaliacao-cb-cb06@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,253,,,2026-06-22T22:32:16.657059+00:00
+158,avaliacao-cb-cb06@avaliacao.local,aceita,NETFLIX COM #2,,268,,,2026-06-22T22:32:16.712702+00:00
+159,avaliacao-cb-cb06@avaliacao.local,aceita,CARREFOUR COMPRA #3,,269,,,2026-06-22T22:32:16.764858+00:00
+160,avaliacao-cb-cb06@avaliacao.local,aceita,DROGASIL FARMACIA #4,,267,,,2026-06-22T22:32:16.823871+00:00
+161,avaliacao-cb-cb06@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,268,,,2026-06-22T22:32:16.876760+00:00
+162,avaliacao-cb-cb06@avaliacao.local,aceita,SHELL POSTO #6,,272,,,2026-06-22T22:32:16.926386+00:00
+163,avaliacao-cb-cb06@avaliacao.local,aceita,MCDONALDS #7,,265,,,2026-06-22T22:32:16.978702+00:00
+164,avaliacao-cb-cb06@avaliacao.local,aceita,AMAZON COMPRA #8,,256,,,2026-06-22T22:32:17.029863+00:00
+165,avaliacao-cb-cb06@avaliacao.local,aceita,SALARIO EMPRESA #9,,277,,,2026-06-22T22:32:17.082511+00:00
+166,avaliacao-cb-cb06@avaliacao.local,aceita,UBER TRIP SP #10,,272,,,2026-06-22T22:32:17.133010+00:00
+167,avaliacao-cb-cb06@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,253,,,2026-06-22T22:32:17.181796+00:00
+168,avaliacao-cb-cb06@avaliacao.local,aceita,NETFLIX COM #12,,268,,,2026-06-22T22:32:17.228988+00:00
+169,avaliacao-cb-cb06@avaliacao.local,aceita,CARREFOUR COMPRA #13,,269,,,2026-06-22T22:32:17.276274+00:00
+170,avaliacao-cb-cb06@avaliacao.local,aceita,DROGASIL FARMACIA #14,,267,,,2026-06-22T22:32:17.323703+00:00
+171,avaliacao-cb-cb06@avaliacao.local,aceita,SPOTIFY PREMIUM #15,,268,,,2026-06-22T22:32:17.375350+00:00
+172,avaliacao-cb-cb06@avaliacao.local,aceita,SHELL POSTO #16,,272,,,2026-06-22T22:32:17.422171+00:00
+173,avaliacao-cb-cb06@avaliacao.local,aceita,MCDONALDS #17,,265,,,2026-06-22T22:32:17.474685+00:00
+174,avaliacao-cb-cb06@avaliacao.local,aceita,AMAZON COMPRA #18,,256,,,2026-06-22T22:32:17.522843+00:00
+175,avaliacao-cb-cb06@avaliacao.local,aceita,SALARIO EMPRESA #19,,277,,,2026-06-22T22:32:17.569671+00:00
+176,avaliacao-cb-cb06@avaliacao.local,aceita,UBER TRIP SP #20,,272,,,2026-06-22T22:32:17.626405+00:00
+177,avaliacao-cb-cb06@avaliacao.local,aceita,IFOOD RESTAURANTE #21,,253,,,2026-06-22T22:32:17.694638+00:00
+178,avaliacao-cb-cb06@avaliacao.local,aceita,NETFLIX COM #22,,268,,,2026-06-22T22:32:17.777838+00:00
+179,avaliacao-cb-cb06@avaliacao.local,aceita,CARREFOUR COMPRA #23,,269,,,2026-06-22T22:32:17.857919+00:00
+180,avaliacao-cb-cb06@avaliacao.local,aceita,DROGASIL FARMACIA #24,,267,,,2026-06-22T22:32:17.941122+00:00
+181,avaliacao-cb-cb06@avaliacao.local,aceita,SPOTIFY PREMIUM #25,,268,,,2026-06-22T22:32:18.020520+00:00
+182,avaliacao-cb-cb06@avaliacao.local,aceita,SHELL POSTO #26,,272,,,2026-06-22T22:32:18.094283+00:00
+183,avaliacao-cb-cb06@avaliacao.local,aceita,MCDONALDS #27,,265,,,2026-06-22T22:32:18.178537+00:00
+184,avaliacao-cb-cb06@avaliacao.local,aceita,AMAZON COMPRA #28,,256,,,2026-06-22T22:32:18.283622+00:00
+185,avaliacao-cb-cb06@avaliacao.local,aceita,SALARIO EMPRESA #29,,277,,,2026-06-22T22:32:18.353032+00:00
+186,avaliacao-cb-cb06@avaliacao.local,aceita,UBER TRIP SP #30,,272,,,2026-06-22T22:32:18.424370+00:00
+187,avaliacao-cb-cb06@avaliacao.local,aceita,IFOOD RESTAURANTE #31,,253,,,2026-06-22T22:32:18.494172+00:00
+188,avaliacao-cb-cb06@avaliacao.local,aceita,NETFLIX COM #32,,268,,,2026-06-22T22:32:18.547383+00:00
+189,avaliacao-cb-cb06@avaliacao.local,aceita,CARREFOUR COMPRA #33,,269,,,2026-06-22T22:32:18.599644+00:00
+190,avaliacao-cb-cb06@avaliacao.local,aceita,DROGASIL FARMACIA #34,,267,,,2026-06-22T22:32:18.655640+00:00
+191,avaliacao-cb-cb06@avaliacao.local,aceita,SPOTIFY PREMIUM #35,,268,,,2026-06-22T22:32:18.730527+00:00
+192,avaliacao-cb-cb06@avaliacao.local,aceita,SHELL POSTO #36,,272,,,2026-06-22T22:32:18.798442+00:00
+193,avaliacao-cb-cb06@avaliacao.local,aceita,MCDONALDS #37,,265,,,2026-06-22T22:32:18.855049+00:00
+194,avaliacao-cb-cb06@avaliacao.local,aceita,AMAZON COMPRA #38,,256,,,2026-06-22T22:32:18.900924+00:00
+195,avaliacao-cb-cb06@avaliacao.local,aceita,SALARIO EMPRESA #39,,277,,,2026-06-22T22:32:18.948046+00:00
+196,avaliacao-cb-cb07@avaliacao.local,aceita,UBER TRIP SP #0,,297,,,2026-06-22T22:32:22.391925+00:00
+197,avaliacao-cb-cb07@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,278,,,2026-06-22T22:32:22.451672+00:00
+198,avaliacao-cb-cb07@avaliacao.local,aceita,NETFLIX COM #2,,293,,,2026-06-22T22:32:22.507588+00:00
+199,avaliacao-cb-cb07@avaliacao.local,aceita,CARREFOUR COMPRA #3,,294,,,2026-06-22T22:32:22.562395+00:00
+200,avaliacao-cb-cb07@avaliacao.local,aceita,DROGASIL FARMACIA #4,,292,,,2026-06-22T22:32:22.610865+00:00
+201,avaliacao-cb-cb07@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,293,,,2026-06-22T22:32:22.660931+00:00
+202,avaliacao-cb-cb07@avaliacao.local,aceita,SHELL POSTO #6,,297,,,2026-06-22T22:32:22.716195+00:00
+203,avaliacao-cb-cb07@avaliacao.local,aceita,MCDONALDS #7,,290,,,2026-06-22T22:32:22.767460+00:00
+204,avaliacao-cb-cb07@avaliacao.local,aceita,AMAZON COMPRA #8,,281,,,2026-06-22T22:32:22.823562+00:00
+205,avaliacao-cb-cb07@avaliacao.local,aceita,SALARIO EMPRESA #9,,302,,,2026-06-22T22:32:22.878034+00:00
+206,avaliacao-cb-cb07@avaliacao.local,aceita,UBER TRIP SP #10,,297,,,2026-06-22T22:32:22.923853+00:00
+207,avaliacao-cb-cb07@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,278,,,2026-06-22T22:32:22.970435+00:00
+208,avaliacao-cb-cb07@avaliacao.local,aceita,NETFLIX COM #12,,293,,,2026-06-22T22:32:23.021950+00:00
+209,avaliacao-cb-cb07@avaliacao.local,aceita,CARREFOUR COMPRA #13,,294,,,2026-06-22T22:32:23.068947+00:00
+210,avaliacao-cb-cb07@avaliacao.local,aceita,DROGASIL FARMACIA #14,,292,,,2026-06-22T22:32:23.117777+00:00
+211,avaliacao-cb-cb07@avaliacao.local,aceita,SPOTIFY PREMIUM #15,,293,,,2026-06-22T22:32:23.167672+00:00
+212,avaliacao-cb-cb07@avaliacao.local,aceita,SHELL POSTO #16,,297,,,2026-06-22T22:32:23.215979+00:00
+213,avaliacao-cb-cb07@avaliacao.local,aceita,MCDONALDS #17,,290,,,2026-06-22T22:32:23.267398+00:00
+214,avaliacao-cb-cb07@avaliacao.local,aceita,AMAZON COMPRA #18,,281,,,2026-06-22T22:32:23.312864+00:00
+215,avaliacao-cb-cb07@avaliacao.local,aceita,SALARIO EMPRESA #19,,302,,,2026-06-22T22:32:23.361048+00:00
+216,avaliacao-cb-cb07@avaliacao.local,aceita,UBER TRIP SP #20,,297,,,2026-06-22T22:32:23.407571+00:00
+217,avaliacao-cb-cb07@avaliacao.local,aceita,IFOOD RESTAURANTE #21,,278,,,2026-06-22T22:32:23.454219+00:00
+218,avaliacao-cb-cb07@avaliacao.local,aceita,NETFLIX COM #22,,293,,,2026-06-22T22:32:23.510218+00:00
+219,avaliacao-cb-cb07@avaliacao.local,aceita,CARREFOUR COMPRA #23,,294,,,2026-06-22T22:32:23.563483+00:00
+220,avaliacao-cb-cb07@avaliacao.local,aceita,DROGASIL FARMACIA #24,,292,,,2026-06-22T22:32:23.610965+00:00
+221,avaliacao-cb-cb08@avaliacao.local,aceita,UBER TRIP SP #0,,322,,,2026-06-22T22:32:26.924906+00:00
+222,avaliacao-cb-cb08@avaliacao.local,aceita,IFOOD RESTAURANTE #1,,303,,,2026-06-22T22:32:26.979284+00:00
+223,avaliacao-cb-cb08@avaliacao.local,aceita,NETFLIX COM #2,,318,,,2026-06-22T22:32:27.032698+00:00
+224,avaliacao-cb-cb08@avaliacao.local,aceita,CARREFOUR COMPRA #3,,319,,,2026-06-22T22:32:27.083404+00:00
+225,avaliacao-cb-cb08@avaliacao.local,aceita,DROGASIL FARMACIA #4,,317,,,2026-06-22T22:32:27.137378+00:00
+226,avaliacao-cb-cb08@avaliacao.local,aceita,SPOTIFY PREMIUM #5,,318,,,2026-06-22T22:32:27.191360+00:00
+227,avaliacao-cb-cb08@avaliacao.local,aceita,SHELL POSTO #6,,322,,,2026-06-22T22:32:27.242780+00:00
+228,avaliacao-cb-cb08@avaliacao.local,aceita,MCDONALDS #7,,315,,,2026-06-22T22:32:27.298621+00:00
+229,avaliacao-cb-cb08@avaliacao.local,aceita,AMAZON COMPRA #8,,306,,,2026-06-22T22:32:27.352676+00:00
+230,avaliacao-cb-cb08@avaliacao.local,aceita,SALARIO EMPRESA #9,,327,,,2026-06-22T22:32:27.401713+00:00
+231,avaliacao-cb-cb08@avaliacao.local,aceita,UBER TRIP SP #10,,322,,,2026-06-22T22:32:27.449411+00:00
+232,avaliacao-cb-cb08@avaliacao.local,aceita,IFOOD RESTAURANTE #11,,303,,,2026-06-22T22:32:27.496365+00:00
+233,avaliacao-cb-cb08@avaliacao.local,aceita,NETFLIX COM #12,,318,,,2026-06-22T22:32:27.545980+00:00
+234,avaliacao-cb-cb08@avaliacao.local,aceita,CARREFOUR COMPRA #13,,319,,,2026-06-22T22:32:27.597436+00:00
+235,avaliacao-cb-cb08@avaliacao.local,aceita,DROGASIL FARMACIA #14,,317,,,2026-06-22T22:32:27.644774+00:00
+236,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:32:27.713886+00:00
+237,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:32:27.747676+00:00
+238,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:32:27.793279+00:00
+239,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:32:27.822563+00:00
+240,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:37:00.690772+00:00
+241,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:37:00.733584+00:00
+242,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:37:00.778616+00:00
+243,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:37:00.816473+00:00
+244,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:38:42.812390+00:00
+245,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:38:42.846982+00:00
+246,avaliacao-cb-cb07@avaliacao.local,aceita,UBER VIAGEM TRABALHO,,297,,,2026-06-22T22:38:42.885071+00:00
+247,avaliacao-cb-cb07@avaliacao.local,corrigida,UBER VIAGEM TRABALHO,283,297,fuzzy,0.75,2026-06-22T22:38:42.918506+00:00

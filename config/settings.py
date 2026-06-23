@@ -66,8 +66,37 @@ INSTALLED_APPS = [
     'categorias.apps.CategoriasConfig',
     'contas.apps.ContasConfig',
     'cartoes.apps.CartoesConfig',
+    'categorizacao.apps.CategorizacaoConfig',
     'django.contrib.humanize',
 ]
+
+# Backend para jobs de recategorização: thread | celery | sync
+CATEGORIZACAO_JOB_BACKEND = config("CATEGORIZACAO_JOB_BACKEND", default="thread")
+ENABLE_CATEGORIZACAO_EMBEDDINGS = config("ENABLE_CATEGORIZACAO_EMBEDDINGS", default=False, cast=bool)
+CATEGORIZACAO_EMBEDDINGS_MODEL = config(
+    "CATEGORIZACAO_EMBEDDINGS_MODEL",
+    default="paraphrase-multilingual-MiniLM-L12-v2",
+)
+
+# Fallback LLM (Gemini) — desligado por padrão
+ENABLE_CATEGORIZACAO_LLM = config("ENABLE_CATEGORIZACAO_LLM", default=False, cast=bool)
+GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
+CATEGORIZACAO_LLM_MODEL = config("CATEGORIZACAO_LLM_MODEL", default="gemini-2.5-flash-lite")
+CATEGORIZACAO_LLM_MODEL_FLASH = config("CATEGORIZACAO_LLM_MODEL_FLASH", default="gemini-2.5-flash-lite")
+CATEGORIZACAO_LLM_MODEL_PRO = config("CATEGORIZACAO_LLM_MODEL_PRO", default="gemini-1.5-pro")
+CATEGORIZACAO_LLM_MODEL_FALLBACK = config(
+    "CATEGORIZACAO_LLM_MODEL_FALLBACK", default="gemini-2.5-flash-lite"
+)
+CATEGORIZACAO_LLM_TRIGGER_MAX = config("CATEGORIZACAO_LLM_TRIGGER_MAX", default=0.65, cast=float)
+CATEGORIZACAO_LLM_MIN_CONFIDENCE = config("CATEGORIZACAO_LLM_MIN_CONFIDENCE", default=0.55, cast=float)
+CATEGORIZACAO_LLM_TIMEOUT_S = config("CATEGORIZACAO_LLM_TIMEOUT_S", default=8, cast=int)
+CATEGORIZACAO_LLM_MAX_RETRIES = config("CATEGORIZACAO_LLM_MAX_RETRIES", default=1, cast=int)
+CATEGORIZACAO_LLM_DAILY_BUDGET_USD = config("CATEGORIZACAO_LLM_DAILY_BUDGET_USD", default=0, cast=float)
+CATEGORIZACAO_LLM_CACHE_TTL_H = config("CATEGORIZACAO_LLM_CACHE_TTL_H", default=168, cast=int)
+CATEGORIZACAO_LLM_USE_MOCK = config("CATEGORIZACAO_LLM_USE_MOCK", default=False, cast=bool)
+CATEGORIZACAO_LLM_AB_VARIANT = config("CATEGORIZACAO_LLM_AB_VARIANT", default="")
+CATEGORIZACAO_LLM_AB_ROLLOUT_PCT = config("CATEGORIZACAO_LLM_AB_ROLLOUT_PCT", default=50, cast=int)
+CATEGORIZACAO_LLM_MOSTRAR_BADGE = config("CATEGORIZACAO_LLM_MOSTRAR_BADGE", default=True, cast=bool)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

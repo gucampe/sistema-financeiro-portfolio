@@ -1,0 +1,9 @@
+persona,descricao,regras_ativas,eventos,total,tp,fp,fn,cobertura,acuracia,recall,notas
+CB-01,Iniciante — cobertura inicial seed+fuzzy,0,0,180,118,4,53,0.6778,0.9672,0.6901,
+CB-02,Histórico parcial (30 tx) — ML limitado,0,30,180,118,4,53,0.6778,0.9672,0.6901,
+CB-03,Histórico consolidado (80 tx),0,80,180,118,4,53,0.6778,0.9672,0.6901,
+CB-04,Categorias custom (Comida),0,5,180,118,4,53,0.6778,0.9672,0.6901,IFOOD → Alimentação
+CB-05,Desorganizado (20 tx),0,20,180,118,4,53,0.6778,0.9672,0.6901,
+CB-06,Avançado — 5 regras + auto-aplicar,5,40,180,118,5,53,0.6833,0.9593,0.6901,
+CB-07,Corretor compulsivo — regra aprendida,1,37,180,118,4,53,0.6778,0.9672,0.6901,Regras aprendidas: 1
+CB-08,Ignorador — histórico sem feedback,0,15,180,118,4,53,0.6778,0.9672,0.6901,

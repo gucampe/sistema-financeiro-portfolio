@@ -1,0 +1,181 @@
+tx_id,persona,semana_simulada,data,descricao,tipo,valor,categoria_gold,bucket,merchant_mutacao,eh_reimport,notas
+LX-CTRL-0-w01-0000,LX-CTRL-0,1,2025-01-06,SPOTIFY PREMIUM,despesa,-82.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w01-0001,LX-CTRL-0,1,2025-01-07,DROGASIL,despesa,-83.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w01-0002,LX-CTRL-0,1,2025-01-08,CARREFOUR,despesa,-84.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w01-0003,LX-CTRL-0,1,2025-01-09,MCDONALDS,despesa,-85.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w01-0004,LX-CTRL-0,1,2025-01-10,SHELL POSTO,despesa,-86.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w01-0005,LX-CTRL-0,1,2025-01-11,PADARIA SAO JOSE,despesa,-87.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w01-0006,LX-CTRL-0,1,2025-01-12,LANCHONETE CENTRAL,despesa,-88.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w01-0007,LX-CTRL-0,1,2025-01-06,AUTO PECAS MARANHAO,despesa,-89.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w01-0008,LX-CTRL-0,1,2025-01-07,BARBEARIA DO ZE,despesa,-90.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w01-0009,LX-CTRL-0,1,2025-01-08,MERCADINHO DA VILA,despesa,-91.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w01-0010,LX-CTRL-0,1,2025-01-09,IFOOD RESTAURANTE,despesa,-92.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w01-0011,LX-CTRL-0,1,2025-01-10,UBER TRIP,despesa,-93.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w01-0012,LX-CTRL-0,1,2025-01-11,NETFLIX COM,despesa,-94.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w01-0013,LX-CTRL-0,1,2025-01-12,SPOTIFY PREMIUM,despesa,-95.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w01-0014,LX-CTRL-0,1,2025-01-06,DROGASIL,despesa,-96.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w02-0015,LX-CTRL-0,2,2025-01-13,SHELL POSTO,despesa,-22.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w02-0016,LX-CTRL-0,2,2025-01-14,PADARIA SAO JOSE,despesa,-23.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w02-0017,LX-CTRL-0,2,2025-01-15,LANCHONETE CENTRAL,despesa,-24.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w02-0018,LX-CTRL-0,2,2025-01-16,AUTO PECAS MARANHAO,despesa,-25.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w02-0019,LX-CTRL-0,2,2025-01-17,BARBEARIA DO ZE,despesa,-26.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w02-0020,LX-CTRL-0,2,2025-01-18,MERCADINHO DA VILA,despesa,-27.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w02-0021,LX-CTRL-0,2,2025-01-19,IFOOD RESTAURANTE,despesa,-28.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w02-0022,LX-CTRL-0,2,2025-01-13,UBER TRIP,despesa,-29.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w02-0023,LX-CTRL-0,2,2025-01-14,NETFLIX COM,despesa,-30.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w02-0024,LX-CTRL-0,2,2025-01-15,SPOTIFY PREMIUM,despesa,-31.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w02-0025,LX-CTRL-0,2,2025-01-16,DROGASIL,despesa,-32.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w02-0026,LX-CTRL-0,2,2025-01-17,CARREFOUR,despesa,-33.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w02-0027,LX-CTRL-0,2,2025-01-18,MCDONALDS,despesa,-34.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w02-0028,LX-CTRL-0,2,2025-01-19,SHELL POSTO,despesa,-35.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w02-0029,LX-CTRL-0,2,2025-01-13,PADARIA SAO JOSE,despesa,-36.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w03-0030,LX-CTRL-0,3,2025-01-20,BARBEARIA DO ZE,despesa,-42.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w03-0031,LX-CTRL-0,3,2025-01-21,MERCADINHO DA VILA,despesa,-43.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w03-0032,LX-CTRL-0,3,2025-01-22,IFOOD RESTAURANTE,despesa,-44.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w03-0033,LX-CTRL-0,3,2025-01-23,UBER TRIP,despesa,-45.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w03-0034,LX-CTRL-0,3,2025-01-24,NETFLIX COM,despesa,-46.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w03-0035,LX-CTRL-0,3,2025-01-25,SPOTIFY PREMIUM,despesa,-47.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w03-0036,LX-CTRL-0,3,2025-01-26,DROGASIL,despesa,-48.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w03-0037,LX-CTRL-0,3,2025-01-20,CARREFOUR,despesa,-49.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w03-0038,LX-CTRL-0,3,2025-01-21,MCDONALDS,despesa,-50.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w03-0039,LX-CTRL-0,3,2025-01-22,SHELL POSTO,despesa,-51.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w03-0040,LX-CTRL-0,3,2025-01-23,PADARIA SAO JOSE,despesa,-52.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w03-0041,LX-CTRL-0,3,2025-01-24,LANCHONETE CENTRAL,despesa,-53.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w03-0042,LX-CTRL-0,3,2025-01-25,AUTO PECAS MARANHAO,despesa,-54.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w03-0043,LX-CTRL-0,3,2025-01-26,BARBEARIA DO ZE,despesa,-55.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w03-0044,LX-CTRL-0,3,2025-01-20,MERCADINHO DA VILA,despesa,-56.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w04-0045,LX-CTRL-0,4,2025-01-27,NETFLIX COM,despesa,-62.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w04-0046,LX-CTRL-0,4,2025-01-28,SPOTIFY PREMIUM,despesa,-63.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w04-0047,LX-CTRL-0,4,2025-01-29,DROGASIL,despesa,-64.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w04-0048,LX-CTRL-0,4,2025-01-30,CARREFOUR,despesa,-65.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w04-0049,LX-CTRL-0,4,2025-01-31,MCDONALDS,despesa,-66.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w04-0050,LX-CTRL-0,4,2025-02-01,SHELL POSTO,despesa,-67.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w04-0051,LX-CTRL-0,4,2025-02-02,PADARIA SAO JOSE,despesa,-68.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w04-0052,LX-CTRL-0,4,2025-01-27,LANCHONETE CENTRAL,despesa,-69.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w04-0053,LX-CTRL-0,4,2025-01-28,AUTO PECAS MARANHAO,despesa,-70.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w04-0054,LX-CTRL-0,4,2025-01-29,BARBEARIA DO ZE,despesa,-71.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w04-0055,LX-CTRL-0,4,2025-01-30,MERCADINHO DA VILA,despesa,-72.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w04-0056,LX-CTRL-0,4,2025-01-31,IFOOD RESTAURANTE,despesa,-73.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w04-0057,LX-CTRL-0,4,2025-02-01,UBER TRIP,despesa,-74.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w04-0058,LX-CTRL-0,4,2025-02-02,NETFLIX COM,despesa,-75.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w04-0059,LX-CTRL-0,4,2025-01-27,SPOTIFY PREMIUM,despesa,-76.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w05-0060,LX-CTRL-0,5,2025-02-03,MCDONALDS,despesa,-82.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w05-0061,LX-CTRL-0,5,2025-02-04,SHELL POSTO,despesa,-83.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w05-0062,LX-CTRL-0,5,2025-02-05,PADARIA SAO JOSE,despesa,-84.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w05-0063,LX-CTRL-0,5,2025-02-06,LANCHONETE CENTRAL,despesa,-85.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w05-0064,LX-CTRL-0,5,2025-02-07,AUTO PECAS MARANHAO,despesa,-86.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w05-0065,LX-CTRL-0,5,2025-02-08,BARBEARIA DO ZE,despesa,-87.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w05-0066,LX-CTRL-0,5,2025-02-09,MERCADINHO DA VILA,despesa,-88.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w05-0067,LX-CTRL-0,5,2025-02-03,IFOOD RESTAURANTE,despesa,-89.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w05-0068,LX-CTRL-0,5,2025-02-04,UBER TRIP,despesa,-90.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w05-0069,LX-CTRL-0,5,2025-02-05,NETFLIX COM,despesa,-91.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w05-0070,LX-CTRL-0,5,2025-02-06,SPOTIFY PREMIUM,despesa,-92.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w05-0071,LX-CTRL-0,5,2025-02-07,DROGASIL,despesa,-93.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w05-0072,LX-CTRL-0,5,2025-02-08,CARREFOUR,despesa,-94.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w05-0073,LX-CTRL-0,5,2025-02-09,MCDONALDS,despesa,-95.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w05-0074,LX-CTRL-0,5,2025-02-03,SHELL POSTO,despesa,-96.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w06-0075,LX-CTRL-0,6,2025-02-10,AUTO PECAS MARANHAO,despesa,-22.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w06-0076,LX-CTRL-0,6,2025-02-11,BARBEARIA DO ZE,despesa,-23.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w06-0077,LX-CTRL-0,6,2025-02-12,MERCADINHO DA VILA,despesa,-24.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w06-0078,LX-CTRL-0,6,2025-02-13,IFOOD RESTAURANTE,despesa,-25.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w06-0079,LX-CTRL-0,6,2025-02-14,UBER TRIP,despesa,-26.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w06-0080,LX-CTRL-0,6,2025-02-15,NETFLIX COM,despesa,-27.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w06-0081,LX-CTRL-0,6,2025-02-16,SPOTIFY PREMIUM,despesa,-28.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w06-0082,LX-CTRL-0,6,2025-02-10,DROGASIL,despesa,-29.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w06-0083,LX-CTRL-0,6,2025-02-11,CARREFOUR,despesa,-30.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w06-0084,LX-CTRL-0,6,2025-02-12,MCDONALDS,despesa,-31.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w06-0085,LX-CTRL-0,6,2025-02-13,SHELL POSTO,despesa,-32.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w06-0086,LX-CTRL-0,6,2025-02-14,PADARIA SAO JOSE,despesa,-33.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w06-0087,LX-CTRL-0,6,2025-02-15,LANCHONETE CENTRAL,despesa,-34.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w06-0088,LX-CTRL-0,6,2025-02-16,AUTO PECAS MARANHAO,despesa,-35.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w06-0089,LX-CTRL-0,6,2025-02-10,BARBEARIA DO ZE,despesa,-36.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w07-0090,LX-CTRL-0,7,2025-02-17,UBER TRIP,despesa,-42.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w07-0091,LX-CTRL-0,7,2025-02-18,NETFLIX COM,despesa,-43.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w07-0092,LX-CTRL-0,7,2025-02-19,SPOTIFY PREMIUM,despesa,-44.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w07-0093,LX-CTRL-0,7,2025-02-20,DROGASIL,despesa,-45.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w07-0094,LX-CTRL-0,7,2025-02-21,CARREFOUR,despesa,-46.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w07-0095,LX-CTRL-0,7,2025-02-22,MCDONALDS,despesa,-47.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w07-0096,LX-CTRL-0,7,2025-02-23,SHELL POSTO,despesa,-48.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w07-0097,LX-CTRL-0,7,2025-02-17,PADARIA SAO JOSE,despesa,-49.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w07-0098,LX-CTRL-0,7,2025-02-18,LANCHONETE CENTRAL,despesa,-50.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w07-0099,LX-CTRL-0,7,2025-02-19,AUTO PECAS MARANHAO,despesa,-51.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w07-0100,LX-CTRL-0,7,2025-02-20,BARBEARIA DO ZE,despesa,-52.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w07-0101,LX-CTRL-0,7,2025-02-21,MERCADINHO DA VILA,despesa,-53.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w07-0102,LX-CTRL-0,7,2025-02-22,IFOOD RESTAURANTE,despesa,-54.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w07-0103,LX-CTRL-0,7,2025-02-23,UBER TRIP,despesa,-55.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w07-0104,LX-CTRL-0,7,2025-02-17,NETFLIX COM,despesa,-56.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w08-0105,LX-CTRL-0,8,2025-02-24,CARREFOUR,despesa,-62.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w08-0106,LX-CTRL-0,8,2025-02-25,MCDONALDS,despesa,-63.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w08-0107,LX-CTRL-0,8,2025-02-26,SHELL POSTO,despesa,-64.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w08-0108,LX-CTRL-0,8,2025-02-27,DEBITO COMPRA CARTAO PADARIA SAO JOSE SAO PAULO BR,despesa,-65.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w08-0109,LX-CTRL-0,8,2025-02-28,LANCHONETE CENTRAL,despesa,-66.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w08-0110,LX-CTRL-0,8,2025-03-01,AUTO PECAS MARANHAO,despesa,-67.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w08-0111,LX-CTRL-0,8,2025-03-02,BARBEARIA DO ZE,despesa,-68.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w08-0112,LX-CTRL-0,8,2025-02-24,MERCADINHO DA VILA,despesa,-69.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w08-0113,LX-CTRL-0,8,2025-02-25,DEBITO COMPRA CARTAO IFOOD RESTAURANTE SAO PAULO BR,despesa,-70.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w08-0114,LX-CTRL-0,8,2025-02-26,UBER TRIP,despesa,-71.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w08-0115,LX-CTRL-0,8,2025-02-27,NETFLIX COM,despesa,-72.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w08-0116,LX-CTRL-0,8,2025-02-28,SPOTIFY PREMIUM,despesa,-73.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w08-0117,LX-CTRL-0,8,2025-03-01,DROGASIL,despesa,-74.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w08-0118,LX-CTRL-0,8,2025-03-02,DEBITO COMPRA CARTAO CARREFOUR SAO PAULO BR,despesa,-75.00,Supermercado,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w08-0119,LX-CTRL-0,8,2025-02-24,MCDONALDS,despesa,-76.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w09-0120,LX-CTRL-0,9,2025-03-03,LANCHONETE CENTRAL,despesa,-82.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w09-0121,LX-CTRL-0,9,2025-03-04,AUTO PECAS MARANHAO,despesa,-83.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w09-0122,LX-CTRL-0,9,2025-03-05,BARBEARIA DO ZE,despesa,-84.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w09-0123,LX-CTRL-0,9,2025-03-06,DEBITO COMPRA CARTAO MERCADINHO DA VILA SAO PAULO BR,despesa,-85.00,Supermercado,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w09-0124,LX-CTRL-0,9,2025-03-07,IFOOD RESTAURANTE,despesa,-86.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w09-0125,LX-CTRL-0,9,2025-03-08,UBER TRIP,despesa,-87.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w09-0126,LX-CTRL-0,9,2025-03-09,NETFLIX COM,despesa,-88.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w09-0127,LX-CTRL-0,9,2025-03-03,SPOTIFY PREMIUM,despesa,-89.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w09-0128,LX-CTRL-0,9,2025-03-04,DEBITO COMPRA CARTAO DROGASIL SAO PAULO BR,despesa,-90.00,Saúde,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w09-0129,LX-CTRL-0,9,2025-03-05,CARREFOUR,despesa,-91.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w09-0130,LX-CTRL-0,9,2025-03-06,MCDONALDS,despesa,-92.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w09-0131,LX-CTRL-0,9,2025-03-07,SHELL POSTO,despesa,-93.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w09-0132,LX-CTRL-0,9,2025-03-08,PADARIA SAO JOSE,despesa,-94.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w09-0133,LX-CTRL-0,9,2025-03-09,DEBITO COMPRA CARTAO LANCHONETE CENTRAL SAO PAULO BR,despesa,-95.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w09-0134,LX-CTRL-0,9,2025-03-03,AUTO PECAS MARANHAO,despesa,-96.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w10-0135,LX-CTRL-0,10,2025-03-10,IFOOD RESTAURANTE,despesa,-22.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w10-0136,LX-CTRL-0,10,2025-03-11,UBER TRIP,despesa,-23.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w10-0137,LX-CTRL-0,10,2025-03-12,NETFLIX COM,despesa,-24.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w10-0138,LX-CTRL-0,10,2025-03-13,DEBITO COMPRA CARTAO SPOTIFY PREMIUM SAO PAULO BR,despesa,-25.00,Serviços e Assinaturas,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w10-0139,LX-CTRL-0,10,2025-03-14,DROGASIL,despesa,-26.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w10-0140,LX-CTRL-0,10,2025-03-15,CARREFOUR,despesa,-27.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w10-0141,LX-CTRL-0,10,2025-03-16,MCDONALDS,despesa,-28.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w10-0142,LX-CTRL-0,10,2025-03-10,SHELL POSTO,despesa,-29.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w10-0143,LX-CTRL-0,10,2025-03-11,DEBITO COMPRA CARTAO PADARIA SAO JOSE SAO PAULO BR,despesa,-30.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w10-0144,LX-CTRL-0,10,2025-03-12,LANCHONETE CENTRAL,despesa,-31.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w10-0145,LX-CTRL-0,10,2025-03-13,AUTO PECAS MARANHAO,despesa,-32.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w10-0146,LX-CTRL-0,10,2025-03-14,BARBEARIA DO ZE,despesa,-33.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w10-0147,LX-CTRL-0,10,2025-03-15,MERCADINHO DA VILA,despesa,-34.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w10-0148,LX-CTRL-0,10,2025-03-16,DEBITO COMPRA CARTAO IFOOD RESTAURANTE SAO PAULO BR,despesa,-35.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w10-0149,LX-CTRL-0,10,2025-03-10,UBER TRIP,despesa,-36.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w11-0150,LX-CTRL-0,11,2025-03-17,DROGASIL,despesa,-42.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w11-0151,LX-CTRL-0,11,2025-03-18,CARREFOUR,despesa,-43.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w11-0152,LX-CTRL-0,11,2025-03-19,MCDONALDS,despesa,-44.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w11-0153,LX-CTRL-0,11,2025-03-20,DEBITO COMPRA CARTAO SHELL POSTO SAO PAULO BR,despesa,-45.00,Transporte e locomoção,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w11-0154,LX-CTRL-0,11,2025-03-21,PADARIA SAO JOSE,despesa,-46.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w11-0155,LX-CTRL-0,11,2025-03-22,LANCHONETE CENTRAL,despesa,-47.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w11-0156,LX-CTRL-0,11,2025-03-23,AUTO PECAS MARANHAO,despesa,-48.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w11-0157,LX-CTRL-0,11,2025-03-17,BARBEARIA DO ZE,despesa,-49.00,Cuidados pessoais,M1,none,false,ignorar
+LX-CTRL-0-w11-0158,LX-CTRL-0,11,2025-03-18,DEBITO COMPRA CARTAO MERCADINHO DA VILA SAO PAULO BR,despesa,-50.00,Supermercado,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w11-0159,LX-CTRL-0,11,2025-03-19,IFOOD RESTAURANTE,despesa,-51.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w11-0160,LX-CTRL-0,11,2025-03-20,UBER TRIP,despesa,-52.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w11-0161,LX-CTRL-0,11,2025-03-21,NETFLIX COM,despesa,-53.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w11-0162,LX-CTRL-0,11,2025-03-22,SPOTIFY PREMIUM,despesa,-54.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w11-0163,LX-CTRL-0,11,2025-03-23,DEBITO COMPRA CARTAO DROGASIL SAO PAULO BR,despesa,-55.00,Saúde,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w11-0164,LX-CTRL-0,11,2025-03-17,CARREFOUR,despesa,-56.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w12-0165,LX-CTRL-0,12,2025-03-24,PADARIA SAO JOSE,despesa,-62.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w12-0166,LX-CTRL-0,12,2025-03-25,LANCHONETE CENTRAL,despesa,-63.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w12-0167,LX-CTRL-0,12,2025-03-26,AUTO PECAS MARANHAO,despesa,-64.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w12-0168,LX-CTRL-0,12,2025-03-27,DEBITO COMPRA CARTAO BARBEARIA DO ZE SAO PAULO BR,despesa,-65.00,Cuidados pessoais,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w12-0169,LX-CTRL-0,12,2025-03-28,MERCADINHO DA VILA,despesa,-66.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w12-0170,LX-CTRL-0,12,2025-03-29,IFOOD RESTAURANTE,despesa,-67.00,Alimentação,M1,none,false,ignorar
+LX-CTRL-0-w12-0171,LX-CTRL-0,12,2025-03-30,UBER TRIP,despesa,-68.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w12-0172,LX-CTRL-0,12,2025-03-24,NETFLIX COM,despesa,-69.00,Serviços e Assinaturas,M1,none,false,ignorar
+LX-CTRL-0-w12-0173,LX-CTRL-0,12,2025-03-25,DEBITO COMPRA CARTAO SPOTIFY PREMIUM SAO PAULO BR,despesa,-70.00,Serviços e Assinaturas,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w12-0174,LX-CTRL-0,12,2025-03-26,DROGASIL,despesa,-71.00,Saúde,M1,none,false,ignorar
+LX-CTRL-0-w12-0175,LX-CTRL-0,12,2025-03-27,CARREFOUR,despesa,-72.00,Supermercado,M1,none,false,ignorar
+LX-CTRL-0-w12-0176,LX-CTRL-0,12,2025-03-28,MCDONALDS,despesa,-73.00,Restaurantes e bares,M1,none,false,ignorar
+LX-CTRL-0-w12-0177,LX-CTRL-0,12,2025-03-29,SHELL POSTO,despesa,-74.00,Transporte e locomoção,M1,none,false,ignorar
+LX-CTRL-0-w12-0178,LX-CTRL-0,12,2025-03-30,DEBITO COMPRA CARTAO PADARIA SAO JOSE SAO PAULO BR,despesa,-75.00,Alimentação,R1,prefixo_banco,false,ignorar
+LX-CTRL-0-w12-0179,LX-CTRL-0,12,2025-03-24,LANCHONETE CENTRAL,despesa,-76.00,Alimentação,M1,none,false,ignorar

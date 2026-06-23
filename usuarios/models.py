@@ -80,6 +80,20 @@ class Perfil(models.Model):
         default=False,
         help_text=_("Mascara valores sensíveis na tela inicial."),
     )
+    categorizacao_auto_aplicar = models.BooleanField(
+        _("Aplicar categorias automaticamente"),
+        default=False,
+        help_text=_("Preenche a categoria sem confirmação quando a confiança for alta."),
+    )
+    categorizacao_limiar_auto = models.FloatField(
+        _("Limiar de confiança para auto-aplicar"),
+        default=0.90,
+    )
+    categorizacao_contribuir_globais = models.BooleanField(
+        _("Contribuir com dados anonimizados"),
+        default=False,
+        help_text=_("Permite usar padrões agregados (sem descrições) para melhorar sugestões globais."),
+    )
 
     class Meta:
         verbose_name = _("Perfil")

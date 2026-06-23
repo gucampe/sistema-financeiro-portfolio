@@ -18,6 +18,7 @@ urlpatterns = [
     path('', include(('categorias.urls', 'categorias'))),
     path('contas/', include(('contas.urls', 'contas'), namespace='contas')),
     path('cartoes/', include(('cartoes.urls', 'cartoes'), namespace='cartoes')),
+    path('categorizacao/', include(('categorizacao.urls', 'categorizacao'), namespace='categorizacao')),
 ]
 
 if getattr(settings, "SILKY_PYTHON_PROFILER", False):

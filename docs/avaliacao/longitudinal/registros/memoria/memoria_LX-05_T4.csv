@@ -1,0 +1,14 @@
+merchant_key,categoria,confirmacoes,correcoes,score
+lanchonete central,Alimentação,10,0,1.0
+auto pecas maranhao,Transporte e locomoção,10,0,1.0
+barbearia ze,Cuidados pessoais,12,0,1.0
+mercadinho vila,Supermercado,12,0,1.0
+ifood restaurante,Alimentação,30,0,1.0
+netflix,Serviços e Assinaturas,30,0,1.0
+uber trip,Transporte e locomoção,30,0,1.0
+shell posto,Transporte e locomoção,30,0,1.0
+carrefour,Supermercado,28,0,1.0
+spotify premium,Serviços e Assinaturas,30,0,1.0
+padaria sao jose,Alimentação,10,0,1.0
+mcdonalds,Restaurantes e bares,28,0,1.0
+drogasil,Saúde,28,0,1.0

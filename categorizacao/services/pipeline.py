@@ -1,0 +1,116 @@
+from __future__ import annotations
+
+from decimal import Decimal
+
+from django.conf import settings
+
+from categorizacao.services.layers.fuzzy import classificar_fuzzy
+from categorizacao.services.layers.historico import classificar_historico
+from categorizacao.services.layers.ml_classico import classificar_ml
+from categorizacao.services.layers.pg_trgm import classificar_pg_trgm
+from categorizacao.services.layers.regras import (
+    classificar_regras_globais,
+    classificar_regras_usuario,
+)
+from categorizacao.services.normalizer import preparar_descricao
+from categorizacao.types import (
+    ContextoCategorizacao,
+    PreferenciasCategorizacao,
+    PredicaoCategorizacao,
+    SugestaoCategorizacao,
+    predicao_para_sugestao,
+)
+
+LIMIARES_PARADA = {
+    "regra_usuario": 0.95,
+    "regra_global": 0.90,
+    "fuzzy": 0.85,
+    "historico": 0.75,
+    "pg_trgm": 0.78,
+    "ml": 0.65,
+}
+
+CAMADAS = [
+    ("regra_usuario", classificar_regras_usuario),
+    ("regra_global", classificar_regras_globais),
+    ("fuzzy", classificar_fuzzy),
+    ("historico", classificar_historico),
+    ("pg_trgm", classificar_pg_trgm),
+    ("ml", classificar_ml),
+]
+
+
+def _construir_contexto(
+    usuario,
+    descricao: str,
+    tipo: str,
+    valor: Decimal | None = None,
+) -> ContextoCategorizacao:
+    norm, merchant = preparar_descricao(descricao or "")
+    return ContextoCategorizacao(
+        usuario=usuario,
+        descricao=descricao or "",
+        tipo=tipo,
+        valor=valor,
+        descricao_normalizada=norm,
+        merchant_key=merchant,
+    )
+
+
+def classificar(ctx: ContextoCategorizacao) -> PredicaoCategorizacao | None:
+    melhor: PredicaoCategorizacao | None = None
+    for nome, fn in CAMADAS:
+        pred = fn(ctx)
+        if pred is None:
+            continue
+        limiar = LIMIARES_PARADA.get(nome, 0.70)
+        if pred.confianca >= limiar:
+            return pred
+        if melhor is None or pred.confianca > melhor.confianca:
+            melhor = pred
+    return melhor
+
+
+def _classificar_para_sugestao(ctx: ContextoCategorizacao) -> PredicaoCategorizacao | None:
+    if getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False):
+        from categorizacao.services.llm.orchestrator import classificar_com_llm
+
+        return classificar_com_llm(ctx)
+    return classificar(ctx)
+
+
+def sugerir(
+    usuario,
+    descricao: str,
+    tipo: str,
+    valor: Decimal | None = None,
+    prefs: PreferenciasCategorizacao | None = None,
+) -> SugestaoCategorizacao | None:
+    ctx = _construir_contexto(usuario, descricao, tipo, valor)
+    pred = _classificar_para_sugestao(ctx)
+    if pred is None:
+        return None
+    if prefs is None:
+        prefs = PreferenciasCategorizacao.from_usuario(usuario)
+    return predicao_para_sugestao(pred, prefs)
+
+
+def sugerir_batch(
+    usuario,
+    linhas: list[dict],
+    prefs: PreferenciasCategorizacao | None = None,
+) -> list[SugestaoCategorizacao | None]:
+    if prefs is None:
+        prefs = PreferenciasCategorizacao.from_usuario(usuario)
+    resultados = []
+    for linha in linhas:
+        descricao = linha.get("descricao", "")
+        tipo = linha.get("tipo", "despesa")
+        valor = linha.get("valor")
+        if valor is not None and not isinstance(valor, Decimal):
+            try:
+                valor = Decimal(str(valor))
+            except Exception:
+                valor = None
+        resultados.append(sugerir(usuario, descricao, tipo, valor, prefs))
+    return resultados

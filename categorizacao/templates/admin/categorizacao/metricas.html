@@ -1,0 +1,95 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Métricas de categorização automática</h1>
+
+<h2 class="mt-6 text-lg font-semibold">Aceitações por fonte</h2>
+<table class="adminlist mt-2">
+  <thead>
+    <tr>
+      <th>Fonte</th>
+      <th>Total aceitas</th>
+      <th>Confiança média</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in por_fonte %}
+    <tr>
+      <td>{{ row.fonte|default:"—" }}</td>
+      <td>{{ row.total }}</td>
+      <td>{{ row.confianca_media|floatformat:2 }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">Sem dados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="mt-6 text-lg font-semibold">Eventos por ação</h2>
+<table class="adminlist mt-2">
+  <thead>
+    <tr><th>Ação</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for row in por_acao %}
+    <tr>
+      <td>{{ row.acao }}</td>
+      <td>{{ row.total }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">Sem dados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if llm_admin %}
+<h2 class="mt-6 text-lg font-semibold">LLM — controle admin</h2>
+<table class="adminlist mt-2">
+  <thead>
+    <tr>
+      <th>Habilitado</th>
+      <th>Modelo</th>
+      <th>Mock</th>
+      <th>Mostrar badge IA</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ llm_admin.habilitado|yesno:"Sim,Não" }}</td>
+      <td>{{ llm_admin.modelo|default:"—" }}</td>
+      <td>{{ llm_admin.mock|yesno:"Sim,Não" }}</td>
+      <td>{{ llm_admin.mostrar_badge|yesno:"Sim,Não" }}</td>
+    </tr>
+  </tbody>
+</table>
+<p class="mt-2 text-sm text-gray-600">
+  Controle via variáveis de ambiente (<code>ENABLE_CATEGORIZACAO_LLM</code>, etc.). Usuários não decidem uso da IA.
+</p>
+{% endif %}
+
+{% if llm_stats %}
+<h2 class="mt-6 text-lg font-semibold">LLM (hoje)</h2>
+<table class="adminlist mt-2">
+  <thead>
+    <tr>
+      <th>Requisições</th>
+      <th>Sucesso</th>
+      <th>Cache hits</th>
+      <th>Custo USD est.</th>
+      <th>Tokens in</th>
+      <th>Tokens out</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ llm_stats.total }}</td>
+      <td>{{ llm_stats.sucesso }}</td>
+      <td>{{ llm_stats.cache_hits }}</td>
+      <td>{{ llm_stats.custo_usd|floatformat:4 }}</td>
+      <td>{{ llm_stats.tokens_in }}</td>
+      <td>{{ llm_stats.tokens_out }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

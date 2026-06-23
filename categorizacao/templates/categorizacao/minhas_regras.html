@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas regras de categorização{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">Minhas regras de categorização</h1>
+  <p class="text-sm text-gray-600 mb-6">
+    Regras personalizadas têm prioridade sobre sugestões automáticas.
+  </p>
+
+  <form method="post" class="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+    {% csrf_token %}
+    <h2 class="text-lg font-semibold text-gray-800">Nova regra</h2>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de regra</label>
+        {{ form.tipo_regra }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Padrão</label>
+        {{ form.padrao }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+        {{ form.categoria }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo transação</label>
+        {{ form.tipo_transacao }}
+      </div>
+    </div>
+    <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+      Salvar regra
+    </button>
+  </form>
+
+  <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-3 text-left font-medium text-gray-600">Padrão</th>
+          <th class="px-4 py-3 text-left font-medium text-gray-600">Categoria</th>
+          <th class="px-4 py-3 text-left font-medium text-gray-600">Tipo</th>
+          <th class="px-4 py-3 text-right font-medium text-gray-600">Ações</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for regra in regras %}
+        <tr>
+          <td class="px-4 py-3">
+            <span class="text-xs text-gray-500">{{ regra.get_tipo_regra_display }}</span><br>
+            {{ regra.padrao }}
+          </td>
+          <td class="px-4 py-3">{{ regra.categoria.nome }}</td>
+          <td class="px-4 py-3">{{ regra.get_origem_display }}</td>
+          <td class="px-4 py-3 text-right">
+            <form method="post" action="{% url 'categorizacao:excluir_regra' regra.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="text-red-600 hover:text-red-800 text-xs">Remover</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-4 py-6 text-center text-gray-500">Nenhuma regra cadastrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

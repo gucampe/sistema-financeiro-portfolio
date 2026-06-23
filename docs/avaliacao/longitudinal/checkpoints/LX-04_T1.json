@@ -1,0 +1,98 @@
+{
+  "persona": "LX-04",
+  "checkpoint": "T1",
+  "semana": 1,
+  "tx_count": 22,
+  "memoria_count": 5,
+  "memoria_score_alto": 5,
+  "regras_aprendidas": 0,
+  "regras_manuais": 0,
+  "eventos_total": 44,
+  "ml_ativo": false,
+  "ml_amostras": 0,
+  "feedback_aceitas": 8,
+  "feedback_corrigidas": 14,
+  "feedback_ignoradas": 0,
+  "reimport": {
+    "total": 60,
+    "tp": 38,
+    "fp": 9,
+    "fn": 13,
+    "sem_sugestao_ok": 0,
+    "cobertura": 0.7833333333333333,
+    "acuracia_top1": 0.8085106382978723,
+    "recall": 0.7450980392156863,
+    "por_bucket": {
+      "M3": {
+        "FN": 13,
+        "FP": 1,
+        "TP": 1
+      },
+      "R2": {
+        "TP": 8,
+        "FP": 7
+      },
+      "MUT": {
+        "TP": 9,
+        "FP": 1
+      },
+      "C1": {
+        "TP": 10
+      },
+      "M1": {
+        "TP": 10
+      }
+    },
+    "por_fonte": {
+      "fuzzy": {
+        "FP": 2,
+        "TP": 29
+      },
+      "historico": {
+        "TP": 9,
+        "FP": 7
+      }
+    }
+  },
+  "prova": {
+    "total": 45,
+    "tp": 28,
+    "fp": 3,
+    "fn": 14,
+    "sem_sugestao_ok": 0,
+    "cobertura": 0.6888888888888889,
+    "acuracia_top1": 0.9032258064516129,
+    "recall": 0.6666666666666666,
+    "por_bucket": {
+      "R2": {
+        "TP": 3,
+        "FN": 4,
+        "FP": 2
+      },
+      "M3": {
+        "FN": 8,
+        "FP": 1
+      },
+      "MUT": {
+        "TP": 9
+      },
+      "C1": {
+        "TP": 7,
+        "FN": 2
+      },
+      "M1": {
+        "TP": 9
+      }
+    },
+    "por_fonte": {
+      "historico": {
+        "TP": 3,
+        "FP": 2
+      },
+      "fuzzy": {
+        "FP": 1,
+        "TP": 25
+      }
+    }
+  }
+}

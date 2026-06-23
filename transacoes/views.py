@@ -35,6 +35,10 @@ from .ofx_duplicatas import avaliar_duplicatas_importacao, chave_fingerprint_lin
 from .ofx_parse import LinhaOfx, parse_ofx_bytes
 from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 
+from categorizacao.services.learning import processar_feedback_transacao
+from categorizacao.services.pipeline import sugerir, sugerir_batch
+from categorizacao.types import LIMIARES_FONTE
+
 # Limite simples para OFX em memória (MVP síncrono).
 _MAX_OFX_BYTES = 6 * 1024 * 1024
 _MAX_XLSX_BYTES = 6 * 1024 * 1024
@@ -220,18 +224,37 @@ def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) ->
     linhas_json = []
     for i, linha in enumerate(linhas_parse):
         d = por_indice[i]
-        linhas_json.append(
-            {
-                "indice": i,
-                "data": linha.data.isoformat(),
-                "valor": str(linha.valor),
-                "tipo": linha.tipo,
-                "descricao": linha.descricao,
-                "ofx_fitid": linha.ofx_fitid,
-                "duplicata_por_fitid": d.duplicata_por_fitid,
-                "duplicata_por_heuristica": d.duplicata_por_heuristica,
-            }
-        )
+        item = {
+            "indice": i,
+            "data": linha.data.isoformat(),
+            "valor": str(linha.valor),
+            "tipo": linha.tipo,
+            "descricao": linha.descricao,
+            "ofx_fitid": linha.ofx_fitid,
+            "duplicata_por_fitid": d.duplicata_por_fitid,
+            "duplicata_por_heuristica": d.duplicata_por_heuristica,
+        }
+        linhas_json.append(item)
+
+    sugestoes = sugerir_batch(
+        usuario,
+        [{"descricao": l["descricao"], "tipo": l["tipo"], "valor": l["valor"]} for l in linhas_json],
+    )
+    for item, sug in zip(linhas_json, sugestoes, strict=True):
+        if sug:
+            item["categoria_sugerida_id"] = sug.categoria_id
+            item["categoria_sugerida_nome"] = sug.categoria_nome
+            item["categoria_sugerida_confianca"] = sug.confianca
+            item["categoria_sugerida_fonte"] = sug.fonte
+            item["categoria_sugerida_explicacao"] = sug.explicacao
+            item["categoria_sugerida_auto_aplicar"] = sug.auto_aplicar
+            item["categoria_sugerida_mostrar_badge_ia"] = (
+                sug.to_dict().get("mostrar_badge_ia", False)
+                if sug.fonte == "llm_gemini"
+                else False
+            )
+            limiar = LIMIARES_FONTE.get(sug.fonte, {}).get("preencher", 0.70)
+            item["categoria_sugerida_pre_preencher"] = sug.confianca >= limiar
 
     categorias = _categorias_importacao_preview_payload(usuario)
     return {
@@ -530,6 +553,17 @@ def adicionar_transacao(request):
         if form.is_valid():
             transacao = form.save(commit=False)
             transacao.usuario = request.user
+            cat_sug_id = request.POST.get("categorizacao_sugerida_id")
+            if cat_sug_id:
+                try:
+                    transacao._categorizacao_meta = {
+                        "categoria_sugerida_id": int(cat_sug_id),
+                        "confianca": float(request.POST.get("categorizacao_confianca") or 0),
+                        "fonte": request.POST.get("categorizacao_fonte") or "",
+                        "merchant_key": request.POST.get("categorizacao_merchant_key") or "",
+                    }
+                except (TypeError, ValueError):
+                    pass
             transacao.save()
             transacao.refresh_from_db()
 
@@ -928,6 +962,7 @@ def importar_ofx_confirmar(request):
 
     erros_por_chave: dict[str, dict] = {}
     instancias: list[Transacao] = []
+    metadados_import: list[dict] = []
     fitids_no_lote: dict[str, tuple[date, Decimal, str]] = {}
     fallback_categoria_por_tipo: dict[str, Categoria | None] = {}
 
@@ -1059,6 +1094,12 @@ def importar_ofx_confirmar(request):
             continue
 
         instancias.append(t)
+        metadados_import.append({
+            "categoria_sugerida_id": row.get("categoria_sugerida_id"),
+            "confianca": row.get("categoria_sugerida_confianca"),
+            "fonte": row.get("categoria_sugerida_fonte") or "",
+            "merchant_key": row.get("categoria_sugerida_merchant_key") or "",
+        })
 
     if erros_por_chave:
         return JsonResponse(
@@ -1091,7 +1132,28 @@ def importar_ofx_confirmar(request):
 
     try:
         with transaction.atomic():
-            Transacao.objects.bulk_create(instancias)
+            criadas = Transacao.objects.bulk_create(instancias)
+            for tx, meta in zip(criadas, metadados_import, strict=True):
+                cat_sug = meta.get("categoria_sugerida_id")
+                try:
+                    cat_sug_int = int(cat_sug) if cat_sug not in (None, "") else None
+                except (TypeError, ValueError):
+                    cat_sug_int = None
+                conf = meta.get("confianca")
+                try:
+                    conf_float = float(conf) if conf not in (None, "") else None
+                except (TypeError, ValueError):
+                    conf_float = None
+                processar_feedback_transacao(
+                    usuario=request.user,
+                    transacao=tx,
+                    descricao=tx.descricao,
+                    categoria_final=tx.categoria,
+                    categoria_sugerida_id=cat_sug_int,
+                    confianca=conf_float,
+                    fonte=str(meta.get("fonte") or ""),
+                    merchant_key=str(meta.get("merchant_key") or ""),
+                )
     except IntegrityError:
         return JsonResponse(
             {

@@ -242,7 +242,83 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  const inputDescricao = document.getElementById("descricao");
+  const chipSugestao = document.getElementById("categorizacao-sugestao-chip");
+  const hidSugId = document.getElementById("categorizacao_sugerida_id");
+  const hidConf = document.getElementById("categorizacao_confianca");
+  const hidFonte = document.getElementById("categorizacao_fonte");
+  const hidMerchant = document.getElementById("categorizacao_merchant_key");
+  let sugestaoTimer = null;
+
+  function limparSugestaoCategoria() {
+    if (hidSugId) hidSugId.value = "";
+    if (hidConf) hidConf.value = "";
+    if (hidFonte) hidFonte.value = "";
+    if (hidMerchant) hidMerchant.value = "";
+    if (chipSugestao) {
+      chipSugestao.innerHTML = "";
+      chipSugestao.classList.add("hidden");
+    }
+  }
+
+  function aplicarSugestaoNoChip(sug) {
+    if (!chipSugestao || !sug) return;
+    if (hidSugId) hidSugId.value = String(sug.categoria_id);
+    if (hidConf) hidConf.value = String(sug.confianca);
+    if (hidFonte) hidFonte.value = sug.fonte || "";
+    if (hidMerchant) hidMerchant.value = sug.merchant_key || "";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const isLlm = (sug.fonte || "") === "llm_gemini" && sug.mostrar_badge_ia !== false;
+    btn.className = isLlm
+      ? "inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-900 hover:bg-violet-100"
+      : "inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 hover:bg-emerald-100";
+    btn.textContent = `Sugerido: ${sug.categoria_nome}`;
+    btn.title = sug.explicacao || "";
+    if (isLlm) {
+      const iaBadge = document.createElement("span");
+      iaBadge.className = "rounded-full bg-violet-200 px-1.5 py-0.5 text-[10px] font-bold uppercase text-violet-900";
+      iaBadge.textContent = "IA";
+      iaBadge.title = "Sugestão por inteligência artificial (Gemini)";
+      btn.appendChild(iaBadge);
+    }
+    btn.addEventListener("click", () => {
+      if (selectCategoria) {
+        selectCategoria.value = String(sug.categoria_id);
+        categoriaCombobox?.sync();
+      }
+    });
+    chipSugestao.innerHTML = "";
+    chipSugestao.appendChild(btn);
+    chipSugestao.classList.remove("hidden");
+  }
+
+  async function buscarSugestaoCategoria() {
+    const descricao = (inputDescricao?.value || "").trim();
+    const tipo = selectTipo?.value || "despesa";
+    if (descricao.length < 3) {
+      limparSugestaoCategoria();
+      return;
+    }
+    try {
+      const params = new URLSearchParams({ descricao, tipo });
+      const res = await fetch(`/categorizacao/sugerir/?${params.toString()}`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const data = await res.json();
+      if (data.status === "ok" && data.sugestao) {
+        aplicarSugestaoNoChip(data.sugestao);
+      } else {
+        limparSugestaoCategoria();
+      }
+    } catch {
+      limparSugestaoCategoria();
+    }
+  }
+
   const fecharModal = () => {
+    limparSugestaoCategoria();
     overlay.dataset.editando = "";
     atualizarBotaoExcluirModal("");
     fecharComboboxes();
@@ -346,5 +422,11 @@ document.addEventListener("DOMContentLoaded", () => {
   selectTipo?.addEventListener("change", () => {
     const tipo = selectTipo.value || "despesa";
     popularCategorias(tipo);
+    limparSugestaoCategoria();
+  });
+
+  inputDescricao?.addEventListener("input", () => {
+    window.clearTimeout(sugestaoTimer);
+    sugestaoTimer = window.setTimeout(buscarSugestaoCategoria, 350);
   });
 });

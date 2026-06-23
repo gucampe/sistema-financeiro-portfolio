@@ -1,0 +1,18 @@
+merchant_key,categoria,confirmacoes,correcoes,score
+padaria sao jose,Alimentação,2,0,1.0
+salario empresa xyz,Salário,8,0,1.0
+enel sp,Moradia,8,0,1.0
+claro movel,Serviços e Assinaturas,8,0,1.0
+aluguel imob,Moradia,8,0,1.0
+auto pecas maranhao,Transporte e locomoção,8,0,1.0
+barbearia ze,Cuidados pessoais,8,0,1.0
+mercadinho vila,Supermercado,2,0,1.0
+uber trip,Transporte e locomoção,10,0,1.0
+netflix,Serviços e Assinaturas,8,0,1.0
+spotify premium,Serviços e Assinaturas,4,0,1.0
+carrefour,Supermercado,10,0,1.0
+mcdonalds,Restaurantes e bares,12,0,1.0
+shell posto,Transporte e locomoção,10,0,1.0
+lanchonete central,Alimentação,8,0,1.0
+ifood restaurante,Alimentação,10,0,1.0
+drogasil,Saúde,4,0,1.0

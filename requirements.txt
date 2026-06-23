@@ -16,3 +16,7 @@ weasyprint==63.1
 django-minify-html==1.5.0
 django-htmx==1.21.0
 sentry-sdk==2.19.2
+rapidfuzz==3.12.2
+Unidecode==1.4.0
+scikit-learn==1.6.1
+joblib==1.4.2

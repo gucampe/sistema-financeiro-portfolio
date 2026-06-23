@@ -1,0 +1,86 @@
+[
+  {
+    "bloco": "UX-1",
+    "superficie": "Import OFX 30 linhas",
+    "inteligencia": 5,
+    "confianca": 5,
+    "irritacao_erro": 5,
+    "esforco_mental": 5,
+    "economia_tempo": 5,
+    "trabalho_extra": 5,
+    "tempo_segundos_estimado": 137.60000000000002,
+    "notas": "Proxy: cobertura e pré-preenchimento no preview OFX 30 merchants; lote ruidoso cobertura 98%"
+  },
+  {
+    "bloco": "UX-2",
+    "superficie": "Import OFX corrigindo erros",
+    "inteligencia": 5,
+    "confianca": 3,
+    "irritacao_erro": 5,
+    "esforco_mental": 3,
+    "economia_tempo": 3,
+    "trabalho_extra": 5,
+    "tempo_segundos_estimado": 138,
+    "notas": "Proxy: 4 FP no golden exigiriam correção manual"
+  },
+  {
+    "bloco": "UX-3",
+    "superficie": "Import XLSX 30 linhas",
+    "inteligencia": 5,
+    "confianca": 5,
+    "irritacao_erro": 3,
+    "esforco_mental": 3,
+    "economia_tempo": 5,
+    "trabalho_extra": 3,
+    "tempo_segundos_estimado": 75,
+    "notas": "Proxy: paridade OFX vs planilha no mesmo lote de merchants"
+  },
+  {
+    "bloco": "UX-4",
+    "superficie": "Cadastro manual (API sugerir)",
+    "inteligencia": 5,
+    "confianca": 4,
+    "irritacao_erro": 2,
+    "esforco_mental": 2,
+    "economia_tempo": 4,
+    "trabalho_extra": 2,
+    "tempo_segundos_estimado": 120.15742412527713,
+    "notas": "Proxy: latência API + acurácia golden"
+  },
+  {
+    "bloco": "UX-5",
+    "superficie": "Regras + reimport",
+    "inteligencia": 4,
+    "confianca": 4,
+    "irritacao_erro": 2,
+    "esforco_mental": 3,
+    "economia_tempo": 4,
+    "trabalho_extra": 2,
+    "tempo_segundos_estimado": 300,
+    "notas": "Observacional CB-06: regras elevam cobertura em padrões configurados"
+  },
+  {
+    "bloco": "UX-6",
+    "superficie": "Feedback repetido",
+    "inteligencia": 4,
+    "confianca": 4,
+    "irritacao_erro": 2,
+    "esforco_mental": 2,
+    "economia_tempo": 4,
+    "trabalho_extra": 1,
+    "tempo_segundos_estimado": 180,
+    "notas": "CB-07: simular_aprendizado_cb07 gera regra após 2 correções"
+  },
+  {
+    "bloco": "UX-7",
+    "superficie": "Auto-aplicar ON vs OFF",
+    "inteligencia": 3,
+    "confianca": 3,
+    "irritacao_erro": 2,
+    "esforco_mental": 3,
+    "economia_tempo": 4,
+    "trabalho_extra": 2,
+    "tempo_segundos_estimado": 240,
+    "notas": "CB-06 com auto_aplicar; risco proporcional à taxa FP observada"
+  }
+]

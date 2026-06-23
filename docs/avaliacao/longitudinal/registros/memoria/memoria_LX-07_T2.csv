@@ -1,0 +1,21 @@
+merchant_key,categoria,confirmacoes,correcoes,score
+auto pecas maranhao,Transporte e locomoção,4,0,1.0
+carrefour,Supermercado,2,0,1.0
+mercadinho vila,Supermercado,4,0,1.0
+gas agua,Moradia,2,0,1.0
+shell posto,Transporte e locomoção,4,0,1.0
+lanchonete central,Alimentação,4,0,1.0
+ifood restaurante,Alimentação,4,0,1.0
+padaria sao jose,Alimentação,4,0,1.0
+restaurante sabor,Restaurantes e bares,4,0,1.0
+barbearia ze,Cuidados pessoais,4,0,1.0
+academia forca,Diversos,2,2,0.5
+pet shop amigo,Diversos,4,0,1.0
+oficina mecanica silva,Transporte e locomoção,4,0,1.0
+loja roupas beta,Compras,4,0,1.0
+mcdonalds,Restaurantes e bares,4,0,1.0
+condominio ed,Moradia,4,0,1.0
+farmacia popular,Saúde,4,0,1.0
+salao beleza,Cuidados pessoais,4,0,1.0
+uber trip,Transporte e locomoção,2,0,1.0
+papelaria centro,Compras,2,0,1.0

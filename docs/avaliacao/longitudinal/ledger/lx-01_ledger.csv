@@ -1,0 +1,181 @@
+tx_id,persona,semana_simulada,data,descricao,tipo,valor,categoria_gold,bucket,merchant_mutacao,eh_reimport,notas
+LX-01-w01-0000,LX-01,1,2025-01-06,CARREFOUR,despesa,-20.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w01-0001,LX-01,1,2025-01-07,MCDONALDS,despesa,-21.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w01-0002,LX-01,1,2025-01-08,SHELL POSTO,despesa,-22.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w01-0003,LX-01,1,2025-01-09,IFOOD RESTAURANTE,despesa,-23.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w01-0004,LX-01,1,2025-01-10,UBER TRIP,despesa,-24.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w01-0005,LX-01,1,2025-01-11,NETFLIX COM,despesa,-25.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w01-0006,LX-01,1,2025-01-12,SPOTIFY PREMIUM,despesa,-26.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w01-0007,LX-01,1,2025-01-06,DROGASIL,despesa,-27.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w01-0008,LX-01,1,2025-01-07,CARREFOUR,despesa,-28.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w01-0009,LX-01,1,2025-01-08,MCDONALDS,despesa,-29.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w01-0010,LX-01,1,2025-01-09,SHELL POSTO,despesa,-30.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w01-0011,LX-01,1,2025-01-10,IFOOD RESTAURANTE,despesa,-31.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w01-0012,LX-01,1,2025-01-11,UBER TRIP,despesa,-32.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w01-0013,LX-01,1,2025-01-12,NETFLIX COM,despesa,-33.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w01-0014,LX-01,1,2025-01-06,SPOTIFY PREMIUM,despesa,-34.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w02-0015,LX-01,2,2025-01-13,MCDONALDS,despesa,-40.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w02-0016,LX-01,2,2025-01-14,SHELL POSTO,despesa,-41.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w02-0017,LX-01,2,2025-01-15,IFOOD RESTAURANTE,despesa,-42.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w02-0018,LX-01,2,2025-01-16,UBER TRIP,despesa,-43.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w02-0019,LX-01,2,2025-01-17,NETFLIX COM,despesa,-44.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w02-0020,LX-01,2,2025-01-18,SPOTIFY PREMIUM,despesa,-45.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w02-0021,LX-01,2,2025-01-19,DROGASIL,despesa,-46.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w02-0022,LX-01,2,2025-01-13,CARREFOUR,despesa,-47.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w02-0023,LX-01,2,2025-01-14,MCDONALDS,despesa,-48.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w02-0024,LX-01,2,2025-01-15,SHELL POSTO,despesa,-49.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w02-0025,LX-01,2,2025-01-16,IFOOD RESTAURANTE,despesa,-50.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w02-0026,LX-01,2,2025-01-17,UBER TRIP,despesa,-51.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w02-0027,LX-01,2,2025-01-18,NETFLIX COM,despesa,-52.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w02-0028,LX-01,2,2025-01-19,SPOTIFY PREMIUM,despesa,-53.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w02-0029,LX-01,2,2025-01-13,DROGASIL,despesa,-54.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w03-0030,LX-01,3,2025-01-20,SHELL POSTO,despesa,-60.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w03-0031,LX-01,3,2025-01-21,IFOOD RESTAURANTE,despesa,-61.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w03-0032,LX-01,3,2025-01-22,UBER TRIP,despesa,-62.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w03-0033,LX-01,3,2025-01-23,NETFLIX COM,despesa,-63.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w03-0034,LX-01,3,2025-01-24,SPOTIFY PREMIUM,despesa,-64.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w03-0035,LX-01,3,2025-01-25,DROGASIL,despesa,-65.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w03-0036,LX-01,3,2025-01-26,CARREFOUR,despesa,-66.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w03-0037,LX-01,3,2025-01-20,MCDONALDS,despesa,-67.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w03-0038,LX-01,3,2025-01-21,SHELL POSTO,despesa,-68.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w03-0039,LX-01,3,2025-01-22,IFOOD RESTAURANTE,despesa,-69.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w03-0040,LX-01,3,2025-01-23,UBER TRIP,despesa,-70.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w03-0041,LX-01,3,2025-01-24,NETFLIX COM,despesa,-71.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w03-0042,LX-01,3,2025-01-25,SPOTIFY PREMIUM,despesa,-72.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w03-0043,LX-01,3,2025-01-26,DROGASIL,despesa,-73.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w03-0044,LX-01,3,2025-01-20,CARREFOUR,despesa,-74.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w04-0045,LX-01,4,2025-01-27,IFOOD RESTAURANTE,despesa,-80.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w04-0046,LX-01,4,2025-01-28,UBER TRIP,despesa,-81.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w04-0047,LX-01,4,2025-01-29,NETFLIX COM,despesa,-82.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w04-0048,LX-01,4,2025-01-30,SPOTIFY PREMIUM,despesa,-83.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w04-0049,LX-01,4,2025-01-31,DROGASIL,despesa,-84.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w04-0050,LX-01,4,2025-02-01,CARREFOUR,despesa,-85.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w04-0051,LX-01,4,2025-02-02,MCDONALDS,despesa,-86.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w04-0052,LX-01,4,2025-01-27,SHELL POSTO,despesa,-87.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w04-0053,LX-01,4,2025-01-28,IFOOD RESTAURANTE,despesa,-88.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w04-0054,LX-01,4,2025-01-29,UBER TRIP,despesa,-89.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w04-0055,LX-01,4,2025-01-30,NETFLIX COM,despesa,-90.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w04-0056,LX-01,4,2025-01-31,SPOTIFY PREMIUM,despesa,-91.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w04-0057,LX-01,4,2025-02-01,DROGASIL,despesa,-92.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w04-0058,LX-01,4,2025-02-02,CARREFOUR,despesa,-93.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w04-0059,LX-01,4,2025-01-27,MCDONALDS,despesa,-94.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w05-0060,LX-01,5,2025-02-03,UBER TRIP,despesa,-20.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w05-0061,LX-01,5,2025-02-04,NETFLIX COM,despesa,-21.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w05-0062,LX-01,5,2025-02-05,SPOTIFY PREMIUM,despesa,-22.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w05-0063,LX-01,5,2025-02-06,DROGASIL,despesa,-23.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w05-0064,LX-01,5,2025-02-07,CARREFOUR,despesa,-24.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w05-0065,LX-01,5,2025-02-08,MCDONALDS,despesa,-25.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w05-0066,LX-01,5,2025-02-09,SHELL POSTO,despesa,-26.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w05-0067,LX-01,5,2025-02-03,IFOOD RESTAURANTE,despesa,-27.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w05-0068,LX-01,5,2025-02-04,UBER TRIP,despesa,-28.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w05-0069,LX-01,5,2025-02-05,NETFLIX COM,despesa,-29.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w05-0070,LX-01,5,2025-02-06,SPOTIFY PREMIUM,despesa,-30.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w05-0071,LX-01,5,2025-02-07,DROGASIL,despesa,-31.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w05-0072,LX-01,5,2025-02-08,CARREFOUR,despesa,-32.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w05-0073,LX-01,5,2025-02-09,MCDONALDS,despesa,-33.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w05-0074,LX-01,5,2025-02-03,SHELL POSTO,despesa,-34.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w06-0075,LX-01,6,2025-02-10,NETFLIX COM,despesa,-40.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w06-0076,LX-01,6,2025-02-11,SPOTIFY PREMIUM,despesa,-41.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w06-0077,LX-01,6,2025-02-12,DROGASIL,despesa,-42.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w06-0078,LX-01,6,2025-02-13,CARREFOUR,despesa,-43.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w06-0079,LX-01,6,2025-02-14,MCDONALDS,despesa,-44.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w06-0080,LX-01,6,2025-02-15,SHELL POSTO,despesa,-45.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w06-0081,LX-01,6,2025-02-16,IFOOD RESTAURANTE,despesa,-46.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w06-0082,LX-01,6,2025-02-10,UBER TRIP,despesa,-47.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w06-0083,LX-01,6,2025-02-11,NETFLIX COM,despesa,-48.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w06-0084,LX-01,6,2025-02-12,SPOTIFY PREMIUM,despesa,-49.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w06-0085,LX-01,6,2025-02-13,DROGASIL,despesa,-50.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w06-0086,LX-01,6,2025-02-14,CARREFOUR,despesa,-51.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w06-0087,LX-01,6,2025-02-15,MCDONALDS,despesa,-52.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w06-0088,LX-01,6,2025-02-16,SHELL POSTO,despesa,-53.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w06-0089,LX-01,6,2025-02-10,IFOOD RESTAURANTE,despesa,-54.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w07-0090,LX-01,7,2025-02-17,SPOTIFY PREMIUM,despesa,-60.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w07-0091,LX-01,7,2025-02-18,DROGASIL,despesa,-61.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w07-0092,LX-01,7,2025-02-19,CARREFOUR,despesa,-62.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w07-0093,LX-01,7,2025-02-20,MCDONALDS,despesa,-63.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w07-0094,LX-01,7,2025-02-21,SHELL POSTO,despesa,-64.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w07-0095,LX-01,7,2025-02-22,IFOOD RESTAURANTE,despesa,-65.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w07-0096,LX-01,7,2025-02-23,UBER TRIP,despesa,-66.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w07-0097,LX-01,7,2025-02-17,NETFLIX COM,despesa,-67.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w07-0098,LX-01,7,2025-02-18,SPOTIFY PREMIUM,despesa,-68.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w07-0099,LX-01,7,2025-02-19,DROGASIL,despesa,-69.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w07-0100,LX-01,7,2025-02-20,CARREFOUR,despesa,-70.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w07-0101,LX-01,7,2025-02-21,MCDONALDS,despesa,-71.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w07-0102,LX-01,7,2025-02-22,SHELL POSTO,despesa,-72.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w07-0103,LX-01,7,2025-02-23,IFOOD RESTAURANTE,despesa,-73.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w07-0104,LX-01,7,2025-02-17,UBER TRIP,despesa,-74.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w08-0105,LX-01,8,2025-02-24,DEBITO COMPRA CARTAO DROGASIL SAO PAULO BR,despesa,-80.00,Saúde,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w08-0106,LX-01,8,2025-02-25,CARREFOUR,despesa,-81.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w08-0107,LX-01,8,2025-02-26,MCDONALDS,despesa,-82.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w08-0108,LX-01,8,2025-02-27,SHELL POSTO,despesa,-83.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w08-0109,LX-01,8,2025-02-28,IFOOD RESTAURANTE,despesa,-84.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w08-0110,LX-01,8,2025-03-01,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR,despesa,-85.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w08-0111,LX-01,8,2025-03-02,NETFLIX COM,despesa,-86.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w08-0112,LX-01,8,2025-02-24,SPOTIFY PREMIUM,despesa,-87.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w08-0113,LX-01,8,2025-02-25,DROGASIL,despesa,-88.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w08-0114,LX-01,8,2025-02-26,CARREFOUR,despesa,-89.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w08-0115,LX-01,8,2025-02-27,DEBITO COMPRA CARTAO MCDONALDS SAO PAULO BR,despesa,-90.00,Restaurantes e bares,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w08-0116,LX-01,8,2025-02-28,SHELL POSTO,despesa,-91.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w08-0117,LX-01,8,2025-03-01,IFOOD RESTAURANTE,despesa,-92.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w08-0118,LX-01,8,2025-03-02,UBER TRIP,despesa,-93.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w08-0119,LX-01,8,2025-02-24,NETFLIX COM,despesa,-94.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w09-0120,LX-01,9,2025-03-03,DEBITO COMPRA CARTAO CARREFOUR SAO PAULO BR,despesa,-20.00,Supermercado,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w09-0121,LX-01,9,2025-03-04,MCDONALDS,despesa,-21.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w09-0122,LX-01,9,2025-03-05,SHELL POSTO,despesa,-22.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w09-0123,LX-01,9,2025-03-06,IFOOD RESTAURANTE,despesa,-23.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w09-0124,LX-01,9,2025-03-07,UBER TRIP,despesa,-24.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w09-0125,LX-01,9,2025-03-08,DEBITO COMPRA CARTAO NETFLIX COM SAO PAULO BR,despesa,-25.00,Serviços e Assinaturas,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w09-0126,LX-01,9,2025-03-09,SPOTIFY PREMIUM,despesa,-26.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w09-0127,LX-01,9,2025-03-03,DROGASIL,despesa,-27.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w09-0128,LX-01,9,2025-03-04,CARREFOUR,despesa,-28.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w09-0129,LX-01,9,2025-03-05,MCDONALDS,despesa,-29.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w09-0130,LX-01,9,2025-03-06,DEBITO COMPRA CARTAO SHELL POSTO SAO PAULO BR,despesa,-30.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w09-0131,LX-01,9,2025-03-07,IFOOD RESTAURANTE,despesa,-31.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w09-0132,LX-01,9,2025-03-08,UBER TRIP,despesa,-32.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w09-0133,LX-01,9,2025-03-09,NETFLIX COM,despesa,-33.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w09-0134,LX-01,9,2025-03-03,SPOTIFY PREMIUM,despesa,-34.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w10-0135,LX-01,10,2025-03-10,DEBITO COMPRA CARTAO MCDONALDS SAO PAULO BR,despesa,-40.00,Restaurantes e bares,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w10-0136,LX-01,10,2025-03-11,SHELL POSTO,despesa,-41.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w10-0137,LX-01,10,2025-03-12,IFOOD RESTAURANTE,despesa,-42.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w10-0138,LX-01,10,2025-03-13,UBER TRIP,despesa,-43.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w10-0139,LX-01,10,2025-03-14,NETFLIX COM,despesa,-44.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w10-0140,LX-01,10,2025-03-15,DEBITO COMPRA CARTAO SPOTIFY PREMIUM SAO PAULO BR,despesa,-45.00,Serviços e Assinaturas,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w10-0141,LX-01,10,2025-03-16,DROGASIL,despesa,-46.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w10-0142,LX-01,10,2025-03-10,CARREFOUR,despesa,-47.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w10-0143,LX-01,10,2025-03-11,MCDONALDS,despesa,-48.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w10-0144,LX-01,10,2025-03-12,SHELL POSTO,despesa,-49.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w10-0145,LX-01,10,2025-03-13,DEBITO COMPRA CARTAO IFOOD RESTAURANTE SAO PAULO BR,despesa,-50.00,Alimentação,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w10-0146,LX-01,10,2025-03-14,UBER TRIP,despesa,-51.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w10-0147,LX-01,10,2025-03-15,NETFLIX COM,despesa,-52.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w10-0148,LX-01,10,2025-03-16,SPOTIFY PREMIUM,despesa,-53.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w10-0149,LX-01,10,2025-03-10,DROGASIL,despesa,-54.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w11-0150,LX-01,11,2025-03-17,DEBITO COMPRA CARTAO SHELL POSTO SAO PAULO BR,despesa,-60.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w11-0151,LX-01,11,2025-03-18,IFOOD RESTAURANTE,despesa,-61.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w11-0152,LX-01,11,2025-03-19,UBER TRIP,despesa,-62.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w11-0153,LX-01,11,2025-03-20,NETFLIX COM,despesa,-63.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w11-0154,LX-01,11,2025-03-21,SPOTIFY PREMIUM,despesa,-64.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w11-0155,LX-01,11,2025-03-22,DEBITO COMPRA CARTAO DROGASIL SAO PAULO BR,despesa,-65.00,Saúde,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w11-0156,LX-01,11,2025-03-23,CARREFOUR,despesa,-66.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w11-0157,LX-01,11,2025-03-17,MCDONALDS,despesa,-67.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w11-0158,LX-01,11,2025-03-18,SHELL POSTO,despesa,-68.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w11-0159,LX-01,11,2025-03-19,IFOOD RESTAURANTE,despesa,-69.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w11-0160,LX-01,11,2025-03-20,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR,despesa,-70.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w11-0161,LX-01,11,2025-03-21,NETFLIX COM,despesa,-71.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w11-0162,LX-01,11,2025-03-22,SPOTIFY PREMIUM,despesa,-72.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w11-0163,LX-01,11,2025-03-23,DROGASIL,despesa,-73.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w11-0164,LX-01,11,2025-03-17,CARREFOUR,despesa,-74.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w12-0165,LX-01,12,2025-03-24,DEBITO COMPRA CARTAO IFOOD RESTAURANTE SAO PAULO BR,despesa,-80.00,Alimentação,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w12-0166,LX-01,12,2025-03-25,UBER TRIP,despesa,-81.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w12-0167,LX-01,12,2025-03-26,NETFLIX COM,despesa,-82.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w12-0168,LX-01,12,2025-03-27,SPOTIFY PREMIUM,despesa,-83.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w12-0169,LX-01,12,2025-03-28,DROGASIL,despesa,-84.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w12-0170,LX-01,12,2025-03-29,DEBITO COMPRA CARTAO CARREFOUR SAO PAULO BR,despesa,-85.00,Supermercado,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w12-0171,LX-01,12,2025-03-30,MCDONALDS,despesa,-86.00,Restaurantes e bares,M1,none,false,aceitar_sugestao
+LX-01-w12-0172,LX-01,12,2025-03-24,SHELL POSTO,despesa,-87.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w12-0173,LX-01,12,2025-03-25,IFOOD RESTAURANTE,despesa,-88.00,Alimentação,M1,none,false,aceitar_sugestao
+LX-01-w12-0174,LX-01,12,2025-03-26,UBER TRIP,despesa,-89.00,Transporte e locomoção,M1,none,false,aceitar_sugestao
+LX-01-w12-0175,LX-01,12,2025-03-27,DEBITO COMPRA CARTAO NETFLIX COM SAO PAULO BR,despesa,-90.00,Serviços e Assinaturas,R1,prefixo_banco,false,aceitar_sugestao
+LX-01-w12-0176,LX-01,12,2025-03-28,SPOTIFY PREMIUM,despesa,-91.00,Serviços e Assinaturas,M1,none,false,aceitar_sugestao
+LX-01-w12-0177,LX-01,12,2025-03-29,DROGASIL,despesa,-92.00,Saúde,M1,none,false,aceitar_sugestao
+LX-01-w12-0178,LX-01,12,2025-03-30,CARREFOUR,despesa,-93.00,Supermercado,M1,none,false,aceitar_sugestao
+LX-01-w12-0179,LX-01,12,2025-03-24,MCDONALDS,despesa,-94.00,Restaurantes e bares,M1,none,false,aceitar_sugestao

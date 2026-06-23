@@ -368,6 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (listaCat.length === 1) {
         sel.value = String(listaCat[0].id);
       }
+      window.CategorizacaoImport?.aplicarSugestaoCategoriaSelect(sel, linha);
       tdCat.appendChild(sel);
 
       tr.append(tdCheck, tdData, tdDesc, tdValor, tdTipo, tdAvisos, tdCat);
@@ -515,6 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       const catId = sel?.value?.trim();
       if (catId) linhaPayload.categoria_id = Number(catId);
+      Object.assign(linhaPayload, window.CategorizacaoImport?.metadadosSugestaoFromSelect(sel) || {});
       linhasPayload.push(linhaPayload);
     }
 

@@ -1,0 +1,101 @@
+[
+  {
+    "persona": "LX-01",
+    "checkpoint": "T0",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-01",
+    "checkpoint": "T2",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-01",
+    "checkpoint": "T5",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-02",
+    "checkpoint": "T0",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-02",
+    "checkpoint": "T2",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-02",
+    "checkpoint": "T5",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-07",
+    "checkpoint": "T0",
+    "inteligencia": 3,
+    "confianca": 2,
+    "economia_tempo": 2,
+    "irritacao": 5,
+    "tempo_import_proxy": 481,
+    "percepcao_melhora": "nao",
+    "notas": "cobertura=51.7% share_historico=0.0%"
+  },
+  {
+    "persona": "LX-07",
+    "checkpoint": "T2",
+    "inteligencia": 5,
+    "confianca": 3,
+    "economia_tempo": 3,
+    "irritacao": 5,
+    "tempo_import_proxy": 279,
+    "percepcao_melhora": "sim",
+    "notas": "cobertura=75.0% share_historico=31.1%"
+  },
+  {
+    "persona": "LX-07",
+    "checkpoint": "T5",
+    "inteligencia": 5,
+    "confianca": 3,
+    "economia_tempo": 3,
+    "irritacao": 5,
+    "tempo_import_proxy": 279,
+    "percepcao_melhora": "sim",
+    "notas": "cobertura=75.0% share_historico=31.1%"
+  }
+]

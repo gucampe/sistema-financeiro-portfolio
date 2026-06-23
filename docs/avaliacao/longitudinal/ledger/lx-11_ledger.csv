@@ -1,0 +1,217 @@
+tx_id,persona,semana_simulada,data,descricao,tipo,valor,categoria_gold,bucket,merchant_mutacao,eh_reimport,notas
+LX-11-w01-0000,LX-11,1,2025-01-06,UBER TRIP,despesa,-89.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0001,LX-11,1,2025-01-07,UBER TRIP,despesa,-90.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0002,LX-11,1,2025-01-08,UBER TRIP,despesa,-91.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0003,LX-11,1,2025-01-09,UBER TRIP,despesa,-92.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0004,LX-11,1,2025-01-10,UBER TRIP,despesa,-93.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0005,LX-11,1,2025-01-11,UBER TRIP,despesa,-94.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0006,LX-11,1,2025-01-12,UBER TRIP,despesa,-95.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0007,LX-11,1,2025-01-06,UBER TRIP,despesa,-96.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0008,LX-11,1,2025-01-07,UBER TRIP,despesa,-97.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0009,LX-11,1,2025-01-08,UBER TRIP,despesa,-98.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0010,LX-11,1,2025-01-09,UBER TRIP,despesa,-99.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0011,LX-11,1,2025-01-10,UBER TRIP,despesa,-20.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0012,LX-11,1,2025-01-11,UBER TRIP,despesa,-21.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0013,LX-11,1,2025-01-12,UBER TRIP,despesa,-22.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0014,LX-11,1,2025-01-06,UBER TRIP,despesa,-23.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0015,LX-11,1,2025-01-07,UBER TRIP,despesa,-24.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0016,LX-11,1,2025-01-08,UBER TRIP,despesa,-25.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w01-0017,LX-11,1,2025-01-09,UBER TRIP,despesa,-26.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0018,LX-11,2,2025-01-13,UBER TRIP,despesa,-29.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0019,LX-11,2,2025-01-14,UBER TRIP,despesa,-30.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0020,LX-11,2,2025-01-15,UBER TRIP,despesa,-31.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0021,LX-11,2,2025-01-16,UBER TRIP,despesa,-32.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0022,LX-11,2,2025-01-17,UBER TRIP,despesa,-33.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0023,LX-11,2,2025-01-18,UBER TRIP,despesa,-34.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0024,LX-11,2,2025-01-19,UBER TRIP,despesa,-35.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0025,LX-11,2,2025-01-13,UBER TRIP,despesa,-36.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0026,LX-11,2,2025-01-14,UBER TRIP,despesa,-37.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0027,LX-11,2,2025-01-15,UBER TRIP,despesa,-38.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0028,LX-11,2,2025-01-16,UBER TRIP,despesa,-39.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0029,LX-11,2,2025-01-17,UBER TRIP,despesa,-40.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0030,LX-11,2,2025-01-18,UBER TRIP,despesa,-41.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0031,LX-11,2,2025-01-19,UBER TRIP,despesa,-42.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0032,LX-11,2,2025-01-13,UBER TRIP,despesa,-43.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0033,LX-11,2,2025-01-14,UBER TRIP,despesa,-44.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0034,LX-11,2,2025-01-15,UBER TRIP,despesa,-45.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w02-0035,LX-11,2,2025-01-16,UBER TRIP,despesa,-46.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0036,LX-11,3,2025-01-20,UBER TRIP,despesa,-49.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0037,LX-11,3,2025-01-21,UBER TRIP,despesa,-50.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0038,LX-11,3,2025-01-22,UBER TRIP,despesa,-51.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0039,LX-11,3,2025-01-23,UBER TRIP,despesa,-52.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0040,LX-11,3,2025-01-24,UBER TRIP,despesa,-53.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0041,LX-11,3,2025-01-25,UBER TRIP,despesa,-54.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0042,LX-11,3,2025-01-26,UBER TRIP,despesa,-55.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0043,LX-11,3,2025-01-20,UBER TRIP,despesa,-56.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0044,LX-11,3,2025-01-21,UBER TRIP,despesa,-57.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0045,LX-11,3,2025-01-22,UBER TRIP,despesa,-58.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0046,LX-11,3,2025-01-23,UBER TRIP,despesa,-59.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0047,LX-11,3,2025-01-24,UBER TRIP,despesa,-60.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0048,LX-11,3,2025-01-25,UBER TRIP,despesa,-61.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0049,LX-11,3,2025-01-26,UBER TRIP,despesa,-62.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0050,LX-11,3,2025-01-20,UBER TRIP,despesa,-63.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0051,LX-11,3,2025-01-21,UBER TRIP,despesa,-64.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0052,LX-11,3,2025-01-22,UBER TRIP,despesa,-65.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w03-0053,LX-11,3,2025-01-23,UBER TRIP,despesa,-66.00,Transporte e locomoção,MUT,none,false,aceitar_sugestao
+LX-11-w04-0054,LX-11,4,2025-01-27,UBER*TRIP,despesa,-69.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0055,LX-11,4,2025-01-28,UBER*TRIP,despesa,-70.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0056,LX-11,4,2025-01-29,UBER*TRIP,despesa,-71.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0057,LX-11,4,2025-01-30,UBER*TRIP,despesa,-72.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0058,LX-11,4,2025-01-31,UBER*TRIP,despesa,-73.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0059,LX-11,4,2025-02-01,UBER*TRIP,despesa,-74.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0060,LX-11,4,2025-02-02,UBER*TRIP,despesa,-75.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0061,LX-11,4,2025-01-27,UBER*TRIP,despesa,-76.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0062,LX-11,4,2025-01-28,UBER*TRIP,despesa,-77.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0063,LX-11,4,2025-01-29,UBER*TRIP,despesa,-78.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0064,LX-11,4,2025-01-30,UBER*TRIP,despesa,-79.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0065,LX-11,4,2025-01-31,UBER*TRIP,despesa,-80.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0066,LX-11,4,2025-02-01,UBER*TRIP,despesa,-81.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0067,LX-11,4,2025-02-02,UBER*TRIP,despesa,-82.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0068,LX-11,4,2025-01-27,UBER*TRIP,despesa,-83.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0069,LX-11,4,2025-01-28,UBER*TRIP,despesa,-84.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0070,LX-11,4,2025-01-29,UBER*TRIP,despesa,-85.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w04-0071,LX-11,4,2025-01-30,UBER*TRIP,despesa,-86.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0072,LX-11,5,2025-02-03,UBER*TRIP,despesa,-89.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0073,LX-11,5,2025-02-04,UBER*TRIP,despesa,-90.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0074,LX-11,5,2025-02-05,UBER*TRIP,despesa,-91.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0075,LX-11,5,2025-02-06,UBER*TRIP,despesa,-92.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0076,LX-11,5,2025-02-07,UBER*TRIP,despesa,-93.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0077,LX-11,5,2025-02-08,UBER*TRIP,despesa,-94.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0078,LX-11,5,2025-02-09,UBER*TRIP,despesa,-95.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0079,LX-11,5,2025-02-03,UBER*TRIP,despesa,-96.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0080,LX-11,5,2025-02-04,UBER*TRIP,despesa,-97.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0081,LX-11,5,2025-02-05,UBER*TRIP,despesa,-98.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0082,LX-11,5,2025-02-06,UBER*TRIP,despesa,-99.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0083,LX-11,5,2025-02-07,UBER*TRIP,despesa,-20.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0084,LX-11,5,2025-02-08,UBER*TRIP,despesa,-21.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0085,LX-11,5,2025-02-09,UBER*TRIP,despesa,-22.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0086,LX-11,5,2025-02-03,UBER*TRIP,despesa,-23.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0087,LX-11,5,2025-02-04,UBER*TRIP,despesa,-24.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0088,LX-11,5,2025-02-05,UBER*TRIP,despesa,-25.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w05-0089,LX-11,5,2025-02-06,UBER*TRIP,despesa,-26.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0090,LX-11,6,2025-02-10,UBER*TRIP,despesa,-29.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0091,LX-11,6,2025-02-11,UBER*TRIP,despesa,-30.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0092,LX-11,6,2025-02-12,UBER*TRIP,despesa,-31.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0093,LX-11,6,2025-02-13,UBER*TRIP,despesa,-32.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0094,LX-11,6,2025-02-14,UBER*TRIP,despesa,-33.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0095,LX-11,6,2025-02-15,UBER*TRIP,despesa,-34.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0096,LX-11,6,2025-02-16,UBER*TRIP,despesa,-35.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0097,LX-11,6,2025-02-10,UBER*TRIP,despesa,-36.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0098,LX-11,6,2025-02-11,UBER*TRIP,despesa,-37.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0099,LX-11,6,2025-02-12,UBER*TRIP,despesa,-38.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0100,LX-11,6,2025-02-13,UBER*TRIP,despesa,-39.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0101,LX-11,6,2025-02-14,UBER*TRIP,despesa,-40.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0102,LX-11,6,2025-02-15,UBER*TRIP,despesa,-41.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0103,LX-11,6,2025-02-16,UBER*TRIP,despesa,-42.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0104,LX-11,6,2025-02-10,UBER*TRIP,despesa,-43.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0105,LX-11,6,2025-02-11,UBER*TRIP,despesa,-44.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0106,LX-11,6,2025-02-12,UBER*TRIP,despesa,-45.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w06-0107,LX-11,6,2025-02-13,UBER*TRIP,despesa,-46.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0108,LX-11,7,2025-02-17,UBER TRIP SAO PAULO BR,despesa,-49.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0109,LX-11,7,2025-02-18,UBER TRIP SAO PAULO BR,despesa,-50.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0110,LX-11,7,2025-02-19,UBER TRIP SAO PAULO BR,despesa,-51.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0111,LX-11,7,2025-02-20,UBER TRIP SAO PAULO BR,despesa,-52.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0112,LX-11,7,2025-02-21,UBER TRIP SAO PAULO BR,despesa,-53.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0113,LX-11,7,2025-02-22,UBER TRIP SAO PAULO BR,despesa,-54.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0114,LX-11,7,2025-02-23,UBER TRIP SAO PAULO BR,despesa,-55.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0115,LX-11,7,2025-02-17,UBER TRIP SAO PAULO BR,despesa,-56.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0116,LX-11,7,2025-02-18,UBER TRIP SAO PAULO BR,despesa,-57.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0117,LX-11,7,2025-02-19,UBER TRIP SAO PAULO BR,despesa,-58.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0118,LX-11,7,2025-02-20,UBER TRIP SAO PAULO BR,despesa,-59.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0119,LX-11,7,2025-02-21,UBER TRIP SAO PAULO BR,despesa,-60.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0120,LX-11,7,2025-02-22,UBER TRIP SAO PAULO BR,despesa,-61.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0121,LX-11,7,2025-02-23,UBER TRIP SAO PAULO BR,despesa,-62.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0122,LX-11,7,2025-02-17,UBER TRIP SAO PAULO BR,despesa,-63.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0123,LX-11,7,2025-02-18,UBER TRIP SAO PAULO BR,despesa,-64.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0124,LX-11,7,2025-02-19,UBER TRIP SAO PAULO BR,despesa,-65.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w07-0125,LX-11,7,2025-02-20,UBER TRIP SAO PAULO BR,despesa,-66.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0126,LX-11,8,2025-02-24,UBER TRIP SAO PAULO BR,despesa,-69.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0127,LX-11,8,2025-02-25,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-70.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w08-0128,LX-11,8,2025-02-26,UBER TRIP SAO PAULO BR,despesa,-71.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0129,LX-11,8,2025-02-27,UBER TRIP SAO PAULO BR,despesa,-72.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0130,LX-11,8,2025-02-28,UBER TRIP SAO PAULO BR,despesa,-73.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0131,LX-11,8,2025-03-01,UBER TRIP SAO PAULO BR,despesa,-74.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0132,LX-11,8,2025-03-02,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-75.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w08-0133,LX-11,8,2025-02-24,UBER TRIP SAO PAULO BR,despesa,-76.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0134,LX-11,8,2025-02-25,UBER TRIP SAO PAULO BR,despesa,-77.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0135,LX-11,8,2025-02-26,UBER TRIP SAO PAULO BR,despesa,-78.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0136,LX-11,8,2025-02-27,UBER TRIP SAO PAULO BR,despesa,-79.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0137,LX-11,8,2025-02-28,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-80.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w08-0138,LX-11,8,2025-03-01,UBER TRIP SAO PAULO BR,despesa,-81.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0139,LX-11,8,2025-03-02,UBER TRIP SAO PAULO BR,despesa,-82.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0140,LX-11,8,2025-02-24,UBER TRIP SAO PAULO BR,despesa,-83.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0141,LX-11,8,2025-02-25,UBER TRIP SAO PAULO BR,despesa,-84.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w08-0142,LX-11,8,2025-02-26,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-85.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w08-0143,LX-11,8,2025-02-27,UBER TRIP SAO PAULO BR,despesa,-86.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0144,LX-11,9,2025-03-03,UBER TRIP SAO PAULO BR,despesa,-89.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0145,LX-11,9,2025-03-04,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-90.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w09-0146,LX-11,9,2025-03-05,UBER TRIP SAO PAULO BR,despesa,-91.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0147,LX-11,9,2025-03-06,UBER TRIP SAO PAULO BR,despesa,-92.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0148,LX-11,9,2025-03-07,UBER TRIP SAO PAULO BR,despesa,-93.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0149,LX-11,9,2025-03-08,UBER TRIP SAO PAULO BR,despesa,-94.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0150,LX-11,9,2025-03-09,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-95.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w09-0151,LX-11,9,2025-03-03,UBER TRIP SAO PAULO BR,despesa,-96.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0152,LX-11,9,2025-03-04,UBER TRIP SAO PAULO BR,despesa,-97.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0153,LX-11,9,2025-03-05,UBER TRIP SAO PAULO BR,despesa,-98.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0154,LX-11,9,2025-03-06,UBER TRIP SAO PAULO BR,despesa,-99.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0155,LX-11,9,2025-03-07,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-20.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w09-0156,LX-11,9,2025-03-08,UBER TRIP SAO PAULO BR,despesa,-21.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0157,LX-11,9,2025-03-09,UBER TRIP SAO PAULO BR,despesa,-22.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0158,LX-11,9,2025-03-03,UBER TRIP SAO PAULO BR,despesa,-23.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0159,LX-11,9,2025-03-04,UBER TRIP SAO PAULO BR,despesa,-24.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w09-0160,LX-11,9,2025-03-05,DEBITO COMPRA CARTAO UBER TRIP SAO PAULO BR SAO PAULO BR,despesa,-25.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w09-0161,LX-11,9,2025-03-06,UBER TRIP SAO PAULO BR,despesa,-26.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0162,LX-11,10,2025-03-10,UBER DO BRASIL,despesa,-29.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0163,LX-11,10,2025-03-11,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-30.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w10-0164,LX-11,10,2025-03-12,UBER DO BRASIL,despesa,-31.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0165,LX-11,10,2025-03-13,UBER DO BRASIL,despesa,-32.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0166,LX-11,10,2025-03-14,UBER DO BRASIL,despesa,-33.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0167,LX-11,10,2025-03-15,UBER DO BRASIL,despesa,-34.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0168,LX-11,10,2025-03-16,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-35.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w10-0169,LX-11,10,2025-03-10,UBER DO BRASIL,despesa,-36.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0170,LX-11,10,2025-03-11,UBER DO BRASIL,despesa,-37.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0171,LX-11,10,2025-03-12,UBER DO BRASIL,despesa,-38.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0172,LX-11,10,2025-03-13,UBER DO BRASIL,despesa,-39.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0173,LX-11,10,2025-03-14,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-40.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w10-0174,LX-11,10,2025-03-15,UBER DO BRASIL,despesa,-41.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0175,LX-11,10,2025-03-16,UBER DO BRASIL,despesa,-42.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0176,LX-11,10,2025-03-10,UBER DO BRASIL,despesa,-43.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0177,LX-11,10,2025-03-11,UBER DO BRASIL,despesa,-44.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w10-0178,LX-11,10,2025-03-12,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-45.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w10-0179,LX-11,10,2025-03-13,UBER DO BRASIL,despesa,-46.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0180,LX-11,11,2025-03-17,UBER DO BRASIL,despesa,-49.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0181,LX-11,11,2025-03-18,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-50.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w11-0182,LX-11,11,2025-03-19,UBER DO BRASIL,despesa,-51.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0183,LX-11,11,2025-03-20,UBER DO BRASIL,despesa,-52.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0184,LX-11,11,2025-03-21,UBER DO BRASIL,despesa,-53.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0185,LX-11,11,2025-03-22,UBER DO BRASIL,despesa,-54.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0186,LX-11,11,2025-03-23,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-55.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w11-0187,LX-11,11,2025-03-17,UBER DO BRASIL,despesa,-56.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0188,LX-11,11,2025-03-18,UBER DO BRASIL,despesa,-57.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0189,LX-11,11,2025-03-19,UBER DO BRASIL,despesa,-58.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0190,LX-11,11,2025-03-20,UBER DO BRASIL,despesa,-59.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0191,LX-11,11,2025-03-21,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-60.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w11-0192,LX-11,11,2025-03-22,UBER DO BRASIL,despesa,-61.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0193,LX-11,11,2025-03-23,UBER DO BRASIL,despesa,-62.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0194,LX-11,11,2025-03-17,UBER DO BRASIL,despesa,-63.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0195,LX-11,11,2025-03-18,UBER DO BRASIL,despesa,-64.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w11-0196,LX-11,11,2025-03-19,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-65.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w11-0197,LX-11,11,2025-03-20,UBER DO BRASIL,despesa,-66.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0198,LX-11,12,2025-03-24,UBER DO BRASIL,despesa,-69.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0199,LX-11,12,2025-03-25,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-70.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w12-0200,LX-11,12,2025-03-26,UBER DO BRASIL,despesa,-71.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0201,LX-11,12,2025-03-27,UBER DO BRASIL,despesa,-72.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0202,LX-11,12,2025-03-28,UBER DO BRASIL,despesa,-73.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0203,LX-11,12,2025-03-29,UBER DO BRASIL,despesa,-74.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0204,LX-11,12,2025-03-30,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-75.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w12-0205,LX-11,12,2025-03-24,UBER DO BRASIL,despesa,-76.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0206,LX-11,12,2025-03-25,UBER DO BRASIL,despesa,-77.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0207,LX-11,12,2025-03-26,UBER DO BRASIL,despesa,-78.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0208,LX-11,12,2025-03-27,UBER DO BRASIL,despesa,-79.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0209,LX-11,12,2025-03-28,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-80.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w12-0210,LX-11,12,2025-03-29,UBER DO BRASIL,despesa,-81.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0211,LX-11,12,2025-03-30,UBER DO BRASIL,despesa,-82.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0212,LX-11,12,2025-03-24,UBER DO BRASIL,despesa,-83.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0213,LX-11,12,2025-03-25,UBER DO BRASIL,despesa,-84.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
+LX-11-w12-0214,LX-11,12,2025-03-26,DEBITO COMPRA CARTAO UBER DO BRASIL SAO PAULO BR,despesa,-85.00,Transporte e locomoção,R1,prefixo_banco,false,aceitar_sugestao
+LX-11-w12-0215,LX-11,12,2025-03-27,UBER DO BRASIL,despesa,-86.00,Transporte e locomoção,MUT,typo,false,aceitar_sugestao
