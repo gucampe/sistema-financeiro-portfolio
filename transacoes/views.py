@@ -248,13 +248,19 @@ def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) ->
             item["categoria_sugerida_fonte"] = sug.fonte
             item["categoria_sugerida_explicacao"] = sug.explicacao
             item["categoria_sugerida_auto_aplicar"] = sug.auto_aplicar
+            item["categoria_sugerida_requires_confirmacao"] = bool(
+                (sug.contexto or {}).get("requires_user_confirmation")
+            )
             item["categoria_sugerida_mostrar_badge_ia"] = (
                 sug.to_dict().get("mostrar_badge_ia", False)
                 if sug.fonte == "llm_gemini"
                 else False
             )
             limiar = LIMIARES_FONTE.get(sug.fonte, {}).get("preencher", 0.70)
-            item["categoria_sugerida_pre_preencher"] = sug.confianca >= limiar
+            requires_confirm = bool((sug.contexto or {}).get("requires_user_confirmation"))
+            item["categoria_sugerida_pre_preencher"] = (
+                sug.confianca >= limiar and not requires_confirm
+            )
 
     categorias = _categorias_importacao_preview_payload(usuario)
     return {

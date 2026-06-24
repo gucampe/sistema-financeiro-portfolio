@@ -3,22 +3,23 @@ from __future__ import annotations
 import re
 import unicodedata
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
 
 SYSTEM_PROMPT = """Você é um classificador financeiro brasileiro. Responda SOMENTE com JSON válido no schema fornecido.
 Regras:
 - Use APENAS categoria_slug da lista fornecida pelo usuário.
 - Não invente categorias nem dados pessoais.
-- PIX genérico sem contexto: prefira slug de Família, Outros ou Transferências se existirem.
-- Padaria/mercado local: alimentacao ou supermercado conforme contexto.
-- Se ambíguo, marque ambigua=true e reduza confianca.
+- Nunca inferir relações familiares, afetivas ou sociais sem evidência clara.
+- PIX ou transferência para pessoa física sem contexto comercial: prefira slug diversos ou equivalente neutro; marque ambigua=true e confianca <= 0.55.
+- Em dúvida: ambigua=true, confianca baixa, prefira não categorizar com alta confiança.
+- Padaria/mercado local: alimentacao ou supermercado conforme contexto explícito.
 - confianca entre 0 e 1.
 """
 
 FEW_SHOT = """
 Exemplos:
 - "ifood restaurante" despesa → alimentacao (0.92)
-- "pix enviado maria" despesa → familia (0.75, ambigua pode ser true)
+- "pix enviado pessoa" despesa → diversos (0.50, ambigua=true)
 - "padaria sao jose" despesa → alimentacao (0.80)
 - "uber trip" despesa → transporte (0.90)
 - "amazon br" despesa → compras (0.70, ambigua=true)

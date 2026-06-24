@@ -261,6 +261,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  selectCategoria?.addEventListener("change", () => {
+    const sugId = hidSugId?.value;
+    if (sugId && selectCategoria?.value && String(selectCategoria.value) !== String(sugId)) {
+      limparSugestaoCategoria();
+    }
+  });
+
   function aplicarSugestaoNoChip(sug) {
     if (!chipSugestao || !sug) return;
     if (hidSugId) hidSugId.value = String(sug.categoria_id);

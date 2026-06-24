@@ -65,8 +65,24 @@ def browser_context_args(browser_context_args, request):
 
 
 @pytest.fixture
-def app_base_url(live_server):
-    return live_server.url
+def app_base_url(request):
+    external = os.environ.get("E2E_EXTERNAL_URL", "").strip().rstrip("/")
+    if external:
+        return external
+    return request.getfixturevalue("live_server").url
+
+
+@pytest.fixture
+def logged_in_teste5_page(page, app_base_url):
+    """Login como teste5@teste.com (servidor dev via E2E_EXTERNAL_URL)."""
+    from e2e.fixtures.pages.login_page import LoginPage
+
+    email = os.environ.get("E2E_TESTE5_EMAIL", "teste5@teste.com")
+    password = os.environ.get("E2E_TESTE5_PASSWORD", "E2eTeste5!2026")
+    login = LoginPage(page, app_base_url)
+    login.login(email, password)
+    login.expect_redirect_dashboard()
+    return page
 
 
 @pytest.fixture

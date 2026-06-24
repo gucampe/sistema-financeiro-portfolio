@@ -13,6 +13,10 @@ from categorizacao.services.layers.regras import (
     classificar_regras_usuario,
 )
 from categorizacao.services.normalizer import preparar_descricao
+from categorizacao.services.pix_identity import (
+    fingerprint_pix_person,
+    is_pix_pessoa_fisica,
+)
 from categorizacao.types import (
     ContextoCategorizacao,
     PreferenciasCategorizacao,
@@ -47,6 +51,8 @@ def _construir_contexto(
     valor: Decimal | None = None,
 ) -> ContextoCategorizacao:
     norm, merchant = preparar_descricao(descricao or "")
+    is_pf = is_pix_pessoa_fisica(descricao or "", norm)
+    pix_key = fingerprint_pix_person(descricao or "") if is_pf else ""
     return ContextoCategorizacao(
         usuario=usuario,
         descricao=descricao or "",
@@ -54,6 +60,8 @@ def _construir_contexto(
         valor=valor,
         descricao_normalizada=norm,
         merchant_key=merchant,
+        pix_person_key=pix_key,
+        is_pix_pf=is_pf,
     )
 
 

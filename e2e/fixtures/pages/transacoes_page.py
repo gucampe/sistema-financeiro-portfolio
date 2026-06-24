@@ -39,6 +39,11 @@ class TransacaoModalPage(BasePage):
             timeout=5000,
         )
 
+    def select_categoria_by_name(self, nome: str) -> None:
+        self.page.wait_for_selector("#categoria option", state="attached", timeout=15000)
+        self.page.select_option("#categoria", label=nome)
+        self.page.locator("#categoria").dispatch_event("change")
+
     def fill_valor(self, valor: Decimal) -> None:
         self.page.evaluate(
             """(v) => {
@@ -54,6 +59,33 @@ class TransacaoModalPage(BasePage):
 
     def fill_descricao(self, texto: str) -> None:
         self.page.fill("#descricao", texto)
+
+    def limpar_meta_sugestao(self) -> None:
+        """Remove metadados do chip de sugestão (simula usuário sem aceitar IA)."""
+        self.page.evaluate(
+            """() => {
+                ['categorizacao_sugerida_id', 'categorizacao_confianca',
+                 'categorizacao_fonte', 'categorizacao_merchant_key'].forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                const chip = document.getElementById('categorizacao-sugestao-chip');
+                if (chip) {
+                    chip.classList.add('hidden');
+                    chip.innerHTML = '';
+                }
+            }"""
+        )
+
+    def aguardar_sugestao_categorizacao(self, timeout_ms: int = 12000) -> None:
+        """Aguarda chip de sugestão (LLM ou híbrido) após preencher descrição."""
+        self.page.wait_for_function(
+            """() => {
+                const chip = document.getElementById('categorizacao-sugestao-chip');
+                return chip && !chip.classList.contains('hidden') && chip.textContent.trim().length > 0;
+            }""",
+            timeout=timeout_ms,
+        )
 
     def fill_data(self, d: date) -> None:
         self.page.fill("#data", d.isoformat())
@@ -94,21 +126,54 @@ class TransacaoModalPage(BasePage):
         tipo: str,
         conta_id: int | None,
         cartao_id: int | None,
-        categoria_id: int,
+        categoria_id: int | None = None,
+        categoria_nome: str | None = None,
         valor: Decimal,
         descricao: str,
         data: date,
     ) -> None:
         self.wait_modal_open()
         self.set_tipo(tipo)
-        self._wait_categoria_option(categoria_id)
         if cartao_id:
             self.select_cartao(cartao_id)
         elif conta_id:
             self.select_conta(conta_id)
-        self.select_categoria(categoria_id)
+        if categoria_id is not None:
+            self._wait_categoria_option(categoria_id)
+            self.select_categoria(categoria_id)
+        elif categoria_nome:
+            self.select_categoria_by_name(categoria_nome)
+        else:
+            raise ValueError("Informe categoria_id ou categoria_nome")
         self.fill_valor(valor)
         self.fill_descricao(descricao)
+        self.fill_data(data)
+        self.salvar()
+
+    def criar_despesa_conta(
+        self,
+        *,
+        conta_id: int,
+        categoria_nome: str,
+        valor: Decimal,
+        descricao: str,
+        data: date,
+        aguardar_sugestao: bool = True,
+        sobrescrever_sugestao: bool = False,
+    ) -> None:
+        self.wait_modal_open()
+        self.set_tipo("despesa")
+        self.select_conta(conta_id)
+        self.fill_valor(valor)
+        self.fill_descricao(descricao)
+        if aguardar_sugestao:
+            try:
+                self.aguardar_sugestao_categorizacao(timeout_ms=15000)
+            except Exception:
+                pass
+        self.select_categoria_by_name(categoria_nome)
+        if sobrescrever_sugestao:
+            self.limpar_meta_sugestao()
         self.fill_data(data)
         self.salvar()
 
@@ -119,6 +184,26 @@ class HistoricoPage(BasePage):
         if ano and mes:
             path += f"?ano={ano}&mes={mes}"
         self.goto(path)
+
+    def open_nova_despesa(self) -> TransacaoModalPage:
+        self.open()
+        self.page.click("#btn-adicionar")
+        modal = TransacaoModalPage(self.page, self.base_url)
+        modal.wait_modal_open()
+        modal.set_tipo("despesa")
+        return modal
+
+    def primeira_conta_id(self) -> int:
+        return int(
+            self.page.evaluate(
+                """() => {
+                    const sel = document.getElementById('id_conta_cartao');
+                    if (!sel) return null;
+                    const opt = [...sel.options].find((o) => o.value.startsWith('c:'));
+                    return opt ? parseInt(opt.value.slice(2), 10) : null;
+                }"""
+            )
+        )
 
     def editar_por_id(self, transacao_id: int) -> None:
         self.page.evaluate(

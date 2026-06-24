@@ -201,4 +201,4 @@ def classificar_com_llm(ctx: ContextoCategorizacao) -> PredicaoCategorizacao | N
     if not gate.invoke:
         return pred_hibrida
     pred_llm = _invoke_llm(ctx, gate)
-    return merge_predictions(pred_hibrida, pred_llm)
+    return merge_predictions(pred_hibrida, pred_llm, ctx=ctx)

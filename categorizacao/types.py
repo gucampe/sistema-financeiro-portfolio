@@ -17,6 +17,8 @@ class ContextoCategorizacao:
     valor: Decimal | None = None
     descricao_normalizada: str = ""
     merchant_key: str = ""
+    pix_person_key: str = ""
+    is_pix_pf: bool = False
 
 
 @dataclass(frozen=True)
@@ -53,8 +55,11 @@ class SugestaoCategorizacao:
             "explicacao": self.explicacao,
             "auto_aplicar": self.auto_aplicar,
         }
-        if self.contexto:
-            payload["contexto"] = self.contexto
+        ctx = self.contexto or {}
+        if ctx:
+            payload["contexto"] = ctx
+        if ctx.get("requires_user_confirmation"):
+            payload["requires_user_confirmation"] = True
         if self.fonte == "llm_gemini":
             payload["mostrar_badge_ia"] = bool(
                 getattr(settings, "CATEGORIZACAO_LLM_MOSTRAR_BADGE", True)
@@ -89,7 +94,7 @@ LIMIARES_FONTE = {
     "historico": {"auto": 0.85, "preencher": 0.65, "hint": 0.0},
     "ml": {"auto": 0.75, "preencher": 0.60, "hint": 0.0},
     "pg_trgm": {"auto": 0.82, "preencher": 0.68, "hint": 0.0},
-    "llm_gemini": {"auto": 0.85, "preencher": 0.60, "hint": 0.45},
+    "llm_gemini": {"auto": 1.0, "preencher": 1.0, "hint": 0.45},
 }
 
 
@@ -100,8 +105,18 @@ def predicao_para_sugestao(
     limiares = LIMIARES_FONTE.get(predicao.fonte, LIMIARES_FONTE["fuzzy"])
     limiar_auto = prefs.limiar_auto if prefs.auto_aplicar else limiares["auto"]
     auto_aplicar = prefs.auto_aplicar and predicao.confianca >= limiar_auto
+    contexto = dict(predicao.contexto)
+    requires_confirmation = bool(contexto.get("requires_user_confirmation"))
+
     if predicao.fonte == "llm_gemini":
         auto_aplicar = False
+        requires_confirmation = True
+        contexto["requires_user_confirmation"] = True
+
+    if contexto.get("is_pix_pf") and predicao.fonte == "llm_gemini":
+        requires_confirmation = True
+        contexto["requires_user_confirmation"] = True
+
     return SugestaoCategorizacao(
         categoria_id=predicao.categoria_id,
         categoria_nome=predicao.categoria_nome,
@@ -110,5 +125,5 @@ def predicao_para_sugestao(
         merchant_key=predicao.merchant_key,
         explicacao=predicao.explicacao,
         auto_aplicar=auto_aplicar,
-        contexto=dict(predicao.contexto),
+        contexto=contexto,
     )

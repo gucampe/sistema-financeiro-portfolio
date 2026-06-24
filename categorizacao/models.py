@@ -112,6 +112,15 @@ class MemoriaMerchantUsuario(models.Model):
     correcoes = models.PositiveIntegerField(default=0)
     score = models.FloatField(default=0.0)
     ultima_confirmacao = models.DateTimeField(null=True, blank=True)
+    origem = models.CharField(
+        max_length=20,
+        choices=[
+            ("human", "Humano confirmado"),
+            ("llm_pending", "Pendente LLM"),
+            ("import_passive", "Import passivo"),
+        ],
+        default="human",
+    )
 
     class Meta:
         verbose_name = "Memória merchant do usuário"
