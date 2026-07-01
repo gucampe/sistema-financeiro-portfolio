@@ -94,14 +94,18 @@ LIMIARES_FONTE = {
     "historico": {"auto": 0.85, "preencher": 0.65, "hint": 0.0},
     "ml": {"auto": 0.75, "preencher": 0.60, "hint": 0.0},
     "pg_trgm": {"auto": 0.82, "preencher": 0.68, "hint": 0.0},
-    "llm_gemini": {"auto": 1.0, "preencher": 1.0, "hint": 0.45},
+    "llm_gemini": {"auto": 1.0, "preencher": 0.85, "hint": 0.45},
 }
 
 
 def predicao_para_sugestao(
     predicao: PredicaoCategorizacao,
     prefs: PreferenciasCategorizacao,
+    *,
+    descricao: str = "",
 ) -> SugestaoCategorizacao:
+    from categorizacao.services.trust_tiers import classificar_trust_tier, deve_exigir_confirmacao_llm
+
     limiares = LIMIARES_FONTE.get(predicao.fonte, LIMIARES_FONTE["fuzzy"])
     limiar_auto = prefs.limiar_auto if prefs.auto_aplicar else limiares["auto"]
     auto_aplicar = prefs.auto_aplicar and predicao.confianca >= limiar_auto
@@ -110,12 +114,19 @@ def predicao_para_sugestao(
 
     if predicao.fonte == "llm_gemini":
         auto_aplicar = False
-        requires_confirmation = True
-        contexto["requires_user_confirmation"] = True
+        desc = descricao or contexto.get("descricao") or ""
+        if deve_exigir_confirmacao_llm(desc, predicao.confianca, contexto):
+            requires_confirmation = True
+            contexto["requires_user_confirmation"] = True
+        else:
+            requires_confirmation = False
+            contexto.pop("requires_user_confirmation", None)
 
     if contexto.get("is_pix_pf") and predicao.fonte == "llm_gemini":
-        requires_confirmation = True
-        contexto["requires_user_confirmation"] = True
+        tier = classificar_trust_tier(descricao or contexto.get("descricao") or "", contexto)
+        if tier == 3:
+            requires_confirmation = True
+            contexto["requires_user_confirmation"] = True
 
     return SugestaoCategorizacao(
         categoria_id=predicao.categoria_id,

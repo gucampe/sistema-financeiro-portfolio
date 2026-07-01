@@ -277,3 +277,39 @@ class LLMRequestLog(models.Model):
 
     def __str__(self):
         return f"LLM {self.model} ({self.usuario_id})"
+
+
+class CategorizacaoUXEvent(models.Model):
+    """Eventos de UX da categorização (clique IA, conclusão, cancelamento)."""
+
+    EVENTO_CHOICES = [
+        ("ia_click", "Clique categorizar IA"),
+        ("ia_complete", "Categorização concluída"),
+        ("ia_cancel", "Cancelado"),
+    ]
+    CONTEXTO_CHOICES = [
+        ("import_ofx", "Import OFX"),
+        ("import_planilha", "Import planilha"),
+        ("manual", "Manual"),
+    ]
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="categorizacao_ux_events",
+    )
+    evento = models.CharField(max_length=30, choices=EVENTO_CHOICES, db_index=True)
+    contexto = models.CharField(max_length=30, choices=CONTEXTO_CHOICES, default="manual")
+    payload = models.JSONField(default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "Evento UX categorização"
+        verbose_name_plural = "Eventos UX categorização"
+        ordering = ["-criado_em"]
+        indexes = [
+            models.Index(fields=["evento", "criado_em"], name="cat_ux_evt_dt_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.evento} ({self.usuario_id})"

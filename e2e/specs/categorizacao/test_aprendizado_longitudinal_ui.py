@@ -93,6 +93,7 @@ def _verificar_preview_import(
     falhar_em_erro: bool = True,
 ):
     import_page.preview_ofx(conta_id, ofx_path)
+    import_page.categorizar_automaticamente()
     resultados = []
     for trecho, cat_esperada in casos:
         row = import_page.linha_por_descricao_parcial(trecho)

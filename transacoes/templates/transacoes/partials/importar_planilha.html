@@ -55,11 +55,21 @@
       transition: none;
     }
   }
+  @keyframes catBar {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(320%); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 <div id="overlay-importar-planilha" data-modal data-modal-fade="300"
      class="modal-overlay hidden z-[230] w-full max-w-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-x-none"
      data-preview-url="{% url 'transacoes:importar_planilha_preview' %}"
-     data-confirm-url="{% url 'transacoes:importar_planilha_confirmar' %}">
+     data-confirm-url="{% url 'transacoes:importar_planilha_confirmar' %}"
+     data-categorizar-url="{% url 'categorizacao:categorizar_import_batch' %}"
+     data-categorizar-cancel-url="{% url 'categorizacao:categorizar_import_cancel' %}">
 
   <div class="import-planilha-modal__center flex min-h-full items-center justify-center p-2 sm:p-3 [@media(min-height:880px)]:sm:p-4 [@media(min-height:880px)]:md:p-6">
   <div id="import-planilha-panel" data-modal-panel data-planilha-step="upload" class="bg-white rounded-2xl shadow-lg my-2 sm:my-3 flex flex-col overflow-hidden border border-[rgb(189_195_199_/_0.65)] relative [@media(min-height:880px)]:my-4 [@media(min-height:880px)]:sm:my-6">
@@ -124,41 +134,31 @@
     </div>
 
     <div id="import-planilha-step-preview" class="hidden flex flex-col flex-1 min-h-0 min-w-0">
-      <div class="px-3 sm:px-4 py-1.5 text-[0.65rem] leading-snug sm:text-xs text-gray-500 shrink-0 break-words [@media(min-height:880px)]:sm:px-6 [@media(min-height:880px)]:py-2">
-        Linhas marcadas serão importadas. Edite data, valor e descrição na tabela. A categoria é opcional: sem seleção, usa-se Diversos (despesa) ou Receitas diversas / Diversos (receita ou ajuste), conforme existir no seu cadastro. Desmarque duplicatas ou linhas indesejadas.
+
+      <div id="import-planilha-sticky-toolbar" class="import-preview-toolbar hidden" hidden>
+        <div class="import-preview-toolbar__inner">
+          <div class="import-preview-toolbar__left">
+            <label class="import-preview-toolbar__check-all">
+              <input type="checkbox" id="import-planilha-toggle-all" aria-label="Selecionar todas" />
+              <span>Todas</span>
+            </label>
+            <p class="import-preview-toolbar__count" data-toolbar-count>0 transações</p>
+          </div>
+          <button type="button" id="btn-import-planilha-categorizar-ia"
+                  class="import-preview-toolbar__cta" data-toolbar-cta>
+            <span class="import-preview-toolbar__cta-icon" aria-hidden="true">✨</span>
+            Organizar automaticamente
+          </button>
+        </div>
+        <p class="import-preview-toolbar__result" data-toolbar-result hidden></p>
       </div>
-      <div class="min-h-0 min-w-0 w-full max-w-full flex-1 min-h-0 overflow-x-auto overflow-y-auto border-y border-gray-100 px-2 sm:px-3 md:px-4 [@media(min-height:880px)]:sm:px-4 [@media(min-height:880px)]:md:px-6 [@media(min-height:880px)]:min-h-[12rem]">
-        <table class="w-full min-w-0 max-w-full table-fixed text-sm text-left">
-          <colgroup>
-            <col style="width:3.5%" />
-            <col style="width:13%" />
-            <col style="width:30%" />
-            <col style="width:11%" />
-            <col style="width:8%" />
-            <col style="width:12%" />
-            <col style="width:22.5%" />
-          </colgroup>
-          <thead class="text-[0.65rem] sm:text-xs text-gray-500 uppercase bg-gray-50 sticky top-0 z-[1] [@media(min-height:880px)]:text-xs">
-            <tr>
-              <th class="px-1.5 py-1.5 sm:py-2 w-10 align-middle">
-                <input type="checkbox"
-                       id="import-planilha-toggle-all"
-                       class="rounded border-gray-300"
-                       aria-label="Selecionar ou desmarcar todas as linhas" />
-              </th>
-              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 whitespace-nowrap align-middle">Data</th>
-              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Descrição</th>
-              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 text-right whitespace-nowrap align-middle">Valor</th>
-              <th class="px-1 py-1.5 sm:py-2 whitespace-nowrap align-middle">Tipo</th>
-              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Avisos</th>
-              <th class="px-1.5 sm:px-2 py-1.5 sm:py-2 min-w-0 align-middle">Categoria</th>
-            </tr>
-          </thead>
-          <tbody id="import-planilha-tbody"></tbody>
-        </table>
+
+      <div class="import-preview-scroll">
+        <div id="import-planilha-feed" class="import-preview-feed" role="feed" aria-label="Transações da planilha"></div>
       </div>
-      <p id="import-planilha-erro-preview" class="hidden px-3 sm:px-4 text-sm text-red-600 shrink-0 [@media(min-height:880px)]:sm:px-6"></p>
-      <div class="p-3 sm:p-4 flex flex-wrap gap-2 shrink-0 border-t border-gray-100 [@media(min-height:880px)]:sm:p-6">
+
+      <p id="import-planilha-erro-preview" class="hidden px-3 sm:px-4 text-sm text-red-600 shrink-0"></p>
+      <div class="p-3 sm:p-4 flex flex-wrap gap-2 shrink-0 border-t border-gray-100 bg-white">
         <button type="button" id="btn-import-planilha-voltar"
                 class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
           Voltar
@@ -172,6 +172,21 @@
 
     <div id="import-planilha-loading" class="hidden absolute inset-0 bg-white/70 rounded-2xl flex items-center justify-center z-20">
       <span class="text-sm text-gray-600">Processando…</span>
+    </div>
+
+    <div id="import-planilha-cat-processing" class="hidden absolute inset-0 z-30 flex items-center justify-center rounded-2xl bg-white/90 backdrop-blur-md" aria-hidden="true">
+      <div class="flex flex-col items-center gap-4 px-6 text-center max-w-sm w-full">
+        <div class="relative h-12 w-12">
+          <div class="absolute inset-0 rounded-full border-2 border-violet-200/80"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-violet-600 animate-spin"></div>
+          <div class="absolute inset-2 rounded-full bg-gradient-to-br from-violet-100 to-indigo-50 flex items-center justify-center text-violet-600 text-lg">✦</div>
+        </div>
+        <p id="import-planilha-cat-msg" class="text-sm font-semibold text-gray-800 min-h-[1.25rem]">Analisando padrões das suas transações…</p>
+        <div class="h-1 w-full max-w-xs overflow-hidden rounded-full bg-violet-100">
+          <div class="h-full w-1/3 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 animate-[catBar_1.4s_ease-in-out_infinite]"></div>
+        </div>
+        <div id="import-planilha-cat-micro" class="w-full max-w-xs text-left space-y-1 min-h-[2rem]"></div>
+      </div>
     </div>
   </div>
   </div>

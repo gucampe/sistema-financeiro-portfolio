@@ -1,13 +1,12 @@
 from django.contrib import admin
-from django.db.models import Avg, Count
 from django.urls import path
 from django.shortcuts import render
-from datetime import date
 
 from django.conf import settings
 
 from categorizacao.models import (
     AgregacaoMerchantGlobal,
+    CategorizacaoUXEvent,
     EventoCategorizacao,
     LLMRequestLog,
     MemoriaMerchantUsuario,
@@ -15,6 +14,7 @@ from categorizacao.models import (
     ModeloClassificacaoUsuario,
     RegraCategorizacao,
 )
+from categorizacao.services.dashboard_metrics import coletar_metricas_dashboard
 
 
 @admin.register(LLMRequestLog)
@@ -107,27 +107,28 @@ class AgregacaoMerchantGlobalAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(CategorizacaoUXEvent)
+class CategorizacaoUXEventAdmin(admin.ModelAdmin):
+    list_display = ("criado_em", "usuario", "evento", "contexto")
+    list_filter = ("evento", "contexto")
+    readonly_fields = ("usuario", "evento", "contexto", "payload", "criado_em")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 def metricas_categorizacao_view(request):
-    por_fonte = (
-        EventoCategorizacao.objects.filter(acao__in=("aceita", "auto_aplicada"))
-        .values("fonte")
-        .annotate(total=Count("id"), confianca_media=Avg("confianca"))
-        .order_by("-total")
-    )
-    por_acao = (
-        EventoCategorizacao.objects.values("acao")
-        .annotate(total=Count("id"))
-        .order_by("-total")
-    )
-    llm_hoje = LLMRequestLog.objects.filter(criado_em__date=date.today())
-    llm_stats = {
-        "total": llm_hoje.count(),
-        "sucesso": llm_hoje.filter(success=True).count(),
-        "cache_hits": llm_hoje.filter(cache_hit=True).count(),
-        "custo_usd": sum(llm_hoje.values_list("cost_usd_estimated", flat=True)),
-        "tokens_in": sum(llm_hoje.values_list("input_tokens", flat=True)),
-        "tokens_out": sum(llm_hoje.values_list("output_tokens", flat=True)),
-    }
+    try:
+        dias = int(request.GET.get("dias", 30))
+    except (TypeError, ValueError):
+        dias = 30
+    if dias not in (7, 14, 30, 90):
+        dias = 30
+
+    metricas = coletar_metricas_dashboard(dias=dias)
     llm_admin = {
         "habilitado": bool(getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False)),
         "modelo": getattr(settings, "CATEGORIZACAO_LLM_MODEL", ""),
@@ -138,11 +139,10 @@ def metricas_categorizacao_view(request):
         request,
         "admin/categorizacao/metricas.html",
         {
-            "por_fonte": por_fonte,
-            "por_acao": por_acao,
-            "llm_stats": llm_stats,
+            "metricas": metricas,
+            "periodos": [7, 14, 30, 90],
             "llm_admin": llm_admin,
-            "title": "Métricas categorização",
+            "title": "Observabilidade categorização",
         },
     )
 

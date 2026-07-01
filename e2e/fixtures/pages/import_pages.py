@@ -9,12 +9,13 @@ from e2e.fixtures.pages.base_page import BasePage
 
 class ImportOfxPage(BasePage):
     OVERLAY = "#overlay-importar-ofx"
-    TBODY = "#import-ofx-tbody"
+    FEED = "#import-ofx-feed"
     ERRO_UPLOAD = "#import-ofx-erro-upload"
 
     def __init__(self, page, base_url: str) -> None:
         super().__init__(page, base_url)
         self.last_preview: dict | None = None
+        self.last_batch: dict | None = None
 
     def abrir(self) -> None:
         self.page.goto(f"{self.base_url}/transacoes/")
@@ -34,10 +35,10 @@ class ImportOfxPage(BasePage):
         self.page.wait_for_selector("#import-ofx-step-preview:not(.hidden)", timeout=15000)
 
     def linhas_preview_count(self) -> int:
-        return self.page.locator(f"{self.TBODY} tr").count()
+        return self.page.locator(f"{self.FEED} .import-feed-item").count()
 
     def linha_marcada(self, indice: int) -> bool:
-        cb = self.page.locator(f"{self.TBODY} tr").nth(indice).locator(".import-ofx-incluir")
+        cb = self.page.locator(f"{self.FEED} .import-feed-item").nth(indice).locator(".import-ofx-incluir")
         return cb.is_checked()
 
     def confirmar(self) -> None:
@@ -58,10 +59,12 @@ class ImportOfxPage(BasePage):
         return loc.inner_text().strip()
 
     def linha_por_descricao_parcial(self, trecho: str):
-        rows = self.page.locator(f"{self.TBODY} tr")
+        rows = self.page.locator(f"{self.FEED} .import-feed-item")
         for i in range(rows.count()):
             row = rows.nth(i)
             desc = row.locator(".import-ofx-descricao").input_value()
+            if not desc:
+                desc = row.locator("[data-feed-desc]").inner_text()
             if trecho.strip() in (desc or ""):
                 return row
         return None
@@ -78,7 +81,18 @@ class ImportOfxPage(BasePage):
         explicacao = sel.get_attribute("data-sugestao-explicacao") or sel.get_attribute("title") or ""
         return cat_nome, fonte.strip(), explicacao.strip()
 
-    def preview_ofx(self, conta_id: int, ofx_path: str | Path) -> dict:
+    def categorizar_automaticamente(self, timeout_ms: int = 90000) -> dict:
+        """Clica no botão IA e aguarda conclusão do batch."""
+        with self.page.expect_response(
+            lambda r: "categorizar-import-batch" in r.url and r.request.method == "POST"
+        ) as resp_info:
+            self.page.click("#btn-import-ofx-categorizar-ia")
+        self.page.wait_for_selector("#import-ofx-cat-processing.hidden", timeout=timeout_ms)
+        response = resp_info.value
+        self.last_batch = response.json()
+        return self.last_batch
+
+    def preview_ofx(self, conta_id: int, ofx_path: str | Path, *, categorizar: bool = False) -> dict:
         self.abrir()
         self.selecionar_conta(conta_id)
         self.upload(ofx_path)
@@ -89,12 +103,15 @@ class ImportOfxPage(BasePage):
         self.page.wait_for_selector("#import-ofx-step-preview:not(.hidden)", timeout=30000)
         response = resp_info.value
         self.last_preview = response.json()
+        if categorizar:
+            self.categorizar_automaticamente()
         return self.last_preview
 
     def linha_json_por_trecho(self, trecho: str) -> dict | None:
-        if not self.last_preview:
+        fonte = self.last_batch or self.last_preview
+        if not fonte:
             return None
-        for linha in self.last_preview.get("linhas", []):
+        for linha in fonte.get("linhas", []):
             if trecho.strip() in (linha.get("descricao") or ""):
                 return linha
         return None
@@ -113,7 +130,7 @@ class ImportOfxPage(BasePage):
 
 class ImportPlanilhaPage(BasePage):
     OVERLAY = "#overlay-importar-planilha"
-    TBODY = "#import-planilha-tbody"
+    FEED = "#import-planilha-feed"
 
     def abrir(self) -> None:
         self.page.goto(f"{self.base_url}/transacoes/")
@@ -135,7 +152,7 @@ class ImportPlanilhaPage(BasePage):
         )
 
     def linhas_preview_count(self) -> int:
-        return self.page.locator(f"{self.TBODY} tr").count()
+        return self.page.locator(f"{self.FEED} .import-feed-item").count()
 
     def confirmar(self) -> None:
         with self.page.expect_response(

@@ -36,8 +36,7 @@ from .ofx_parse import LinhaOfx, parse_ofx_bytes
 from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 
 from categorizacao.services.learning import processar_feedback_transacao
-from categorizacao.services.pipeline import sugerir, sugerir_batch
-from categorizacao.types import LIMIARES_FONTE
+from categorizacao.services.pipeline import sugerir
 
 # Limite simples para OFX em memória (MVP síncrono).
 _MAX_OFX_BYTES = 6 * 1024 * 1024
@@ -217,7 +216,7 @@ def _montar_itens_historico_com_faturas(
 
 
 def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
-    """JSON comum aos previews de importação (OFX e planilha)."""
+    """JSON comum aos previews de importação (OFX e planilha). Sem categorização automática."""
     dup_flags = avaliar_duplicatas_importacao(usuario, conta, linhas_parse)
     por_indice = {d.indice: d for d in dup_flags}
 
@@ -236,32 +235,6 @@ def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) ->
         }
         linhas_json.append(item)
 
-    sugestoes = sugerir_batch(
-        usuario,
-        [{"descricao": l["descricao"], "tipo": l["tipo"], "valor": l["valor"]} for l in linhas_json],
-    )
-    for item, sug in zip(linhas_json, sugestoes, strict=True):
-        if sug:
-            item["categoria_sugerida_id"] = sug.categoria_id
-            item["categoria_sugerida_nome"] = sug.categoria_nome
-            item["categoria_sugerida_confianca"] = sug.confianca
-            item["categoria_sugerida_fonte"] = sug.fonte
-            item["categoria_sugerida_explicacao"] = sug.explicacao
-            item["categoria_sugerida_auto_aplicar"] = sug.auto_aplicar
-            item["categoria_sugerida_requires_confirmacao"] = bool(
-                (sug.contexto or {}).get("requires_user_confirmation")
-            )
-            item["categoria_sugerida_mostrar_badge_ia"] = (
-                sug.to_dict().get("mostrar_badge_ia", False)
-                if sug.fonte == "llm_gemini"
-                else False
-            )
-            limiar = LIMIARES_FONTE.get(sug.fonte, {}).get("preencher", 0.70)
-            requires_confirm = bool((sug.contexto or {}).get("requires_user_confirmation"))
-            item["categoria_sugerida_pre_preencher"] = (
-                sug.confianca >= limiar and not requires_confirm
-            )
-
     categorias = _categorias_importacao_preview_payload(usuario)
     return {
         "status": "ok",
@@ -273,6 +246,7 @@ def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) ->
             "despesa": "despesa",
             "ajuste": "receita",
         },
+        "categorizacao_pendente": True,
     }
 
 
@@ -373,11 +347,11 @@ def _categorias_ativas_unicas_por_nome(usuario, *, tipo: str | None = None):
 def _categorias_importacao_preview_payload(usuario):
     """Listas de categorias ativas (usuário + padrão) para montar selects no preview."""
     receita = [
-        {"id": c.id, "nome": c.nome, "tipo": c.tipo}
+        {"id": c.id, "nome": c.nome, "tipo": c.tipo, "icone": c.icone, "cor": c.cor}
         for c in _categorias_ativas_unicas_por_nome(usuario, tipo="receita")
     ]
     despesa = [
-        {"id": c.id, "nome": c.nome, "tipo": c.tipo}
+        {"id": c.id, "nome": c.nome, "tipo": c.tipo, "icone": c.icone, "cor": c.cor}
         for c in _categorias_ativas_unicas_por_nome(usuario, tipo="despesa")
     ]
     return {"receita": receita, "despesa": despesa}

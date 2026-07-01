@@ -100,7 +100,7 @@ def sugerir(
         return None
     if prefs is None:
         prefs = PreferenciasCategorizacao.from_usuario(usuario)
-    return predicao_para_sugestao(pred, prefs)
+    return predicao_para_sugestao(pred, prefs, descricao=ctx.descricao)
 
 
 def sugerir_batch(

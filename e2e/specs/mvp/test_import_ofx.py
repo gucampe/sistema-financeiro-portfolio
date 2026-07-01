@@ -31,7 +31,7 @@ def test_trx_20_import_ofx_basico(logged_in_page, app_base_url, persona_basic):
         page.click("#btn-import-ofx-preview")
 
     page.wait_for_selector("#import-ofx-step-preview:not(.hidden)", timeout=15000)
-    expect(page.locator("#import-ofx-tbody tr")).not_to_have_count(0)
+    expect(page.locator("#import-ofx-feed .import-feed-item")).not_to_have_count(0)
 
     with page.expect_response(lambda r: "importar/ofx/confirmar" in r.url):
         page.click("#btn-import-ofx-confirmar")

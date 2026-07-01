@@ -12,13 +12,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnPreview = document.getElementById("btn-import-planilha-preview");
   const btnVoltar = document.getElementById("btn-import-planilha-voltar");
   const btnConfirmar = document.getElementById("btn-import-planilha-confirmar");
-  const tbody = document.getElementById("import-planilha-tbody");
+  const feedContainer = document.getElementById("import-planilha-feed");
+  const stickyToolbar = document.getElementById("import-planilha-sticky-toolbar");
   const cbToggleAll = document.getElementById("import-planilha-toggle-all");
   const errUpload = document.getElementById("import-planilha-erro-upload");
   const errPreview = document.getElementById("import-planilha-erro-preview");
   const loading = document.getElementById("import-planilha-loading");
   const formCsrf = document.getElementById("form-csrf-import-planilha");
   const panel = document.getElementById("import-planilha-panel");
+  const btnCategorizar = document.getElementById("btn-import-planilha-categorizar-ia");
+  const catProcessing = document.getElementById("import-planilha-cat-processing");
+  const catMsg = document.getElementById("import-planilha-cat-msg");
+  const catMicro = document.getElementById("import-planilha-cat-micro");
 
   if (!overlay) return;
 
@@ -32,6 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const previewUrl = overlay.dataset.previewUrl;
   const confirmUrl = overlay.dataset.confirmUrl;
+  const categorizarUrl = overlay.dataset.categorizarUrl;
+  const categorizarCancelUrl = overlay.dataset.categorizarCancelUrl;
+
+  let catAbort = null;
 
   const rootImportConta = selectConta?.closest("[data-combobox-root]");
   let contaComboboxPlanilha = null;
@@ -50,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     categorias: null,
     chavePorTipo: null,
     linhas: [],
+    categorizado: false,
   };
 
   function csrfToken() {
@@ -113,11 +123,18 @@ document.addEventListener("DOMContentLoaded", () => {
     clearStepAnimTimer();
     limparClassesPasso();
     if (panel) panel.dataset.planilhaStep = "upload";
-    state = { contaId: null, categorias: null, chavePorTipo: null, linhas: [] };
+    state = { contaId: null, categorias: null, chavePorTipo: null, linhas: [], categorizado: false };
     stepUpload?.classList.remove("hidden");
     stepPreview?.classList.add("hidden");
     if (inputArquivo) inputArquivo.value = "";
-    if (tbody) tbody.innerHTML = "";
+    if (feedContainer) feedContainer.innerHTML = "";
+    stickyToolbar?.classList.add("hidden");
+    if (stickyToolbar) stickyToolbar.hidden = true;
+    if (catAbort) {
+      catAbort.abort();
+      catAbort = null;
+    }
+    window.CategorizacaoImportWow?.hideOverlay(catProcessing);
     if (cbToggleAll) {
       cbToggleAll.checked = false;
       cbToggleAll.indeterminate = false;
@@ -162,11 +179,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function irParaUpload() {
+    if (catAbort) {
+      catAbort.abort();
+      catAbort = null;
+    }
+    window.CategorizacaoImportWow?.hideOverlay(catProcessing);
     if (!stepUpload || !stepPreview || !panel) {
       stepPreview?.classList.add("hidden");
       stepUpload?.classList.remove("hidden");
       showErrPreview("");
-      if (tbody) tbody.innerHTML = "";
+      if (feedContainer) feedContainer.innerHTML = "";
+    stickyToolbar?.classList.add("hidden");
+    if (stickyToolbar) stickyToolbar.hidden = true;
       return;
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -174,7 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
       panel.dataset.planilhaStep = "upload";
       stepPreview.classList.add("hidden");
       showErrPreview("");
-      if (tbody) tbody.innerHTML = "";
+      if (feedContainer) feedContainer.innerHTML = "";
+    stickyToolbar?.classList.add("hidden");
+    if (stickyToolbar) stickyToolbar.hidden = true;
       stepUpload.classList.remove("hidden");
       return;
     }
@@ -188,7 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
       stepPreview.classList.remove("import-planilha-step-leaving");
       stepPreview.classList.add("hidden");
       showErrPreview("");
-      if (tbody) tbody.innerHTML = "";
+      if (feedContainer) feedContainer.innerHTML = "";
+    stickyToolbar?.classList.add("hidden");
+    if (stickyToolbar) stickyToolbar.hidden = true;
       panel.dataset.planilhaStep = "upload";
       stepUpload.classList.remove("hidden");
       stepUpload.classList.add("import-planilha-step-enter-from");
@@ -245,9 +273,22 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(",", ".");
   }
 
+  const PREFIX = "import-planilha";
+
+  function atualizarToolbarFeed(categorizado = false) {
+    if (!stickyToolbar || !state.linhas.length) return;
+    const stats = window.ImportFeedUI?.calcularStatsLinhas(state.linhas) || {};
+    window.ImportFeedUI?.atualizarToolbar(stickyToolbar, {
+      total: state.linhas.length,
+      categorizadas: stats.categorizadas,
+      aprendidas: stats.aprendidas,
+      categorizado: categorizado || state.categorizado,
+    });
+  }
+
   function atualizarEstadoToggleAll() {
-    if (!cbToggleAll || !tbody) return;
-    const checkboxes = [...tbody.querySelectorAll(".import-planilha-incluir")];
+    if (!cbToggleAll || !feedContainer) return;
+    const checkboxes = [...feedContainer.querySelectorAll(`.${PREFIX}-incluir`)];
     if (!checkboxes.length) {
       cbToggleAll.checked = false;
       cbToggleAll.indeterminate = false;
@@ -256,126 +297,72 @@ document.addEventListener("DOMContentLoaded", () => {
     const marcados = checkboxes.filter((cb) => cb.checked).length;
     cbToggleAll.checked = marcados === checkboxes.length;
     cbToggleAll.indeterminate = marcados > 0 && marcados < checkboxes.length;
+    atualizarToolbarFeed(state.categorizado);
   }
 
   function montarTabela(data) {
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    const cats = data.categorias || {};
-    const chaves = data.categorias_chave_por_tipo_transacao || {};
-
-    data.linhas.forEach((linha) => {
-      const tr = document.createElement("tr");
-      tr.className = "border-b border-gray-100 hover:bg-gray-50/80";
-      tr.dataset.indice = String(linha.indice);
-
-      const dup =
-        linha.duplicata_por_fitid || linha.duplicata_por_heuristica;
-      const incluirDefault = !dup;
-
-      const chaveCat = chaves[linha.tipo] || linha.tipo;
-      const listaCat = cats[chaveCat] || [];
-
-      const tdCheck = document.createElement("td");
-      tdCheck.className = "px-1.5 py-2 align-top min-w-0";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.className = "import-planilha-incluir rounded border-gray-300";
-      cb.checked = incluirDefault;
-      cb.dataset.indice = String(linha.indice);
-      tdCheck.appendChild(cb);
-
-      const tdData = document.createElement("td");
-      tdData.className = "px-2 py-2 align-top min-w-0";
-      const inpData = document.createElement("input");
-      inpData.type = "date";
-      inpData.className = `import-planilha-data ${inputCellClass} min-w-0 max-w-full text-gray-800`;
-      const iso = linha.data && String(linha.data).slice(0, 10);
-      inpData.value = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso : "";
-      inpData.dataset.indice = String(linha.indice);
-      tdData.appendChild(inpData);
-
-      const tdDesc = document.createElement("td");
-      tdDesc.className = "px-2 py-2 align-top min-w-0";
-      const inpDesc = document.createElement("input");
-      inpDesc.type = "text";
-      inpDesc.className =
-        "import-planilha-descricao w-full min-w-0 max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500";
-      inpDesc.value = linha.descricao ?? "";
-      inpDesc.maxLength = 255;
-      inpDesc.setAttribute("autocomplete", "off");
-      inpDesc.dataset.indice = String(linha.indice);
-      tdDesc.appendChild(inpDesc);
-
-      const tdValor = document.createElement("td");
-      tdValor.className =
-        "px-2 py-2 align-top text-right font-medium min-w-0 " +
-        (linha.tipo === "despesa"
-          ? "text-red-600"
-          : linha.tipo === "receita"
-            ? "text-emerald-600"
-            : "text-gray-700");
-      const inpValor = document.createElement("input");
-      inpValor.type = "text";
-      inpValor.setAttribute("data-moeda-input", "1");
-      inpValor.setAttribute("autocomplete", "off");
-      inpValor.inputMode = "decimal";
-      inpValor.className =
-        "import-planilha-valor input input-moeda w-full min-w-0 max-w-full text-right font-medium " +
-        inputCellClass +
-        " " +
-        (linha.tipo === "despesa"
-          ? "text-red-600"
-          : linha.tipo === "receita"
-            ? "text-emerald-600"
-            : "text-gray-700");
-      if (linha.valor != null && linha.valor !== "") {
-        inpValor.dataset.initialDecimal = String(linha.valor).trim();
-      }
-      inpValor.dataset.indice = String(linha.indice);
-      tdValor.appendChild(inpValor);
-      window.MoedaInput?.init(inpValor);
-
-      const tdTipo = document.createElement("td");
-      tdTipo.className =
-        "px-1 py-2 align-top min-w-0 break-words text-xs leading-tight text-gray-600";
-      tdTipo.textContent = labelTipo(linha.tipo);
-
-      const tdAvisos = document.createElement("td");
-      tdAvisos.className = "px-2 py-2 align-top min-w-0 break-words text-xs";
-      const avisos = [];
-      if (linha.duplicata_por_heuristica) avisos.push("Possível dup. (dados)");
-      tdAvisos.innerHTML = avisos.length
-        ? `<span class="text-amber-700">${avisos.join("<br>")}</span>`
-        : "—";
-
-      const tdCat = document.createElement("td");
-      tdCat.className = "px-2 py-2 align-top min-w-0";
-      const sel = document.createElement("select");
-      sel.className =
-        "import-planilha-categoria w-full min-w-0 max-w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
-      sel.dataset.indice = String(linha.indice);
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "Selecione…";
-      sel.appendChild(opt0);
-      listaCat.forEach((c) => {
-        const opt = document.createElement("option");
-        opt.value = String(c.id);
-        opt.textContent = c.nome;
-        sel.appendChild(opt);
-      });
-      if (listaCat.length === 1) {
-        sel.value = String(listaCat[0].id);
-      }
-      window.CategorizacaoImport?.aplicarSugestaoCategoriaSelect(sel, linha);
-      tdCat.appendChild(sel);
-
-      tr.append(tdCheck, tdData, tdDesc, tdValor, tdTipo, tdAvisos, tdCat);
-      tbody.appendChild(tr);
+    if (!feedContainer) return;
+    window.ImportFeedUI?.montarFeed({
+      container: feedContainer,
+      data,
+      prefix: PREFIX,
+      labelTipoFn: labelTipo,
     });
+    state.categorizado = false;
+    atualizarToolbarFeed(false);
     atualizarEstadoToggleAll();
   }
+
+  function linhasParaCategorizacao() {
+    return (
+      window.ImportFeedUI?.coletarLinhasParaCategorizacao(feedContainer, state.linhas, PREFIX) || []
+    );
+  }
+
+  btnCategorizar?.addEventListener("click", async () => {
+    if (!categorizarUrl || !state.linhas.length) return;
+    showErrPreview("");
+    const linhasPayload = linhasParaCategorizacao();
+    if (!linhasPayload.length) return;
+
+    catAbort = new AbortController();
+    btnCategorizar.disabled = true;
+    btnConfirmar.disabled = true;
+
+    try {
+      const data = await window.CategorizacaoImportWow.categorizarBatch({
+        url: categorizarUrl,
+        cancelUrl: categorizarCancelUrl,
+        csrfToken: csrfToken(),
+        linhas: linhasPayload,
+        contexto: "import_planilha",
+        overlayEl: catProcessing,
+        msgEl: catMsg,
+        microEl: catMicro,
+        signal: catAbort.signal,
+      });
+
+      const porIndice = new Map((data.linhas || []).map((l) => [String(l.indice), l]));
+      state.linhas = state.linhas.map((l) => ({ ...l, ...(porIndice.get(String(l.indice)) || {}) }));
+
+      await window.CategorizacaoImportWow.revelarSugestoes({
+        container: feedContainer,
+        linhasAtualizadas: data.linhas,
+        selectClass: ".import-planilha-categoria",
+      });
+
+      state.categorizado = true;
+      atualizarToolbarFeed(true);
+    } catch (err) {
+      if (err?.name !== "AbortError") {
+        showErrPreview(err?.message || "Não foi possível categorizar. Tente novamente.");
+      }
+    } finally {
+      btnCategorizar.disabled = false;
+      btnConfirmar.disabled = false;
+      catAbort = null;
+    }
+  });
 
   btnAbrir.addEventListener("click", () => abrirModal());
 
@@ -386,18 +373,19 @@ document.addEventListener("DOMContentLoaded", () => {
   btnVoltar?.addEventListener("click", irParaUpload);
 
   cbToggleAll?.addEventListener("change", () => {
-    if (!tbody) return;
+    if (!feedContainer) return;
     const marcar = cbToggleAll.checked;
-    tbody.querySelectorAll(".import-planilha-incluir").forEach((cb) => {
+    feedContainer.querySelectorAll(`.${PREFIX}-incluir`).forEach((cb) => {
       cb.checked = marcar;
     });
     cbToggleAll.indeterminate = false;
+    atualizarToolbarFeed(state.categorizado);
   });
 
-  tbody?.addEventListener("change", (e) => {
+  feedContainer?.addEventListener("change", (e) => {
     const alvo = e.target;
     if (!(alvo instanceof HTMLInputElement)) return;
-    if (!alvo.classList.contains("import-planilha-incluir")) return;
+    if (!alvo.classList.contains(`${PREFIX}-incluir`)) return;
     atualizarEstadoToggleAll();
   });
 
@@ -461,18 +449,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const linhasPayload = [];
-    const rows = tbody?.querySelectorAll("tr") || [];
+    const rows = window.ImportFeedUI?.getItems(feedContainer) || [];
 
-    for (const tr of rows) {
-      const indice = tr.dataset.indice;
-      const cb = tr.querySelector(".import-planilha-incluir");
-      const sel = tr.querySelector(".import-planilha-categoria");
+    for (const item of rows) {
+      const indice = item.dataset.indice;
+      const cb = item.querySelector(`.${PREFIX}-incluir`);
+      const sel = item.querySelector(`.${PREFIX}-categoria`);
       if (!cb?.checked) continue;
 
       const linha = state.linhas.find((l) => String(l.indice) === indice);
       if (!linha) continue;
 
-      const inpDesc = tr.querySelector(".import-planilha-descricao");
+      const inpDesc = item.querySelector(`.${PREFIX}-descricao`);
       const descricao = (inpDesc instanceof HTMLInputElement ? inpDesc.value : linha.descricao ?? "")
         .trim();
       if (!descricao) {
@@ -480,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const inpData = tr.querySelector(".import-planilha-data");
+      const inpData = item.querySelector(`.${PREFIX}-data`);
       const dataStr =
         inpData instanceof HTMLInputElement ? inpData.value.trim() : String(linha.data || "").slice(0, 10);
       if (!dataStr) {
@@ -492,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const inpValor = tr.querySelector(".import-planilha-valor");
+      const inpValor = item.querySelector(`.${PREFIX}-valor`);
       const valorDigitado =
         inpValor instanceof HTMLInputElement ? inpValor : String(linha.valor ?? "");
       const valorNorm = valorParaBackend(valorDigitado);
@@ -523,6 +511,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!linhasPayload.length) {
       showErrPreview("Marque pelo menos uma linha para importar.");
       return;
+    }
+
+    const revisao = window.ImportFeedUI?.analisarRevisaoPendente(feedContainer, PREFIX);
+    if (revisao?.needsConfirm) {
+      const prosseguir = await window.ImportFeedUI.solicitarConfirmacaoRevisao(revisao);
+      if (!prosseguir) return;
     }
 
     btnConfirmar.disabled = true;

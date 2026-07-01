@@ -8,6 +8,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
 <link rel="stylesheet" href="{% static 'relatorios/css/relatorios-filtros.css' %}" />
+<link rel="stylesheet" href="{% static 'categorizacao/css/import_feed.css' %}" />
 {% endblock %}
 
 {% block modal_transacao %}
@@ -122,6 +123,7 @@
 
 {% include 'transacoes/partials/importar_ofx.html' %}
 {% include 'transacoes/partials/importar_planilha.html' %}
+{% include 'categorizacao/partials/import_revisar_categorias.html' %}
 {% include 'transacoes/partials/confirmar_exclusao.html' %}
 
 {# Barra fixa resumo do mês (mesmo max-width do conteúdo principal) #}
@@ -169,7 +171,9 @@
 <script src="{% static 'transacoes/js/excluir_transacao.js' %}" defer></script>
 <script src="{% static 'transacoes/js/editar_transacao.js' %}" defer></script>
 <script src="{% static 'transacoes/js/historico.js' %}" defer></script>
+<script src="{% static 'categorizacao/js/import_feed_ui.js' %}" defer></script>
 <script src="{% static 'categorizacao/js/import_helpers.js' %}" defer></script>
+<script src="{% static 'categorizacao/js/import_wow.js' %}" defer></script>
 <script src="{% static 'transacoes/js/importar_ofx.js' %}" defer></script>
 <script src="{% static 'transacoes/js/importar_planilha.js' %}" defer></script>
 {% endblock %}

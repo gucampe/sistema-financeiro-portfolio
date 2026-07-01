@@ -2,49 +2,40 @@
  * Helpers compartilhados para sugestões de categorização na importação.
  */
 (function () {
-  function confiancaClasse(conf) {
-    if (conf >= 0.85) return "border-emerald-400 bg-emerald-50/60";
-    if (conf >= 0.70) return "border-amber-400 bg-amber-50/60";
-    return "border-gray-300";
-  }
-
-  function aplicarSugestaoCategoriaSelect(sel, linha) {
+  function aplicarSugestaoCategoriaSelect(sel, linha, opts = {}) {
     if (!sel || !linha) return;
     const sugId = linha.categoria_sugerida_id;
     if (!sugId) return;
 
     const conf = Number(linha.categoria_sugerida_confianca || 0);
+    const nivel =
+      opts.nivel ||
+      linha.categoria_sugerida_nivel_confianca ||
+      (linha.categoria_sugerida_pre_preencher ? "alta" : "media");
+
     sel.dataset.sugestaoId = String(sugId);
     sel.dataset.sugestaoConfianca = String(conf);
     sel.dataset.sugestaoFonte = linha.categoria_sugerida_fonte || "";
     sel.dataset.sugestaoMerchant = linha.categoria_sugerida_merchant_key || "";
     sel.dataset.sugestaoExplicacao = linha.categoria_sugerida_explicacao || "";
+    sel.dataset.sugestaoNivel = nivel;
+    sel.dataset.sugestaoFonteLabel = linha.categoria_sugerida_fonte_label || "";
+    sel.dataset.sugestaoBadge = linha.categoria_sugerida_badge_aprendizado || "";
     sel.title = linha.categoria_sugerida_explicacao || "";
 
-    if (linha.categoria_sugerida_pre_preencher) {
+    if (sugId) {
       sel.value = String(sugId);
     }
 
-    sel.classList.remove("border-gray-300", "border-emerald-400", "border-amber-400", "bg-emerald-50/60", "bg-amber-50/60");
-    sel.classList.add(...confiancaClasse(conf).split(" "));
+    const root = sel.closest("[data-combobox-root]");
+    root?._feedCombobox?.sync?.();
 
-    const isLlm = (linha.categoria_sugerida_fonte || "") === "llm_gemini"
-      && linha.categoria_sugerida_mostrar_badge_ia !== false;
-    if (sel.nextElementSibling?.dataset?.sugestaoBadge) {
-      sel.nextElementSibling.remove();
+    if (!opts.skipCard) {
+      const item = sel.closest(".import-feed-item");
+      if (item) {
+        window.ImportFeedUI?.updateCategoryMeta(item, linha, opts);
+      }
     }
-    const badge = document.createElement("span");
-    badge.dataset.sugestaoBadge = "1";
-    if (isLlm) {
-      badge.className = "ml-1 inline-flex items-center rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800";
-      badge.textContent = "IA";
-      badge.title = linha.categoria_sugerida_explicacao || "Sugestão por inteligência artificial (Gemini)";
-    } else {
-      badge.className = "ml-1 text-xs text-emerald-700";
-      badge.textContent = "✨";
-      badge.title = linha.categoria_sugerida_explicacao || "Sugestão automática";
-    }
-    sel.insertAdjacentElement("afterend", badge);
   }
 
   function metadadosSugestaoFromSelect(sel) {

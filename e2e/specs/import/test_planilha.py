@@ -39,8 +39,8 @@ def test_trx_22_import_planilha_basico(logged_in_page, app_base_url, persona_bas
     with page.expect_response(lambda r: "importar/planilha/preview" in r.url):
         page.click("#btn-import-planilha-preview")
 
-    page.wait_for_selector("#import-planilha-tbody tr", timeout=15000)
-    expect(page.locator("#import-planilha-tbody tr")).not_to_have_count(0)
+    page.wait_for_selector("#import-planilha-feed .import-feed-item", timeout=15000)
+    expect(page.locator("#import-planilha-feed .import-feed-item")).not_to_have_count(0)
     desc_input = page.locator(".import-planilha-descricao").first
     expect(desc_input).to_have_value(DESCRICAO_E2E)
     page.select_option(
@@ -80,7 +80,7 @@ def test_trx_23_planilha_preview_sem_confirmar(logged_in_page, app_base_url, per
     with page.expect_response(lambda r: "importar/planilha/preview" in r.url):
         page.click("#btn-import-planilha-preview")
 
-    page.wait_for_selector("#import-planilha-tbody tr", timeout=15000)
+    page.wait_for_selector("#import-planilha-feed .import-feed-item", timeout=15000)
     expect(page.locator("#import-planilha-step-preview")).to_be_visible()
     expect(page.locator(".import-planilha-descricao").first).to_have_value(DESCRICAO_E2E)
 

@@ -1,95 +1,175 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .cat-dash { font-family: system-ui, sans-serif; max-width: 1200px; }
+  .cat-dash h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .cat-dash .subtitle { color: #6b7280; font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .cat-kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .cat-kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04); }
+  .cat-kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; font-weight: 600; }
+  .cat-kpi-value { font-size: 1.75rem; font-weight: 700; color: #111827; margin-top: 0.25rem; }
+  .cat-kpi-sub { font-size: 0.75rem; color: #9ca3af; margin-top: 0.15rem; }
+  .cat-section { margin-top: 2rem; }
+  .cat-section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: #374151; }
+  .cat-filters { margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .cat-filters a { padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.8rem; text-decoration: none; border: 1px solid #e5e7eb; color: #374151; }
+  .cat-filters a.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+  .cat-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; font-size: 0.8rem; }
+  .cat-bar-label { width: 100px; flex-shrink: 0; color: #4b5563; }
+  .cat-bar-track { flex: 1; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #4f46e5); border-radius: 4px; }
+  .cat-bar-val { width: 48px; text-align: right; color: #6b7280; font-variant-numeric: tabular-nums; }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>Métricas de categorização automática</h1>
+<div class="cat-dash">
+  <h1>Observabilidade — Categorização</h1>
+  <p class="subtitle">Pipeline híbrido · período {{ metricas.periodo_dias }} dias</p>
 
-<h2 class="mt-6 text-lg font-semibold">Aceitações por fonte</h2>
-<table class="adminlist mt-2">
-  <thead>
-    <tr>
-      <th>Fonte</th>
-      <th>Total aceitas</th>
-      <th>Confiança média</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in por_fonte %}
-    <tr>
-      <td>{{ row.fonte|default:"—" }}</td>
-      <td>{{ row.total }}</td>
-      <td>{{ row.confianca_media|floatformat:2 }}</td>
-    </tr>
+  <div class="cat-filters">
+    <span style="font-size:0.8rem;color:#6b7280">Período:</span>
+  {% for d in periodos %}
+    <a href="?dias={{ d }}" class="{% if d == metricas.periodo_dias %}active{% endif %}">{{ d }}d</a>
+  {% endfor %}
+  </div>
+
+  <div class="cat-kpi-grid">
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Cliques IA (import)</div>
+      <div class="cat-kpi-value">{{ metricas.ux_ia.cliques }}</div>
+      <div class="cat-kpi-sub">{{ metricas.ux_ia.conclusoes }} concluídas</div>
+    </div>
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Taxa correção</div>
+      <div class="cat-kpi-value">{{ metricas.taxa_correcao }}%</div>
+      <div class="cat-kpi-sub">aceites passivos LLM: {{ metricas.aceite_passivo_llm }}</div>
+    </div>
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Cache LLM</div>
+      <div class="cat-kpi-value">{{ metricas.llm.cache_hit_rate }}%</div>
+      <div class="cat-kpi-sub">{{ metricas.llm.total }} requisições</div>
+    </div>
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Bloqueios memória</div>
+      <div class="cat-kpi-value">{{ metricas.llm.bloqueios_memoria }}</div>
+      <div class="cat-kpi-sub">LLM não executou</div>
+    </div>
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Latência p50</div>
+      <div class="cat-kpi-value">{{ metricas.llm.latencia_p50 }}<span style="font-size:0.9rem">ms</span></div>
+      <div class="cat-kpi-sub">p95 {{ metricas.llm.latencia_p95 }} · p99 {{ metricas.llm.latencia_p99 }}</div>
+    </div>
+    <div class="cat-kpi">
+      <div class="cat-kpi-label">Duração UX IA</div>
+      <div class="cat-kpi-value">{{ metricas.ux_ia.duracao_media_ms }}<span style="font-size:0.9rem">ms</span></div>
+      <div class="cat-kpi-sub">{{ metricas.ux_ia.cancelamentos }} cancelamentos</div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <h2>Uso por camada (eventos aceitos)</h2>
+    {% with max_total=metricas.por_fonte.0.total %}
+    {% for row in metricas.por_fonte %}
+    <div class="cat-bar-row">
+      <span class="cat-bar-label">{{ row.fonte|default:"—" }}</span>
+      <div class="cat-bar-track">
+        <div class="cat-bar-fill" style="width: {% widthratio row.total max_total 100 %}%"></div>
+      </div>
+      <span class="cat-bar-val">{{ row.total }}</span>
+    </div>
     {% empty %}
-    <tr><td colspan="3">Sem dados.</td></tr>
+    <p style="color:#9ca3af;font-size:0.875rem">Sem dados no período.</p>
     {% endfor %}
-  </tbody>
-</table>
+    {% endwith %}
+  </div>
 
-<h2 class="mt-6 text-lg font-semibold">Eventos por ação</h2>
-<table class="adminlist mt-2">
-  <thead>
-    <tr><th>Ação</th><th>Total</th></tr>
-  </thead>
-  <tbody>
-    {% for row in por_acao %}
-    <tr>
-      <td>{{ row.acao }}</td>
-      <td>{{ row.total }}</td>
-    </tr>
+  <div class="cat-section">
+    <h2>Batch IA — fonte por execução</h2>
+    {% for fonte, total in metricas.ux_ia.por_fonte_batch.items %}
+    <div class="cat-bar-row">
+      <span class="cat-bar-label">{{ fonte }}</span>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:100%"></div></div>
+      <span class="cat-bar-val">{{ total }}</span>
+    </div>
     {% empty %}
-    <tr><td colspan="2">Sem dados.</td></tr>
+    <p style="color:#9ca3af;font-size:0.875rem">Nenhum batch IA registrado.</p>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
 
-{% if llm_admin %}
-<h2 class="mt-6 text-lg font-semibold">LLM — controle admin</h2>
-<table class="adminlist mt-2">
-  <thead>
-    <tr>
-      <th>Habilitado</th>
-      <th>Modelo</th>
-      <th>Mock</th>
-      <th>Mostrar badge IA</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>{{ llm_admin.habilitado|yesno:"Sim,Não" }}</td>
-      <td>{{ llm_admin.modelo|default:"—" }}</td>
-      <td>{{ llm_admin.mock|yesno:"Sim,Não" }}</td>
-      <td>{{ llm_admin.mostrar_badge|yesno:"Sim,Não" }}</td>
-    </tr>
-  </tbody>
-</table>
-<p class="mt-2 text-sm text-gray-600">
-  Controle via variáveis de ambiente (<code>ENABLE_CATEGORIZACAO_LLM</code>, etc.). Usuários não decidem uso da IA.
-</p>
-{% endif %}
+  <div class="cat-section">
+    <h2>Gate LLM (motivos)</h2>
+    <table class="adminlist">
+      <thead><tr><th>Motivo</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in metricas.llm.gate_reasons %}
+        <tr><td>{{ row.gate_reason|default:"—" }}</td><td>{{ row.total }}</td></tr>
+        {% empty %}
+        <tr><td colspan="2">Sem dados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-{% if llm_stats %}
-<h2 class="mt-6 text-lg font-semibold">LLM (hoje)</h2>
-<table class="adminlist mt-2">
-  <thead>
-    <tr>
-      <th>Requisições</th>
-      <th>Sucesso</th>
-      <th>Cache hits</th>
-      <th>Custo USD est.</th>
-      <th>Tokens in</th>
-      <th>Tokens out</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>{{ llm_stats.total }}</td>
-      <td>{{ llm_stats.sucesso }}</td>
-      <td>{{ llm_stats.cache_hits }}</td>
-      <td>{{ llm_stats.custo_usd|floatformat:4 }}</td>
-      <td>{{ llm_stats.tokens_in }}</td>
-      <td>{{ llm_stats.tokens_out }}</td>
-    </tr>
-  </tbody>
-</table>
-{% endif %}
+  <div class="cat-section">
+    <h2>Categorias mais corrigidas</h2>
+    <table class="adminlist">
+      <thead><tr><th>Categoria</th><th>Correções</th></tr></thead>
+      <tbody>
+        {% for row in metricas.categorias_revertidas %}
+        <tr><td>{{ row.categoria_final__nome|default:"—" }}</td><td>{{ row.total }}</td></tr>
+        {% empty %}
+        <tr><td colspan="2">Sem correções.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-section">
+    <h2>Top merchants (memória)</h2>
+    <table class="adminlist">
+      <thead><tr><th>Merchant key</th><th>Entradas</th></tr></thead>
+      <tbody>
+        {% for row in metricas.top_merchants_memoria %}
+        <tr><td><code>{{ row.merchant_key }}</code></td><td>{{ row.cnt }}</td></tr>
+        {% empty %}
+        <tr><td colspan="2">Sem memória.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cat-section">
+    <h2>Eventos por ação</h2>
+    <table class="adminlist">
+      <thead><tr><th>Ação</th><th>Total</th></tr></thead>
+      <tbody>
+        {% for row in metricas.por_acao %}
+        <tr><td>{{ row.acao }}</td><td>{{ row.total }}</td></tr>
+        {% empty %}
+        <tr><td colspan="2">Sem dados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if llm_admin %}
+  <div class="cat-section">
+    <h2>LLM — controle</h2>
+    <table class="adminlist">
+      <thead><tr><th>Habilitado</th><th>Modelo</th><th>Mock</th><th>Badge IA</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>{{ llm_admin.habilitado|yesno:"Sim,Não" }}</td>
+          <td>{{ llm_admin.modelo|default:"—" }}</td>
+          <td>{{ llm_admin.mock|yesno:"Sim,Não" }}</td>
+          <td>{{ llm_admin.mostrar_badge|yesno:"Sim,Não" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

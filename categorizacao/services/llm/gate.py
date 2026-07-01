@@ -18,6 +18,7 @@ from categorizacao.services.observability import (
     log_merge_llm_won,
     log_merge_prevented_by_human_priority,
 )
+from categorizacao.services.trust_tiers import deve_exigir_confirmacao_llm
 from categorizacao.types import ContextoCategorizacao, PredicaoCategorizacao
 
 logger = logging.getLogger("categorizacao.llm")
@@ -191,7 +192,15 @@ def merge_predictions(
         return pred_hibrida
 
     if pred_hibrida is None:
-        ctx_extra = {"requires_user_confirmation": True, "is_pix_pf": bool(ctx and ctx.is_pix_pf)}
+        exige = deve_exigir_confirmacao_llm(
+            ctx.descricao if ctx else "",
+            pred_llm.confianca,
+            {**(pred_llm.contexto or {}), "is_pix_pf": bool(ctx and ctx.is_pix_pf)},
+        )
+        ctx_extra = {
+            "requires_user_confirmation": exige,
+            "is_pix_pf": bool(ctx and ctx.is_pix_pf),
+        }
         return PredicaoCategorizacao(
             categoria_id=pred_llm.categoria_id,
             categoria_nome=pred_llm.categoria_nome,
@@ -204,7 +213,15 @@ def merge_predictions(
 
     if pred_llm.confianca > pred_hibrida.confianca:
         log_merge_llm_won(pred_hibrida.fonte, pred_hibrida.confianca, pred_llm.confianca)
-        ctx_extra = {"requires_user_confirmation": True, "is_pix_pf": bool(ctx and ctx.is_pix_pf)}
+        exige = deve_exigir_confirmacao_llm(
+            ctx.descricao if ctx else "",
+            pred_llm.confianca,
+            {**(pred_llm.contexto or {}), "is_pix_pf": bool(ctx and ctx.is_pix_pf)},
+        )
+        ctx_extra = {
+            "requires_user_confirmation": exige,
+            "is_pix_pf": bool(ctx and ctx.is_pix_pf),
+        }
         return PredicaoCategorizacao(
             categoria_id=pred_llm.categoria_id,
             categoria_nome=pred_llm.categoria_nome,
@@ -217,7 +234,15 @@ def merge_predictions(
 
     if pred_hibrida.confianca < float(getattr(settings, "CATEGORIZACAO_LLM_TRIGGER_MAX", 0.65)):
         log_merge_llm_won(pred_hibrida.fonte, pred_hibrida.confianca, pred_llm.confianca)
-        ctx_extra = {"requires_user_confirmation": True, "is_pix_pf": bool(ctx and ctx.is_pix_pf)}
+        exige = deve_exigir_confirmacao_llm(
+            ctx.descricao if ctx else "",
+            pred_llm.confianca,
+            {**(pred_llm.contexto or {}), "is_pix_pf": bool(ctx and ctx.is_pix_pf)},
+        )
+        ctx_extra = {
+            "requires_user_confirmation": exige,
+            "is_pix_pf": bool(ctx and ctx.is_pix_pf),
+        }
         return PredicaoCategorizacao(
             categoria_id=pred_llm.categoria_id,
             categoria_nome=pred_llm.categoria_nome,

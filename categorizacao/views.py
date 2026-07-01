@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import threading
+import time
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -12,8 +13,10 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from categorizacao.forms import RegraCategorizacaoForm
 from categorizacao.models import RegraCategorizacao
 from categorizacao.services.cache import invalidar_cache_usuario
-from categorizacao.services.pipeline import sugerir
+from categorizacao.services.pipeline import sugerir, sugerir_batch
+from categorizacao.services.import_suggestions import aplicar_sugestao_em_linha
 from categorizacao.services.recategorizacao import recategorizar_transacoes
+from categorizacao.models import CategorizacaoUXEvent
 
 logger = logging.getLogger(__name__)
 
@@ -123,3 +126,104 @@ def revisar_diversos(request):
         "status": "ok",
         "message": "Recategorização iniciada em segundo plano.",
     })
+
+
+@login_required
+@require_POST
+def categorizar_import_batch(request):
+    """Executa o pipeline híbrido sob demanda para linhas de importação."""
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "message": "JSON inválido."}, status=400)
+
+    contexto = (data.get("contexto") or "import_ofx").strip()
+    if contexto not in ("import_ofx", "import_planilha"):
+        contexto = "import_ofx"
+
+    linhas_in = data.get("linhas") or []
+    if not linhas_in:
+        return JsonResponse({"status": "error", "message": "Nenhuma linha informada."}, status=400)
+
+    CategorizacaoUXEvent.objects.create(
+        usuario=request.user,
+        evento="ia_click",
+        contexto=contexto,
+        payload={"total_linhas": len(linhas_in)},
+    )
+
+    t0 = time.monotonic()
+    batch_input = [
+        {
+            "descricao": (l.get("descricao") or "").strip(),
+            "tipo": (l.get("tipo") or "despesa").strip(),
+            "valor": l.get("valor"),
+        }
+        for l in linhas_in
+    ]
+    sugestoes = sugerir_batch(request.user, batch_input)
+
+    por_fonte: dict[str, int] = {}
+    linhas_out = []
+    categorizadas = 0
+    sem_sugestao = 0
+    badges_aprendizado = 0
+
+    for linha_in, sug in zip(linhas_in, sugestoes, strict=True):
+        item = dict(linha_in)
+        if sug:
+            aplicar_sugestao_em_linha(item, sug)
+            categorizadas += 1
+            por_fonte[sug.fonte] = por_fonte.get(sug.fonte, 0) + 1
+            if item.get("categoria_sugerida_badge_aprendizado"):
+                badges_aprendizado += 1
+        else:
+            sem_sugestao += 1
+            item["categoria_sugerida_nivel_confianca"] = "baixa"
+        linhas_out.append(item)
+
+    duracao_ms = int((time.monotonic() - t0) * 1000)
+
+    CategorizacaoUXEvent.objects.create(
+        usuario=request.user,
+        evento="ia_complete",
+        contexto=contexto,
+        payload={
+            "total_linhas": len(linhas_in),
+            "categorizadas": categorizadas,
+            "sem_sugestao": sem_sugestao,
+            "badges_aprendizado": badges_aprendizado,
+            "por_fonte": por_fonte,
+            "duracao_ms": duracao_ms,
+        },
+    )
+
+    return JsonResponse({
+        "status": "ok",
+        "linhas": linhas_out,
+        "resumo": {
+            "total": len(linhas_in),
+            "categorizadas": categorizadas,
+            "sem_sugestao": sem_sugestao,
+            "por_fonte": por_fonte,
+            "duracao_ms": duracao_ms,
+        },
+    })
+
+
+@login_required
+@require_POST
+def categorizar_import_cancel(request):
+    """Registra cancelamento da experiência de categorização IA."""
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        data = {}
+    contexto = (data.get("contexto") or "import_ofx").strip()
+    CategorizacaoUXEvent.objects.create(
+        usuario=request.user,
+        evento="ia_cancel",
+        contexto=contexto if contexto in ("import_ofx", "import_planilha") else "import_ofx",
+        payload=data.get("payload") or {},
+    )
+    return JsonResponse({"status": "ok"})

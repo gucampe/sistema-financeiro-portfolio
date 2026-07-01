@@ -29,6 +29,7 @@ module.exports = {
     'static/css/input.css',
     '**/forms.py',
     'core/**/*.py',
+    '**/static/**/*.js',
   ],
   safelist: safelistCategorias,
   theme: {
