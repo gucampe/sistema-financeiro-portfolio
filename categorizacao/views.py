@@ -5,7 +5,9 @@ import logging
 import threading
 import time
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -20,11 +22,29 @@ from categorizacao.models import CategorizacaoUXEvent
 
 logger = logging.getLogger(__name__)
 
+MAX_LINHAS_BATCH = 500
+MAX_DESCRICAO_CHARS = 200
+IA_BATCH_RATE_LIMIT = 30
+IA_BATCH_RATE_WINDOW = 3600
+
+
+def _truncate_descricao(descricao: str) -> str:
+    return (descricao or "").strip()[:MAX_DESCRICAO_CHARS]
+
+
+def _check_ia_batch_rate_limit(user) -> bool:
+    key = f"ia_batch_rl:{user.pk}"
+    count = cache.get(key, 0)
+    if count >= IA_BATCH_RATE_LIMIT:
+        return False
+    cache.set(key, count + 1, timeout=IA_BATCH_RATE_WINDOW)
+    return True
+
 
 @login_required
 @require_GET
 def sugerir_categoria(request):
-    descricao = (request.GET.get("descricao") or "").strip()
+    descricao = _truncate_descricao(request.GET.get("descricao") or "")
     tipo = (request.GET.get("tipo") or "despesa").strip()
     valor = request.GET.get("valor")
 
@@ -132,6 +152,12 @@ def revisar_diversos(request):
 @require_POST
 def categorizar_import_batch(request):
     """Executa o pipeline híbrido sob demanda para linhas de importação."""
+    if getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False) and not _check_ia_batch_rate_limit(request.user):
+        return JsonResponse(
+            {"status": "error", "message": "Limite de categorizações por hora atingido. Tente mais tarde."},
+            status=429,
+        )
+
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
@@ -144,6 +170,11 @@ def categorizar_import_batch(request):
     linhas_in = data.get("linhas") or []
     if not linhas_in:
         return JsonResponse({"status": "error", "message": "Nenhuma linha informada."}, status=400)
+    if len(linhas_in) > MAX_LINHAS_BATCH:
+        return JsonResponse(
+            {"status": "error", "message": f"Máximo de {MAX_LINHAS_BATCH} linhas por lote."},
+            status=400,
+        )
 
     CategorizacaoUXEvent.objects.create(
         usuario=request.user,
@@ -155,7 +186,7 @@ def categorizar_import_batch(request):
     t0 = time.monotonic()
     batch_input = [
         {
-            "descricao": (l.get("descricao") or "").strip(),
+            "descricao": _truncate_descricao(l.get("descricao") or ""),
             "tipo": (l.get("tipo") or "despesa").strip(),
             "valor": l.get("valor"),
         }

@@ -213,6 +213,22 @@
               <button type="submit" class="btn btn-dark">Atualizar senha</button>
             </div>
           </form>
+
+          <div class="mx-auto mt-10 max-w-md border-t border-gray-100 pt-8">
+            <h3 class="text-sm font-semibold text-gray-900">Privacidade e dados</h3>
+            <p class="mt-1.5 text-sm text-gray-500 leading-relaxed">
+              Exporte uma cópia completa dos seus dados (LGPD) ou exclua sua conta permanentemente.
+            </p>
+            <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <button type="button" id="btn-lgpd-export" class="btn btn-outline btn-sm w-full sm:w-auto">
+                Exportar pacote LGPD (ZIP)
+              </button>
+              <a href="{% url 'usuarios:excluir_conta' %}" class="btn btn-outline btn-sm w-full sm:w-auto text-red-600 ring-red-200 hover:bg-red-50">
+                Excluir conta
+              </a>
+            </div>
+            <p id="lgpd-export-status" class="mt-3 hidden text-sm text-gray-600" aria-live="polite"></p>
+          </div>
         </section>
       </div>
     </div>
@@ -369,6 +385,76 @@
         eyeOff.classList.toggle("hidden", !show);
       }
     });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var btn = document.getElementById("btn-lgpd-export");
+  var status = document.getElementById("lgpd-export-status");
+  if (!btn) return;
+
+  function csrfToken() {
+    var el = document.querySelector("[name=csrfmiddlewaretoken]");
+    return el ? el.value : "";
+  }
+
+  btn.addEventListener("click", function () {
+    var token = csrfToken();
+    if (!token) {
+      if (status) {
+        status.textContent = "Recarregue a página e tente novamente.";
+        status.classList.remove("hidden");
+      }
+      return;
+    }
+    btn.disabled = true;
+    if (status) {
+      status.textContent = "Gerando pacote LGPD…";
+      status.classList.remove("hidden");
+    }
+    fetch("/relatorios/api/export/jobs/", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "X-CSRFToken": token,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ dominio: "titular_lgpd", formato: "zip" }),
+    })
+      .then(function (resp) { return resp.json().then(function (data) { return { resp: resp, data: data }; }); })
+      .then(function (result) {
+        if (!result.resp.ok) throw new Error(result.data.detail || "Falha ao iniciar exportação.");
+        var jobId = result.data.job_id;
+        var attempts = 0;
+        function poll() {
+          attempts += 1;
+          fetch("/relatorios/api/export/jobs/" + jobId + "/", { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (job) {
+              if (job.status === "ready" && job.download_url) {
+                if (status) status.textContent = "Download iniciado.";
+                window.location.href = job.download_url;
+                btn.disabled = false;
+                return;
+              }
+              if (job.status === "error" || attempts > 120) {
+                throw new Error(job.erro || "Falha ao gerar pacote.");
+              }
+              setTimeout(poll, 1500);
+            })
+            .catch(function (err) {
+              if (status) status.textContent = err.message || "Erro desconhecido.";
+              btn.disabled = false;
+            });
+        }
+        poll();
+      })
+      .catch(function (err) {
+        if (status) status.textContent = err.message || "Erro desconhecido.";
+        btn.disabled = false;
+      });
   });
 })();
 </script>

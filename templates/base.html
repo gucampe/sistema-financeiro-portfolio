@@ -6,13 +6,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GranaGo | {% block title %}{% endblock %}</title>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}">
     <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/fontawesome-subset.css' %}">
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
@@ -73,8 +66,10 @@
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
     {% if request.user.is_authenticated %}
     <script src="{% static 'js/sidebar.js' %}" defer></script>
-    <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+    <script src="{% static 'vendor/htmx/htmx.min.js' %}" defer></script>
     {% endif %}
+    {% include "partials/cookie_consent.html" %}
+    <script src="{% static 'js/cookie_consent.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

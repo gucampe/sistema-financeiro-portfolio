@@ -1,17 +1,14 @@
 # Rollout — Fallback LLM (Gemini) na Categorização
 
-## Quem controla a IA
-
-**Somente o admin** (via variáveis de ambiente / deploy). Usuários finais **não** ligam ou desligam a IA.
+## Variáveis operacionais (MVP — manter no env)
 
 | Variável | Default | Descrição |
 |----------|---------|-----------|
-| `ENABLE_CATEGORIZACAO_LLM` | `False` | Master switch — liga/desliga IA para todo o sistema |
-| `GEMINI_API_KEY` | `""` | Chave API Google |
-| `CATEGORIZACAO_LLM_USE_MOCK` | `False` | Mock para CI/dev (sem chamadas reais) |
-| `CATEGORIZACAO_LLM_MOSTRAR_BADGE` | `True` | Exibe badge "IA" na interface quando a sugestão veio do Gemini |
-| `CATEGORIZACAO_LLM_DAILY_BUDGET_USD` | `0` | 0 = sem cap rígido |
-| `CATEGORIZACAO_LLM_TRIGGER_MAX` | `0.65` | Confiança máxima do híbrido para acionar LLM |
+| `ENABLE_CATEGORIZACAO_LLM` | `False` | Kill switch único |
+| `GEMINI_API_KEY` | `""` | Chave API Google (obrigatória em produção se LLM ligado) |
+| `CATEGORIZACAO_LLM_MODEL` | `gemini-2.5-flash-lite` | Modelo ativo |
+
+Constantes no código (`config/llm_settings.py`, **sem env**): timeout 8s, retries 1, trigger_max 0.65, cache_ttl 168h, min_confidence 0.55, retenção logs 90d.
 
 ## Kill switch
 

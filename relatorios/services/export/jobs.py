@@ -11,6 +11,8 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils import timezone
 
+from config.logging_utils import sanitize_traceback
+
 from relatorios.export.base import ExportContext
 from relatorios.export.registry import estimate_linhas, run_export
 from relatorios.models import ExportJob
@@ -103,6 +105,8 @@ def validar_volume(dominio: str, formato: str, usuario, filtros_json: str) -> tu
     filtros_raw=raw,
   )
   if dominio == ExportJob.DOMINIO_RELATORIO_PDF or formato == ExportJob.FORMATO_PDF:
+    return True, "", 0
+  if dominio == ExportJob.DOMINIO_TITULAR_LGPD and formato == ExportJob.FORMATO_ZIP:
     return True, "", 0
 
   try:
@@ -204,20 +208,21 @@ def cancelar_job(job: ExportJob) -> bool:
 
 
 def _mark_error(job: ExportJob, public_msg: str, internal: str, *, retry: bool = False) -> None:
+  safe_internal = sanitize_traceback(internal)
   if retry and job.tentativas < job.max_tentativas:
     job.status = ExportJob.STATUS_PENDING
     job.mensagem_erro = ""
-    job.erro_interno = internal[:2000]
+    job.erro_interno = safe_internal
     job.iniciado_em = None
     job.save(update_fields=["status", "mensagem_erro", "erro_interno", "iniciado_em", "atualizado_em"])
-    log_export_event("retry_scheduled", job, extra={"erro": internal[:200]})
+    log_export_event("retry_scheduled", job, extra={"erro": safe_internal[:120]})
     from relatorios.services.export.dispatch import dispatch_export_job
 
     dispatch_export_job(job.pk)
     return
   job.status = ExportJob.STATUS_ERROR
   job.mensagem_erro = public_msg
-  job.erro_interno = internal[:2000]
+  job.erro_interno = safe_internal
   job.finalizado_em = timezone.now()
   job.save(
     update_fields=[
@@ -228,7 +233,7 @@ def _mark_error(job: ExportJob, public_msg: str, internal: str, *, retry: bool =
       "atualizado_em",
     ]
   )
-  log_export_event("failed", job, extra={"erro": internal[:200]})
+  log_export_event("failed", job, extra={"erro": safe_internal[:120]})
 
 
 def executar_job(job_id: int, *, task_id: str | None = None) -> None:

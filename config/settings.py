@@ -15,22 +15,45 @@ from pathlib import Path
 
 import dj_database_url
 from decouple import config
+from django.core.exceptions import ImproperlyConfigured
+
+from config.llm_settings import (
+    AUDIT_LOG_RETENTION_DAYS,
+    CATEGORIZACAO_LLM_CACHE_TTL_H,
+    CATEGORIZACAO_LLM_DAILY_BUDGET_USD,
+    CATEGORIZACAO_LLM_LOG_RETENTION_DAYS,
+    CATEGORIZACAO_LLM_MAX_RETRIES,
+    CATEGORIZACAO_LLM_MIN_CONFIDENCE,
+    CATEGORIZACAO_LLM_MOSTRAR_BADGE,
+    CATEGORIZACAO_LLM_TIMEOUT_S,
+    CATEGORIZACAO_LLM_TRIGGER_MAX,
+    CATEGORIZACAO_UX_EVENT_RETENTION_DAYS,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+IS_PRODUCTION = bool(os.environ.get("RENDER")) or config(
+    "ENVIRONMENT", default=""
+).strip().lower() in ("production", "prod")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config(
-    "SECRET_KEY",
-    default="django-insecure-dev-only-change-me",
-)
+SECRET_KEY = config("SECRET_KEY", default="").strip()
+if not SECRET_KEY:
+    if IS_PRODUCTION or not config("DEBUG", default=True, cast=bool):
+        raise ImproperlyConfigured("SECRET_KEY must be set in production.")
+    SECRET_KEY = "django-insecure-dev-only-change-me"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=True, cast=bool)
+if IS_PRODUCTION and DEBUG:
+    raise ImproperlyConfigured("DEBUG must be False in production (RENDER or ENVIRONMENT=production).")
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 
 # Render define RENDER_EXTERNAL_HOSTNAME automaticamente no deploy.
 _render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
@@ -60,6 +83,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_htmx',
+    'axes',
+    'csp',
     'usuarios',
     'relatorios.apps.RelatoriosConfig',
     'transacoes',  # Certifique-se de que este é o nome correto do seu app financeiro
@@ -78,29 +103,28 @@ CATEGORIZACAO_EMBEDDINGS_MODEL = config(
     default="paraphrase-multilingual-MiniLM-L12-v2",
 )
 
-# Fallback LLM (Gemini) — desligado por padrão
+# Fallback LLM (Gemini) — 3 vars operacionais; demais constantes em config/llm_settings.py
 ENABLE_CATEGORIZACAO_LLM = config("ENABLE_CATEGORIZACAO_LLM", default=False, cast=bool)
-GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
+GEMINI_API_KEY = config("GEMINI_API_KEY", default="").strip()
 CATEGORIZACAO_LLM_MODEL = config("CATEGORIZACAO_LLM_MODEL", default="gemini-2.5-flash-lite")
-CATEGORIZACAO_LLM_MODEL_FLASH = config("CATEGORIZACAO_LLM_MODEL_FLASH", default="gemini-2.5-flash-lite")
-CATEGORIZACAO_LLM_MODEL_PRO = config("CATEGORIZACAO_LLM_MODEL_PRO", default="gemini-1.5-pro")
-CATEGORIZACAO_LLM_MODEL_FALLBACK = config(
-    "CATEGORIZACAO_LLM_MODEL_FALLBACK", default="gemini-2.5-flash-lite"
-)
-CATEGORIZACAO_LLM_TRIGGER_MAX = config("CATEGORIZACAO_LLM_TRIGGER_MAX", default=0.65, cast=float)
-CATEGORIZACAO_LLM_MIN_CONFIDENCE = config("CATEGORIZACAO_LLM_MIN_CONFIDENCE", default=0.55, cast=float)
-CATEGORIZACAO_LLM_TIMEOUT_S = config("CATEGORIZACAO_LLM_TIMEOUT_S", default=8, cast=int)
-CATEGORIZACAO_LLM_MAX_RETRIES = config("CATEGORIZACAO_LLM_MAX_RETRIES", default=1, cast=int)
-CATEGORIZACAO_LLM_DAILY_BUDGET_USD = config("CATEGORIZACAO_LLM_DAILY_BUDGET_USD", default=0, cast=float)
-CATEGORIZACAO_LLM_CACHE_TTL_H = config("CATEGORIZACAO_LLM_CACHE_TTL_H", default=168, cast=int)
 CATEGORIZACAO_LLM_USE_MOCK = config("CATEGORIZACAO_LLM_USE_MOCK", default=False, cast=bool)
-CATEGORIZACAO_LLM_AB_VARIANT = config("CATEGORIZACAO_LLM_AB_VARIANT", default="")
-CATEGORIZACAO_LLM_AB_ROLLOUT_PCT = config("CATEGORIZACAO_LLM_AB_ROLLOUT_PCT", default=50, cast=int)
-CATEGORIZACAO_LLM_MOSTRAR_BADGE = config("CATEGORIZACAO_LLM_MOSTRAR_BADGE", default=True, cast=bool)
+
+if ENABLE_CATEGORIZACAO_LLM and IS_PRODUCTION and not GEMINI_API_KEY and not CATEGORIZACAO_LLM_USE_MOCK:
+    raise ImproperlyConfigured(
+        "GEMINI_API_KEY is required when ENABLE_CATEGORIZACAO_LLM=True in production."
+    )
+
+# Aliases retrocompatíveis (código existente)
+CATEGORIZACAO_LLM_MODEL_FLASH = CATEGORIZACAO_LLM_MODEL
+CATEGORIZACAO_LLM_MODEL_PRO = CATEGORIZACAO_LLM_MODEL
+CATEGORIZACAO_LLM_MODEL_FALLBACK = CATEGORIZACAO_LLM_MODEL
+CATEGORIZACAO_LLM_AB_VARIANT = ""
+CATEGORIZACAO_LLM_AB_ROLLOUT_PCT = 0
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,6 +133,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -182,8 +207,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'usuarios.Usuario'  # Substitua 'nome_do_app' pelo nome real do seu app
 AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesBackend',
     'usuarios.backends.EmailBackend',
 ]
+
+AXES_FAILURE_LIMIT = config("AXES_FAILURE_LIMIT", default=5, cast=int)
+AXES_COOLOFF_TIME = config("AXES_COOLOFF_TIME", default=1, cast=float)
+AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
+AXES_RESET_ON_SUCCESS = True
+AXES_ENABLE_ADMIN = True
+AXES_USERNAME_FORM_FIELD = "email"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -286,12 +319,73 @@ FEATURES = {
     "export_ui": config("FEATURE_EXPORT_UI", default=True, cast=bool),
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "granago-default",
+_redis_url = config("REDIS_URL", default="").strip()
+if _redis_url:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _redis_url,
+        }
+    }
+elif IS_PRODUCTION:
+    raise ImproperlyConfigured("REDIS_URL is required in production.")
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "granago-default",
+        }
+    }
+
+# --- E-mail (reset de senha) ---
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@granago.app")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@granago.app")
+
+# --- CSP (report-only em produção) ---
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "script-src": ("'self'", "'unsafe-inline'"),
+        "style-src": ("'self'", "'unsafe-inline'"),
+        "font-src": ("'self'",),
+        "img-src": ("'self'", "data:"),
+        "connect-src": ("'self'",),
     }
 }
+if not DEBUG:
+    CONTENT_SECURITY_POLICY["REPORT_ONLY"] = True
+
+# --- Storage S3/R2 (opcional) ---
+_aws_bucket = config("AWS_STORAGE_BUCKET_NAME", default="").strip()
+if _aws_bucket:
+    INSTALLED_APPS.append("storages")
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": _staticfiles_backend,
+        },
+    }
+    AWS_STORAGE_BUCKET_NAME = _aws_bucket
+    AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="auto")
+    AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL", default="")
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
 
 # --- Observabilidade e otimizações de entrega ---
 from config.observability import (  # noqa: E402
@@ -305,15 +399,6 @@ init_sentry()
 ENABLE_PERF_MIDDLEWARE = config("ENABLE_PERF_MIDDLEWARE", default=False, cast=bool)
 ENABLE_MINIFY_HTML = config("ENABLE_MINIFY_HTML", default=True, cast=bool)
 ENABLE_DASHBOARD_AGG_CACHE = config("ENABLE_DASHBOARD_AGG_CACHE", default=False, cast=bool)
-
-_redis_url = config("REDIS_URL", default="").strip()
-if _redis_url and ENABLE_DASHBOARD_AGG_CACHE:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": _redis_url,
-        }
-    }
 
 if ENABLE_PERF_MIDDLEWARE:
     MIDDLEWARE.append("config.middleware_perf.PerfTimingMiddleware")

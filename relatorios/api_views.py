@@ -18,6 +18,8 @@ from relatorios.services.export.dispatch import dispatch_export_job
 from relatorios.services.export.jobs import cancelar_job, criar_export_job
 from relatorios.services.export.serializers import serialize_job_filtros
 from relatorios.services.filtros import parse_relatorio_filtros
+from usuarios.audit import registrar_audit
+from usuarios.models import AuditLog
 
 import logging
 
@@ -101,6 +103,8 @@ def _parse_dominio_formato(request) -> tuple[str | None, str | None, str | None]
     return None, None, "Exportação Excel temporariamente indisponível."
   if dominio == ExportJob.DOMINIO_RELATORIO_PDF:
     formato = ExportJob.FORMATO_PDF
+  if dominio == ExportJob.DOMINIO_TITULAR_LGPD:
+    formato = ExportJob.FORMATO_ZIP
 
   return dominio, formato, None
 
@@ -131,6 +135,12 @@ class ApiExportJobCreateView(LoginRequiredMixin, View):
     if not job:
       return JsonResponse({"detail": msg, "linhas_estimadas": linhas}, status=429 if "hora" in msg else 400)
 
+    registrar_audit(
+      acao=AuditLog.ACAO_EXPORT_REQUESTED,
+      usuario=request.user,
+      request=request,
+      metadata={"job_id": job.pk, "dominio": dominio, "formato": formato},
+    )
     dispatch_export_job(job.pk)
     return JsonResponse(
       {

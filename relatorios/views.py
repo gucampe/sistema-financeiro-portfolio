@@ -122,6 +122,10 @@ class OrcamentosView(RelatorioFiltrosMixin, TemplateView):
 @login_required
 def historico_categoria_orcamento(request, categoria_id: int):
     """Partial HTMX: histórico de 3 meses para uma categoria (lazy)."""
+    get_object_or_404(
+        Categoria.objects.filter(Q(usuario=request.user) | Q(padrao=True)),
+        pk=categoria_id,
+    )
     cache = RelatorioRequestCache(request.user)
     historico = historico_utilizacao_categoria(
         request.user, categoria_id, meses=3, cache=cache

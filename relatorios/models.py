@@ -103,6 +103,7 @@ class ExportJob(models.Model):
     DOMINIO_ORCAMENTOS = "orcamentos"
     DOMINIO_INVESTIMENTOS = "investimentos"
     DOMINIO_RELATORIO_PDF = "relatorio_pdf"
+    DOMINIO_TITULAR_LGPD = "titular_lgpd"
     DOMINIO_CHOICES = (
         (DOMINIO_TRANSACOES, "Transações"),
         (DOMINIO_CONTAS, "Contas"),
@@ -110,15 +111,18 @@ class ExportJob(models.Model):
         (DOMINIO_ORCAMENTOS, "Orçamentos"),
         (DOMINIO_INVESTIMENTOS, "Investimentos"),
         (DOMINIO_RELATORIO_PDF, "Relatório PDF"),
+        (DOMINIO_TITULAR_LGPD, "Pacote LGPD"),
     )
 
     FORMATO_CSV = "csv"
     FORMATO_XLSX = "xlsx"
     FORMATO_PDF = "pdf"
+    FORMATO_ZIP = "zip"
     FORMATO_CHOICES = (
         (FORMATO_CSV, "CSV"),
         (FORMATO_XLSX, "Excel"),
         (FORMATO_PDF, "PDF"),
+        (FORMATO_ZIP, "ZIP"),
     )
 
     ORIGEM_MANUAL = "manual"

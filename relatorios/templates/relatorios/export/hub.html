@@ -38,12 +38,17 @@
         Gere arquivos CSV, Excel ou PDF com os dados do período e filtros selecionados.
       </p>
 
-      <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
         <button type="button"
                 class="js-abrir-export btn btn-primary btn-sm w-full sm:w-auto"
                 data-dominio="transacoes"
                 {% if filtros_querystring %}data-filtros-query="{{ filtros_querystring }}"{% endif %}>
           Nova exportação
+        </button>
+        <button type="button"
+                class="js-abrir-export btn btn-outline btn-sm w-full sm:w-auto"
+                data-dominio="titular_lgpd">
+          Pacote LGPD (ZIP)
         </button>
       </div>
     </section>

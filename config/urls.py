@@ -33,7 +33,7 @@ if "debug_toolbar" in settings.INSTALLED_APPS:
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if getattr(settings, "ENABLE_BENCHMARK_ROUTES", False):
+if settings.DEBUG and getattr(settings, "ENABLE_BENCHMARK_ROUTES", False):
     from config import benchmark_views
 
     urlpatterns += [

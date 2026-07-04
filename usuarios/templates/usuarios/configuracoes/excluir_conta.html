@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir conta — GranaGo{% endblock %}
+
+{% block show_header_sidebar %}
+<div class="page-shell">
+  <div class="container max-w-2xl py-10">
+    <div class="card p-8">
+      <h1 class="text-xl font-semibold text-gray-900 mb-2">Excluir conta</h1>
+      <p class="text-sm text-fg-muted mb-6">Esta ação é irreversível. Todos os seus dados financeiros, categorias, exportações e perfil serão apagados permanentemente.</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" for="id_senha">Confirme sua senha</label>
+          <input type="password" name="senha" id="id_senha" required class="input w-full" autocomplete="current-password">
+        </div>
+        <label class="flex items-start gap-2 mb-6 text-sm">
+          <input type="checkbox" name="confirmo" value="1" required class="mt-1">
+          <span>Entendo que meus dados serão apagados permanentemente e não poderão ser recuperados.</span>
+        </label>
+        <div class="flex gap-3">
+          <a href="{% url 'usuarios:configuracoes' %}" class="btn btn-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-danger">Excluir minha conta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

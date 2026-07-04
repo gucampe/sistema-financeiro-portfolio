@@ -18,5 +18,9 @@ django-htmx==1.21.0
 sentry-sdk==2.19.2
 rapidfuzz==3.12.2
 Unidecode==1.4.0
-scikit-learn==1.6.1
+scikit-learn>=1.7.2
 joblib==1.4.2
+django-axes==7.0.1
+django-csp==3.8
+django-storages[s3]==1.14.4
+boto3>=1.35.0

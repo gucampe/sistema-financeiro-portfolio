@@ -35,12 +35,19 @@ def adicionar_categoria(request):
 
     categoria_id = request.POST.get("categoria_id")
     nome = (request.POST.get("nome") or "").strip()
-    icone = request.POST.get("icone") or "fa-ellipsis-h"
-    cor = request.POST.get("cor") or "#4F46E5"
+    icone = (request.POST.get("icone") or "fa-ellipsis-h").strip()
+    cor = (request.POST.get("cor") or "#4F46E5").strip()
     tipo = request.POST.get("tipo") or "despesa"
 
     if not nome:
         return JsonResponse({"status": "erro", "errors": "Nome é obrigatório"}, status=400)
+
+    icones_validos = set(ICONES_DISPONIVEIS)
+    cores_validas = {c[0] for c in Categoria.CORES_CHOICES}
+    if icone not in icones_validos:
+        return JsonResponse({"status": "erro", "errors": "Ícone inválido"}, status=400)
+    if cor not in cores_validas:
+        return JsonResponse({"status": "erro", "errors": "Cor inválida"}, status=400)
 
     tipos_validos = {t[0] for t in Categoria.TIPO_CHOICES}
     if tipo not in tipos_validos:

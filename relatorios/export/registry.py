@@ -10,6 +10,7 @@ from relatorios.export.domains import (
   investimentos,
   orcamentos,
   relatorio_pdf,
+  titular,
   transacoes,
 )
 from relatorios.export.writers.csv_writer import write_csv_dataset
@@ -36,6 +37,7 @@ _COUNT_FNS: dict[str, CountFn] = {
   ExportJob.DOMINIO_ORCAMENTOS: orcamentos.count_orcamentos_linhas,
   ExportJob.DOMINIO_CARTOES: cartoes.count_cartoes_linhas,
   ExportJob.DOMINIO_INVESTIMENTOS: investimentos.count_investimentos_linhas,
+  ExportJob.DOMINIO_TITULAR_LGPD: titular.count_lgpd_linhas,
 }
 
 
@@ -47,6 +49,9 @@ def estimate_linhas(ctx: ExportContext) -> int:
 
 
 def run_export(ctx: ExportContext) -> ExportResult:
+  if ctx.dominio == ExportJob.DOMINIO_TITULAR_LGPD and ctx.formato == ExportJob.FORMATO_ZIP:
+    return titular.build_lgpd_pacote(ctx)
+
   if ctx.formato == ExportJob.FORMATO_PDF or ctx.dominio == ExportJob.DOMINIO_RELATORIO_PDF:
     return relatorio_pdf.build_relatorio_pdf(ctx)
 

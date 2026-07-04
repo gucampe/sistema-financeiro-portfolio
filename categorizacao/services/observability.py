@@ -1,12 +1,31 @@
 from __future__ import annotations
 
+import hashlib
 import logging
+
+from config.logging_utils import sanitize_log_field
 
 logger = logging.getLogger("categorizacao.obs")
 
 
+def _hash_key(value: str) -> str:
+    if not value:
+        return ""
+    return hashlib.sha256(value.encode()).hexdigest()[:12]
+
+
 def _log(event: str, **fields) -> None:
-    parts = [f"{k}={v}" for k, v in fields.items() if v is not None and v != ""]
+    safe = {}
+    for k, v in fields.items():
+        if v is None or v == "":
+            continue
+        if k in ("merchant_key", "query_key", "matched_key", "keys"):
+            safe[k] = _hash_key(str(v)) if k != "keys" else _hash_key(str(v))
+        elif k == "match":
+            safe[k] = sanitize_log_field(str(v), max_len=40)
+        else:
+            safe[k] = v
+    parts = [f"{k}={v}" for k, v in safe.items()]
     logger.info("%s | %s", event, " ".join(parts))
 
 
@@ -75,8 +94,7 @@ def log_merchant_key_fragmentation(
     _log(
         "merchant_key_fragmentation",
         user_id=user_id,
-        keys="|".join(keys),
-        descricao=(descricao or "")[:80],
+        keys="|".join(_hash_key(k) for k in keys[:5]),
     )
 
 

@@ -69,6 +69,12 @@
     if (dominioEl) dominioEl.value = dominio || "transacoes";
     if (filtrosEl) filtrosEl.value = filtrosQuery || "";
     resetDrawerUi();
+    if (dominio === "titular_lgpd") {
+      const resumo = qs("#export-resumo");
+      if (resumo) {
+        resumo.textContent = "Pacote completo dos seus dados (LGPD): perfil, transações, contas e metadados.";
+      }
+    }
     root.classList.remove("hidden");
     root.setAttribute("aria-hidden", "false");
   }
@@ -82,6 +88,9 @@
   }
 
   function formatoSelecionado() {
+    const dominioEl = qs("#export-dominio");
+    const dominio = dominioEl ? dominioEl.value : "transacoes";
+    if (dominio === "titular_lgpd") return "zip";
     const el = qs('input[name="export_formato"]:checked');
     return el ? el.value : "csv";
   }

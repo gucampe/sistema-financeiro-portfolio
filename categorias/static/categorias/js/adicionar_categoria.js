@@ -446,32 +446,57 @@ const MENU_HOST_HTML = `
   </div>
 `;
 
-function renderIconBox(result) {
+function buildIconBoxElement(result) {
   const icone = result.icone || "fa-ellipsis-h";
   const cor = result.cor || "#4F46E5";
-  return `
-    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-[${cor}20] border-[${cor}40]">
-      <i class="fas ${icone} text-[15px] text-[${cor}]"></i>
-    </div>
-  `;
+  const box = document.createElement("div");
+  box.className = "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border";
+  box.style.backgroundColor = `${cor}33`;
+  box.style.borderColor = `${cor}66`;
+  const icon = document.createElement("i");
+  icon.className = `fas ${icone}`;
+  icon.style.fontSize = "15px";
+  icon.style.color = cor;
+  box.appendChild(icon);
+  return box;
 }
 
-function renderCategoriaRowInner(result, tipo, isArquivada = false) {
-  const secondary = isArquivada
-    ? '<p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500">Arquivada</p>'
-    : "";
-  return `
-    <div class="flex min-w-0 items-center gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4">
-      <div class="flex min-w-0 flex-1 items-center gap-2.5 lg:min-w-0">
-        ${renderIconBox(result)}
-        <div class="min-w-0 flex-1">
-          <p class="nome-categoria truncate text-sm font-semibold leading-tight text-fg" title="${result.nome}">${result.nome}</p>
-          ${secondary}
-        </div>
-      </div>
-      ${MENU_HOST_HTML}
-    </div>
-  `;
+function populateCategoriaRow(li, result, isArquivada = false) {
+  li.replaceChildren();
+  const outer = document.createElement("div");
+  outer.className =
+    "flex min-w-0 items-center gap-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-4";
+
+  const left = document.createElement("div");
+  left.className = "flex min-w-0 flex-1 items-center gap-2.5 lg:min-w-0";
+  left.appendChild(buildIconBoxElement(result));
+
+  const textWrap = document.createElement("div");
+  textWrap.className = "min-w-0 flex-1";
+  const nomeP = document.createElement("p");
+  nomeP.className = "nome-categoria truncate text-sm font-semibold leading-tight text-fg";
+  nomeP.title = result.nome;
+  nomeP.textContent = result.nome;
+  textWrap.appendChild(nomeP);
+  if (isArquivada) {
+    const sec = document.createElement("p");
+    sec.className = "mt-0.5 truncate text-[12px] leading-tight text-gray-500";
+    sec.textContent = "Arquivada";
+    textWrap.appendChild(sec);
+  }
+  left.appendChild(textWrap);
+  outer.appendChild(left);
+
+  const menuHost = document.createElement("div");
+  menuHost.className = "lista-contextual__menu-host relative hidden shrink-0 lg:block";
+  menuHost.innerHTML = MENU_HOST_HTML;
+  outer.appendChild(menuHost);
+  li.appendChild(outer);
+
+  const trigger = li.querySelector(".lista-contextual-menu-trigger");
+  if (trigger) {
+    trigger.setAttribute("aria-label", `Ações da categoria ${result.nome}`);
+  }
 }
 
 function createListItem(result, tipo, isArquivada = false) {
@@ -490,11 +515,7 @@ function createListItem(result, tipo, isArquivada = false) {
     isArquivada ? `Categoria arquivada ${result.nome}` : `Categoria ${result.nome}`
   );
   li.className = LI_ROW_CLASSES;
-  li.innerHTML = renderCategoriaRowInner(result, tipo, isArquivada);
-  const trigger = li.querySelector(".lista-contextual-menu-trigger");
-  if (trigger) {
-    trigger.setAttribute("aria-label", `Ações da categoria ${result.nome}`);
-  }
+  populateCategoriaRow(li, result, isArquivada);
   return li;
 }
 
@@ -552,14 +573,14 @@ if (form) {
           li.dataset.categoriaNome = result.nome;
           li.dataset.categoriaIcone = result.icone;
           li.dataset.categoriaCor = result.cor;
-          li.innerHTML = renderCategoriaRowInner(
+          populateCategoriaRow(
+            li,
             {
               id: result.id,
               nome: result.nome,
               icone: result.icone,
               cor: result.cor,
             },
-            tipo,
             false
           );
         } else {

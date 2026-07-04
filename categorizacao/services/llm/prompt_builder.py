@@ -85,8 +85,10 @@ def build_prompts(
     )
     hint = _template_hint(desc_safe, merchant_key)
     user = f"""tipo_transacao: {tipo}
+<transacao>
 descricao_normalizada: {desc_safe}
 merchant_key: {merchant_key or "desconhecido"}
+</transacao>
 valor_faixa: {valor_faixa(valor)}
 template: {hint}
 prompt_version: {PROMPT_VERSION}

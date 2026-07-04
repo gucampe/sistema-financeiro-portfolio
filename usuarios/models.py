@@ -116,3 +116,42 @@ class Perfil(models.Model):
             if compativel:
                 initial["categoria"] = cat.pk
         return initial, tipo
+
+
+class AuditLog(models.Model):
+    """Registro mínimo de ações sensíveis (LGPD / segurança)."""
+
+    ACAO_DELETE_ACCOUNT = "delete_account"
+    ACAO_EXPORT_REQUESTED = "export_requested"
+    ACAO_PASSWORD_CHANGE = "password_change"
+    ACAO_LOGIN_FAILED = "login_failed"
+
+    ACAO_CHOICES = (
+        (ACAO_DELETE_ACCOUNT, "Exclusão de conta"),
+        (ACAO_EXPORT_REQUESTED, "Exportação solicitada"),
+        (ACAO_PASSWORD_CHANGE, "Alteração de senha"),
+        (ACAO_LOGIN_FAILED, "Falha de login"),
+    )
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_logs",
+    )
+    acao = models.CharField(max_length=40, choices=ACAO_CHOICES, db_index=True)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("Log de auditoria")
+        verbose_name_plural = _("Logs de auditoria")
+        ordering = ["-criado_em"]
+        indexes = [
+            models.Index(fields=["acao", "criado_em"], name="usuarios_audit_acao_dt"),
+        ]
+
+    def __str__(self):
+        return f"{self.acao} ({self.usuario_id})"

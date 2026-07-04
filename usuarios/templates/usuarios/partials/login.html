@@ -59,11 +59,12 @@
     <!-- Rodapé -->
     <p class="text-sm text-center text-fg-muted mt-6">
     Esqueceu a senha?
-    <a href="#" class="text-brand-600 hover:underline">Redefinir</a>
+    <a href="{% url 'usuarios:password_reset' %}" class="text-brand-600 hover:underline">Redefinir</a>
     </p>
     <p class="text-sm text-center text-fg-muted mt-2">
-      Novo por aqui?
-      <a href="#" class="text-brand-600 hover:underline">Assine agora</a>
+      <a href="{% url 'usuarios:privacidade' %}" class="text-brand-600 hover:underline">Privacidade</a>
+      ·
+      <a href="{% url 'usuarios:termos' %}" class="text-brand-600 hover:underline">Termos</a>
     </p>
 
   </div>

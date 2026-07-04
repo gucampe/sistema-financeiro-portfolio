@@ -11,6 +11,7 @@ from django.urls import reverse
 
 from cartoes.models import Fatura
 from transacoes.models import Transacao
+from usuarios.models import AuditLog
 from usuarios.forms import PreferenciasFinanceirasForm
 from usuarios.tests.helpers.asserts_seguranca import (
     assert_contagem_inalterada,
@@ -224,14 +225,58 @@ class TestSegurancaUnit(TestCase):
         resp_export = client.post(url_export, data={"preset": "este_mes"})
         assert_http_403(resp_export)
 
+    def test_unit_sec_17_categoria_icone_malicioso_rejeitado(self):
+        par = par_usuarios()
+        url = reverse("categorias:adicionar")
+        resp = par.client_a.post(
+            url,
+            {
+                "nome": "Teste XSS",
+                "icone": "<script>alert(1)</script>",
+                "cor": "#4F46E5",
+                "tipo": "despesa",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        assert resp.status_code == 400
+
+    def test_unit_sec_18_exclusao_conta_nao_afeta_outro_usuario(self):
+        par = par_usuarios()
+        pk_a = par.user_a.pk
+        par.client_b.post(
+            reverse("usuarios:excluir_conta"),
+            {"senha": "x", "confirmo": "on"},
+        )
+        assert get_user_model().objects.filter(pk=pk_a).exists()
+        assert get_user_model().objects.filter(pk=par.user_b.pk).exists() is False
+
 
 @pytest.mark.seguranca
-@pytest.mark.skip(reason="SKIP-SEC-RL-01: rate limit não implementado")
-def test_skip_sec_rl_01_login_throttle():
-    """Contrato futuro: >N POST /login/ mesmo IP em 60s → status 429."""
+@pytest.mark.django_db
+def test_sec_rl_01_login_throttle(settings):
+    """>N POST /login/ mesmo IP → bloqueio axes."""
+    from django.test import Client
+
+    User = get_user_model()
+    User.objects.create_user(email="rl@test.local", password="good", nome="RL")
+    client = Client(enforce_csrf_checks=False)
+    url = reverse("usuarios:login")
+    limit = getattr(settings, "AXES_FAILURE_LIMIT", 5)
+    for _ in range(limit):
+        client.post(url, {"email": "rl@test.local", "senha": "wrong"})
+    resp = client.post(url, {"email": "rl@test.local", "senha": "wrong"})
+    assert resp.status_code in (403, 429)
 
 
 @pytest.mark.seguranca
-@pytest.mark.skip(reason="SKIP-SEC-AUD-01: auditoria não implementada")
-def test_skip_sec_aud_01_pagamento_fatura_audit():
-    """Contrato futuro: pagamento fatura gera registro usuario + acao + recurso_id."""
+@pytest.mark.django_db
+def test_sec_aud_01_export_requested_audit():
+    """Criação de export job gera AuditLog export_requested."""
+    par = par_usuarios()
+    url = reverse("relatorios:api_export_jobs_create")
+    resp = par.client_a.post(url, {"dominio": "titular_lgpd", "formato": "zip"})
+    assert resp.status_code == 202
+    assert AuditLog.objects.filter(
+        usuario=par.user_a,
+        acao=AuditLog.ACAO_EXPORT_REQUESTED,
+    ).exists()

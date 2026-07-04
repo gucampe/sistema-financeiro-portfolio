@@ -31,3 +31,29 @@ services:
         value: "2"
       - key: EXPORT_JOB_BACKEND
         value: thread
+      - key: ENABLE_BENCHMARK_ROUTES
+        value: "False"
+      - key: REDIS_URL
+        sync: false
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: PRIVACIDADE_EMAIL
+        sync: false
+      - key: ENABLE_CATEGORIZACAO_LLM
+        value: "False"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CATEGORIZACAO_LLM_MODEL
+        value: gemini-2.5-flash-lite

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Termos de Uso — GranaGo{% endblock %}
+
+{% block show_header_sidebar %}
+<div class="min-h-screen bg-surface px-4 py-10">
+  <article class="card mx-auto max-w-3xl p-8 prose prose-sm max-w-none text-fg">
+    <header class="mb-8 border-b border-gray-100 pb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">Termos de Uso</h1>
+      <p class="text-fg-muted text-sm">Última atualização: julho de 2026</p>
+      <p class="mt-3 text-sm text-gray-600 leading-relaxed">
+        Estes Termos regulam o uso da plataforma <strong>GranaGo</strong>, um software de organização financeira pessoal.
+        Ao criar uma conta ou utilizar o serviço, você declara ter lido, compreendido e concordado com as condições abaixo.
+      </p>
+    </header>
+
+    <nav class="mb-8 rounded-xl bg-gray-50/80 px-4 py-3 text-sm text-gray-600" aria-label="Índice dos termos">
+      <p class="font-medium text-gray-800 mb-2">Nesta página</p>
+      <ul class="grid gap-1 sm:grid-cols-2">
+        <li><a href="#introducao" class="text-brand-600 hover:underline">1. Introdução</a></li>
+        <li><a href="#conta" class="text-brand-600 hover:underline">2. Acesso e conta</a></li>
+        <li><a href="#funcionalidades" class="text-brand-600 hover:underline">3. Funcionalidades</a></li>
+        <li><a href="#importacao" class="text-brand-600 hover:underline">4. Importação de dados</a></li>
+        <li><a href="#responsabilidades" class="text-brand-600 hover:underline">5. Suas responsabilidades</a></li>
+        <li><a href="#propriedade" class="text-brand-600 hover:underline">6. Propriedade intelectual</a></li>
+        <li><a href="#disponibilidade" class="text-brand-600 hover:underline">7. Disponibilidade</a></li>
+        <li><a href="#privacidade" class="text-brand-600 hover:underline">8. Privacidade</a></li>
+        <li><a href="#seguranca" class="text-brand-600 hover:underline">9. Segurança</a></li>
+        <li><a href="#limitacao" class="text-brand-600 hover:underline">10. Limitação de responsabilidade</a></li>
+        <li><a href="#alteracoes" class="text-brand-600 hover:underline">11. Alterações</a></li>
+        <li><a href="#contato" class="text-brand-600 hover:underline">12. Contato</a></li>
+      </ul>
+    </nav>
+
+    <section class="mb-8" id="introducao">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">1. Introdução</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        O <strong>GranaGo</strong> é operado por <strong>[RAZÃO SOCIAL]</strong>, inscrita no CNPJ <strong>[●]</strong>
+        (“nós”, “nosso” ou “operador”), e oferece ferramentas digitais para ajudar você a registrar, organizar e visualizar
+        informações financeiras pessoais.
+      </p>
+      <p class="leading-relaxed text-sm text-gray-700">
+        O GranaGo <strong>não é</strong> instituição financeira, corretora, consultoria financeira, contábil ou de investimentos.
+        Não realizamos operações bancárias em seu nome nem oferecemos recomendações personalizadas de investimento.
+      </p>
+    </section>
+
+    <section class="mb-8" id="conta">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">2. Acesso e conta</h2>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+        <li>O acesso é pessoal, mediante login e senha. Você é responsável por manter suas credenciais em sigilo.</li>
+        <li>Comprometa-se a fornecer informações verdadeiras e mantê-las atualizadas em Configurações.</li>
+        <li>Notifique-nos imediatamente se suspeitar de acesso não autorizado à sua conta.</li>
+        <li>Podemos suspender ou encerrar o acesso em caso de uso abusivo, fraudulento, ilegal ou que comprometa a segurança ou estabilidade da plataforma.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8" id="funcionalidades">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">3. Funcionalidades da plataforma</h2>
+      <p class="mb-3 text-sm text-gray-600 leading-relaxed">
+        O GranaGo, na versão atual do serviço, pode incluir recursos como:
+      </p>
+      <ul class="list-disc pl-5 space-y-1 mb-4 text-sm text-gray-700">
+        <li>registro e gestão de transações (receitas, despesas e ajustes);</li>
+        <li>organização por categorias personalizáveis;</li>
+        <li>cadastro de contas (corrente, poupança, carteira, investimento, entre outras);</li>
+        <li>gestão de cartões de crédito e faturas;</li>
+        <li>orçamentos por categoria e acompanhamento de gastos;</li>
+        <li>relatórios, dashboards e indicadores financeiros;</li>
+        <li>importação de extratos em arquivos OFX e XLSX;</li>
+        <li>exportação de dados e relatórios;</li>
+        {% if llm_ativo %}
+        <li>categorização assistida por inteligência artificial (quando habilitada pelo operador).</li>
+        {% else %}
+        <li>recursos de categorização automática baseados em regras e aprendizado do seu uso.</li>
+        {% endif %}
+      </ul>
+      <div class="rounded-xl border border-gray-200/80 bg-gray-50/60 px-4 py-3 text-sm text-gray-700">
+        <p class="font-medium text-gray-900 mb-2">Sobre registros e importações</p>
+        <p>
+          Você informa dados diretamente na plataforma ou importa arquivos quando desejar.
+          O GranaGo <strong>não se conecta</strong> à sua conta bancária, não solicita senha de internet banking
+          e não possui integração automática com instituições financeiras.
+        </p>
+      </div>
+      {% if llm_ativo %}
+      <p class="mt-4 text-sm text-gray-700 leading-relaxed">
+        Quando a categorização assistida por IA estiver ativa, o sistema pode <strong>sugerir</strong> categorias para transações.
+        As sugestões são apenas orientativas: <strong>você deve revisar e confirmar</strong> antes que qualquer alteração seja aplicada.
+        A IA não executa movimentações financeiras nem toma decisões em seu lugar.
+      </p>
+      {% endif %}
+    </section>
+
+    <section class="mb-8" id="importacao">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">4. Importação de dados</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        Ao importar arquivos OFX ou XLSX, você declara ter legitimidade para utilizá-los e autoriza o processamento
+        necessário para extrair e organizar as movimentações no sistema.
+      </p>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+        <li>Importações automatizadas podem apresentar duplicidades, valores incorretos, categorias imprecisas ou informações incompletas.</li>
+        <li>Formatos de arquivo variam entre bancos e podem mudar sem aviso prévio.</li>
+        <li><strong>Você é responsável por revisar</strong> os dados importados, conferir saldos e corrigir eventuais inconsistências antes de tomar decisões com base neles.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8" id="responsabilidades">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">5. Suas responsabilidades</h2>
+      <p class="mb-3 text-sm text-gray-600">Ao usar o GranaGo, você concorda em:</p>
+      <ul class="list-disc pl-5 space-y-2 mb-4 text-sm text-gray-700">
+        <li>utilizar a plataforma de forma lícita e de acordo com estes Termos;</li>
+        <li>ser responsável pela veracidade e pela revisão das informações financeiras inseridas ou importadas;</li>
+        <li>proteger seus dispositivos, rede e credenciais de acesso;</li>
+        <li>não utilizar o serviço para fins ilícitos, fraudulentos ou que violem direitos de terceiros.</li>
+      </ul>
+      <p class="mb-2 text-sm font-medium text-gray-800">É vedado, entre outras condutas:</p>
+      <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+        <li>engenharia reversa, descompilação ou tentativa de extrair o código-fonte do sistema, salvo quando permitido por lei;</li>
+        <li>scraping, automação abusiva ou sobrecarga intencional da plataforma;</li>
+        <li>tentativa de acesso não autorizado a contas, dados ou áreas restritas;</li>
+        <li>exploração comercial não autorizada do serviço ou de seus componentes;</li>
+        <li>qualquer ação que comprometa a segurança, integridade ou disponibilidade do GranaGo.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8" id="propriedade">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">6. Propriedade intelectual</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        O software, a marca, a interface, os textos, o design e demais elementos do GranaGo são de propriedade do operador
+        ou de seus licenciadores, protegidos pela legislação aplicável.
+      </p>
+      <p class="leading-relaxed text-sm text-gray-700">
+        Estes Termos concedem a você uma licença limitada, pessoal, não exclusiva e revogável para usar a plataforma
+        conforme sua finalidade. Nada neste documento transfere propriedade intelectual a você.
+        É proibida a cópia, reprodução ou distribuição não autorizada de qualquer parte do serviço.
+      </p>
+    </section>
+
+    <section class="mb-8" id="disponibilidade">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">7. Disponibilidade e manutenção</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        Trabalhamos para manter o GranaGo estável e disponível, mas interrupções podem ocorrer por manutenção programada,
+        atualizações, falhas técnicas ou fatores fora do nosso controle razoável.
+      </p>
+      <p class="leading-relaxed text-sm text-gray-700">
+        Funcionalidades podem ser adicionadas, modificadas ou descontinuadas ao longo do tempo, especialmente em um produto
+        em evolução. Quando mudanças relevantes afetarem seu uso, buscaremos comunicá-las de forma adequada.
+      </p>
+    </section>
+
+    <section class="mb-8" id="privacidade">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">8. Privacidade e dados pessoais</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        O tratamento de dados pessoais é regido pela nossa
+        <a href="{% url 'usuarios:privacidade' %}" class="text-brand-600 hover:underline">Política de Privacidade</a>,
+        que integra estes Termos por referência.
+      </p>
+      {% if llm_ativo %}
+      <p class="leading-relaxed text-sm text-gray-700">
+        Quando a categorização assistida por IA estiver habilitada, informações limitadas e minimizadas podem ser processadas
+        para geração de sugestões de categoria, conforme descrito na Política de Privacidade.
+        Você permanece responsável pela classificação final das transações.
+      </p>
+      {% endif %}
+    </section>
+
+    <section class="mb-8" id="seguranca">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">9. Segurança</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        Adotamos medidas técnicas e administrativas razoáveis para proteger a plataforma e os dados tratados.
+        Ainda assim, nenhum ambiente digital é totalmente isento de riscos.
+      </p>
+      <p class="leading-relaxed text-sm text-gray-700">
+        A segurança também depende de você: utilize senhas fortes, evite compartilhar credenciais e mantenha seus
+        dispositivos protegidos. Em caso de suspeita de incidente, entre em contato pelos canais indicados ao final deste documento.
+      </p>
+    </section>
+
+    <section class="mb-8" id="limitacao">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">10. Limitação de responsabilidade</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        O GranaGo é uma ferramenta de apoio à organização financeira pessoal. As decisões financeiras — incluindo orçamento,
+        gastos, investimentos e planejamento — são exclusivamente suas.
+      </p>
+      <ul class="list-disc pl-5 space-y-2 mb-3 text-sm text-gray-700">
+        <li>Não garantimos resultados financeiros, economia específica ou precisão absoluta dos dados exibidos.</li>
+        <li>Erros ou omissões podem ocorrer em importações, categorizações automáticas{% if llm_ativo %} ou sugestões de IA{% endif %}.</li>
+        <li>Você deve validar informações relevantes antes de tomar decisões com impacto financeiro ou legal.</li>
+      </ul>
+      <p class="text-sm text-fg-muted leading-relaxed">
+        Na extensão permitida pela legislação aplicável, o operador não será responsável por danos indiretos, lucros cessantes
+        ou perdas decorrentes do uso ou da impossibilidade de uso do serviço, salvo em casos de dolo ou culpa grave,
+        conforme previsto em lei.
+      </p>
+    </section>
+
+    <section class="mb-8" id="alteracoes">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">11. Alterações destes Termos</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        Podemos atualizar estes Termos periodicamente para refletir mudanças no serviço, na legislação ou em nossas práticas.
+        A versão vigente estará sempre disponível nesta página, com a data de atualização indicada no topo.
+      </p>
+      <p class="leading-relaxed text-sm text-gray-700">
+        O uso continuado da plataforma após a publicação de alterações constitui ciência das novas condições.
+        Se você não concordar com os Termos atualizados, deve interromper o uso e, se desejar, solicitar a exclusão da conta.
+      </p>
+    </section>
+
+    <section class="mb-8" id="contato">
+      <h2 class="text-lg font-semibold text-gray-900 mb-3">12. Contato</h2>
+      <p class="leading-relaxed mb-3 text-sm text-gray-700">
+        Para dúvidas sobre estes Termos, suporte ao uso da plataforma ou questões relacionadas a dados pessoais:
+      </p>
+      <ul class="space-y-2 text-sm">
+        <li class="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3">
+          <span class="text-gray-600">Suporte geral:</span>
+          <a href="mailto:suporte@granago.app" class="ml-1 font-medium text-brand-700 hover:underline">suporte@granago.app</a>
+        </li>
+        <li class="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3">
+          <span class="text-gray-600">Privacidade e LGPD:</span>
+          <a href="mailto:{{ privacidade_email }}" class="ml-1 font-medium text-brand-700 hover:underline">{{ privacidade_email }}</a>
+        </li>
+      </ul>
+    </section>
+
+    <footer class="border-t border-gray-100 pt-6 text-sm text-fg-muted">
+      <p>
+        <a href="{% url 'usuarios:privacidade' %}" class="text-brand-600 hover:underline">Política de privacidade</a>
+        ·
+        <a href="{% url 'usuarios:login' %}" class="text-brand-600 hover:underline">Login</a>
+      </p>
+    </footer>
+  </article>
+</div>
+{% endblock %}

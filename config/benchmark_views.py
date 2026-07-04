@@ -1,7 +1,7 @@
 """
 Rotas de benchmark para isolar gargalos de infra/pipeline.
 
-Ativas apenas com ENABLE_BENCHMARK_ROUTES=1 (não expor em produção sem intenção).
+Ativas apenas com DEBUG=True e ENABLE_BENCHMARK_ROUTES=1.
 """
 
 from __future__ import annotations
@@ -12,12 +12,11 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.template.response import TemplateResponse
-from django.views.decorators.csrf import csrf_exempt
 
 
-@csrf_exempt
+@login_required
 def ping(request):
-    """Overhead mínimo: sem template, auth ou banco."""
+    """Overhead mínimo com auth."""
     return HttpResponse("pong", content_type="text/plain")
 
 
@@ -29,11 +28,11 @@ def ping_auth(request):
         {
             "ok": True,
             "user_id": user.pk,
-            "email": user.email,
         }
     )
 
 
+@login_required
 def ping_template(request):
     """Custo de renderização Django, sem banco."""
     return TemplateResponse(
@@ -43,6 +42,7 @@ def ping_template(request):
     )
 
 
+@login_required
 def ping_db(request):
     """Latência round-trip ao banco (query trivial)."""
     t0 = time.perf_counter()

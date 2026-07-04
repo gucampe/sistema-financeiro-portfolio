@@ -1,13 +1,25 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import (
+    PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
+)
+from django.core.cache import cache
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.conf import settings
 
+from usuarios.audit import registrar_audit
+from usuarios.models import AuditLog
 from usuarios.services.onboarding import progresso_primeiros_passos
+from relatorios.models import ExportJob
 
 from .forms import (
     ConfiguracoesPasswordChangeForm,
@@ -16,6 +28,13 @@ from .forms import (
 )
 from .models import Perfil, Usuario
 from .utils import iniciais_avatar
+
+
+def _legal_context():
+    return {
+        "privacidade_email": getattr(settings, "PRIVACIDADE_EMAIL", "privacidade@granago.app"),
+        "llm_ativo": getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False),
+    }
 
 
 def login_view(request):
@@ -31,7 +50,47 @@ def login_view(request):
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect("usuarios:login")
 
-    return render(request, "usuarios/partials/login.html")
+    return render(request, "usuarios/partials/login.html", _legal_context())
+
+
+def privacidade_view(request):
+    return render(request, "usuarios/legal/privacidade.html", _legal_context())
+
+
+def termos_view(request):
+    return render(request, "usuarios/legal/termos.html", _legal_context())
+
+
+class GranaGoPasswordResetView(PasswordResetView):
+    template_name = "usuarios/legal/password_reset_form.html"
+    email_template_name = "usuarios/legal/password_reset_email.html"
+    subject_template_name = "usuarios/legal/password_reset_subject.txt"
+    success_url = reverse_lazy("usuarios:password_reset_done")
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if "email" in form.fields:
+            form.fields["email"].widget.attrs.update({"class": "input w-full"})
+        return form
+
+
+class GranaGoPasswordResetDoneView(PasswordResetDoneView):
+    template_name = "usuarios/legal/password_reset_done.html"
+
+
+class GranaGoPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = "usuarios/legal/password_reset_confirm.html"
+    success_url = reverse_lazy("usuarios:password_reset_complete")
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        for field in form.fields.values():
+            field.widget.attrs.update({"class": "input w-full"})
+        return form
+
+
+class GranaGoPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = "usuarios/legal/password_reset_complete.html"
 
 
 def _configuracoes_context(request, perfil=None, dados_form=None, pref_form=None, senha_form=None):
@@ -113,6 +172,11 @@ def configuracoes_alterar_senha(request):
     if form.is_valid():
         user = form.save()
         update_session_auth_hash(request, user)
+        registrar_audit(
+            acao=AuditLog.ACAO_PASSWORD_CHANGE,
+            usuario=user,
+            request=request,
+        )
         messages.success(request, "Senha alterada com sucesso.")
         return redirect(f"{reverse('usuarios:configuracoes')}#seguranca")
 
@@ -140,3 +204,65 @@ def primeiros_passos(request):
 def primeiros_passos_status(request):
     """Status JSON do checklist — atualização client-side sem reload."""
     return JsonResponse(progresso_primeiros_passos(request.user))
+
+
+def _limpar_arquivos_usuario(usuario):
+    import shutil
+    from pathlib import Path
+
+    from relatorios.models import ExportJob
+
+    for job in ExportJob.objects.filter(usuario=usuario):
+        if job.arquivo:
+            try:
+                job.arquivo.delete(save=False)
+            except Exception:
+                pass
+    perfil = getattr(usuario, "perfil", None)
+    if perfil and perfil.foto:
+        try:
+            perfil.foto.delete(save=False)
+        except Exception:
+            pass
+    media_root = Path(settings.MEDIA_ROOT)
+    export_dir = media_root / "exports" / str(usuario.pk)
+    if export_dir.exists():
+        shutil.rmtree(export_dir, ignore_errors=True)
+    foto_dir = media_root / "perfis" / "fotos"
+    if perfil and perfil.foto and perfil.foto.name:
+        try:
+            (media_root / perfil.foto.name).unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+@login_required
+@never_cache
+def excluir_conta(request):
+    if request.method == "POST":
+        senha = request.POST.get("senha") or ""
+        confirmo = request.POST.get("confirmo")
+        if not confirmo or not request.user.check_password(senha):
+            messages.error(request, "Confirme sua senha e o entendimento sobre exclusão permanente.")
+            return render(request, "usuarios/configuracoes/excluir_conta.html")
+
+        user = request.user
+        user_id = user.pk
+        registrar_audit(
+            acao=AuditLog.ACAO_DELETE_ACCOUNT,
+            usuario=user,
+            request=request,
+        )
+        _limpar_arquivos_usuario(user)
+        ExportJob.objects.filter(usuario=user).update(status=ExportJob.STATUS_CANCELLED)
+        try:
+            cache.delete_many([f"export_rate:{user_id}", f"ia_batch_rl:{user_id}"])
+        except Exception:
+            pass
+        with transaction.atomic():
+            user.delete()
+        logout(request)
+        messages.success(request, "Sua conta foi excluída permanentemente.")
+        return redirect("usuarios:login")
+
+    return render(request, "usuarios/configuracoes/excluir_conta.html")
