@@ -33,9 +33,10 @@ from config.llm_settings import (
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-IS_PRODUCTION = bool(os.environ.get("RENDER")) or config(
-    "ENVIRONMENT", default=""
-).strip().lower() in ("production", "prod")
+# Produção: ENVIRONMENT=production (VPS) ou RENDER=1 (legado Render).
+_ENVIRONMENT = config("ENVIRONMENT", default="").strip().lower()
+IS_VPS_PRODUCTION = _ENVIRONMENT in ("production", "prod")
+IS_PRODUCTION = IS_VPS_PRODUCTION or bool(os.environ.get("RENDER"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -50,12 +51,15 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=True, cast=bool)
 if IS_PRODUCTION and DEBUG:
-    raise ImproperlyConfigured("DEBUG must be False in production (RENDER or ENVIRONMENT=production).")
+    raise ImproperlyConfigured(
+        "DEBUG must be False in production (ENVIRONMENT=production)."
+    )
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 
-# Render define RENDER_EXTERNAL_HOSTNAME automaticamente no deploy.
+# VPS: ALLOWED_HOSTS e CSRF_TRUSTED_ORIGINS via .env.
+# Render (legado): RENDER_EXTERNAL_HOSTNAME é adicionado automaticamente.
 _render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
@@ -65,12 +69,22 @@ else:
         ALLOWED_HOSTS.append(_render_host)
     _extra_hosts = config("ALLOWED_HOSTS", default="")
     ALLOWED_HOSTS.extend(h.strip() for h in _extra_hosts.split(",") if h.strip())
+    if IS_VPS_PRODUCTION and not ALLOWED_HOSTS:
+        raise ImproperlyConfigured(
+            "ALLOWED_HOSTS must be set in production (VPS). "
+            "Example: ALLOWED_HOSTS=app.seudominio.com"
+        )
 
 CSRF_TRUSTED_ORIGINS = []
 if _render_host:
     CSRF_TRUSTED_ORIGINS.append(f"https://{_render_host}")
 _extra_csrf = config("CSRF_TRUSTED_ORIGINS", default="")
 CSRF_TRUSTED_ORIGINS.extend(o.strip() for o in _extra_csrf.split(",") if o.strip())
+if IS_VPS_PRODUCTION and not CSRF_TRUSTED_ORIGINS:
+    raise ImproperlyConfigured(
+        "CSRF_TRUSTED_ORIGINS must be set in production. "
+        "Example: CSRF_TRUSTED_ORIGINS=https://app.seudominio.com"
+    )
 
 
 # Application definition
@@ -160,8 +174,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Produção (Render/Neon): DATABASE_URL. Desenvolvimento: variáveis DB_* individuais.
-_database_url = os.environ.get("DATABASE_URL", "").strip()
+# Produção (VPS/Render): DATABASE_URL. Desenvolvimento: variáveis DB_* individuais.
+_database_url = config("DATABASE_URL", default="").strip()
+if not _database_url:
+    _database_url = os.environ.get("DATABASE_URL", "").strip()
 if _database_url:
     DATABASES = {
         "default": dj_database_url.config(
@@ -262,7 +278,8 @@ STORAGES = {
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 60
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+_media_root = config("MEDIA_ROOT", default="").strip()
+MEDIA_ROOT = Path(_media_root) if _media_root else BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -279,15 +296,21 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-# Segurança básica em produção (Render termina TLS no proxy).
+# Segurança básica em produção (nginx/Render terminam TLS no proxy).
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # Cookies Secure só com HTTPS — em HTTP (ex.: IP antes do domínio) CSRF quebra.
+    SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
+    CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
+    if SECURE_SSL_REDIRECT:
+        SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        SECURE_HSTS_PRELOAD = True
+    else:
+        SECURE_HSTS_SECONDS = 0
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+        SECURE_HSTS_PRELOAD = False
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
@@ -333,7 +356,7 @@ else:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "granago-default",
+            "LOCATION": "financeiro-default",
         }
     }
 
@@ -347,10 +370,10 @@ EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@granago.app")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@example.com")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@granago.app")
+PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@example.com")
 
 # --- CSP (report-only em produção) ---
 CONTENT_SECURITY_POLICY = {
