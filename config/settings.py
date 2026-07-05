@@ -228,11 +228,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AXES_FAILURE_LIMIT = config("AXES_FAILURE_LIMIT", default=5, cast=int)
-AXES_COOLOFF_TIME = config("AXES_COOLOFF_TIME", default=1, cast=float)
+# Horas (float): 0.25 = 15 min — MVP mais tolerante a typos de senha.
+AXES_COOLOFF_TIME = config("AXES_COOLOFF_TIME", default=0.25, cast=float)
 AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
 AXES_RESET_ON_SUCCESS = True
 AXES_ENABLE_ADMIN = True
 AXES_USERNAME_FORM_FIELD = "email"
+AXES_LOCKOUT_CALLABLE = "config.axes_lockout.lockout_response"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

@@ -4,7 +4,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from config.health_views import health
+
 urlpatterns = [
+    path("health/", health, name="health"),
     path('admin/', admin.site.urls),
 
     path('', include('usuarios.urls')),

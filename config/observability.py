@@ -43,7 +43,14 @@ def init_sentry() -> None:
         return
 
     import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
+
+    integrations = [DjangoIntegration()]
+    try:
+        integrations.append(CeleryIntegration(monitor_beat_tasks=True))
+    except Exception:
+        pass
 
     traces_sample_rate = config(
         "SENTRY_TRACES_SAMPLE_RATE",
@@ -53,7 +60,7 @@ def init_sentry() -> None:
 
     sentry_sdk.init(
         dsn=dsn,
-        integrations=[DjangoIntegration()],
+        integrations=integrations,
         traces_sample_rate=traces_sample_rate,
         send_default_pii=False,
         environment=config("SENTRY_ENVIRONMENT", default=os.environ.get("RENDER", "development")),

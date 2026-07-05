@@ -41,7 +41,14 @@ def _run_recategorizacao(usuario_id: int, categoria_nome: str, limite: int):
         logger.exception("recategorizacao falhou usuario=%s", usuario_id)
 
 
-@shared_task(bind=True, max_retries=2)
+@shared_task(
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_backoff_max=600,
+    max_retries=2,
+    acks_late=True,
+)
 def recategorizar_lote_task(self, usuario_id: int, categoria_nome: str = "Diversos", limite: int = 500):
     _run_recategorizacao(usuario_id, categoria_nome, limite)
 

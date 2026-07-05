@@ -141,6 +141,62 @@ class TestSegurancaUnit(TestCase):
         resp = par.client_a.get(url)
         assert_json_404(resp)
 
+    def test_unit_sec_10b_idor_post_toggle_orcamento_b(self):
+        from decimal import Decimal
+
+        from relatorios.models import OrcamentoCategoria
+
+        par = par_usuarios()
+        orc = OrcamentoCategoria.objects.create(
+            usuario=par.user_b,
+            categoria=par.cat_b,
+            valor_planejado=Decimal("100.00"),
+        )
+        url = reverse("relatorios:orcamentos_toggle_ativo", kwargs={"pk": orc.pk})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_10c_idor_post_excluir_orcamento_b(self):
+        from decimal import Decimal
+
+        from relatorios.models import OrcamentoCategoria
+
+        par = par_usuarios()
+        orc = OrcamentoCategoria.objects.create(
+            usuario=par.user_b,
+            categoria=par.cat_b,
+            valor_planejado=Decimal("50.00"),
+        )
+        url = reverse("relatorios:orcamentos_excluir", kwargs={"pk": orc.pk})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
+    def test_unit_sec_10d_idor_post_arquivar_categoria_b(self):
+        par = par_usuarios()
+        url = reverse("categorias:arquivar")
+        resp = par.client_a.post(
+            url,
+            {"categoria_id": par.cat_b.pk},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        assert resp.status_code == 404
+
+    def test_unit_sec_10e_idor_post_excluir_regra_b(self):
+        from categorizacao.models import RegraCategorizacao
+
+        par = par_usuarios()
+        regra = RegraCategorizacao.objects.create(
+            usuario=par.user_b,
+            tipo_regra="contains",
+            padrao="LOJA B",
+            padrao_normalizado="loja b",
+            categoria=par.cat_b,
+            tipo_transacao="despesa",
+        )
+        url = reverse("categorizacao:excluir_regra", kwargs={"pk": regra.pk})
+        resp = par.client_a.post(url)
+        assert_http_404(resp)
+
     # --- HTTP: API anônima ---
 
     def test_unit_sec_11_anonimo_api_serie_tendencia(self):

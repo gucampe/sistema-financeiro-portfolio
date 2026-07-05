@@ -12,7 +12,12 @@ from django.utils import timezone
 
 from cartoes.models import Cartao, Fatura
 from cartoes.services.faturas import faturas_atuais_cartoes, obter_ou_criar_fatura
-from cartoes.services.gestao_faturas import calcular_resumos_pagamento_bulk, calcular_resumo_pagamento, total_fatura
+from cartoes.services.gestao_faturas import (
+    calcular_resumos_pagamento_bulk,
+    calcular_resumo_pagamento,
+    total_fatura,
+    totais_faturas_bulk,
+)
 from contas.models import Conta
 from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import (
@@ -330,11 +335,20 @@ def resumo_cartoes_dashboard(user) -> dict[str, Any]:
     }
 
 
-def _item_saida_fatura(fatura: Fatura, hoje: date) -> dict[str, Any] | None:
+def _item_saida_fatura(
+    fatura: Fatura,
+    hoje: date,
+    *,
+    resumo=None,
+    total: Decimal | None = None,
+) -> dict[str, Any] | None:
     """Fatura pendente com lançamentos, pronta para exibição em saídas previstas."""
-    if total_fatura(fatura) <= 0:
+    if total is None:
+        total = total_fatura(fatura)
+    if total <= 0:
         return None
-    resumo = calcular_resumo_pagamento(fatura, hoje)
+    if resumo is None:
+        resumo = calcular_resumo_pagamento(fatura, hoje)
     if resumo.saldo <= 0:
         return None
     dias = (fatura.data_vencimento - hoje).days
@@ -368,10 +382,19 @@ def _faturas_saidas_previstas(
         .select_related("cartao")
     )
 
+    faturas_list = list(faturas)
+    resumos = calcular_resumos_pagamento_bulk(faturas_list, hoje)
+    totais = totais_faturas_bulk(faturas_list)
+
     atrasadas: list[dict[str, Any]] = []
     proximas: list[dict[str, Any]] = []
-    for fatura in faturas:
-        item = _item_saida_fatura(fatura, hoje)
+    for fatura in faturas_list:
+        item = _item_saida_fatura(
+            fatura,
+            hoje,
+            resumo=resumos.get(fatura.id),
+            total=totais.get(fatura.id, Decimal("0")),
+        )
         if item is None:
             continue
         if fatura.data_vencimento < hoje:
@@ -459,7 +482,7 @@ def fluxo_caixa_futuro_dashboard(
         usuario=OuterRef("usuario_id"),
         tipo="despesa",
     )
-    for fatura in (
+    faturas_30 = list(
         Fatura.objects.filter(
             usuario=user,
             data_vencimento__gte=hoje,
@@ -467,9 +490,11 @@ def fluxo_caixa_futuro_dashboard(
         )
         .filter(Exists(tem_lancamento))
         .select_related("cartao")
-    ):
-        resumo = calcular_resumo_pagamento(fatura, hoje)
-        if resumo.saldo > 0:
+    )
+    resumos_30 = calcular_resumos_pagamento_bulk(faturas_30, hoje)
+    for fatura in faturas_30:
+        resumo = resumos_30.get(fatura.id)
+        if resumo and resumo.saldo > 0:
             total_pagar_30 += resumo.saldo
 
     total_pagar_30 += (
@@ -549,9 +574,11 @@ def proximos_vencimentos(user, *, limit: int = 5) -> list[dict[str, Any]]:
         .select_related("cartao")
         .order_by("data_vencimento")
     )
-    for fatura in faturas:
-        resumo = calcular_resumo_pagamento(fatura, hoje)
-        if resumo.saldo <= 0:
+    faturas_list = list(faturas)
+    resumos = calcular_resumos_pagamento_bulk(faturas_list, hoje)
+    for fatura in faturas_list:
+        resumo = resumos.get(fatura.id)
+        if not resumo or resumo.saldo <= 0:
             continue
         itens.append(
             {
