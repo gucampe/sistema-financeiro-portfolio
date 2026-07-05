@@ -280,6 +280,8 @@ WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 60
 MEDIA_URL = '/media/'
 _media_root = config("MEDIA_ROOT", default="").strip()
 MEDIA_ROOT = Path(_media_root) if _media_root else BASE_DIR / 'media'
+# Produção: mídia só via view autenticada (nginx não expõe /media/ diretamente).
+PROTECT_MEDIA = config("PROTECT_MEDIA", default=IS_PRODUCTION, cast=bool)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

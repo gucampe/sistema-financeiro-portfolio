@@ -32,6 +32,12 @@ if "debug_toolbar" in settings.INSTALLED_APPS:
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+elif getattr(settings, "PROTECT_MEDIA", False):
+    from config.media_views import protected_media
+
+    urlpatterns += [
+        path("media/<path:path>", protected_media, name="protected_media"),
+    ]
 
 if settings.DEBUG and getattr(settings, "ENABLE_BENCHMARK_ROUTES", False):
     from config import benchmark_views
