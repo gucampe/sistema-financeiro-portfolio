@@ -306,6 +306,54 @@ class TestSegurancaUnit(TestCase):
         assert get_user_model().objects.filter(pk=pk_a).exists()
         assert get_user_model().objects.filter(pk=par.user_b.pk).exists() is False
 
+    def test_unit_sec_19_overposting_transacao_ignora_usuario_id(self):
+        par = par_usuarios()
+        url = reverse("transacoes:adicionar")
+        resp = par.client_a.post(
+            url,
+            {
+                "tipo": "despesa",
+                "conta": par.conta_a.pk,
+                "categoria": par.cat_a.pk,
+                "descricao": "Overpost TX",
+                "valor": "10.00",
+                "data": "2026-07-01",
+                "usuario_id": par.user_b.pk,
+                "is_staff": "true",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "ok"
+        tx = Transacao.objects.get(pk=data["id"])
+        assert tx.usuario_id == par.user_a.pk
+        assert tx.usuario.is_staff is False
+
+    def test_unit_sec_20_overposting_categoria_ignora_padrao_e_usuario(self):
+        from categorias.models import Categoria
+
+        par = par_usuarios()
+        url = reverse("categorias:adicionar")
+        resp = par.client_a.post(
+            url,
+            {
+                "nome": "Cat Overpost",
+                "icone": "fa-ellipsis-h",
+                "cor": "#4F46E5",
+                "tipo": "despesa",
+                "padrao": "true",
+                "usuario_id": par.user_b.pk,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "ok"
+        cat = Categoria.objects.get(pk=data["id"])
+        assert cat.usuario_id == par.user_a.pk
+        assert cat.padrao is False
+
 
 @pytest.mark.seguranca
 @pytest.mark.django_db

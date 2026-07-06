@@ -53,6 +53,34 @@ def _filtros_json():
     return json.dumps(payload_from_filtros(f))
 
 
+@override_settings(EXPORT_RATE_LIMIT_PER_HOUR=2, EXPORT_MAX_CONCURRENT_JOBS=10)
+@pytest.mark.django_db
+def test_export_rate_limit_atomico(export_user):
+    from relatorios.services.export.jobs import (
+        _increment_export_rate,
+        criar_export_job,
+        pode_criar_job,
+    )
+
+    assert _increment_export_rate(export_user.pk) == 1
+    assert _increment_export_rate(export_user.pk) == 2
+
+    ok, msg = pode_criar_job(export_user)
+    assert ok is False
+    assert "Limite" in msg
+
+    dominio = ExportJob.DOMINIO_TITULAR_LGPD
+    formato = ExportJob.FORMATO_ZIP
+    job, msg, _ = criar_export_job(
+        usuario=export_user,
+        dominio=dominio,
+        formato=formato,
+        filtros_json="{}",
+    )
+    assert job is None
+    assert "Limite" in msg
+
+
 @override_settings(EXPORT_JOB_BACKEND="sync")
 @pytest.mark.django_db
 def test_export_csv_transacoes_sync(export_user):
