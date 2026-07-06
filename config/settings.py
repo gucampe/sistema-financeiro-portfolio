@@ -284,6 +284,8 @@ _media_root = config("MEDIA_ROOT", default="").strip()
 MEDIA_ROOT = Path(_media_root) if _media_root else BASE_DIR / 'media'
 # Produção: mídia só via view autenticada (nginx não expõe /media/ diretamente).
 PROTECT_MEDIA = config("PROTECT_MEDIA", default=IS_PRODUCTION, cast=bool)
+# Opcional: exige header X-Health-Token para payload detalhado em /health/
+HEALTH_CHECK_TOKEN = config("HEALTH_CHECK_TOKEN", default="").strip()
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

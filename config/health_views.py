@@ -7,7 +7,7 @@ from django.db import connection
 from django.http import JsonResponse
 
 
-def health(request):
+def _run_checks() -> tuple[bool, dict[str, str]]:
     checks: dict[str, str] = {}
     ok = True
 
@@ -34,5 +34,25 @@ def health(request):
     else:
         checks["redis"] = "skipped"
 
-    payload = {"status": "ok" if ok else "degraded", "checks": checks}
-    return JsonResponse(payload, status=200 if ok else 503)
+    return ok, checks
+
+
+def health(request):
+    token = getattr(settings, "HEALTH_CHECK_TOKEN", "").strip()
+    detailed = False
+    if token:
+        if request.headers.get("X-Health-Token") != token:
+            return JsonResponse({"status": "unauthorized"}, status=401)
+        detailed = True
+
+    ok, checks = _run_checks()
+    status_label = "ok" if ok else "degraded"
+    http_status = 200 if ok else 503
+
+    if detailed:
+        return JsonResponse(
+            {"status": status_label, "checks": checks},
+            status=http_status,
+        )
+
+    return JsonResponse({"status": status_label}, status=http_status)

@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
@@ -22,6 +23,8 @@ from .services.gestao_faturas import (
     mover_lancamento,
     pagar_fatura,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _faturas_ordenadas_por_competencia(cartao, usuario):
@@ -212,8 +215,12 @@ def salvar_cartao(request):
                 "conta_padrao_nome": cartao.conta_padrao.nome,
             }
         )
-    except Exception as exc:
-        return JsonResponse({"status": "erro", "errors": str(exc)}, status=500)
+    except Exception:
+        logger.exception("cartoes.salvar_cartao falhou user_id=%s", request.user.pk)
+        return JsonResponse(
+            {"status": "erro", "errors": "Não foi possível concluir a operação."},
+            status=500,
+        )
 
 
 @login_required

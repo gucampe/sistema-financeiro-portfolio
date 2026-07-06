@@ -21,6 +21,7 @@ from relatorios.services.export.observability import log_export_event
 logger = logging.getLogger(__name__)
 
 RATE_LIMIT_KEY = "export_rate:{user_id}"
+RATE_LIMIT_TTL = 3600
 CONCURRENT_STATUSES = (
   ExportJob.STATUS_PENDING,
   ExportJob.STATUS_PROCESSING,
@@ -73,6 +74,33 @@ def _reconciliar_jobs_pendentes(usuario) -> None:
       log_export_event("orphan_redispatched", job)
 
 
+def _rate_limit_cache_key(user_id: int) -> str:
+  return RATE_LIMIT_KEY.format(user_id=user_id)
+
+
+def _current_export_rate(user_id: int) -> int:
+  return int(cache.get(_rate_limit_cache_key(user_id)) or 0)
+
+
+def _increment_export_rate(user_id: int) -> int:
+  key = _rate_limit_cache_key(user_id)
+  try:
+    return cache.incr(key)
+  except ValueError:
+    if cache.add(key, 1, timeout=RATE_LIMIT_TTL):
+      return 1
+    return cache.incr(key)
+
+
+def _decrement_export_rate(user_id: int) -> None:
+  key = _rate_limit_cache_key(user_id)
+  try:
+    if cache.decr(key) <= 0:
+      cache.delete(key)
+  except ValueError:
+    pass
+
+
 def pode_criar_job(usuario) -> tuple[bool, str]:
   _reconciliar_jobs_pendentes(usuario)
   concurrent = ExportJob.objects.filter(
@@ -82,18 +110,11 @@ def pode_criar_job(usuario) -> tuple[bool, str]:
   if concurrent >= _max_concurrent():
     return False, "Você já tem exportações em andamento. Aguarde a conclusão."
 
-  key = RATE_LIMIT_KEY.format(user_id=usuario.pk)
-  count = cache.get(key, 0)
+  count = _current_export_rate(usuario.pk)
   if count >= _rate_limit_per_hour():
     return False, "Limite de exportações por hora atingido. Tente mais tarde."
 
   return True, ""
-
-
-def _bump_rate_limit(usuario) -> None:
-  key = RATE_LIMIT_KEY.format(user_id=usuario.pk)
-  count = cache.get(key, 0)
-  cache.set(key, count + 1, timeout=3600)
 
 
 def validar_volume(dominio: str, formato: str, usuario, filtros_json: str) -> tuple[bool, str, int]:
@@ -159,6 +180,11 @@ def criar_export_job(
   if not ok_vol:
     return None, msg_vol, linhas
 
+  new_count = _increment_export_rate(usuario.pk)
+  if new_count > _rate_limit_per_hour():
+    _decrement_export_rate(usuario.pk)
+    return None, "Limite de exportações por hora atingido. Tente mais tarde.", 0
+
   expira = timezone.now() + timedelta(hours=_ttl_hours())
   job = ExportJob.objects.create(
     usuario=usuario,
@@ -171,7 +197,6 @@ def criar_export_job(
     idempotency_key=idempotency_key,
     linhas_count=linhas,
   )
-  _bump_rate_limit(usuario)
   log_export_event("created", job)
   return job, "", linhas
 

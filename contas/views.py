@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal, InvalidOperation
 
 from django.utils import timezone
@@ -12,6 +13,8 @@ from core.moeda import parse_decimal_moeda_br
 from transacoes.models import Transacao
 from transacoes.services import criar_transacao_saldo_inicial
 from .models import Conta
+
+logger = logging.getLogger(__name__)
 
 
 def _contas_queryset_com_saldo(usuario, *, ativa=None):
@@ -159,8 +162,12 @@ def salvar_conta(request):
                 "ativa": conta.ativa,
             }
         )
-    except Exception as e:
-        return JsonResponse({"status": "erro", "errors": str(e)}, status=500)
+    except Exception:
+        logger.exception("contas.salvar_conta falhou user_id=%s", request.user.pk)
+        return JsonResponse(
+            {"status": "erro", "errors": "Não foi possível concluir a operação."},
+            status=500,
+        )
 
 
 @login_required
