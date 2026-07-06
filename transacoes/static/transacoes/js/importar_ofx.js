@@ -54,6 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", (e) => {
     if (overlay.classList.contains("hidden")) return;
     if (rootImportConta?.contains(e.target)) return;
+    if (
+      e.target instanceof Element &&
+      e.target.closest("[data-combobox-list].combobox-list--floating")
+    ) {
+      return;
+    }
     contaComboboxOfx?.close();
   });
 

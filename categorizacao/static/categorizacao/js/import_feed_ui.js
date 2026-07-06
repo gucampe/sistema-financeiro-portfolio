@@ -183,6 +183,13 @@
     return { wrapper, sel, root, badgesEl, hintEl };
   }
 
+  function isPortaledComboboxTarget(target) {
+    return Boolean(
+      target instanceof Element &&
+        target.closest("[data-combobox-list].combobox-list--floating")
+    );
+  }
+
   function closeSiblingComboboxes(container, exceptRoot) {
     if (!container) return;
     container.querySelectorAll("[data-combobox-root]").forEach((root) => {
@@ -405,6 +412,7 @@
       container.dataset.comboboxOutsideBound = "1";
       document.addEventListener("click", (e) => {
         if (container.contains(e.target)) return;
+        if (isPortaledComboboxTarget(e.target)) return;
         closeSiblingComboboxes(container, null);
       });
     }
@@ -540,7 +548,11 @@
     if (summary.provaveis > 0) {
       const li = document.createElement("li");
       li.className = "flex items-start gap-2";
-      li.innerHTML = `<span class="text-gray-400" aria-hidden="true">•</span><span>${summary.provaveis} sugestão${summary.provaveis !== 1 ? "ões" : ""} provável${summary.provaveis !== 1 ? "is" : ""}</span>`;
+      const textoProvaveis =
+        summary.provaveis === 1
+          ? "1 sugestão provável"
+          : `${summary.provaveis} sugestões prováveis`;
+      li.innerHTML = `<span class="text-gray-400" aria-hidden="true">•</span><span>${textoProvaveis}</span>`;
       lista.appendChild(li);
     }
     if (summary.fracas > 0) {
@@ -552,7 +564,11 @@
     if (summary.semPadrao > 0) {
       const li = document.createElement("li");
       li.className = "flex items-start gap-2";
-      li.innerHTML = `<span class="text-gray-400" aria-hidden="true">•</span><span>${summary.semPadrao} transação${summary.semPadrao !== 1 ? "ões" : ""} sem padrão claro</span>`;
+      const textoSemPadrao =
+        summary.semPadrao === 1
+          ? "1 transação sem padrão claro"
+          : `${summary.semPadrao} transações sem padrão claro`;
+      li.innerHTML = `<span class="text-gray-400" aria-hidden="true">•</span><span>${textoSemPadrao}</span>`;
       lista.appendChild(li);
     }
 

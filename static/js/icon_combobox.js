@@ -21,6 +21,22 @@ function initIconCombobox(selectEl, kind) {
     return !!root.closest("[data-modal-panel], .modal-panel");
   }
 
+  function resolveFloatingZIndex() {
+    let el = root;
+    while (el) {
+      if (el.matches?.("[data-modal], .modal-overlay")) {
+        const z = parseInt(window.getComputedStyle(el).zIndex, 10);
+        if (Number.isFinite(z) && z > 0) return z + 10;
+      }
+      el = el.parentElement;
+    }
+    const token = getComputedStyle(document.documentElement)
+      .getPropertyValue("--z-combobox-floating")
+      .trim();
+    const parsed = parseInt(token, 10);
+    return Number.isFinite(parsed) ? parsed : 70;
+  }
+
   function positionFloatingList() {
     const rect = trigger.getBoundingClientRect();
     const maxH = Math.min(224, window.innerHeight - rect.bottom - 12);
@@ -29,6 +45,7 @@ function initIconCombobox(selectEl, kind) {
     list.style.left = `${rect.left}px`;
     list.style.width = `${rect.width}px`;
     list.style.maxHeight = `${Math.max(120, maxH)}px`;
+    list.style.zIndex = String(resolveFloatingZIndex());
     list.classList.add("combobox-list--floating");
   }
 
@@ -47,6 +64,7 @@ function initIconCombobox(selectEl, kind) {
     list.style.left = "";
     list.style.width = "";
     list.style.maxHeight = "";
+    list.style.zIndex = "";
     list.classList.remove("combobox-list--floating");
     listPortaled = false;
   }
