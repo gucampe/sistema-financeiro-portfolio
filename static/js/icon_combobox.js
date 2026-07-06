@@ -14,10 +14,52 @@ function initIconCombobox(selectEl, kind) {
   if (!trigger || !list || !iconSlot || !labelEl) return null;
 
   let isOpen = false;
+  let listPortaled = false;
+  const listPlaceholder = document.createComment("combobox-list-anchor");
+
+  function isInsideModalPanel() {
+    return !!root.closest("[data-modal-panel], .modal-panel");
+  }
+
+  function positionFloatingList() {
+    const rect = trigger.getBoundingClientRect();
+    const maxH = Math.min(224, window.innerHeight - rect.bottom - 12);
+    list.style.position = "fixed";
+    list.style.top = `${rect.bottom + 4}px`;
+    list.style.left = `${rect.left}px`;
+    list.style.width = `${rect.width}px`;
+    list.style.maxHeight = `${Math.max(120, maxH)}px`;
+    list.classList.add("combobox-list--floating");
+  }
+
+  function portalList() {
+    if (listPortaled || !isInsideModalPanel()) return;
+    list.after(listPlaceholder);
+    document.body.appendChild(list);
+    listPortaled = true;
+  }
+
+  function restoreList() {
+    if (!listPortaled) return;
+    listPlaceholder.replaceWith(list);
+    list.style.position = "";
+    list.style.top = "";
+    list.style.left = "";
+    list.style.width = "";
+    list.style.maxHeight = "";
+    list.classList.remove("combobox-list--floating");
+    listPortaled = false;
+  }
 
   function setOpen(next) {
     isOpen = next;
     trigger.setAttribute("aria-expanded", String(next));
+    if (next) {
+      portalList();
+      if (listPortaled) positionFloatingList();
+    } else {
+      restoreList();
+    }
     list.classList.toggle("hidden", !next);
     list.toggleAttribute("hidden", !next);
   }
@@ -131,6 +173,40 @@ function initIconCombobox(selectEl, kind) {
   });
 
   selectEl.addEventListener("change", syncTrigger);
+
+  window.addEventListener(
+    "resize",
+    () => {
+      if (isOpen && listPortaled) positionFloatingList();
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "scroll",
+    () => {
+      if (isOpen && listPortaled) positionFloatingList();
+    },
+    true
+  );
+
+  if (isInsideModalPanel()) {
+    const overlay = root.closest("[data-modal], .modal-overlay");
+    if (overlay) {
+      const observer = new MutationObserver(() => {
+        if (
+          overlay.classList.contains("hidden") ||
+          overlay.getAttribute("aria-hidden") === "true"
+        ) {
+          closeList();
+        }
+      });
+      observer.observe(overlay, {
+        attributes: true,
+        attributeFilter: ["class", "aria-hidden"],
+      });
+    }
+  }
 
   syncTrigger();
 

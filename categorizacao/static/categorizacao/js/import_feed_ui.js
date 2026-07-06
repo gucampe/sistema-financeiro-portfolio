@@ -587,7 +587,11 @@
     }
 
     if (categorizado) {
-      if (ctaEl) ctaEl.hidden = true;
+      if (ctaEl) {
+        ctaEl.hidden = false;
+        ctaEl.disabled = true;
+        ctaEl.setAttribute("aria-disabled", "true");
+      }
       if (resultEl) {
         let msg = `✨ ${categorizadas} organizada${categorizadas !== 1 ? "s" : ""}`;
         if (aprendidas > 0) {
@@ -597,7 +601,11 @@
         resultEl.hidden = false;
       }
     } else {
-      if (ctaEl) ctaEl.hidden = false;
+      if (ctaEl) {
+        ctaEl.hidden = false;
+        ctaEl.disabled = false;
+        ctaEl.removeAttribute("aria-disabled");
+      }
       if (resultEl) resultEl.hidden = true;
     }
 

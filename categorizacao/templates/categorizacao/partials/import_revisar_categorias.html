@@ -1,16 +1,20 @@
 <div id="modal-import-revisar-categorias" data-modal data-modal-fade="300"
      class="modal-overlay hidden z-[80]"
      data-modal-labelledby="modal-import-revisar-titulo">
-  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md p-5 sm:p-6">
-    <h3 id="modal-import-revisar-titulo" class="text-lg font-semibold text-gray-800">
-      Revisar categorizações
-    </h3>
-    <p id="modal-import-revisar-intro" class="mt-2 text-sm text-gray-600">
-      Algumas transações foram categorizadas com menor confiança.
-      Você pode revisar antes de continuar ou confirmar agora.
-    </p>
-    <ul id="modal-import-revisar-lista" class="mt-4 space-y-1.5 text-sm text-gray-600"></ul>
-    <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md">
+    <div class="shrink-0 px-5 py-4 sm:px-6 sm:py-5">
+      <h3 id="modal-import-revisar-titulo" class="text-lg font-semibold text-gray-800">
+        Revisar categorizações
+      </h3>
+      <p id="modal-import-revisar-intro" class="mt-2 text-sm text-gray-600">
+        Algumas transações foram categorizadas com menor confiança.
+        Você pode revisar antes de continuar ou confirmar agora.
+      </p>
+    </div>
+    <div class="modal-panel__body px-5 sm:px-6">
+      <ul id="modal-import-revisar-lista" class="space-y-1.5 text-sm text-gray-600"></ul>
+    </div>
+    <div class="modal-panel__footer flex flex-col-reverse gap-3 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
       <button type="button" id="btn-import-revisar-voltar" data-modal-close
               class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 w-full sm:w-auto">
         Revisar

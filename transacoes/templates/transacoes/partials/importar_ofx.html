@@ -2,35 +2,6 @@
 {% load icon_filters %}
 
 <style>
-  #overlay-importar-ofx {
-    box-sizing: border-box;
-  }
-  #overlay-importar-ofx .import-ofx-modal__center {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-  }
-  /* Shell: largura + altura máxima animadas entre passos (fade mais lento no conteúdo abaixo). */
-  #import-ofx-panel {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
-    max-width: min(32rem, 100%);
-    max-height: min(38rem, 86dvh);
-    transition:
-      max-width 0.7s cubic-bezier(0.33, 1, 0.68, 1),
-      max-height 0.7s cubic-bezier(0.33, 1, 0.68, 1);
-  }
-  #import-ofx-panel[data-ofx-step="preview"] {
-    max-width: min(80rem, 100%);
-    max-height: min(90dvh, calc(100dvh - 1rem));
-  }
-  @media (min-height: 880px) {
-    #import-ofx-panel[data-ofx-step="preview"] {
-      max-height: min(90dvh, calc(100dvh - 2rem));
-    }
-  }
   #import-ofx-step-upload,
   #import-ofx-step-preview {
     transition:
@@ -61,21 +32,16 @@
     0% { transform: translateX(-120%); }
     100% { transform: translateX(320%); }
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
 </style>
 <div id="overlay-importar-ofx" data-modal data-modal-fade="300"
-     class="modal-overlay hidden z-[230] w-full max-w-full min-w-0 overflow-y-auto overflow-x-hidden overscroll-x-none"
+     class="modal-overlay modal-overlay--import hidden z-[230]"
      data-preview-url="{% url 'transacoes:importar_ofx_preview' %}"
      data-confirm-url="{% url 'transacoes:importar_ofx_confirmar' %}"
      data-categorizar-url="{% url 'categorizacao:categorizar_import_batch' %}"
      data-categorizar-cancel-url="{% url 'categorizacao:categorizar_import_cancel' %}">
 
-  <!-- Wrapper: centralização; largura limitada via CSS acima + reparent ao body (JS). -->
-  <div class="import-ofx-modal__center flex min-h-full items-center justify-center p-2 sm:p-3 [@media(min-height:880px)]:sm:p-4 [@media(min-height:880px)]:md:p-6">
-  <div id="import-ofx-panel" data-modal-panel data-ofx-step="upload" class="bg-white rounded-2xl shadow-lg my-2 sm:my-3 flex flex-col overflow-hidden border border-[rgb(189_195_199_/_0.65)] relative [@media(min-height:880px)]:my-4 [@media(min-height:880px)]:sm:my-6">
+  <div id="import-ofx-panel" data-modal-panel data-ofx-step="upload"
+       class="bg-white rounded-2xl shadow-lg border border-[rgb(189_195_199_/_0.65)]">
 
     <button type="button" id="btn-fechar-import-ofx" data-modal-close
             class="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 flex items-center justify-center rounded-lg bg-gray-200 px-3 py-2 text-sm hover:bg-gray-300"
@@ -90,7 +56,7 @@
 
     <form id="form-csrf-import-ofx" class="hidden">{% csrf_token %}</form>
 
-    <div id="import-ofx-step-upload" class="p-3 sm:p-4 space-y-3 sm:space-y-4 shrink-0 [@media(min-height:880px)]:sm:p-6">
+    <div id="import-ofx-step-upload" class="p-3 sm:p-4 space-y-3 sm:space-y-4 [@media(min-height:880px)]:sm:p-6">
       <div data-combobox-root="conta" class="min-w-0 max-w-full">
         <label for="import-ofx-conta" class="block text-sm font-medium text-fg mb-1">Conta</label>
         <div class="relative mt-1 min-w-0 max-w-full">
@@ -125,13 +91,26 @@
                class="block w-full min-w-0 max-w-full text-sm text-gray-600 file:mr-2 sm:file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 sm:file:px-4 file:py-2 file:text-xs sm:file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100" />
       </div>
       <p id="import-ofx-erro-upload" class="hidden text-sm text-red-600"></p>
-      <button type="button" id="btn-import-ofx-preview"
-              class="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none">
-        Pré-visualizar
-      </button>
+      <div class="import-preview-btn-wrap">
+        <button type="button" id="btn-import-ofx-preview"
+                class="import-preview-btn w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none">
+          Pré-visualizar
+        </button>
+      </div>
     </div>
 
-    <div id="import-ofx-step-preview" class="hidden flex flex-col flex-1 min-h-0 min-w-0">
+    <div id="import-ofx-step-loading" class="import-step-loading hidden" aria-live="polite" aria-busy="true">
+      <div class="import-step-loading__content">
+        <div class="import-step-loading__spinner" aria-hidden="true"></div>
+        <p id="import-ofx-loading-msg" class="import-step-loading__title">Lendo seu extrato…</p>
+        <p class="import-step-loading__hint">Preparando a lista de transações</p>
+        <div class="import-step-loading__skeleton" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="import-ofx-step-preview" class="hidden min-w-0">
 
       <div id="import-ofx-sticky-toolbar" class="import-preview-toolbar hidden" hidden>
         <div class="import-preview-toolbar__inner">
@@ -155,8 +134,8 @@
         <div id="import-ofx-feed" class="import-preview-feed" role="feed" aria-label="Transações do extrato"></div>
       </div>
 
-      <p id="import-ofx-erro-preview" class="hidden px-3 sm:px-4 text-sm text-red-600 shrink-0"></p>
-      <div class="p-3 sm:p-4 flex flex-wrap gap-2 shrink-0 border-t border-gray-100 bg-white">
+      <p id="import-ofx-erro-preview" class="hidden px-3 sm:px-4 text-sm text-red-600"></p>
+      <div class="p-3 sm:p-4 flex flex-wrap gap-2 border-t border-gray-100 bg-white">
         <button type="button" id="btn-import-ofx-voltar"
                 class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300">
           Voltar
@@ -186,6 +165,5 @@
         <div id="import-ofx-cat-micro" class="w-full max-w-xs text-left space-y-1 min-h-[2rem]"></div>
       </div>
     </div>
-  </div>
   </div>
 </div>

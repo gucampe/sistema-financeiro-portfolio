@@ -1,15 +1,17 @@
 <div id="modal-confirmar-exclusao-cartao" data-modal data-modal-fade="300" class="modal-overlay hidden"
      data-modal-labelledby="modal-exclusao-cartao-titulo">
-  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md p-5 sm:p-6">
-    <h3 id="modal-exclusao-cartao-titulo" class="text-lg font-semibold text-gray-800">
-      Excluir cartão
-    </h3>
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md">
+    <div class="modal-panel__body space-y-2 px-5 py-5 sm:px-6 sm:py-6">
+      <h3 id="modal-exclusao-cartao-titulo" class="text-lg font-semibold text-gray-800">
+        Excluir cartão
+      </h3>
 
-    <p class="mt-2 text-sm text-gray-500">
-      Tem certeza que deseja excluir este cartão? Essa ação não pode ser desfeita.
-    </p>
+      <p class="text-sm text-gray-500">
+        Tem certeza que deseja excluir este cartão? Essa ação não pode ser desfeita.
+      </p>
+    </div>
 
-    <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <div class="modal-panel__footer flex flex-col-reverse gap-3 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
       <button id="cancelar-exclusao-cartao" type="button" data-modal-close class="btn btn-secondary btn-sm w-full sm:w-auto">
         Cancelar
       </button>

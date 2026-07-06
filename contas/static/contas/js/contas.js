@@ -59,11 +59,11 @@
     toastEl.classList.remove("bg-green-600", "bg-red-600");
     toastEl.classList.add(tipo === "erro" ? toastColors.erro : toastColors.sucesso);
     if (toastMsg) toastMsg.textContent = message;
-    toastEl.classList.remove("opacity-0", "pointer-events-none");
-    toastEl.classList.add("opacity-100");
+    toastEl.classList.remove("opacity-0", "pointer-events-none", "is-visible");
+    toastEl.classList.add("opacity-100", "pointer-events-auto", "is-visible");
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
-      toastEl.classList.remove("opacity-100");
+      toastEl.classList.remove("opacity-100", "pointer-events-auto", "is-visible");
       toastEl.classList.add("opacity-0", "pointer-events-none");
     }, 4000);
   }
@@ -71,7 +71,7 @@
   if (toastClose) {
     toastClose.addEventListener("click", () => {
       clearTimeout(toastTimeout);
-      toastEl.classList.remove("opacity-100");
+      toastEl.classList.remove("opacity-100", "pointer-events-auto", "is-visible");
       toastEl.classList.add("opacity-0", "pointer-events-none");
     });
   }

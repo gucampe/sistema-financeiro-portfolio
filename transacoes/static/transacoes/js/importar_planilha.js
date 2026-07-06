@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loading = document.getElementById("import-planilha-loading");
   const formCsrf = document.getElementById("form-csrf-import-planilha");
   const panel = document.getElementById("import-planilha-panel");
+  const stepLoading = document.getElementById("import-planilha-step-loading");
+  const loadingMsg = document.getElementById("import-planilha-loading-msg");
+  const btnPreviewWrap = btnPreview?.closest(".import-preview-btn-wrap");
   const btnCategorizar = document.getElementById("btn-import-planilha-categorizar-ia");
   const catProcessing = document.getElementById("import-planilha-cat-processing");
   const catMsg = document.getElementById("import-planilha-cat-msg");
@@ -104,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /** Tempo do fade “leave” antes da troca de passo (alinha ao opacity ~0,65s no CSS + folga). */
   const PLANILHA_FADE_MS = 700;
+  const UPLOAD_LEAVE_MS = 320;
   let stepAnimTimer = null;
 
   function clearStepAnimTimer() {
@@ -114,8 +118,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function limparClassesPasso() {
-    stepUpload?.classList.remove("import-planilha-step-leaving", "import-planilha-step-enter-from");
+    stepUpload?.classList.remove("import-planilha-step-leaving", "import-planilha-step-enter-from", "import-upload--leaving");
     stepPreview?.classList.remove("import-planilha-step-leaving", "import-planilha-step-enter-from");
+    btnPreviewWrap?.classList.remove("is-hidden");
+    if (btnPreview) btnPreview.disabled = false;
+  }
+
+  function beginPreviewLoading(message = "Lendo sua planilha…") {
+    btnPreview.disabled = true;
+    btnPreviewWrap?.classList.add("is-hidden");
+    stepUpload?.classList.add("import-upload--leaving");
+    if (loadingMsg) loadingMsg.textContent = message;
+
+    return new Promise((resolve) => {
+      window.setTimeout(() => {
+        stepUpload?.classList.add("hidden");
+        stepUpload?.classList.remove("import-upload--leaving");
+        if (panel) panel.dataset.planilhaStep = "preview";
+        stepLoading?.classList.remove("hidden");
+        resolve();
+      }, UPLOAD_LEAVE_MS);
+    });
+  }
+
+  function cancelPreviewLoading() {
+    stepLoading?.classList.add("hidden");
+    if (panel) panel.dataset.planilhaStep = "upload";
+    stepUpload?.classList.remove("hidden", "import-upload--leaving");
+    btnPreviewWrap?.classList.remove("is-hidden");
+    if (btnPreview) btnPreview.disabled = false;
   }
 
   function resetModal() {
@@ -125,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (panel) panel.dataset.planilhaStep = "upload";
     state = { contaId: null, categorias: null, chavePorTipo: null, linhas: [], categorizado: false };
     stepUpload?.classList.remove("hidden");
+    stepLoading?.classList.add("hidden");
     stepPreview?.classList.add("hidden");
     if (inputArquivo) inputArquivo.value = "";
     if (feedContainer) feedContainer.innerHTML = "";
@@ -144,38 +176,29 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoading(false);
   }
 
-  /** Crossfade + leve translateY; largura do painel em ~240ms (CSS). */
+  /** Crossfade no passo preview (upload já foi substituído pelo loading). */
   function irParaPreview() {
-    if (!stepUpload || !stepPreview || !panel) {
-      stepUpload?.classList.add("hidden");
+    if (!stepPreview || !panel) {
       stepPreview?.classList.remove("hidden");
       return;
     }
+    clearStepAnimTimer();
+    limparClassesPasso();
+    stepLoading?.classList.add("hidden");
+    if (panel) panel.dataset.planilhaStep = "preview";
+    stepUpload?.classList.add("hidden");
+    stepPreview.classList.remove("hidden");
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      limparClassesPasso();
-      panel.dataset.planilhaStep = "preview";
-      stepUpload.classList.add("hidden");
-      stepPreview.classList.remove("hidden");
       return;
     }
 
-    clearStepAnimTimer();
-    limparClassesPasso();
-    panel.dataset.planilhaStep = "preview";
-    stepUpload.classList.add("import-planilha-step-leaving");
-
-    stepAnimTimer = window.setTimeout(() => {
-      stepAnimTimer = null;
-      stepUpload.classList.remove("import-planilha-step-leaving");
-      stepUpload.classList.add("hidden");
-      stepPreview.classList.remove("hidden");
-      stepPreview.classList.add("import-planilha-step-enter-from");
+    stepPreview.classList.add("import-planilha-step-enter-from");
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          stepPreview.classList.remove("import-planilha-step-enter-from");
-        });
+        stepPreview.classList.remove("import-planilha-step-enter-from");
       });
-    }, PLANILHA_FADE_MS);
+    });
   }
 
   function irParaUpload() {
@@ -184,13 +207,14 @@ document.addEventListener("DOMContentLoaded", () => {
       catAbort = null;
     }
     window.CategorizacaoImportWow?.hideOverlay(catProcessing);
+    stepLoading?.classList.add("hidden");
     if (!stepUpload || !stepPreview || !panel) {
       stepPreview?.classList.add("hidden");
       stepUpload?.classList.remove("hidden");
       showErrPreview("");
       if (feedContainer) feedContainer.innerHTML = "";
-    stickyToolbar?.classList.add("hidden");
-    if (stickyToolbar) stickyToolbar.hidden = true;
+      stickyToolbar?.classList.add("hidden");
+      if (stickyToolbar) stickyToolbar.hidden = true;
       return;
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -358,8 +382,8 @@ document.addEventListener("DOMContentLoaded", () => {
         showErrPreview(err?.message || "Não foi possível categorizar. Tente novamente.");
       }
     } finally {
-      btnCategorizar.disabled = false;
       btnConfirmar.disabled = false;
+      btnCategorizar.disabled = !state.categorizado;
       catAbort = null;
     }
   });
@@ -406,8 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fd.append("conta_id", contaId);
     fd.append("arquivo", file);
 
-    btnPreview.disabled = true;
-    showLoading(true);
+    await beginPreviewLoading("Lendo sua planilha…");
     try {
       const res = await fetch(previewUrl, {
         method: "POST",
@@ -419,10 +442,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.status !== "ok") {
+        cancelPreviewLoading();
         showErrUpload(data.message || `Erro ao ler o arquivo (${res.status}).`);
         return;
       }
       if (!data.linhas?.length) {
+        cancelPreviewLoading();
         showErrUpload("Nenhuma transação encontrada nesta planilha.");
         return;
       }
@@ -430,14 +455,11 @@ document.addEventListener("DOMContentLoaded", () => {
       state.categorias = data.categorias;
       state.chavePorTipo = data.categorias_chave_por_tipo_transacao;
       state.linhas = data.linhas;
-      showLoading(false);
       montarTabela(data);
       irParaPreview();
     } catch {
+      cancelPreviewLoading();
       showErrUpload("Falha de rede. Tente novamente.");
-    } finally {
-      btnPreview.disabled = false;
-      showLoading(false);
     }
   });
 

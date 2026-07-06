@@ -14,57 +14,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Toast -->
-<div id="toast"
-     class="fixed bottom-4 right-4 px-4 py-3 rounded-lg text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-between gap-4">
-  <span id="toast-msg"></span>
-  <button id="toast-close" class="font-bold text-white/90 hover:text-white">✕</button>
-</div>
-
-<!-- Modal Migração (excluir categoria com transações) -->
-<div id="overlay-migracao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
-     data-modal-labelledby="modal-migracao-titulo">
-  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md p-5 sm:p-6">
-    <h3 id="modal-migracao-titulo" class="text-lg font-semibold mb-2 text-fg">Transferir transações e excluir</h3>
-    <p id="modal-migracao-msg" class="mb-4 text-sm text-fg-muted">
-      Esta categoria está vinculada a <span id="migracao-count">0</span> transações. Escolha uma nova categoria para transferi-las.
-    </p>
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-2 text-fg">Nova categoria</label>
-      <select id="select-migracao-categoria"
-              class="input w-full">
-        <option value="">Selecione uma categoria</option>
-      </select>
-    </div>
-    <div id="erro-migracao" class="hidden mb-4 p-3 rounded-lg text-sm text-red-600 bg-red-50 border border-red-200"></div>
-    <div class="flex justify-around gap-3">
-      <button id="btn-cancelar-migracao" type="button" data-modal-close class="btn btn-secondary btn-sm">
-        Cancelar
-      </button>
-      <button id="btn-confirmar-migracao" type="button" class="btn btn-danger btn-sm">
-        Transferir e excluir
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Arquivar / Excluir definitivamente -->
-<div id="overlay-acao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
-     data-modal-labelledby="modal-acao-titulo">
-  <div data-modal-panel class="modal-panel mx-auto w-full max-w-sm p-5 sm:p-6 text-center">
-    <h3 id="modal-acao-titulo" class="text-lg font-semibold mb-2 text-fg">Arquivar categoria?</h3>
-    <p id="modal-acao-msg" class="mb-6 text-sm text-fg-muted">A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.</p>
-    <div class="flex justify-around gap-3">
-      <button id="btn-cancelar-acao" type="button" data-modal-close class="btn btn-secondary btn-sm">
-        Cancelar
-      </button>
-      <button id="btn-confirmar-acao" type="button" class="btn btn-warning-soft btn-sm">
-        Arquivar
-      </button>
-    </div>
-  </div>
-</div>
-
 <link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
 {% include 'partials/lista_contextual_sheet.html' %}
 
@@ -164,9 +113,68 @@
 </div>
 </div>
 
-{% include 'categorias/partials/adicionar_categoria_modal.html' %}
-
 <script src="{% static 'js/lista_contextual.js' %}"></script>
 <script src="{% static 'categorias/js/alternar_categoria.js' %}"></script>
 <script src="{% static 'categorias/js/adicionar_categoria.js' %}"></script>
+{% endblock %}
+
+{% block app_modals %}
+{% include 'categorias/partials/adicionar_categoria_modal.html' %}
+
+<!-- Toast (portalizado para #app-toast-root via toast.js) -->
+<div id="toast"
+     class="app-toast opacity-0 pointer-events-none"
+     role="status">
+  <span id="toast-msg"></span>
+  <button id="toast-close" type="button" class="font-bold text-white/90 hover:text-white" aria-label="Fechar">✕</button>
+</div>
+
+<!-- Modal Migração (excluir categoria com transações) -->
+<div id="overlay-migracao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-migracao-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-md">
+    <div class="shrink-0 px-5 py-4 sm:px-6 sm:py-5">
+      <h3 id="modal-migracao-titulo" class="text-lg font-semibold text-fg">Transferir transações e excluir</h3>
+      <p id="modal-migracao-msg" class="mt-2 text-sm text-fg-muted">
+        Esta categoria está vinculada a <span id="migracao-count">0</span> transações. Escolha uma nova categoria para transferi-las.
+      </p>
+    </div>
+    <div class="modal-panel__body space-y-4 px-5 sm:px-6">
+      <div>
+        <label for="select-migracao-categoria" class="mb-2 block text-sm font-medium text-fg">Nova categoria</label>
+        <select id="select-migracao-categoria" class="input w-full">
+          <option value="">Selecione uma categoria</option>
+        </select>
+      </div>
+      <div id="erro-migracao" class="hidden rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"></div>
+    </div>
+    <div class="modal-panel__footer flex justify-around gap-3 px-5 py-4 sm:px-6">
+      <button id="btn-cancelar-migracao" type="button" data-modal-close class="btn btn-secondary btn-sm">
+        Cancelar
+      </button>
+      <button id="btn-confirmar-migracao" type="button" class="btn btn-danger btn-sm">
+        Transferir e excluir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Arquivar / Excluir definitivamente -->
+<div id="overlay-acao-categoria" data-modal data-modal-fade="300" class="modal-overlay hidden"
+     data-modal-labelledby="modal-acao-titulo">
+  <div data-modal-panel class="modal-panel mx-auto w-full max-w-sm text-center">
+    <div class="modal-panel__body space-y-2 px-5 py-5 sm:px-6 sm:py-6">
+      <h3 id="modal-acao-titulo" class="text-lg font-semibold text-fg">Arquivar categoria?</h3>
+      <p id="modal-acao-msg" class="text-sm text-fg-muted">A categoria será arquivada e não aparecerá mais nas listas. Você poderá excluí-la definitivamente depois, se não tiver transações vinculadas.</p>
+    </div>
+    <div class="modal-panel__footer flex justify-around gap-3 px-5 py-4 sm:px-6">
+      <button id="btn-cancelar-acao" type="button" data-modal-close class="btn btn-secondary btn-sm">
+        Cancelar
+      </button>
+      <button id="btn-confirmar-acao" type="button" class="btn btn-warning-soft btn-sm">
+        Arquivar
+      </button>
+    </div>
+  </div>
+</div>
 {% endblock %}

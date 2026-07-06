@@ -1,16 +1,228 @@
-/* Preview importação — workspace compacto (estilos estáveis) */
+/* ── Modais de importação (OFX + planilha) ── */
 
-#import-ofx-step-preview,
-#import-planilha-step-preview {
+.modal-overlay--import {
+  align-items: center !important;
+  justify-content: center;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  padding: max(0.5rem, env(safe-area-inset-top, 0px)) 0.75rem
+    max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Preview com muitas linhas: ancora no topo para caber na viewport + scroll interno */
+.modal-overlay--import:has([data-ofx-step="preview"]),
+.modal-overlay--import:has([data-planilha-step="preview"]) {
+  align-items: flex-start !important;
+}
+
+@media (min-width: 640px) {
+  .modal-overlay--import {
+    padding: 1rem 1.5rem;
+  }
+}
+
+#import-ofx-panel,
+#import-planilha-panel {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 32rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  max-height: min(38rem, calc(100dvh - 1.5rem), calc(100vh - 1.5rem));
+  transition:
+    max-width 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+    max-height 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+#import-ofx-panel[data-ofx-step="preview"],
+#import-planilha-panel[data-planilha-step="preview"] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  max-width: min(80rem, calc(100vw - 1.5rem));
+  height: min(90dvh, calc(100dvh - 1.5rem), calc(100vh - 1.5rem));
+  max-height: min(90dvh, calc(100dvh - 1.5rem), calc(100vh - 1.5rem));
+}
+
+#import-ofx-step-preview:not(.hidden),
+#import-planilha-step-preview:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
   background: #fafafa;
 }
 
-.import-preview-scroll {
+#import-ofx-step-preview:not(.hidden) > *:not(.import-preview-scroll),
+#import-planilha-step-preview:not(.hidden) > *:not(.import-preview-scroll) {
+  flex-shrink: 0;
+}
+
+/* ── Transição upload → preview ── */
+
+.import-preview-btn-wrap {
+  overflow: hidden;
+  max-height: 3.5rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+    opacity 0.28s ease,
+    transform 0.28s ease,
+    margin 0.35s ease;
+}
+
+.import-preview-btn-wrap.is-hidden {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+.import-preview-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#import-ofx-step-upload.import-upload--leaving,
+#import-planilha-step-upload.import-upload--leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity 0.32s ease,
+    transform 0.32s ease;
+}
+
+#import-ofx-step-loading:not(.hidden),
+#import-planilha-step-loading:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.import-step-loading__content {
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem 2.5rem;
+  text-align: center;
+}
+
+.import-step-loading__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 3px solid #d1fae5;
+  border-top-color: #059669;
+  animation: importStepSpin 0.75s linear infinite;
+}
+
+.import-step-loading__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.import-step-loading__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.import-step-loading__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(100%, 28rem);
+  margin-top: 0.75rem;
+}
+
+.import-step-loading__skeleton span {
+  display: block;
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 45%, #f3f4f6 90%);
+  background-size: 200% 100%;
+  animation: importStepShimmer 1.4s ease-in-out infinite;
+}
+
+.import-step-loading__skeleton span:nth-child(2) {
+  animation-delay: 0.12s;
+  width: 92%;
+}
+
+.import-step-loading__skeleton span:nth-child(3) {
+  animation-delay: 0.24s;
+  width: 88%;
+}
+
+.import-step-loading__skeleton span:nth-child(4) {
+  animation-delay: 0.36s;
+  width: 94%;
+}
+
+.import-step-loading__skeleton span:nth-child(5) {
+  animation-delay: 0.48s;
+  width: 80%;
+}
+
+@keyframes importStepSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes importStepShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-preview-btn-wrap,
+  .import-preview-btn-wrap.is-hidden,
+  #import-ofx-step-upload.import-upload--leaving,
+  #import-planilha-step-upload.import-upload--leaving {
+    transition: none;
+  }
+
+  .import-step-loading__spinner,
+  .import-step-loading__skeleton span {
+    animation: none;
+  }
+}
+
+#import-ofx-step-upload,
+#import-planilha-step-upload {
+  flex-shrink: 0;
+  transition: opacity 0.32s ease, transform 0.32s ease;
+}
+
+/* Preview importação — workspace compacto (estilos estáveis) */
+
+.import-preview-scroll {
+  flex: 1 1 0%;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: 0.35rem 0.75rem 0.5rem;
 }
@@ -26,10 +238,9 @@
   max-width: none;
 }
 
-/* ── Toolbar sticky ── */
+/* ── Toolbar (fixa no topo do passo preview, acima da lista) ── */
 .import-preview-toolbar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 5;
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
@@ -117,8 +328,9 @@
 }
 
 .import-preview-toolbar__cta:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
+  background: #6b7280;
 }
 
 .import-preview-toolbar__cta[hidden] {

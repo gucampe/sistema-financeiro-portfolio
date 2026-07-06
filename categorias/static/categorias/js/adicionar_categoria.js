@@ -62,12 +62,12 @@ function showToast(message, tipo = "sucesso") {
 
   if (toastMsg) toastMsg.textContent = message;
 
-  toast.classList.remove("opacity-0", "pointer-events-none");
-  toast.classList.add("opacity-100");
+  toast.classList.remove("opacity-0", "pointer-events-none", "is-visible");
+  toast.classList.add("opacity-100", "pointer-events-auto", "is-visible");
 
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
-    toast.classList.remove("opacity-100");
+    toast.classList.remove("opacity-100", "pointer-events-auto", "is-visible");
     toast.classList.add("opacity-0", "pointer-events-none");
   }, 4000);
 }
@@ -75,7 +75,7 @@ function showToast(message, tipo = "sucesso") {
 if (toastClose) {
   toastClose.addEventListener("click", () => {
     clearTimeout(toastTimeout);
-    toast.classList.remove("opacity-100");
+    toast.classList.remove("opacity-100", "pointer-events-auto", "is-visible");
     toast.classList.add("opacity-0", "pointer-events-none");
   });
 }

@@ -19,6 +19,8 @@
   /** Mesmo fade do modal de transação (opacity 300ms + hidden após o fade). */
   const DEFAULT_FADE_MS = 300;
   const PANEL_SCALE_MS = 300;
+  const Z_MODAL_BASE = 50;
+  const Z_MODAL_STACK_STEP = 10;
 
   /** @type {Map<HTMLElement, { onOpen?: (el: HTMLElement) => void, onClose?: (el: HTMLElement) => void, onEscape?: (e: KeyboardEvent) => boolean | void, fadeMs?: number }>} */
   const registry = new Map();
@@ -84,6 +86,27 @@
     const style = window.getComputedStyle(overlay);
     if (style.display === "none" || style.visibility === "hidden") return false;
     return true;
+  }
+
+  function applyStackZIndex(overlay) {
+    const open = getOpenOverlays().filter((o) => o !== overlay);
+    if (!open.length) return;
+
+    const topZ = open.reduce((max, o) => Math.max(max, getZIndex(o)), Z_MODAL_BASE);
+    const ownZ = getZIndex(overlay);
+    const baseZ = ownZ > 0 ? ownZ : Z_MODAL_BASE;
+
+    if (baseZ <= topZ) {
+      overlay.dataset.modalStacked = "1";
+      overlay.style.zIndex = String(topZ + Z_MODAL_STACK_STEP);
+    }
+  }
+
+  function clearStackZIndex(overlay) {
+    if (overlay.dataset.modalStacked === "1") {
+      delete overlay.dataset.modalStacked;
+      overlay.style.zIndex = "";
+    }
   }
 
   function getZIndex(el) {
@@ -309,6 +332,7 @@
 
     const finish = () => {
       overlay.classList.add("hidden");
+      clearStackZIndex(overlay);
       setAriaOpen(overlay, false);
       if (usesOpacityTransition(overlay)) {
         overlay.classList.remove("opacity-100");
@@ -356,6 +380,7 @@
       lastFocus.set(overlay, document.activeElement);
     }
 
+    applyStackZIndex(overlay);
     defaultOpen(overlay);
     const entry = registry.get(overlay);
     if (entry?.onOpen) {
