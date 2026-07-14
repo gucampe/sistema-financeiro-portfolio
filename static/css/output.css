@@ -1817,10 +1817,6 @@ select.\!input,
   position: relative;
 }
 
-.\!sticky {
-  position: sticky !important;
-}
-
 .sticky {
   position: sticky;
 }
@@ -2089,10 +2085,6 @@ select.\!input,
   margin-top: 3.5rem;
 }
 
-.mt-16 {
-  margin-top: 4rem;
-}
-
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -2115,10 +2107,6 @@ select.\!input,
 
 .mt-6 {
   margin-top: 1.5rem;
-}
-
-.mt-7 {
-  margin-top: 1.75rem;
 }
 
 .mt-8 {
@@ -2531,11 +2519,6 @@ select.\!input,
 
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-.translate-y-full {
-  --tw-translate-y: 100%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -3836,10 +3819,6 @@ select.\!input,
   padding-bottom: 5rem;
 }
 
-.pb-24 {
-  padding-bottom: 6rem;
-}
-
 .pb-28 {
   padding-bottom: 7rem;
 }
@@ -3963,10 +3942,6 @@ select.\!input,
   font-size: 0.7rem;
 }
 
-.text-\[1\.0625rem\] {
-  font-size: 1.0625rem;
-}
-
 .text-\[10px\] {
   font-size: 10px;
 }
@@ -4049,12 +4024,8 @@ select.\!input,
   line-height: 1.65;
 }
 
-.leading-\[1\.75\] {
-  line-height: 1.75;
-}
-
-.leading-\[1\.78\] {
-  line-height: 1.78;
+.leading-\[1\.7\] {
+  line-height: 1.7;
 }
 
 .leading-none {
@@ -4073,8 +4044,8 @@ select.\!input,
   line-height: 1.25;
 }
 
-.tracking-\[0\.14em\] {
-  letter-spacing: 0.14em;
+.tracking-\[0\.12em\] {
+  letter-spacing: 0.12em;
 }
 
 .tracking-tight {
@@ -5391,10 +5362,6 @@ select.\!input,
     order: 0;
   }
 
-  .sm\:col-span-2 {
-    grid-column: span 2 / span 2;
-  }
-
   .sm\:-mx-0 {
     margin-left: -0px;
     margin-right: -0px;
@@ -5828,6 +5795,10 @@ select.\!input,
     text-align: left;
   }
 
+  .sm\:text-center {
+    text-align: center;
+  }
+
   .sm\:text-right {
     text-align: right;
   }
@@ -6003,10 +5974,6 @@ select.\!input,
     position: relative;
   }
 
-  .lg\:col-span-1 {
-    grid-column: span 1 / span 1;
-  }
-
   .lg\:mx-0 {
     margin-left: 0px;
     margin-right: 0px;
@@ -6076,10 +6043,6 @@ select.\!input,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -6132,10 +6095,6 @@ select.\!input,
     gap: 1rem;
   }
 
-  .lg\:gap-8 {
-    gap: 2rem;
-  }
-
   .lg\:gap-x-0 {
     -moz-column-gap: 0px;
          column-gap: 0px;
@@ -6162,8 +6121,8 @@ select.\!input,
     border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
   }
 
-  .lg\:p-9 {
-    padding: 2.25rem;
+  .lg\:border-gray-200\/80 {
+    border-color: rgb(229 231 235 / 0.8);
   }
 
   .lg\:px-0 {
@@ -6200,10 +6159,6 @@ select.\!input,
 
   .lg\:pt-0 {
     padding-top: 0px;
-  }
-
-  .lg\:text-left {
-    text-align: left;
   }
 
   .lg\:text-\[13px\] {
