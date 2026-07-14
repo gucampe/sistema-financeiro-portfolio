@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% block meta %}
+    <title>GranaGo — Saiba para onde vai cada real do seu dinheiro</title>
+    <meta
+      name="description"
+      content="Para quem chega no final do mês com o saldo abaixo do esperado e não consegue explicar por quê. Controle financeiro essencial, simples e fácil de manter."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="{{ site_url }}/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="GranaGo" />
+    <meta property="og:title" content="GranaGo — Saiba para onde vai cada real do seu dinheiro" />
+    <meta
+      property="og:description"
+      content="Você não gasta demais. Você simplesmente não enxerga o suficiente. Controle financeiro essencial para quem desistiu dos apps complicados."
+    />
+    <meta property="og:url" content="{{ site_url }}/" />
+    <meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="GranaGo — Controle Financeiro Essencial" />
+    <meta
+      name="twitter:description"
+      content="Saiba para onde vai cada real — sem planilha, sem complicação, sem precisar ser financista."
+    />
+    {% endblock %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'landing/css/landing.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-surface font-sans text-fg antialiased">
+    {% block body %}{% endblock %}
+    {% include "partials/cookie_consent.html" %}
+    <script src="{% static 'js/cookie_consent.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

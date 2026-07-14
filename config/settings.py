@@ -296,6 +296,10 @@ LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = "relatorios:home"  # após login: página de relatórios
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
 
+# Landing page pública (/)
+LANDING_CHECKOUT_URL = config("LANDING_CHECKOUT_URL", default="").strip()
+SITE_URL = config("SITE_URL", default="").strip()
+
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)
 SESSION_COOKIE_HTTPONLY = True

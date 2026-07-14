@@ -9,6 +9,7 @@ from .views import (
     configuracoes,
     configuracoes_alterar_senha,
     excluir_conta,
+    landing_view,
     login_view,
     primeiros_passos,
     primeiros_passos_status,
@@ -19,6 +20,7 @@ from .views import (
 app_name = "usuarios"
 
 urlpatterns = [
+    path("", landing_view, name="landing"),
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("privacidade/", privacidade_view, name="privacidade"),

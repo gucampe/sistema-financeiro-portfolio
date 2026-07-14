@@ -1,0 +1,35 @@
+<section id="hero" class="lp-section lp-band lp-band--hero lp-reveal">
+  <div class="lp-deco-grid" aria-hidden="true"></div>
+
+  <div class="lp-band__inner lp-band__inner--hero lp-container">
+    <div class="lp-hero-grid">
+      <div class="lp-hero-copy relative z-10 min-w-0">
+        <p class="lp-eyebrow lp-hero-eyebrow max-w-lg">
+          Você sabe quanto ganhou esse mês. Mas sabe pra onde foi cada real?
+        </p>
+        <h1 class="lp-display lp-hero-title">
+          Você não gasta demais. Você simplesmente não enxerga o suficiente.
+        </h1>
+        <div class="lp-hero-sub">
+          <p class="lp-body">
+            Para quem chega no final do mês com o saldo abaixo do esperado e não consegue explicar por quê.
+          </p>
+          <p class="lp-body">
+            Se você já tentou apps e planilhas e desistiu porque eram complicados demais — o GranaGo foi feito para você.
+          </p>
+        </div>
+        <div class="lp-hero-cta">
+          <a href="{{ checkout_url }}" class="btn btn-primary lp-hero-btn px-8 py-3.5 text-base btn-block sm:w-auto">
+            ASSINAR AGORA — R$8/mês
+          </a>
+          <p class="lp-hero-note text-base leading-relaxed text-fg-muted sm:max-w-xs">
+            Garantia de 30 dias sem perguntas.
+          </p>
+        </div>
+      </div>
+      <div class="lp-hero-visual lp-reveal lp-reveal--delay relative z-10">
+        {% include "landing/partials/mockup_dashboard.html" with mockup_variant="hero" %}
+      </div>
+    </div>
+  </div>
+</section>

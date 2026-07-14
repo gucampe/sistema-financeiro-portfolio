@@ -37,6 +37,22 @@ def _legal_context():
     }
 
 
+@never_cache
+def landing_view(request):
+    if request.user.is_authenticated:
+        return redirect("relatorios:home")
+    checkout_url = getattr(settings, "LANDING_CHECKOUT_URL", "") or "#oferta"
+    site_url = getattr(settings, "SITE_URL", "") or request.build_absolute_uri("/")
+    return render(
+        request,
+        "landing/landing.html",
+        {
+            "checkout_url": checkout_url,
+            "site_url": site_url.rstrip("/"),
+        },
+    )
+
+
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email")

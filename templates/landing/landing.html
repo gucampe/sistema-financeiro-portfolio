@@ -1,0 +1,49 @@
+{% extends "landing/base_landing.html" %}
+{% load static %}
+
+{% block body %}
+<main id="lp-main" class="lp-main">
+  {% include "landing/partials/header.html" %}
+  {% include "landing/partials/hero.html" %}
+  {% include "landing/partials/trust_bar.html" %}
+  {% include "landing/partials/problem.html" %}
+  {% include "landing/partials/benefits.html" %}
+  {% include "landing/partials/audience.html" %}
+  {% include "landing/partials/how_it_works.html" %}
+  {% include "landing/partials/product_preview.html" %}
+  {% include "landing/partials/founder.html" %}
+  {% include "landing/partials/offer.html" %}
+  {% include "landing/partials/faq.html" %}
+  {% include "landing/partials/cta_final.html" %}
+  {% include "landing/partials/footer.html" %}
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GranaGo",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "description": "Plataforma de controle financeiro essencial. Simples, leve e inteligente — saiba para onde vai cada real do seu dinheiro.",
+  "url": "{{ site_url }}/",
+  "offers": {
+    "@type": "Offer",
+    "price": "8",
+    "description": "Cobrança anual de R$97 (equivalente a R$8/mês)",
+    "priceCurrency": "BRL",
+    "priceValidUntil": "2026-12-31",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ checkout_url }}"
+  },
+  "brand": {
+    "@type": "Brand",
+    "name": "GranaGo"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'landing/js/landing.js' %}" defer></script>
+{% endblock %}

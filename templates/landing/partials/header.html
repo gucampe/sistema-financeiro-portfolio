@@ -1,0 +1,16 @@
+{% load static %}
+<header
+  id="lp-header"
+  class="lp-header sticky top-0 z-30 border-b border-transparent bg-transparent backdrop-blur-md"
+>
+  <div class="lp-container flex h-[4.25rem] items-center justify-between gap-4">
+    <a href="{% url 'usuarios:landing' %}" class="flex shrink-0 items-center gap-2.5 no-underline">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="" class="h-9 w-9" width="36" height="36" />
+      <span class="text-xl font-bold tracking-tight text-brand-600">GranaGo</span>
+    </a>
+    <nav class="flex items-center gap-2 sm:gap-3" aria-label="Ações principais">
+      <a href="{% url 'usuarios:login' %}" class="btn btn-secondary btn-sm hidden sm:inline-flex">Entrar</a>
+      <a href="{{ checkout_url }}" class="btn btn-primary btn-sm px-5">ASSINAR AGORA</a>
+    </nav>
+  </div>
+</header>
