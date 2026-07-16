@@ -1,9 +1,9 @@
-{# Mockup do produto — variant: hero | featured #}
+{% load static %}
+{# Mockup Visão Geral — espelha o home real; variant: hero | featured #}
 <div class="lp-mockup-stage{% if mockup_variant == 'featured' %} lp-mockup-stage--featured lp-mockup-stage--showcase{% elif mockup_variant == 'hero' %} lp-mockup-stage--hero{% endif %}">
   <div class="lp-mockup-stage__plate" aria-hidden="true"></div>
   {% if mockup_variant != 'hero' %}
   <div class="lp-mockup-stage__glow" aria-hidden="true"></div>
-  <div class="lp-mockup-stage__glow lp-mockup-stage__glow--secondary" aria-hidden="true"></div>
   {% endif %}
   <div class="lp-mockup-stage__frame{% if mockup_variant == 'hero' %} lp-mockup-stage__frame--hero{% endif %}">
     <div class="lp-mockup{% if mockup_variant == 'featured' %} lp-mockup--featured{% endif %}{% if mockup_variant == 'hero' %} lp-mockup--hero{% endif %}" aria-hidden="true">
@@ -11,156 +11,215 @@
         <span class="lp-mockup__dot bg-red-400/90"></span>
         <span class="lp-mockup__dot bg-amber-400/90"></span>
         <span class="lp-mockup__dot bg-emerald-400/90"></span>
-        <span class="lp-mockup__url">app.granago.com.br/relatorios</span>
-        <span class="lp-mockup__chrome-badge">Visão Geral</span>
+        <span class="lp-mockup__url">app.granago.com.br</span>
       </div>
-      <div class="lp-mockup__shell">
-        <aside class="lp-mockup__sidebar" aria-hidden="true">
-          <span class="lp-mockup__nav-dot lp-mockup__nav-dot--active">
-            <svg class="h-3.5 w-3.5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 8.25V6z"/></svg>
-          </span>
-          <span class="lp-mockup__nav-dot">
-            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
-          </span>
-          <span class="lp-mockup__nav-dot">
-            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
-          </span>
-          <span class="lp-mockup__nav-dot">
-            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          </span>
-        </aside>
-        <div class="lp-mockup__main">
-          <div class="lp-mockup__hero-panel">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-brand-600 sm:text-xs">Julho 2026</p>
-                <p class="mt-0.5 text-base font-semibold tracking-tight text-gray-900 sm:text-lg">Seu mês em ordem</p>
-                <p class="mt-1 text-[10px] text-fg-muted sm:text-[11px]">Conta principal · Nubank</p>
-              </div>
-              <div class="flex shrink-0 flex-col items-end gap-1.5">
-                <span class="rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm sm:text-xs">+ Nova despesa</span>
-                <span class="rounded-md border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 sm:text-[10px]">Orçamento OK</span>
-              </div>
-            </div>
 
-            <div class="mt-3 grid grid-cols-3 gap-2 sm:gap-2.5">
-              <div class="lp-mockup__kpi">
-                <p class="text-[9px] font-semibold uppercase tracking-wider text-fg-muted sm:text-[10px]">Receitas</p>
-                <p class="mt-1 text-sm font-bold tabular-nums text-emerald-600 sm:text-base">R$ 5.200</p>
-                <p class="mt-1 text-[9px] text-emerald-600/80 sm:text-[10px]">+12% vs mês ant.</p>
-              </div>
-              <div class="lp-mockup__kpi">
-                <p class="text-[9px] font-semibold uppercase tracking-wider text-fg-muted sm:text-[10px]">Despesas</p>
-                <p class="mt-1 text-sm font-bold tabular-nums text-red-600 sm:text-base">R$ 3.847</p>
-                <p class="mt-1 text-[9px] text-fg-muted sm:text-[10px]">74% do orçamento</p>
-              </div>
-              <div class="lp-mockup__kpi">
-                <p class="text-[9px] font-semibold uppercase tracking-wider text-fg-muted sm:text-[10px]">Saldo</p>
-                <p class="mt-1 text-sm font-bold tabular-nums text-gray-900 sm:text-base">R$ 1.353</p>
-                <p class="mt-1 text-[9px] text-brand-600 sm:text-[10px]">Em dia</p>
-              </div>
-            </div>
+      <div class="lp-mockup__shell">
+        {# Sidebar — equivalente visual ao app-sidebar #}
+        <aside class="lp-mockup__sidebar">
+          <div class="lp-mockup__brand">
+            <img src="{% static 'img/icons/logo.svg' %}" alt="" width="22" height="22" />
+            <span class="lp-mockup__brand-text">GranaGo</span>
+          </div>
+          <span class="lp-mockup__cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+            <span class="lp-mockup__cta-text">Adicionar</span>
+          </span>
+          <nav class="lp-mockup__nav">
+            <span class="lp-mockup__nav-item lp-mockup__nav-item--active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              <span>Relatórios</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+              <span>Transações</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"/></svg>
+              <span>Categorias</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10.75 12 2.25 22 10.75"/><path d="M6 10.75V21M10 10.75V21M14 10.75V21M18 10.75V21"/><path d="M2 21h20"/></svg>
+              <span>Contas</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 9.5h20"/></svg>
+              <span>Cartões</span>
+            </span>
+          </nav>
+        </aside>
+
+        <div class="lp-mockup__main">
+          <div class="lp-mockup__topbar">
+            <p class="lp-mockup__page-title">Visão Geral</p>
           </div>
 
-          <div class="mt-3 grid gap-3{% if mockup_variant == 'featured' %} lg:grid-cols-[1.1fr_0.9fr]{% endif %}">
-            <div class="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
-              <div class="flex items-center justify-between gap-2">
-                <p class="text-xs font-semibold text-gray-800">Para onde foi seu dinheiro</p>
-                <span class="text-[10px] font-medium text-fg-muted">Julho</span>
+          {# Hero — classes alinhadas ao home real #}
+          <article class="overflow-hidden rounded-2xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 p-3 shadow-sm sm:rounded-3xl sm:p-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0 space-y-0.5">
+                <p class="text-[10px] font-medium text-brand-600 sm:text-xs">Boa tarde,</p>
+                <p class="text-base font-semibold tracking-tight text-gray-900 sm:text-xl">Gustavo</p>
+                <p class="text-[10px] text-gray-500 sm:text-xs">Julho · 2026</p>
               </div>
-              <ul class="mt-2.5 space-y-2.5">
-                <li>
-                  <div class="flex items-center justify-between gap-2 text-[11px] sm:text-xs">
-                    <span class="flex min-w-0 items-center gap-1.5">
-                      <span class="h-2 w-2 shrink-0 rounded-full bg-orange-500"></span>
-                      <span class="truncate text-gray-700">Alimentação</span>
-                    </span>
-                    <span class="shrink-0 tabular-nums font-semibold text-gray-900">R$ 892</span>
-                  </div>
-                  <div class="lp-mockup__bar-track mt-1"><div class="lp-mockup__bar-fill bg-orange-500" style="width: 72%"></div></div>
-                </li>
-                <li>
-                  <div class="flex items-center justify-between gap-2 text-[11px] sm:text-xs">
-                    <span class="flex min-w-0 items-center gap-1.5">
-                      <span class="h-2 w-2 shrink-0 rounded-full bg-indigo-500"></span>
-                      <span class="truncate text-gray-700">Transporte</span>
-                    </span>
-                    <span class="shrink-0 tabular-nums font-semibold text-gray-900">R$ 456</span>
-                  </div>
-                  <div class="lp-mockup__bar-track mt-1"><div class="lp-mockup__bar-fill bg-indigo-500" style="width: 48%"></div></div>
-                </li>
-                <li>
-                  <div class="flex items-center justify-between gap-2 text-[11px] sm:text-xs">
-                    <span class="flex min-w-0 items-center gap-1.5">
-                      <span class="h-2 w-2 shrink-0 rounded-full bg-pink-500"></span>
-                      <span class="truncate text-gray-700">Assinaturas</span>
-                    </span>
-                    <span class="shrink-0 tabular-nums font-semibold text-gray-900">R$ 187</span>
-                  </div>
-                  <div class="lp-mockup__bar-track mt-1"><div class="lp-mockup__bar-fill bg-pink-500" style="width: 28%"></div></div>
-                </li>
-                {% if mockup_variant == 'featured' %}
-                <li>
-                  <div class="flex items-center justify-between gap-2 text-[11px] sm:text-xs">
-                    <span class="flex min-w-0 items-center gap-1.5">
-                      <span class="h-2 w-2 shrink-0 rounded-full bg-teal-500"></span>
-                      <span class="truncate text-gray-700">Moradia</span>
-                    </span>
-                    <span class="shrink-0 tabular-nums font-semibold text-gray-900">R$ 1.240</span>
-                  </div>
-                  <div class="lp-mockup__bar-track mt-1"><div class="lp-mockup__bar-fill bg-teal-500" style="width: 91%"></div></div>
-                </li>
-                {% endif %}
-              </ul>
+              <div class="flex shrink-0 flex-col gap-1 sm:flex-row">
+                <span class="inline-flex items-center justify-center rounded-lg border border-transparent bg-gradient-to-br from-emerald-500 to-emerald-600 px-2 py-1 text-[9px] font-semibold text-white shadow-sm sm:text-[10px]">Nova Receita</span>
+                <span class="inline-flex items-center justify-center rounded-lg border border-transparent bg-gradient-to-br from-brand-500 to-brand-600 px-2 py-1 text-[9px] font-semibold text-white shadow-sm sm:text-[10px]">Nova Despesa</span>
+              </div>
             </div>
 
-            {% if mockup_variant == 'featured' %}
-            <div class="space-y-3">
-              <div class="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
-                <p class="text-xs font-semibold text-gray-800">Tendência do mês</p>
-                <svg class="lp-mockup__chart mt-2" viewBox="0 0 280 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="lp-chart-fill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.2"/>
-                      <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  <line x1="0" y1="76" x2="280" y2="76" stroke="#f1f5f9" stroke-width="1"/>
-                  <line x1="0" y1="52" x2="280" y2="52" stroke="#f1f5f9" stroke-width="1"/>
-                  <line x1="0" y1="28" x2="280" y2="28" stroke="#f1f5f9" stroke-width="1"/>
-                  <path d="M8 58 L48 52 L88 44 L128 38 L168 42 L208 28 L248 22 L272 18 L272 76 L8 76 Z" fill="url(#lp-chart-fill)"/>
-                  <path d="M8 58 L48 52 L88 44 L128 38 L168 42 L208 28 L248 22 L272 18" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M8 68 L48 64 L88 60 L128 58 L168 62 L208 54 L248 50 L272 46" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-                  <circle cx="272" cy="18" r="3.5" fill="#22c55e"/>
-                  <circle cx="272" cy="46" r="3" fill="#ef4444"/>
-                </svg>
-                <div class="mt-2 flex gap-3 text-[10px] text-fg-muted">
-                  <span class="flex items-center gap-1"><span class="h-1.5 w-3 rounded-full bg-brand-500"></span> Receitas</span>
-                  <span class="flex items-center gap-1"><span class="h-1.5 w-3 rounded-full bg-red-500"></span> Despesas</span>
+            <div class="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2.5">
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Receitas do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-emerald-700 sm:text-sm">R$ 5.200,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-emerald-600 sm:text-[10px]">↑ 12% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                  </span>
                 </div>
               </div>
-              <div class="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
-                <p class="mb-2 text-xs font-semibold text-gray-800">Últimas movimentações</p>
-                <ul class="space-y-1">
-                  <li class="lp-mockup__tx">
-                    <span class="truncate text-gray-600">Uber · Transporte</span>
-                    <span class="shrink-0 tabular-nums font-medium text-red-600">− R$ 24,90</span>
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Despesas do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-rose-700 sm:text-sm">R$ 3.847,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-rose-600 sm:text-[10px]">↑ 4% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Resultado do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-emerald-700 sm:text-sm">+ R$ 1.353,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-emerald-600 sm:text-[10px]">↑ 28% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h4l3 9 4-18 3 9h4" /></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="mt-2.5 grid gap-2.5{% if mockup_variant == 'featured' %} sm:grid-cols-2{% endif %}">
+            {# Categorias — doughnut + lista (como o home) #}
+            <section class="rounded-2xl bg-white/90 p-3 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm sm:p-4">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <h3 class="text-xs font-semibold tracking-tight text-gray-900 sm:text-sm">Para onde seu dinheiro está indo</h3>
+                  <p class="mt-0.5 text-[10px] text-gray-500">Top categorias de despesa no mês</p>
+                </div>
+                <span class="shrink-0 text-[10px] font-medium text-brand-600">Ver análise</span>
+              </div>
+              <div class="mt-3 flex flex-col items-center gap-3 sm:flex-row sm:items-center">
+                <div class="relative h-[4.5rem] w-[4.5rem] shrink-0 sm:h-24 sm:w-24">
+                  <svg viewBox="0 0 120 120" class="h-full w-full -rotate-90" aria-hidden="true">
+                    {# Donut: Alimentação 35%, Moradia 32%, Transporte 18%, Assinaturas 15% — cutout ~68% #}
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#f1f5f9" stroke-width="16"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#f97316" stroke-width="16" stroke-dasharray="92.4 263.9" stroke-dashoffset="0" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#14b8a6" stroke-width="16" stroke-dasharray="84.4 263.9" stroke-dashoffset="-92.4" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#6366f1" stroke-width="16" stroke-dasharray="47.5 263.9" stroke-dashoffset="-176.8" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#ec4899" stroke-width="16" stroke-dasharray="39.6 263.9" stroke-dashoffset="-224.3" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="30" fill="#ffffff"/>
+                  </svg>
+                </div>
+                <ul class="min-w-0 w-full flex-1 space-y-1">
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-orange-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Alimentação</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 892</span>
+                      <span class="block text-[9px] text-gray-500">35%</span>
+                    </span>
                   </li>
-                  <li class="lp-mockup__tx">
-                    <span class="truncate text-gray-600">Mercado · Alimentação</span>
-                    <span class="shrink-0 tabular-nums font-medium text-red-600">− R$ 187,40</span>
+                  {% if mockup_variant == 'featured' %}
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-teal-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Moradia</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 1.240</span>
+                      <span class="block text-[9px] text-gray-500">32%</span>
+                    </span>
                   </li>
-                  <li class="lp-mockup__tx">
-                    <span class="truncate text-gray-600">Salário · Receita</span>
-                    <span class="shrink-0 tabular-nums font-medium text-emerald-600">+ R$ 5.200</span>
+                  {% endif %}
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-indigo-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Transporte</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 456</span>
+                      <span class="block text-[9px] text-gray-500">18%</span>
+                    </span>
+                  </li>
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-pink-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Assinaturas</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 187</span>
+                      <span class="block text-[9px] text-gray-500">15%</span>
+                    </span>
                   </li>
                 </ul>
               </div>
-            </div>
+            </section>
+
+            {% if mockup_variant == 'featured' %}
+            <section class="rounded-2xl bg-white/90 p-3 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm sm:p-4">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h3 class="text-xs font-semibold tracking-tight text-gray-900 sm:text-sm">Orçamento do mês</h3>
+                  <p class="mt-0.5 text-[10px] text-gray-500">Categorias com maior consumo do limite</p>
+                </div>
+                <span class="text-[10px] font-medium text-brand-600">Ver todos</span>
+              </div>
+              <ul class="mt-3 space-y-3">
+                <li>
+                  <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="truncate text-[11px] font-medium text-gray-900">Alimentação</span>
+                    <span class="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">No limite</span>
+                  </div>
+                  <div class="flex items-baseline justify-between text-[10px]">
+                    <span class="font-semibold tabular-nums text-gray-800">72%</span>
+                    <span class="tabular-nums text-gray-500">R$ 892 / R$ 1.240</span>
+                  </div>
+                  <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <div class="h-full rounded-full bg-emerald-500" style="width: 72%"></div>
+                  </div>
+                </li>
+                <li>
+                  <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="truncate text-[11px] font-medium text-gray-900">Transporte</span>
+                    <span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold text-amber-900">Atenção</span>
+                  </div>
+                  <div class="flex items-baseline justify-between text-[10px]">
+                    <span class="font-semibold tabular-nums text-gray-800">88%</span>
+                    <span class="tabular-nums text-gray-500">R$ 456 / R$ 520</span>
+                  </div>
+                  <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <div class="h-full rounded-full bg-amber-400" style="width: 88%"></div>
+                  </div>
+                </li>
+              </ul>
+            </section>
             {% endif %}
           </div>
 
-          <div class="lp-mockup__ai-chip mt-3" data-lp-callout="sugestao">
+          {# Chip de sugestão — copy da landing mantida #}
+          <div class="lp-mockup__ai-chip mt-2.5" data-lp-callout="sugestao">
             <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600">
               <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />

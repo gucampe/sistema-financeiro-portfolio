@@ -2241,8 +2241,8 @@ select.\!input,
   height: 3.75rem;
 }
 
-.h-\[4\.25rem\] {
-  height: 4.25rem;
+.h-\[4\.5rem\] {
+  height: 4.5rem;
 }
 
 .h-full {
@@ -2401,6 +2401,10 @@ select.\!input,
   width: 2.25rem;
 }
 
+.w-\[4\.5rem\] {
+  width: 4.5rem;
+}
+
 .w-full {
   width: 100%;
 }
@@ -2519,6 +2523,11 @@ select.\!input,
 
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.-rotate-90 {
+  --tw-rotate: -90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -2721,6 +2730,12 @@ select.\!input,
 
 .gap-y-2 {
   row-gap: 0.5rem;
+}
+
+.space-y-0\.5 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.125rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.125rem * var(--tw-space-y-reverse));
 }
 
 .space-y-1 > :not([hidden]) ~ :not([hidden]) {
@@ -2992,6 +3007,11 @@ select.\!input,
   border-color: #F9731640;
 }
 
+.border-\[\#d8ebe0\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(216 235 224 / var(--tw-border-opacity, 1));
+}
+
 .border-\[rgb\(189_195_199_\/_0\.65\)\] {
   border-color: rgb(189 195 199 / 0.65);
 }
@@ -3168,6 +3188,11 @@ select.\!input,
 
 .bg-\[\#F9731620\] {
   background-color: #F9731620;
+}
+
+.bg-\[\#f7fbf8\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(247 251 248 / var(--tw-bg-opacity, 1));
 }
 
 .bg-amber-100 {
@@ -3962,6 +3987,10 @@ select.\!input,
   font-size: 15px;
 }
 
+.text-\[8px\] {
+  font-size: 8px;
+}
+
 .text-\[9px\] {
   font-size: 9px;
 }
@@ -4208,10 +4237,6 @@ select.\!input,
   color: rgb(5 150 105 / var(--tw-text-opacity, 1));
 }
 
-.text-emerald-600\/80 {
-  color: rgb(5 150 105 / 0.8);
-}
-
 .text-emerald-700 {
   --tw-text-opacity: 1;
   color: rgb(4 120 87 / var(--tw-text-opacity, 1));
@@ -4344,11 +4369,6 @@ select.\!input,
 .text-slate-300 {
   --tw-text-opacity: 1;
   color: rgb(203 213 225 / var(--tw-text-opacity, 1));
-}
-
-.text-slate-400 {
-  --tw-text-opacity: 1;
-  color: rgb(148 163 184 / var(--tw-text-opacity, 1));
 }
 
 .text-slate-700 {
@@ -5403,6 +5423,10 @@ select.\!input,
     margin-top: 0.25rem;
   }
 
+  .sm\:mt-4 {
+    margin-top: 1rem;
+  }
+
   .sm\:mt-5 {
     margin-top: 1.25rem;
   }
@@ -5626,6 +5650,10 @@ select.\!input,
     border-radius: 1rem;
   }
 
+  .sm\:rounded-3xl {
+    border-radius: 1.5rem;
+  }
+
   .sm\:border-x {
     border-left-width: 1px;
     border-right-width: 1px;
@@ -5654,6 +5682,10 @@ select.\!input,
 
   .sm\:p-10 {
     padding: 2.5rem;
+  }
+
+  .sm\:p-3 {
+    padding: 0.75rem;
   }
 
   .sm\:p-4 {
@@ -5795,10 +5827,6 @@ select.\!input,
     text-align: left;
   }
 
-  .sm\:text-center {
-    text-align: center;
-  }
-
   .sm\:text-right {
     text-align: right;
   }
@@ -5822,10 +5850,6 @@ select.\!input,
     font-size: 10px;
   }
 
-  .sm\:text-\[11px\] {
-    font-size: 11px;
-  }
-
   .sm\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -5839,6 +5863,11 @@ select.\!input,
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+
+  .sm\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
   }
 
   .sm\:text-xs {
@@ -6049,10 +6078,6 @@ select.\!input,
 
   .lg\:grid-cols-6 {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .lg\:grid-cols-\[1\.1fr_0\.9fr\] {
-    grid-template-columns: 1.1fr 0.9fr;
   }
 
   .lg\:grid-cols-\[minmax\(0\2c 1fr\)_auto\] {

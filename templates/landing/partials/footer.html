@@ -1,15 +1,15 @@
 {% load static %}
-<footer class="border-t border-gray-200/80 bg-white">
+<footer class="border-t border-[#d8ebe0] bg-[#f7fbf8]">
   <div class="lp-container flex flex-col items-center gap-5 py-12 text-center sm:flex-row sm:justify-between sm:text-left">
     <div class="flex items-center gap-2.5">
       <img src="{% static 'img/icons/logo.svg' %}" alt="" class="h-8 w-8" width="32" height="32" />
-      <span class="text-lg font-bold tracking-tight text-brand-600">GranaGo</span>
+      <span class="text-lg font-semibold tracking-tight text-brand-600">GranaGo</span>
     </div>
     <p class="text-base text-fg-muted">Controle Financeiro Essencial</p>
     <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-base" aria-label="Links legais">
-      <a href="{% url 'usuarios:privacidade' %}" class="font-medium text-brand-600 hover:underline">Privacidade</a>
-      <a href="{% url 'usuarios:termos' %}" class="font-medium text-brand-600 hover:underline">Termos</a>
-      <a href="{% url 'usuarios:login' %}" class="font-medium text-brand-600 hover:underline">Entrar</a>
+      <a href="{% url 'usuarios:privacidade' %}" class="font-semibold text-brand-600 hover:underline">Privacidade</a>
+      <a href="{% url 'usuarios:termos' %}" class="font-semibold text-brand-600 hover:underline">Termos</a>
+      <a href="{% url 'usuarios:login' %}" class="font-semibold text-brand-600 hover:underline">Entrar</a>
     </nav>
   </div>
   <p class="pb-10 text-center text-sm text-fg-muted">© {% now "Y" %} GranaGo</p>

@@ -1,12 +1,17 @@
+{% load static %}
 <section id="fundador" class="lp-section lp-band lp-band--founder lp-reveal">
   <div class="lp-band__inner lp-container">
     <div class="lp-founder">
       <article class="min-w-0">
         <div class="lp-founder__header flex items-center gap-4">
           <span class="lp-founder__avatar" aria-hidden="true">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-            </svg>
+            <img
+              src="{% static 'img/landing/founder.png' %}"
+              alt=""
+              width="56"
+              height="56"
+              class="lp-founder__avatar-img"
+            />
           </span>
           <h2 class="lp-headline">Quem sou eu</h2>
         </div>
@@ -76,6 +81,15 @@
       </article>
 
       <aside class="lp-founder__aside">
+        <figure class="lp-founder__photo">
+          <img
+            src="{% static 'img/landing/founder.png' %}"
+            alt="Foto do fundador do GranaGo"
+            width="400"
+            height="480"
+            class="lp-founder__photo-img"
+          />
+        </figure>
         <blockquote class="lp-quote">
           <p>
             “Os gastos que desequilibram o orçamento chegam pequenos, em dezenas de vezes, sem que nenhum individual pareça grave. Eles só fazem sentido quando ficam visíveis juntos, organizados por categoria.”
