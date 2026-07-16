@@ -43,12 +43,14 @@ def landing_view(request):
         return redirect("relatorios:home")
     checkout_url = getattr(settings, "LANDING_CHECKOUT_URL", "") or "#oferta"
     site_url = getattr(settings, "SITE_URL", "") or request.build_absolute_uri("/")
+    app_login_url = getattr(settings, "APP_LOGIN_URL", "") or reverse("usuarios:login")
     return render(
         request,
         "landing/landing.html",
         {
             "checkout_url": checkout_url,
             "site_url": site_url.rstrip("/"),
+            "app_login_url": app_login_url,
         },
     )
 

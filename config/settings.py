@@ -143,6 +143,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.middleware_hosts.HostRoutingMiddleware',
     'config.middleware.PrefetchUserPerfilMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -296,9 +297,15 @@ LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = "relatorios:home"  # após login: página de relatórios
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
 
-# Landing page pública (/)
+# Landing page pública (/) e split de hosts (raiz = landing, app. = SaaS)
 LANDING_CHECKOUT_URL = config("LANDING_CHECKOUT_URL", default="").strip()
 SITE_URL = config("SITE_URL", default="").strip()
+APP_HOST = config("APP_HOST", default="").strip()
+LANDING_HOSTS = config("LANDING_HOSTS", default="").strip()
+# URL absoluta de login no SaaS (landing → app subdomain)
+APP_LOGIN_URL = (
+    f"https://{APP_HOST}/login/" if APP_HOST else ""
+)
 
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)

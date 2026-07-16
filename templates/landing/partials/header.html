@@ -9,7 +9,7 @@
       <span class="text-xl font-semibold tracking-tight text-brand-600">GranaGo</span>
     </a>
     <nav class="flex items-center gap-2 sm:gap-3" aria-label="Ações principais">
-      <a href="{% url 'usuarios:login' %}" class="btn btn-secondary btn-sm hidden sm:inline-flex">Entrar</a>
+      <a href="{{ app_login_url }}" class="btn btn-secondary btn-sm hidden sm:inline-flex">Entrar</a>
       <a href="{{ checkout_url }}" class="btn btn-primary btn-sm px-5">ASSINAR AGORA</a>
     </nav>
   </div>
