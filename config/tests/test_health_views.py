@@ -24,8 +24,17 @@ def test_health_payload_minimo_sem_token():
 def test_health_detalhado_com_token():
     client = Client()
     url = reverse("health")
+
+    # Sem token: payload mínimo (uptime público), sem detalhes de DB/Redis
     resp_sem = client.get(url)
-    assert resp_sem.status_code == 401
+    assert resp_sem.status_code == 200
+    assert resp_sem.json() == {"status": "ok"}
+    assert "checks" not in resp_sem.json()
+
+    # Token errado: ainda mínimo
+    resp_bad = client.get(url, HTTP_X_HEALTH_TOKEN="wrong")
+    assert resp_bad.status_code == 200
+    assert "checks" not in resp_bad.json()
 
     resp_ok = client.get(url, HTTP_X_HEALTH_TOKEN="secret-token")
     assert resp_ok.status_code == 200

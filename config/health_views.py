@@ -38,16 +38,14 @@ def _run_checks() -> tuple[bool, dict[str, str]]:
 
 
 def health(request):
-    token = getattr(settings, "HEALTH_CHECK_TOKEN", "").strip()
-    detailed = False
-    if token:
-        if request.headers.get("X-Health-Token") != token:
-            return JsonResponse({"status": "unauthorized"}, status=401)
-        detailed = True
-
+    """Payload mínimo público; detalhes só com X-Health-Token válido."""
     ok, checks = _run_checks()
     status_label = "ok" if ok else "degraded"
     http_status = 200 if ok else 503
+
+    token = getattr(settings, "HEALTH_CHECK_TOKEN", "").strip()
+    provided = request.headers.get("X-Health-Token", "")
+    detailed = bool(token) and provided == token
 
     if detailed:
         return JsonResponse(
