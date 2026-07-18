@@ -103,7 +103,7 @@ class GranaGoPasswordResetConfirmView(PasswordResetConfirmView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         for field in form.fields.values():
-            field.widget.attrs.update({"class": "input w-full"})
+            field.widget.attrs.update({"class": "input w-full pr-10", "autocomplete": "new-password"})
         return form
 
 
