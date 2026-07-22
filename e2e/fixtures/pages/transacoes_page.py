@@ -34,9 +34,15 @@ class TransacaoModalPage(BasePage):
         self._wait_categoria_option(categoria_id)
         self.page.select_option("#categoria", value=str(categoria_id))
         self.page.locator("#categoria").dispatch_event("change")
+        # Garante que a seleção sobrevive a rebuild assíncrono de opções (popularCategorias).
         self.page.wait_for_function(
-            f"""() => document.getElementById('categoria')?.value === '{categoria_id}'""",
-            timeout=5000,
+            f"""() => {{
+                const sel = document.getElementById('categoria');
+                if (!sel || sel.value !== '{categoria_id}') return false;
+                const opt = sel.querySelector('option[value="{categoria_id}"]');
+                return !!opt;
+            }}""",
+            timeout=15000,
         )
 
     def select_categoria_by_name(self, nome: str) -> None:
@@ -94,6 +100,53 @@ class TransacaoModalPage(BasePage):
         if self.page.locator("#tipo").input_value() != tipo:
             self.page.select_option("#tipo", value=tipo)
             self.page.locator("#tipo").dispatch_event("change")
+            # Aguarda UI de transferência (origem/destino) quando aplicável.
+            if tipo == "transferencia":
+                expect(self.page.locator("#bloco-transferencia")).to_be_visible()
+
+    def select_conta_origem(self, conta_id: int) -> None:
+        self.page.wait_for_selector(
+            f"#conta_origem option[value='{conta_id}']",
+            state="attached",
+            timeout=10000,
+        )
+        self.page.select_option("#conta_origem", value=str(conta_id))
+        self.page.locator("#conta_origem").dispatch_event("change")
+
+    def select_conta_destino(self, conta_id: int) -> None:
+        self.page.wait_for_selector(
+            f"#conta_destino option[value='{conta_id}']",
+            state="attached",
+            timeout=10000,
+        )
+        self.page.select_option("#conta_destino", value=str(conta_id))
+        self.page.locator("#conta_destino").dispatch_event("change")
+
+    def criar_transferencia(
+        self,
+        *,
+        conta_origem_id: int,
+        conta_destino_id: int,
+        valor: Decimal,
+        descricao: str,
+        data: date,
+        wait_reload: bool = True,
+    ) -> None:
+        self.wait_modal_open()
+        self.set_tipo("transferencia")
+        self.select_conta_origem(conta_origem_id)
+        self.select_conta_destino(conta_destino_id)
+        self.fill_valor(valor)
+        self.fill_descricao(descricao)
+        self.fill_data(data)
+        self.salvar(wait_reload=wait_reload)
+
+    def expect_erro_formulario(self, trecho: str | None = None) -> None:
+        erro = self.page.locator("#erro-conta-ajax")
+        expect(erro).to_be_visible()
+        expect(erro).not_to_be_empty()
+        if trecho:
+            expect(erro).to_contain_text(trecho)
 
     def _wait_categoria_option(self, categoria_id: int) -> None:
         self.page.wait_for_function(
@@ -138,6 +191,16 @@ class TransacaoModalPage(BasePage):
             self.select_cartao(cartao_id)
         elif conta_id:
             self.select_conta(conta_id)
+        # Aguarda opções de categoria (fetch listar-ativas) antes de selecionar —
+        # evita submit sem categoria quando popularCategorias ainda está em voo.
+        if tipo != "transferencia":
+            self.page.wait_for_function(
+                """() => {
+                    const sel = document.getElementById('categoria');
+                    return !!sel && [...sel.options].some((o) => o.value);
+                }""",
+                timeout=15000,
+            )
         if categoria_id is not None:
             self._wait_categoria_option(categoria_id)
             self.select_categoria(categoria_id)
@@ -148,6 +211,11 @@ class TransacaoModalPage(BasePage):
         self.fill_valor(valor)
         self.fill_descricao(descricao)
         self.fill_data(data)
+        # Revalida categoria imediatamente antes do submit (proteção contra rebuild tardio).
+        if categoria_id is not None:
+            atual = self.page.locator("#categoria").input_value()
+            if atual != str(categoria_id):
+                self.select_categoria(categoria_id)
         self.salvar()
 
     def criar_despesa_conta(
@@ -193,6 +261,14 @@ class HistoricoPage(BasePage):
         modal.set_tipo("despesa")
         return modal
 
+    def open_nova_transferencia(self) -> TransacaoModalPage:
+        self.open()
+        self.page.click("#btn-adicionar")
+        modal = TransacaoModalPage(self.page, self.base_url)
+        modal.wait_modal_open()
+        modal.set_tipo("transferencia")
+        return modal
+
     def primeira_conta_id(self) -> int:
         return int(
             self.page.evaluate(
@@ -215,10 +291,10 @@ class HistoricoPage(BasePage):
         )
 
     def excluir_por_id(self, transacao_id: int) -> None:
-        row = self.page.locator(f"li[data-transacao-id='{transacao_id}']")
-        row.scroll_into_view_if_needed()
-        row.hover()
-        btn = self.page.locator(f".excluir-transacao[data-id='{transacao_id}']")
-        btn.evaluate("el => el.click()")
-        self.page.click("#confirmar-exclusao")
-        self.page.wait_for_load_state("load")
+        # Menu contextual (ListaContextual) — evita depender do botão legado .excluir-transacao
+        self.page.evaluate(
+            f"() => window.solicitarExclusaoTransacao('{transacao_id}')"
+        )
+        expect(self.page.locator("#modal-confirmar-exclusao")).to_be_visible()
+        with self.page.expect_navigation(timeout=45000, wait_until="load"):
+            self.page.click("#confirmar-exclusao")

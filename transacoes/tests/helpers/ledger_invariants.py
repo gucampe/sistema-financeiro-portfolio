@@ -112,8 +112,31 @@ def assert_isolamento_contas(
         )
 
 
+def assert_integridade_transferencias(user) -> None:
+    """Toda transferência tem exatamente 2 pernas (origem+destino) com mesmo valor/data."""
+    tids = (
+        Transacao.objects.filter(usuario=user, tipo="transferencia")
+        .exclude(transfer_id=None)
+        .values_list("transfer_id", flat=True)
+        .distinct()
+    )
+    for tid in tids:
+        pernas = list(
+            Transacao.objects.filter(usuario=user, transfer_id=tid).order_by(
+                "papel_transferencia"
+            )
+        )
+        assert len(pernas) == 2, f"transfer_id={tid} incompleto: {len(pernas)}"
+        papeis = {p.papel_transferencia for p in pernas}
+        assert papeis == {"origem", "destino"}, f"transfer_id={tid} papéis={papeis}"
+        assert pernas[0].valor == pernas[1].valor
+        assert pernas[0].data == pernas[1].data
+        assert pernas[0].conta_id != pernas[1].conta_id
+
+
 def assert_ledger_invariants(user, *, contas: list[Conta] | None = None) -> None:
     """Executa todos os invariantes globais."""
     assert_saldo_consistente(user, contas=contas)
     assert_sem_duplicatas(user, contas=contas)
     assert_integridade_transacoes(user, contas=contas)
+    assert_integridade_transferencias(user)

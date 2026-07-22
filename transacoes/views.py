@@ -1,6 +1,7 @@
 import calendar
 import io
 import json
+import uuid
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from itertools import groupby
@@ -224,7 +225,7 @@ def _montar_itens_historico_com_faturas(
 def _anotar_contrapartes_transferencia(itens: list) -> None:
     """
     Anota em cada transferência da página a conta da outra perna (mesmo transfer_id),
-    para UX do histórico em mobile/desktop sem N+1.
+    para UX do histórico sem N+1. Rótulos via rotulo_historico_transferencia()/contraparte().
     """
     tids = {
         t.transfer_id
@@ -248,14 +249,9 @@ def _anotar_contrapartes_transferencia(itens: list) -> None:
             continue
         pares = por_tid.get(t.transfer_id) or []
         outra = next((x for x in pares if x.pk != t.pk), None)
-        nome = outra.conta.nome if outra and outra.conta_id else None
-        t.contraparte_conta_nome = nome
-        if t.papel_transferencia == "origem":
-            t.rotulo_transferencia = f"Para {nome}" if nome else "Saída"
-        elif t.papel_transferencia == "destino":
-            t.rotulo_transferencia = f"De {nome}" if nome else "Entrada"
-        else:
-            t.rotulo_transferencia = "Transferência"
+        t._contraparte_cache = outra
+        t.contraparte_conta_nome = outra.conta.nome if outra and outra.conta_id else None
+        t.rotulo_transferencia = t.rotulo_historico_transferencia()
 
 
 def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
@@ -697,18 +693,18 @@ def editar_transacao(request, pk):
     )
 
     if transacao.tipo == "transferencia" and request.method == "POST":
+        # Sempre bloqueia edição de perna isolada (AJAX e form clássico).
+        msg = "Edite a transferência pelo fluxo dedicado (origem e destino)."
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse(
-                {
-                    "status": "error",
-                    "errors": {
-                        "__all__": [
-                            "Edite a transferência pelo fluxo dedicado (origem e destino)."
-                        ]
-                    },
-                },
+                {"status": "error", "errors": {"__all__": [msg]}},
                 status=400,
             )
+        from django.contrib import messages
+
+        messages.error(request, msg)
+        ano_atual, mes_atual = _redirect_ano_mes_transacao(transacao)
+        return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
 
     if request.method == "POST":
         form = TransacaoForm(
@@ -784,11 +780,30 @@ def excluir_transacao(request, pk):
     transacao = get_object_or_404(Transacao, pk=pk, usuario=request.user)
     ano_atual, mes_atual = _redirect_ano_mes_transacao(transacao)
     if request.method == "POST":
-        with transaction.atomic():
-            if transacao.tipo == "transferencia" and transacao.transfer_id:
-                excluir_transferencia(request.user, transacao.transfer_id)
+        transfer_id = (
+            transacao.transfer_id
+            if transacao.tipo == "transferencia" and transacao.transfer_id
+            else None
+        )
+        try:
+            with transaction.atomic():
+                if transfer_id:
+                    excluir_transferencia(request.user, transfer_id)
+                else:
+                    transacao.delete()
+        except ValidationError as exc:
+            # Exclusão concorrente: se o par já sumiu, trata como sucesso idempotente.
+            if transfer_id and not Transacao.objects.filter(
+                usuario=request.user, transfer_id=transfer_id
+            ).exists():
+                pass
+            elif request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse(_json_erros_validation(exc), status=400)
             else:
-                transacao.delete()
+                from django.contrib import messages
+
+                messages.error(request, "; ".join(exc.messages))
+                return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"status": "ok"})
         return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
@@ -814,6 +829,21 @@ def transferir(request):
         return JsonResponse(_json_erros_form(form), status=400)
 
     data = form.cleaned_data
+    idem_raw = (
+        request.headers.get("X-Idempotency-Key")
+        or request.POST.get("idempotency_key")
+        or ""
+    ).strip()
+    idempotency_key = None
+    if idem_raw:
+        try:
+            idempotency_key = uuid.UUID(str(idem_raw))
+        except ValueError:
+            return JsonResponse(
+                {"status": "error", "errors": {"idempotency_key": ["Chave de idempotência inválida."]}},
+                status=400,
+            )
+
     try:
         if data.get("transfer_id"):
             tx_origem, tx_destino = atualizar_transferencia(
@@ -833,6 +863,7 @@ def transferir(request):
                 valor=data["valor"],
                 data=data["data"],
                 descricao=data.get("descricao") or "Transferência",
+                idempotency_key=idempotency_key,
             )
     except ValidationError as exc:
         return JsonResponse(_json_erros_validation(exc), status=400)
@@ -856,7 +887,7 @@ def transferir(request):
 @login_required
 def dados_grafico_receitas_despesas(request):
     transacoes = (
-        Transacao.objects.filter(usuario=request.user)
+        Transacao.objects.filter(usuario=request.user, tipo__in=["receita", "despesa"])
         .annotate(mes=TruncMonth('data'))
         .values('mes', 'tipo')
         .annotate(total=Sum('valor'))

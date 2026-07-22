@@ -144,6 +144,14 @@ class TransacaoForm(forms.ModelForm):
             raise forms.ValidationError({"conta": "Conta inválida ou inativa."})
         return cleaned
 
+    def _post_clean(self):
+        # Se o formulário já é inválido (ex.: tipo=transferencia), não rode
+        # full_clean do model — campos transfer_id/papel não existem no form e
+        # gerariam ValueError/HTTP 500 em vez de 400 com mensagem clara.
+        if self.errors:
+            return
+        super()._post_clean()
+
 
 class TransferenciaForm(forms.Form):
     """Formulário dedicado à transferência entre contas (dupla partida + transfer_id)."""

@@ -5,12 +5,12 @@ import uuid
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 
 from categorias.models import Categoria
 from contas.models import Conta
 
-from .models import Transacao
+from .models import TransferenciaIdempotencia, Transacao
 
 CATEGORIA_TRANSFERENCIA_NOME = "Transferência entre contas"
 
@@ -73,6 +73,15 @@ def _validar_contas_transferencia(usuario, conta_origem: Conta, conta_destino: C
         raise ValidationError({"conta_destino": "Conta de destino inválida ou inativa."})
 
 
+def _obter_par_por_idempotency(usuario, idempotency_key) -> tuple[Transacao, Transacao] | None:
+    rec = TransferenciaIdempotencia.objects.filter(
+        usuario=usuario, key=idempotency_key
+    ).first()
+    if not rec:
+        return None
+    return obter_par_transferencia(usuario, rec.transfer_id)
+
+
 def criar_transferencia(
     usuario,
     *,
@@ -81,44 +90,66 @@ def criar_transferencia(
     valor: Decimal,
     data,
     descricao: str = "Transferência",
+    idempotency_key: uuid.UUID | None = None,
 ) -> tuple[Transacao, Transacao]:
     """
     Cria as duas pernas da transferência vinculadas pelo mesmo transfer_id (UUID).
     Atomicidade: ambas ou nenhuma.
+    Com idempotency_key: reenvio da mesma chave devolve o par já criado.
     """
     if valor is None or valor <= 0:
         raise ValidationError({"valor": "Informe um valor maior que zero."})
     _validar_contas_transferencia(usuario, conta_origem, conta_destino)
 
+    if idempotency_key is not None:
+        existente = _obter_par_por_idempotency(usuario, idempotency_key)
+        if existente is not None:
+            return existente
+
     desc = (descricao or "").strip() or "Transferência"
     categoria = obter_categoria_transferencia()
     transfer_id = uuid.uuid4()
 
-    with transaction.atomic():
-        tx_origem = Transacao(
-            usuario=usuario,
-            conta=conta_origem,
-            tipo="transferencia",
-            valor=valor,
-            descricao=desc,
-            data=data,
-            categoria=categoria,
-            transfer_id=transfer_id,
-            papel_transferencia="origem",
-        )
-        tx_destino = Transacao(
-            usuario=usuario,
-            conta=conta_destino,
-            tipo="transferencia",
-            valor=valor,
-            descricao=desc,
-            data=data,
-            categoria=categoria,
-            transfer_id=transfer_id,
-            papel_transferencia="destino",
-        )
-        tx_origem.save()
-        tx_destino.save()
+    try:
+        with transaction.atomic():
+            if idempotency_key is not None:
+                TransferenciaIdempotencia.objects.create(
+                    usuario=usuario,
+                    key=idempotency_key,
+                    transfer_id=transfer_id,
+                )
+            tx_origem = Transacao(
+                usuario=usuario,
+                conta=conta_origem,
+                tipo="transferencia",
+                valor=valor,
+                descricao=desc,
+                data=data,
+                categoria=categoria,
+                transfer_id=transfer_id,
+                papel_transferencia="origem",
+            )
+            tx_destino = Transacao(
+                usuario=usuario,
+                conta=conta_destino,
+                tipo="transferencia",
+                valor=valor,
+                descricao=desc,
+                data=data,
+                categoria=categoria,
+                transfer_id=transfer_id,
+                papel_transferencia="destino",
+            )
+            tx_origem.save()
+            tx_destino.save()
+    except IntegrityError:
+        if idempotency_key is None:
+            raise
+        # Corrida: outra request com a mesma chave venceu.
+        existente = _obter_par_por_idempotency(usuario, idempotency_key)
+        if existente is None:
+            raise
+        return existente
 
     return tx_origem, tx_destino
 
@@ -193,4 +224,7 @@ def excluir_transferencia(usuario, transfer_id) -> None:
             usuario=usuario,
             transfer_id=transfer_id,
             tipo="transferencia",
+        ).delete()
+        TransferenciaIdempotencia.objects.filter(
+            usuario=usuario, transfer_id=transfer_id
         ).delete()

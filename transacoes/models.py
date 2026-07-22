@@ -190,6 +190,9 @@ class Transacao(models.Model):
         """Retorna a outra perna da transferência vinculada pelo mesmo transfer_id."""
         if self.tipo != "transferencia" or not self.transfer_id:
             return None
+        cached = getattr(self, "_contraparte_cache", None)
+        if hasattr(self, "_contraparte_cache"):
+            return cached
         return (
             Transacao.objects.filter(transfer_id=self.transfer_id, usuario_id=self.usuario_id)
             .exclude(pk=self.pk)
@@ -197,5 +200,50 @@ class Transacao(models.Model):
             .first()
         )
 
+    def rotulo_historico_transferencia(self) -> str:
+        """
+        Texto do histórico: "Transferência para X" / "Recebida de Y".
+        Usa contraparte() (com cache opcional de prefetch na listagem).
+        """
+        if self.tipo != "transferencia":
+            return ""
+        outra = self.contraparte()
+        nome = outra.conta.nome if outra is not None and outra.conta_id else None
+        if self.papel_transferencia == "origem":
+            return f"Transferência para {nome}" if nome else "Transferência (saída)"
+        if self.papel_transferencia == "destino":
+            return f"Recebida de {nome}" if nome else "Transferência (entrada)"
+        return "Transferência"
+
     def __str__(self):
         return f"{self.tipo} - {self.categoria.nome} - {self.valor}"
+
+
+class TransferenciaIdempotencia(models.Model):
+    """
+    Registro de idempotência para criação de transferências.
+    Mesma chave (por usuário) sempre resolve para o mesmo transfer_id.
+    """
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="transferencias_idempotencia",
+    )
+    key = models.UUIDField()
+    transfer_id = models.UUIDField(db_index=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["usuario", "key"],
+                name="transacoes_uniq_user_idempotency_key",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["usuario", "criado_em"], name="transf_idem_user_criado_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.usuario_id}:{self.key} → {self.transfer_id}"

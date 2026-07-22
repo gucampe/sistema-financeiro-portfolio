@@ -188,17 +188,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  let categoriasFetchSeq = 0;
+  let transferenciaIdempotencyKey = null;
+
+  function novoIdempotencyKey() {
+    if (globalThis.crypto?.randomUUID) {
+      return globalThis.crypto.randomUUID();
+    }
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
+  function ensureTransferenciaIdempotencyKey() {
+    if (!transferenciaIdempotencyKey) {
+      transferenciaIdempotencyKey = novoIdempotencyKey();
+    }
+    return transferenciaIdempotencyKey;
+  }
+
+  function resetTransferenciaIdempotencyKey() {
+    transferenciaIdempotencyKey = null;
+  }
+
   function popularCategorias(tipo, selecionadaId = null) {
     if (!selectCategoria) return;
     if (tipo === "transferencia") {
       syncModoTransferencia();
       return;
     }
+    const seq = ++categoriasFetchSeq;
+    // Preserva seleção atual se o caller não pediu uma específica (evita race com E2E/usuário).
+    const preservar =
+      selecionadaId != null && selecionadaId !== ""
+        ? String(selecionadaId)
+        : String(selectCategoria.value || "");
     fetch(`/categorias/listar-ativas/?tipo=${tipo === "ajuste" ? "receita" : tipo || "despesa"}`, {
       headers: { "X-Requested-With": "XMLHttpRequest" },
     })
       .then((r) => r.json())
       .then((data) => {
+        if (seq !== categoriasFetchSeq) return;
         selectCategoria.innerHTML = '<option value="">Selecione uma categoria</option>';
         if (data.status === "ok" && data.categorias?.length) {
           data.categorias.forEach((c) => {
@@ -207,9 +239,11 @@ document.addEventListener("DOMContentLoaded", () => {
             opt.textContent = c.nome;
             if (c.icone != null) opt.dataset.icone = c.icone;
             if (c.cor != null) opt.dataset.cor = c.cor;
-            if (selecionadaId && c.id == selecionadaId) opt.selected = true;
             selectCategoria.appendChild(opt);
           });
+          if (preservar && [...selectCategoria.options].some((o) => o.value === preservar)) {
+            selectCategoria.value = preservar;
+          }
         }
         categoriaCombobox?.refresh();
       })
@@ -353,9 +387,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function abrirModalNovaTransacao(triggerEl, { tipo: tipoOverride, titulo } = {}) {
     overlay.dataset.editando = "";
     atualizarBotaoExcluirModal("");
+    resetTransferenciaIdempotencyKey();
+    let categoriasJaPedidas = false;
     if (tipoOverride && selectTipo) {
+      const mudouTipo = selectTipo.value !== tipoOverride;
       selectTipo.value = tipoOverride;
-      selectTipo.dispatchEvent(new Event("change", { bubbles: true }));
+      tipoCombobox?.sync();
+      if (mudouTipo) {
+        // change → popularCategorias + syncModoTransferencia
+        selectTipo.dispatchEvent(new Event("change", { bubbles: true }));
+        categoriasJaPedidas = true;
+      }
     }
     if (modalHeader) {
       modalHeader.textContent =
@@ -372,8 +414,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tipo) return;
     limparErroContaAjax();
     if (inputTransferId) inputTransferId.value = "";
-    popularCategorias(tipo);
-    syncModoTransferencia();
+    if (!categoriasJaPedidas) {
+      popularCategorias(tipo);
+      syncModoTransferencia();
+    }
+    if (tipo === "transferencia") {
+      ensureTransferenciaIdempotencyKey();
+    }
     globalThis.GranaGoModal?.open(overlay, { trigger: triggerEl || undefined });
   }
 
@@ -574,14 +621,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const csrfInput = form.querySelector("[name=csrfmiddlewaretoken]");
     const csrfToken = csrfInput?.value || formData.get("csrfmiddlewaretoken") || "";
 
+    const headers = {
+      "X-CSRFToken": csrfToken,
+      "X-Requested-With": "XMLHttpRequest",
+    };
+    if (transferencia && !editandoId && !formData.get("transfer_id")) {
+      headers["X-Idempotency-Key"] = ensureTransferenciaIdempotencyKey();
+    }
+
     try {
       const response = await fetch(url, {
         method: "POST",
         credentials: "same-origin",
-        headers: {
-          "X-CSRFToken": csrfToken,
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        headers,
         body: formData,
       });
 
@@ -601,6 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.status === "ok") {
         limparErroContaAjax();
+        resetTransferenciaIdempotencyKey();
         globalThis.GranaGoModal?.close(overlay);
         window.location.reload();
         return;
@@ -627,6 +680,9 @@ document.addEventListener("DOMContentLoaded", () => {
     popularCategorias(tipo);
     limparSugestaoCategoria();
     syncModoTransferencia();
+    if (tipo === "transferencia" && !overlay.dataset.editando) {
+      ensureTransferenciaIdempotencyKey();
+    }
     if (modalHeader && !overlay.dataset.editando) {
       modalHeader.textContent =
         tipo === "receita"
