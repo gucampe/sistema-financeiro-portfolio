@@ -1,17 +1,33 @@
 (function () {
   var idTransacaoParaExcluir = null;
+  var exclusaoEhTransferencia = false;
 
   function getCsrfToken() {
     var el = document.querySelector("[name=csrfmiddlewaretoken]");
     return el ? el.value : "";
   }
 
+  function atualizarCopyExclusao(isTransferencia) {
+    var titulo = document.getElementById("modal-exclusao-titulo");
+    var texto = document.querySelector("#modal-confirmar-exclusao .modal-panel__body p");
+    if (titulo) {
+      titulo.textContent = isTransferencia ? "Excluir transferência" : "Excluir transação";
+    }
+    if (texto) {
+      texto.textContent = isTransferencia
+        ? "Tem certeza que deseja excluir esta transferência? As duas movimentações (origem e destino) serão removidas. Essa ação não pode ser desfeita."
+        : "Tem certeza que deseja excluir esta transação? Essa ação não pode ser desfeita.";
+    }
+  }
+
   function abrirModal() {
+    atualizarCopyExclusao(exclusaoEhTransferencia);
     globalThis.GranaGoModal?.open("modal-confirmar-exclusao");
   }
 
   function fecharModal() {
     idTransacaoParaExcluir = null;
+    exclusaoEhTransferencia = false;
   }
 
   function enviarExclusao(id) {
@@ -31,9 +47,16 @@
     form.submit();
   }
 
-  window.solicitarExclusaoTransacao = function (id) {
+  window.solicitarExclusaoTransacao = function (id, opts) {
     if (!id) return;
     idTransacaoParaExcluir = String(id);
+    exclusaoEhTransferencia = !!(opts && opts.transferencia);
+    if (!opts || opts.transferencia == null) {
+      var row = document.querySelector(
+        '.lista-contextual-item[data-transacao-id="' + CSS.escape(String(id)) + '"]'
+      );
+      exclusaoEhTransferencia = row?.dataset?.transacaoTipo === "transferencia";
+    }
     abrirModal();
   };
 
@@ -55,9 +78,9 @@
 
     if (e.target.id === "confirmar-exclusao") {
       e.preventDefault();
-      var id = idTransacaoParaExcluir;
+      var idExcluir = idTransacaoParaExcluir;
       globalThis.GranaGoModal?.close("modal-confirmar-exclusao");
-      if (id) enviarExclusao(id);
+      if (idExcluir) enviarExclusao(idExcluir);
     }
   });
 })();

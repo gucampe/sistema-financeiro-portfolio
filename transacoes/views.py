@@ -29,10 +29,16 @@ from usuarios.models import Perfil
 
 from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 
-from .forms import TransacaoForm
+from .forms import TransacaoForm, TransferenciaForm
 from .models import Transacao
 from .ofx_duplicatas import avaliar_duplicatas_importacao, chave_fingerprint_linha
 from .ofx_parse import LinhaOfx, parse_ofx_bytes
+from .services import (
+    atualizar_transferencia,
+    criar_transferencia,
+    excluir_transferencia,
+    obter_par_transferencia,
+)
 from .xlsx_parse import gerar_workbook_modelo, parse_planilha_padrao_bytes
 
 from categorizacao.services.learning import processar_feedback_transacao
@@ -213,6 +219,43 @@ def _montar_itens_historico_com_faturas(
     merged = transacoes_filtradas + sinteticas
     merged.sort(key=_ord_key)
     return merged, extras_valor
+
+
+def _anotar_contrapartes_transferencia(itens: list) -> None:
+    """
+    Anota em cada transferência da página a conta da outra perna (mesmo transfer_id),
+    para UX do histórico em mobile/desktop sem N+1.
+    """
+    tids = {
+        t.transfer_id
+        for t in itens
+        if getattr(t, "tipo", None) == "transferencia"
+        and getattr(t, "transfer_id", None)
+        and not getattr(t, "is_resumo_fatura", False)
+    }
+    if not tids:
+        return
+    irmas = (
+        Transacao.objects.filter(transfer_id__in=tids, tipo="transferencia")
+        .select_related("conta")
+    )
+    por_tid: dict = {}
+    for irma in irmas:
+        por_tid.setdefault(irma.transfer_id, []).append(irma)
+
+    for t in itens:
+        if getattr(t, "tipo", None) != "transferencia" or not getattr(t, "transfer_id", None):
+            continue
+        pares = por_tid.get(t.transfer_id) or []
+        outra = next((x for x in pares if x.pk != t.pk), None)
+        nome = outra.conta.nome if outra and outra.conta_id else None
+        t.contraparte_conta_nome = nome
+        if t.papel_transferencia == "origem":
+            t.rotulo_transferencia = f"Para {nome}" if nome else "Saída"
+        elif t.papel_transferencia == "destino":
+            t.rotulo_transferencia = f"De {nome}" if nome else "Entrada"
+        else:
+            t.rotulo_transferencia = "Transferência"
 
 
 def _payload_preview_importacao(usuario, conta, linhas_parse: list[LinhaOfx]) -> dict:
@@ -476,6 +519,7 @@ def adicionar_transacao(request):
         page = total_pages
     inicio_pag = (page - 1) * HISTORICO_PAGE_SIZE
     transacoes_pagina = transacoes_list[inicio_pag : inicio_pag + HISTORICO_PAGE_SIZE]
+    _anotar_contrapartes_transferencia(transacoes_pagina)
 
     transacoes_por_dia = [
         {"data": data, "transacoes": list(grupo)}
@@ -652,6 +696,20 @@ def editar_transacao(request, pk):
         usuario=request.user,
     )
 
+    if transacao.tipo == "transferencia" and request.method == "POST":
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "errors": {
+                        "__all__": [
+                            "Edite a transferência pelo fluxo dedicado (origem e destino)."
+                        ]
+                    },
+                },
+                status=400,
+            )
+
     if request.method == "POST":
         form = TransacaoForm(
             request.POST, instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo
@@ -671,9 +729,8 @@ def editar_transacao(request, pk):
 
     else:
         if request.GET.get("ajax"):
-            # Retornar JSON com os dados da transação
             data_exib = transacao.data_competencia or transacao.data
-            return JsonResponse({
+            payload = {
                 "id": transacao.id,
                 "tipo": transacao.tipo,
                 "valor": str(transacao.valor),
@@ -699,7 +756,23 @@ def editar_transacao(request, pk):
                 }
                 if transacao.cartao
                 else None,
-            })
+            }
+            if transacao.tipo == "transferencia" and transacao.transfer_id:
+                try:
+                    tx_o, tx_d = obter_par_transferencia(request.user, transacao.transfer_id)
+                    payload["transfer_id"] = str(transacao.transfer_id)
+                    payload["papel_transferencia"] = transacao.papel_transferencia
+                    payload["conta_origem"] = {
+                        "id": tx_o.conta_id,
+                        "nome": tx_o.conta.nome,
+                    }
+                    payload["conta_destino"] = {
+                        "id": tx_d.conta_id,
+                        "nome": tx_d.conta.nome,
+                    }
+                except ValidationError:
+                    pass
+            return JsonResponse(payload)
 
     form = TransacaoForm(instance=transacao, usuario=request.user, tipo_inicial=transacao.tipo)
     return render(request, "transacoes/editar_transacao.html", {"form": form, "transacao": transacao})
@@ -712,9 +785,72 @@ def excluir_transacao(request, pk):
     ano_atual, mes_atual = _redirect_ano_mes_transacao(transacao)
     if request.method == "POST":
         with transaction.atomic():
-            transacao.delete()
+            if transacao.tipo == "transferencia" and transacao.transfer_id:
+                excluir_transferencia(request.user, transacao.transfer_id)
+            else:
+                transacao.delete()
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"status": "ok"})
         return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
     return redirect(f"/transacoes/?ano={ano_atual}&mes={mes_atual}")
+
+
+def _json_erros_form(form):
+    return {"status": "error", "errors": form.errors}
+
+
+def _json_erros_validation(exc: ValidationError):
+    if hasattr(exc, "message_dict") and exc.message_dict:
+        return {"status": "error", "errors": exc.message_dict}
+    return {"status": "error", "errors": {"__all__": list(exc.messages)}}
+
+
+@require_POST
+@login_required
+def transferir(request):
+    """Cria ou atualiza transferência (duas pernas com o mesmo transfer_id)."""
+    form = TransferenciaForm(request.POST, usuario=request.user)
+    if not form.is_valid():
+        return JsonResponse(_json_erros_form(form), status=400)
+
+    data = form.cleaned_data
+    try:
+        if data.get("transfer_id"):
+            tx_origem, tx_destino = atualizar_transferencia(
+                request.user,
+                data["transfer_id"],
+                conta_origem=data["conta_origem"],
+                conta_destino=data["conta_destino"],
+                valor=data["valor"],
+                data=data["data"],
+                descricao=data.get("descricao") or "Transferência",
+            )
+        else:
+            tx_origem, tx_destino = criar_transferencia(
+                request.user,
+                conta_origem=data["conta_origem"],
+                conta_destino=data["conta_destino"],
+                valor=data["valor"],
+                data=data["data"],
+                descricao=data.get("descricao") or "Transferência",
+            )
+    except ValidationError as exc:
+        return JsonResponse(_json_erros_validation(exc), status=400)
+
+    return JsonResponse(
+        {
+            "status": "ok",
+            "transfer_id": str(tx_origem.transfer_id),
+            "origem_id": tx_origem.id,
+            "destino_id": tx_destino.id,
+            "tipo": "transferencia",
+            "valor": str(tx_origem.valor),
+            "data": tx_origem.data.strftime("%Y-%m-%d"),
+            "descricao": tx_origem.descricao,
+            "conta_origem": {"id": tx_origem.conta_id, "nome": tx_origem.conta.nome},
+            "conta_destino": {"id": tx_destino.conta_id, "nome": tx_destino.conta.nome},
+        }
+    )
 
 
 @login_required

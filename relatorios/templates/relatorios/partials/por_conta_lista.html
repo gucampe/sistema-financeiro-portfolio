@@ -114,8 +114,13 @@
               {% endif %}
             </div>
 
-            {% if c.detalhe.n_ajustes > 0 %}
-            <p class="text-xs text-gray-500">{{ c.detalhe.n_ajustes }} ajuste(s) ou transferência(s) no período.</p>
+            {% if c.detalhe.n_transferencias > 0 or c.detalhe.n_ajustes > 0 %}
+            <p class="text-xs text-gray-500">
+              {% if c.detalhe.n_transferencias > 0 %}{{ c.detalhe.n_transferencias }} transferência(s){% endif %}
+              {% if c.detalhe.n_transferencias > 0 and c.detalhe.n_ajustes > 0 %} · {% endif %}
+              {% if c.detalhe.n_ajustes > 0 %}{{ c.detalhe.n_ajustes }} ajuste(s){% endif %}
+              no período.
+            </p>
             {% endif %}
 
             <div>

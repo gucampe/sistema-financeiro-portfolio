@@ -36,7 +36,6 @@ html.sidebar-open body {
   flex-direction: column;
   flex: 1;
   margin-left: 0;
-  transition: margin-left var(--sidebar-transition);
 }
 
 @media (min-width: 768px) {
@@ -46,8 +45,13 @@ html.sidebar-open body {
 
   /* Irmão após #sidebar (overlay no meio não impede o combinador ~) */
   #sidebar.collapsed ~ .app-shell__body,
-  body.sidebar-init-collapsed .app-shell__body {
+  html.sidebar-collapsed .app-shell__body {
     margin-left: var(--sidebar-width-collapsed);
+  }
+
+  /* Transição só depois do boot — evita flash abre/fecha na navegação */
+  html.sidebar-ready .app-shell__body {
+    transition: margin-left var(--sidebar-transition);
   }
 }
 
@@ -67,9 +71,6 @@ html.sidebar-open body {
   border-right: 1px solid var(--sidebar-border);
   box-shadow: 4px 0 24px rgba(15, 23, 42, 0.06);
   transform: translateX(-100%);
-  transition:
-    transform var(--sidebar-transition),
-    width var(--sidebar-transition);
   overflow: hidden;
 }
 
@@ -79,13 +80,25 @@ html.sidebar-open body {
   }
 
   #sidebar.collapsed,
-  body.sidebar-init-collapsed #sidebar {
+  html.sidebar-collapsed #sidebar {
     width: var(--sidebar-width-collapsed);
+  }
+
+  html.sidebar-ready .app-sidebar {
+    transition:
+      transform var(--sidebar-transition),
+      width var(--sidebar-transition);
   }
 }
 
 html.sidebar-open .app-sidebar {
   transform: translateX(0);
+}
+
+@media (max-width: 767.98px) {
+  html.sidebar-ready .app-sidebar {
+    transition: transform var(--sidebar-transition);
+  }
 }
 
 .app-sidebar__inner {
@@ -194,17 +207,20 @@ html.sidebar-open .app-sidebar {
   font-size: 1.05rem;
   letter-spacing: -0.02em;
   white-space: nowrap;
+}
+
+html.sidebar-ready .app-sidebar__brand-text {
   transition: opacity var(--sidebar-transition), width var(--sidebar-transition);
 }
 
 #sidebar.collapsed .app-sidebar__brand,
-body.sidebar-init-collapsed #sidebar .app-sidebar__brand {
+html.sidebar-collapsed #sidebar .app-sidebar__brand {
   justify-content: center;
   gap: 0;
 }
 
 #sidebar.collapsed .app-sidebar__brand-text,
-body.sidebar-init-collapsed #sidebar .app-sidebar__brand-text {
+html.sidebar-collapsed #sidebar .app-sidebar__brand-text {
   opacity: 0;
   flex: 0 0 0;
   min-width: 0;
@@ -256,7 +272,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__brand-text {
 }
 
 #sidebar.collapsed .app-sidebar__cta-text,
-body.sidebar-init-collapsed #sidebar .app-sidebar__cta-text {
+html.sidebar-collapsed #sidebar .app-sidebar__cta-text {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -269,7 +285,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__cta-text {
 }
 
 #sidebar.collapsed .app-sidebar__cta,
-body.sidebar-init-collapsed #sidebar .app-sidebar__cta {
+html.sidebar-collapsed #sidebar .app-sidebar__cta {
   padding: 0.65rem;
 }
 
@@ -334,11 +350,14 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__cta {
 
 .app-sidebar__label {
   white-space: nowrap;
+}
+
+html.sidebar-ready .app-sidebar__label {
   transition: opacity var(--sidebar-transition), width var(--sidebar-transition);
 }
 
 #sidebar.collapsed .app-sidebar__label,
-body.sidebar-init-collapsed #sidebar .app-sidebar__label {
+html.sidebar-collapsed #sidebar .app-sidebar__label {
   opacity: 0;
   flex: 0 0 0;
   min-width: 0;
@@ -351,7 +370,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__label {
 }
 
 #sidebar.collapsed .app-sidebar__link,
-body.sidebar-init-collapsed #sidebar .app-sidebar__link {
+html.sidebar-collapsed #sidebar .app-sidebar__link {
   justify-content: center;
   gap: 0;
   padding: 0.6rem;
@@ -399,12 +418,12 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__link {
 }
 
 #sidebar.collapsed .app-sidebar__collapse-icon--collapse,
-body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--collapse {
+html.sidebar-collapsed #sidebar .app-sidebar__collapse-icon--collapse {
   display: none;
 }
 
 #sidebar.collapsed .app-sidebar__collapse-icon--expand,
-body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--expand {
+html.sidebar-collapsed #sidebar .app-sidebar__collapse-icon--expand {
   display: block;
 }
 
@@ -415,7 +434,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--expand {
 
   /* Recolhido: botão só com “>>” encostado à direita da barra */
   #sidebar.collapsed .app-sidebar__collapse,
-  body.sidebar-init-collapsed #sidebar .app-sidebar__collapse {
+  html.sidebar-collapsed #sidebar .app-sidebar__collapse {
     width: auto;
     margin-left: auto;
     align-self: flex-end;
@@ -434,7 +453,7 @@ body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-icon--expand {
 }
 
 #sidebar.collapsed .app-sidebar__collapse-label,
-body.sidebar-init-collapsed #sidebar .app-sidebar__collapse-label {
+html.sidebar-collapsed #sidebar .app-sidebar__collapse-label {
   display: none;
 }
 

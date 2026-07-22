@@ -14,7 +14,7 @@ from contas.models import Conta
 # Limite anti-abuso para intervalos customizados (dias).
 MAX_INTERVALO_DIAS = 800
 
-TIPOS_VALIDOS = frozenset({"receita", "despesa", "ajuste"})
+TIPOS_VALIDOS = frozenset({"receita", "despesa", "ajuste", "transferencia"})
 
 
 @dataclass(frozen=True)

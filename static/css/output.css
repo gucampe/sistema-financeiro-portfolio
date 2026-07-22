@@ -3512,6 +3512,11 @@ select.\!input,
   background-color: rgb(255 255 255 / 0.95);
 }
 
+.bg-slate-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1));
+}
+
 .bg-gradient-to-br {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
@@ -4408,6 +4413,11 @@ select.\!input,
 
 .text-white\/90 {
   color: rgb(255 255 255 / 0.9);
+}
+
+.text-slate-600 {
+  --tw-text-opacity: 1;
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
 }
 
 .underline {
@@ -6010,6 +6020,10 @@ select.\!input,
 
   .lg\:block {
     display: block;
+  }
+
+  .lg\:inline {
+    display: inline;
   }
 
   .lg\:flex {

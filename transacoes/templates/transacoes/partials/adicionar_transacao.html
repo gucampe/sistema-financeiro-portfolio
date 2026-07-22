@@ -35,20 +35,126 @@
       <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] px-2 pb-0.5">
       <div class="min-w-0 w-full max-w-full">
 
-      <!-- Tipo -->
-      <div class="mb-4 min-w-0">
+      <!-- Tipo (combobox com ícones, mesmo padrão de conta/categoria) -->
+      <div class="mb-4 min-w-0" data-combobox-root="tipo">
         <label for="tipo" class="block text-sm font-medium mb-1 text-fg">Tipo</label>
         {% firstof form.tipo.value form.initial.tipo "despesa" as tipo_atual %}
-        <select name="tipo" id="tipo" required
-                class="input w-full max-w-full min-w-0">
-          <option value="despesa" {% if tipo_atual == "despesa" %}selected{% endif %}>Despesa</option>
-          <option value="receita" {% if tipo_atual == "receita" %}selected{% endif %}>Receita</option>
-          <option value="ajuste" {% if tipo_atual == "ajuste" %}selected{% endif %}>Ajuste</option>
-        </select>
+        <div class="relative mt-1 min-w-0">
+          <select name="tipo" id="tipo" required
+                  class="sr-only focus:outline-none">
+            <option value="despesa"
+                    data-icone="fa-arrow-trend-down"
+                    data-cor="#EF4444"
+                    {% if tipo_atual == "despesa" %}selected{% endif %}>Despesa</option>
+            <option value="receita"
+                    data-icone="fa-arrow-trend-up"
+                    data-cor="#16A34A"
+                    {% if tipo_atual == "receita" %}selected{% endif %}>Receita</option>
+            <option value="transferencia"
+                    data-icone="fa-right-left"
+                    data-cor="#64748B"
+                    {% if tipo_atual == "transferencia" %}selected{% endif %}>Transferência</option>
+            <option value="ajuste"
+                    data-icone="fa-sliders"
+                    data-cor="#6B7280"
+                    {% if tipo_atual == "ajuste" %}selected{% endif %}>Ajuste</option>
+          </select>
+          <button type="button"
+                  data-combobox-trigger
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="cb-list-tipo">
+            <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gray-50"></span>
+            <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione o tipo</span>
+            <span data-combobox-chevron aria-hidden="true"></span>
+          </button>
+          <div id="cb-list-tipo"
+               data-combobox-list
+               role="listbox"
+               class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+               hidden></div>
+        </div>
+      </div>
+
+      <!-- Transferência: origem e destino (só contas, mesmo padrão visual da combobox) -->
+      <div id="bloco-transferencia" class="mb-4 hidden min-w-0 space-y-4">
+        <input type="hidden" name="transfer_id" id="transfer_id" value="">
+        <div class="min-w-0" data-combobox-root="conta-origem">
+          <label for="conta_origem" class="block text-sm font-medium mb-1 text-fg">Conta de origem</label>
+          {% if form.conta.field.queryset %}
+          <div class="relative mt-1 min-w-0">
+            <select name="conta_origem" id="conta_origem"
+                    class="sr-only focus:outline-none">
+              <option value="">Selecione a conta de origem</option>
+              {% for c in form.conta.field.queryset %}
+              <option value="{{ c.pk }}"
+                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
+              {% endfor %}
+            </select>
+            <button type="button"
+                    data-combobox-trigger
+                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="cb-list-conta-origem">
+              <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+              <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione a conta de origem</span>
+              <span data-combobox-chevron aria-hidden="true"></span>
+            </button>
+            <div id="cb-list-conta-origem"
+                 data-combobox-list
+                 role="listbox"
+                 class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                 hidden></div>
+          </div>
+          {% else %}
+          <p class="mt-1 text-sm text-fg-muted">Cadastre pelo menos duas contas para transferir.</p>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center justify-center py-0.5" aria-hidden="true">
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-500">
+            <i class="fa-solid fa-arrow-down text-sm"></i>
+          </span>
+        </div>
+
+        <div class="min-w-0" data-combobox-root="conta-destino">
+          <label for="conta_destino" class="block text-sm font-medium mb-1 text-fg">Conta de destino</label>
+          {% if form.conta.field.queryset %}
+          <div class="relative mt-1 min-w-0">
+            <select name="conta_destino" id="conta_destino"
+                    class="sr-only focus:outline-none">
+              <option value="">Selecione a conta de destino</option>
+              {% for c in form.conta.field.queryset %}
+              <option value="{{ c.pk }}"
+                      data-icon-url="{% static c.icone|conta_icon_path %}">{{ c.nome }}</option>
+              {% endfor %}
+            </select>
+            <button type="button"
+                    data-combobox-trigger
+                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-controls="cb-list-conta-destino">
+              <span data-combobox-trigger-icon class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-50"></span>
+              <span data-combobox-trigger-label class="min-w-0 flex-1 truncate">Selecione a conta de destino</span>
+              <span data-combobox-chevron aria-hidden="true"></span>
+            </button>
+            <div id="cb-list-conta-destino"
+                 data-combobox-list
+                 role="listbox"
+                 class="absolute left-0 right-0 z-[60] mt-1 hidden max-h-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                 hidden></div>
+          </div>
+          {% else %}
+          <p class="mt-1 text-sm text-fg-muted">Cadastre pelo menos duas contas para transferir.</p>
+          {% endif %}
+        </div>
       </div>
 
       <!-- Conta/Cartão (select unificado + combobox; conta e cartão via hidden) -->
-      <div class="mb-4 min-w-0" data-combobox-root="conta-cartao-unificado">
+      <div class="mb-4 min-w-0" data-combobox-root="conta-cartao-unificado" id="bloco-conta-cartao">
         <label {% if form.conta.field.queryset or form.cartao.field.queryset %}for="id_conta_cartao"{% endif %} class="block text-sm font-medium mb-1 text-fg">Conta/Cartão</label>
         {% if form.conta.field.queryset or form.cartao.field.queryset %}
         <div class="sr-only" aria-hidden="true">{{ form.conta }}{{ form.cartao }}</div>
@@ -117,7 +223,7 @@
       </div>
 
       <!-- Categoria (select nativo + combobox visual) -->
-      <div class="mb-4 min-w-0" data-combobox-root="categoria">
+      <div class="mb-4 min-w-0" data-combobox-root="categoria" id="bloco-categoria">
         <label for="categoria" class="block text-sm font-medium mb-1 text-fg">Categoria</label>
         <div class="relative mt-1 min-w-0">
           <select name="categoria" id="categoria" required
@@ -193,10 +299,10 @@
         <button type="button"
                 id="btn-excluir-transacao-modal"
                 class="btn btn-danger btn-block mt-2 hidden md:hidden">
-          Excluir transação
+          Excluir
         </button>
 
-        <p class="text-xs mt-3 text-center text-fg-muted">
+        <p id="texto-ajuda-modal-transacao" class="text-xs mt-3 text-center text-fg-muted">
           Você pode editar ou excluir transações depois, quando quiser.
         </p>
       </div>

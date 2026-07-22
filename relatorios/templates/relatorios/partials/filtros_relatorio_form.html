@@ -80,6 +80,10 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
           <input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30" />
           Ajuste
         </label>
+        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90 has-[:checked]:text-brand-900">
+          <input type="checkbox" name="tipo" value="transferencia" {% if "transferencia" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-2 focus:ring-brand-500/30" />
+          Transferência
+        </label>
       </div>
     </section>
   </div>
@@ -151,6 +155,10 @@ filtros_embed: panel (Visão Geral) | bar (outras telas)
       <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-sm text-gray-700 has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90">
         <input type="checkbox" name="tipo" value="ajuste" {% if "ajuste" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600" />
         Ajuste
+      </label>
+      <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-2 text-sm text-gray-700 has-[:checked]:border-brand-400/60 has-[:checked]:bg-brand-50/90">
+        <input type="checkbox" name="tipo" value="transferencia" {% if "transferencia" in filtros.tipos %}checked{% endif %} class="h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600" />
+        Transferência
       </label>
     </div>
   </div>

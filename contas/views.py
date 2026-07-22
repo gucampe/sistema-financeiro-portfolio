@@ -3,7 +3,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.db.models import Case, DecimalField, F, OuterRef, Subquery, Sum, Value, When
+from django.db.models import DecimalField, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 
 from core.moeda import parse_decimal_moeda_br
 from transacoes.models import Transacao
+from transacoes.saldo_expr import saldo_case_expression
 from transacoes.services import criar_transacao_saldo_inicial
 from .models import Conta
 
@@ -23,15 +24,7 @@ def _contas_queryset_com_saldo(usuario, *, ativa=None):
         Transacao.objects.filter(conta_id=OuterRef("pk"), usuario=usuario)
         .values("conta_id")
         .annotate(
-            total=Sum(
-                Case(
-                    When(tipo="receita", then=F("valor")),
-                    When(tipo="despesa", then=-F("valor")),
-                    When(tipo="ajuste", then=F("valor")),
-                    default=Value(Decimal("0.00")),
-                    output_field=DecimalField(max_digits=12, decimal_places=2),
-                )
-            )
+            total=Sum(saldo_case_expression())
         )
         .values("total")
     )

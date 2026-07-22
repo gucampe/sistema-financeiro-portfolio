@@ -37,7 +37,7 @@ def snapshot_usuario(user, *, contas: list[Conta] | None = None) -> dict[int, di
 
 
 def assert_saldo_consistente(user, *, contas: list[Conta] | None = None) -> None:
-    """INVARIANTE 2: saldo == receitas - despesas + ajustes."""
+    """INVARIANTE 2: saldo == receitas - despesas + ajustes ± transferências."""
     qs = Conta.objects.filter(usuario=user, ativa=True)
     if contas is not None:
         qs = qs.filter(pk__in=[c.pk for c in contas])

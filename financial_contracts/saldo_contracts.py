@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from django.db.models import Case, DecimalField, F, Sum, When
+from django.db.models import Sum
 
 from financial_contracts.base import assert_decimal_equal, quantize_moeda
+from transacoes.saldo_expr import saldo_case_expression
 
 
 def _qs_saldo_conta(conta, *, incluir_compras_cartao: bool = True):
@@ -21,18 +22,12 @@ def _qs_saldo_conta(conta, *, incluir_compras_cartao: bool = True):
 
 
 def calcular_saldo_esperado(conta, *, incluir_compras_cartao: bool = True) -> Decimal:
-    """CON-SALDO-01: saldo = receitas - despesas + ajustes (compras cartão opcional)."""
-    aggregate_expr = Sum(
-        Case(
-            When(tipo="receita", then=F("valor")),
-            When(tipo="despesa", then=-F("valor")),
-            When(tipo="ajuste", then=F("valor")),
-            default=Decimal("0.00"),
-            output_field=DecimalField(max_digits=12, decimal_places=2),
-        )
-    )
+    """
+    CON-SALDO-01: saldo = receitas - despesas + ajustes
+    ± transferências (origem −, destino +). Compras cartão opcional.
+    """
     result = _qs_saldo_conta(conta, incluir_compras_cartao=incluir_compras_cartao).aggregate(
-        saldo=aggregate_expr
+        saldo=Sum(saldo_case_expression())
     )["saldo"]
     return quantize_moeda(result or Decimal("0.00"))
 

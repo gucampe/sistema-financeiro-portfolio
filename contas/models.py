@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, DecimalField, F, Sum, When
+from django.db.models import Sum
 from decimal import Decimal
+
+from transacoes.saldo_expr import saldo_case_expression
+
 
 class Conta(models.Model):
     TIPO_CHOICES = [
@@ -32,18 +35,9 @@ class Conta(models.Model):
 
     @property
     def saldo_atual_calc(self):
-        """Saldo calculado a partir das transações (receita +, despesa -, ajuste +). Use quando não houver annotate."""
+        """Saldo calculado a partir das transações (CON-SALDO-01). Use quando não houver annotate."""
         from transacoes.models import Transacao
 
         qs = Transacao.objects.filter(conta=self, usuario=self.usuario)
-        aggregate_expr = Sum(
-            Case(
-                When(tipo="receita", then=F("valor")),
-                When(tipo="despesa", then=-F("valor")),
-                When(tipo="ajuste", then=F("valor")),
-                default=Decimal("0.00"),
-                output_field=DecimalField(max_digits=12, decimal_places=2),
-            )
-        )
-        result = qs.aggregate(saldo=aggregate_expr)["saldo"]
+        result = qs.aggregate(saldo=Sum(saldo_case_expression()))["saldo"]
         return result or Decimal("0.00")

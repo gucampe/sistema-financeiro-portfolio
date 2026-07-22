@@ -16,6 +16,7 @@ from relatorios.selectors import transacoes_base_qs
 from relatorios.services.agregacoes import aplicar_filtros_relatorio, saldos_por_conta_totais
 from relatorios.services.despesas_categoria import filtros_periodo_anterior
 from relatorios.services.filtros import RelatorioFiltros
+from transacoes.saldo_expr import saldo_case_expression
 
 TIPO_CORES: dict[str, str] = {
     "corrente": "#6366f1",
@@ -42,15 +43,7 @@ def _direcao_variacao(atual: Decimal, anterior: Decimal) -> str:
 
 
 def _stats_periodo_por_conta(qs) -> dict[int, dict[str, Any]]:
-    expr_mov = Sum(
-        Case(
-            When(tipo="receita", then=F("valor")),
-            When(tipo="despesa", then=-F("valor")),
-            When(tipo="ajuste", then=F("valor")),
-            default=Decimal("0"),
-            output_field=DecimalField(max_digits=14, decimal_places=2),
-        )
-    )
+    expr_mov = Sum(saldo_case_expression())
     rows = (
         qs.values("conta_id")
         .annotate(
@@ -58,6 +51,7 @@ def _stats_periodo_por_conta(qs) -> dict[int, dict[str, Any]]:
             receitas=Sum("valor", filter=Q(tipo="receita")),
             despesas=Sum("valor", filter=Q(tipo="despesa")),
             ajustes=Sum("valor", filter=Q(tipo="ajuste")),
+            transferencias=Sum("valor", filter=Q(tipo="transferencia")),
             quantidade=Count("id"),
         )
     )
@@ -71,21 +65,14 @@ def _stats_periodo_por_conta(qs) -> dict[int, dict[str, Any]]:
             "receitas": row["receitas"] or Decimal("0"),
             "despesas": row["despesas"] or Decimal("0"),
             "ajustes": row["ajustes"] or Decimal("0"),
+            "transferencias": row["transferencias"] or Decimal("0"),
             "quantidade": row["quantidade"] or 0,
         }
     return out
 
 
 def _tendencia_diaria_conta(qs, filtros: RelatorioFiltros, conta_id: int) -> dict[str, Any]:
-    expr = Sum(
-        Case(
-            When(tipo="receita", then=F("valor")),
-            When(tipo="despesa", then=-F("valor")),
-            When(tipo="ajuste", then=F("valor")),
-            default=Decimal("0"),
-            output_field=DecimalField(max_digits=14, decimal_places=2),
-        )
-    )
+    expr = Sum(saldo_case_expression())
     by_day: dict[date, Decimal] = {}
     rows = (
         qs.filter(conta_id=conta_id)
@@ -166,12 +153,14 @@ def _detalhe_conta(qs, filtros: RelatorioFiltros, conta_id: int) -> dict[str, An
         )
 
     n_ajustes = qs_conta.filter(tipo="ajuste").count()
+    n_transferencias = qs_conta.filter(tipo="transferencia").count()
 
     return {
         "transacoes": transacoes,
         "maiores_movimentacoes": maiores_movimentacoes,
         "categorias": categorias,
         "n_ajustes": n_ajustes,
+        "n_transferencias": n_transferencias,
         "tendencia": _tendencia_diaria_conta(qs, filtros, conta_id),
     }
 
@@ -260,13 +249,23 @@ def _insight_items(
             }
         )
 
+    transferencias_total = sum(c.get("n_transferencias_periodo", 0) for c in contas)
+    if transferencias_total >= 2:
+        itens.append(
+            {
+                "nivel": "info",
+                "titulo": "Transferências entre contas",
+                "mensagem": "Houve transferências no período — o patrimônio total não muda, só a composição por conta.",
+            }
+        )
+
     ajustes_total = sum(c.get("n_ajustes_periodo", 0) for c in contas)
     if ajustes_total >= 2:
         itens.append(
             {
                 "nivel": "aviso",
-                "titulo": "Transferências e ajustes",
-                "mensagem": "Houve ajustes entre contas no período — confira se o fluxo entre elas está coerente.",
+                "titulo": "Ajustes de saldo",
+                "mensagem": "Houve ajustes de saldo no período — confira se estão coerentes.",
             }
         )
 
@@ -340,6 +339,12 @@ def montar_analise_por_conta(
         .annotate(n=Count("id"))
         .values_list("conta_id", "n")
     )
+    transferencias_por_conta = dict(
+        qs.filter(tipo="transferencia")
+        .values("conta_id")
+        .annotate(n=Count("id"))
+        .values_list("conta_id", "n")
+    )
 
     contas: list[dict[str, Any]] = []
     for saldo_row in saldos_lista:
@@ -355,6 +360,7 @@ def montar_analise_por_conta(
         pct_mov = (Decimal(n_tx) / Decimal(total_tx) * 100) if total_tx else Decimal("0")
         delta_pct = _delta_pct(mov, mov_ant)
         n_ajustes = ajustes_por_conta.get(cid, 0) if n_tx else 0
+        n_transferencias = transferencias_por_conta.get(cid, 0) if n_tx else 0
 
         contas.append(
             {
@@ -378,6 +384,7 @@ def montar_analise_por_conta(
                 "delta_pct_abs": abs(float(delta_pct)) if delta_pct is not None else None,
                 "direcao": _direcao_variacao(mov, mov_ant),
                 "n_ajustes_periodo": n_ajustes,
+                "n_transferencias_periodo": n_transferencias,
                 "drill_qs": filtros.to_drill_transacoes_periodo_e_conta(cid),
                 "detalhe": _detalhe_conta(qs, filtros, cid) if n_tx else _detalhe_conta_vazio(),
             }
@@ -415,6 +422,7 @@ def montar_analise_por_conta(
                 "delta_pct_abs": None,
                 "direcao": _direcao_variacao(mov, mov_ant),
                 "n_ajustes_periodo": ajustes_por_conta.get(cid, 0),
+                "n_transferencias_periodo": transferencias_por_conta.get(cid, 0),
                 "drill_qs": filtros.to_drill_transacoes_periodo_e_conta(cid),
                 "detalhe": _detalhe_conta(qs, filtros, cid),
             }
@@ -472,5 +480,6 @@ def _detalhe_conta_vazio() -> dict[str, Any]:
         "maiores_movimentacoes": [],
         "categorias": [],
         "n_ajustes": 0,
+        "n_transferencias": 0,
         "tendencia": {"labels": [], "valores": [], "max_valor": 1.0, "barras_pct": []},
     }

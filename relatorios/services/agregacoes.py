@@ -10,6 +10,7 @@ from django.db.models import Case, Count, DecimalField, F, Q, QuerySet, Sum, Whe
 from contas.models import Conta
 from relatorios.services.filtros import RelatorioFiltros
 from transacoes.models import Transacao
+from transacoes.saldo_expr import saldo_case_expression
 
 
 def _as_date(val) -> date:
@@ -236,15 +237,7 @@ def serie_receitas_despesas(
 
 
 def movimento_por_conta(qs: QuerySet[Transacao], usuario) -> list[dict[str, Any]]:
-    expr = Sum(
-        Case(
-            When(tipo="receita", then=F("valor")),
-            When(tipo="despesa", then=-F("valor")),
-            When(tipo="ajuste", then=F("valor")),
-            default=Decimal("0"),
-            output_field=DecimalField(max_digits=14, decimal_places=2),
-        )
-    )
+    expr = Sum(saldo_case_expression())
     rows = qs.values("conta_id", "conta__nome").annotate(movimento=expr).order_by("-movimento")
     contas_ativas = {c.id: c for c in Conta.objects.filter(usuario=usuario, ativa=True)}
     out = []
@@ -267,12 +260,10 @@ def movimento_por_conta(qs: QuerySet[Transacao], usuario) -> list[dict[str, Any]
 def saldos_por_conta_totais(usuario) -> tuple[list[dict[str, Any]], Decimal]:
     """Saldo acumulado (todas as transações) por conta ativa."""
     expr = Sum(
-        Case(
-            When(transacoes__tipo="receita", then=F("transacoes__valor")),
-            When(transacoes__tipo="despesa", then=-F("transacoes__valor")),
-            When(transacoes__tipo="ajuste", then=F("transacoes__valor")),
-            default=Decimal("0"),
-            output_field=DecimalField(max_digits=14, decimal_places=2),
+        saldo_case_expression(
+            valor_field="transacoes__valor",
+            tipo_field="transacoes__tipo",
+            papel_field="transacoes__papel_transferencia",
         )
     )
     rows = Conta.objects.filter(usuario=usuario, ativa=True).annotate(saldo=expr).order_by("-saldo")
@@ -287,15 +278,7 @@ def saldos_por_conta_totais(usuario) -> tuple[list[dict[str, Any]], Decimal]:
 
 def serie_fluxo_diario(qs: QuerySet[Transacao], filtros: RelatorioFiltros) -> dict[str, Any]:
     """Entradas/saídas por dia, líquido diário e saldo acumulado no período."""
-    expr_dia = Sum(
-        Case(
-            When(tipo="receita", then=F("valor")),
-            When(tipo="despesa", then=-F("valor")),
-            When(tipo="ajuste", then=F("valor")),
-            default=Decimal("0"),
-            output_field=DecimalField(max_digits=14, decimal_places=2),
-        )
-    )
+    expr_dia = Sum(saldo_case_expression())
     rows = qs.values("data").annotate(liquido=expr_dia).order_by("data")
     by_day: dict[date, Decimal] = {}
     for row in rows.iterator(chunk_size=2000):

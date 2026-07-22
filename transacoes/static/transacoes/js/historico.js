@@ -67,12 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return [
         {
           id: "editar",
-          label: "Editar transação",
+          label: item.dataset.transacaoTipo === "transferencia" ? "Editar transferência" : "Editar transação",
           icon: "fa-solid fa-pen-to-square",
         },
         {
           id: "excluir",
-          label: "Excluir transação",
+          label: item.dataset.transacaoTipo === "transferencia" ? "Excluir transferência" : "Excluir transação",
           icon: "fa-solid fa-trash",
           danger: true,
         },

@@ -12,9 +12,10 @@
   {% else %}
   data-transacao-id="{{ transacao.id }}"
   data-transacao-descricao="{{ transacao.descricao }}"
+  data-transacao-tipo="{{ transacao.tipo }}"
   role="listitem"
   tabindex="0"
-  aria-label="Transação {{ transacao.descricao }}"
+  aria-label="{% if transacao.tipo == 'transferencia' %}Transferência {{ transacao.descricao }}{% else %}Transação {{ transacao.descricao }}{% endif %}"
   {% endif %}
 >
   <div class="min-w-0">
@@ -30,9 +31,15 @@
         <p class="truncate text-sm font-semibold leading-tight text-fg" title="{{ transacao.descricao }}">
           {{ transacao.descricao }}
         </p>
-        <p class="mt-0.5 hidden truncate text-[12px] leading-tight text-gray-500 lg:block">
+        {# Mobile: sempre mostra contexto; desktop: linha secundária completa #}
+        <p class="mt-0.5 truncate text-[12px] leading-tight text-gray-500 {% if transacao.tipo != 'transferencia' %}hidden lg:block{% endif %}">
           {% if transacao.is_resumo_fatura %}
             {{ transacao.categoria.nome }} · {{ transacao.cartao.nome }} · {{ transacao.fatura.competencia|date:"m/Y" }}
+          {% elif transacao.tipo == "transferencia" %}
+            <span class="inline-flex max-w-full items-center gap-1.5">
+              <span class="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">Transf.</span>
+              <span class="min-w-0 truncate">{{ transacao.rotulo_transferencia|default:"Transferência" }}</span>
+            </span>
           {% else %}
             {{ transacao.categoria.nome|default:transacao.categoria }}
             {% if transacao.cartao_id and transacao.data_competencia and transacao.data != transacao.data_competencia %}
@@ -74,10 +81,16 @@
       <p class="shrink-0 text-right text-[15px] font-semibold tracking-tight whitespace-nowrap
         {% if transacao.tipo == 'despesa' %}text-red-500
         {% elif transacao.tipo == 'receita' %}text-green-600
+        {% elif transacao.tipo == 'transferencia' and transacao.papel_transferencia == 'origem' %}text-red-500
+        {% elif transacao.tipo == 'transferencia' and transacao.papel_transferencia == 'destino' %}text-green-600
         {% else %}text-gray-700{% endif %}">
         {% if transacao.tipo == 'despesa' %}
           -{{ transacao.valor|moeda }}
         {% elif transacao.tipo == 'receita' %}
+          +{{ transacao.valor|moeda }}
+        {% elif transacao.tipo == 'transferencia' and transacao.papel_transferencia == 'origem' %}
+          -{{ transacao.valor|moeda }}
+        {% elif transacao.tipo == 'transferencia' and transacao.papel_transferencia == 'destino' %}
           +{{ transacao.valor|moeda }}
         {% else %}
           {{ transacao.valor|moeda }}
@@ -86,7 +99,7 @@
       <div class="lista-contextual__menu-host relative hidden shrink-0 lg:block">
         <button type="button"
                 class="lista-contextual-menu-trigger flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 group-hover:opacity-100 group-focus-within:opacity-100"
-                aria-label="Ações da transação {{ transacao.descricao }}"
+                aria-label="Ações {% if transacao.tipo == 'transferencia' %}da transferência{% else %}da transação{% endif %} {{ transacao.descricao }}"
                 aria-haspopup="menu"
                 aria-expanded="false">
           <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>

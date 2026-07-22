@@ -9,6 +9,7 @@ from .views import (
     importar_ofx_preview,
     importar_planilha_modelo,
     importar_planilha_preview,
+    transferir,
 )
 
 app_name = 'transacoes'
@@ -17,6 +18,7 @@ urlpatterns = [
     path('', adicionar_transacao, name='historico'),  # ← ESTA É A PÁGINA /transacoes/
 
     path('adicionar/', adicionar_transacao, name='adicionar'),
+    path('transferir/', transferir, name='transferir'),
     path('<int:pk>/editar/', editar_transacao, name='editar'),
     path('<int:pk>/excluir/', excluir_transacao, name='excluir'),
     path('api/grafico/receitas-despesas/', dados_grafico_receitas_despesas, name='grafico_receitas_despesas'),
