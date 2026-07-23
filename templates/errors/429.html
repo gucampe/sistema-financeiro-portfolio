@@ -1,0 +1,16 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Muitas tentativas{% endblock %}
+{% block status_code %}429{% endblock %}
+{% block heading %}Muitas tentativas{% endblock %}
+{% block message %}
+Por segurança, pausamos temporariamente novas tentativas neste acesso.
+Aguarde alguns minutos e tente novamente.
+{% endblock %}
+
+{% block actions %}
+  <a href="{{ primary_url }}" class="btn btn-primary">{{ primary_label }}</a>
+  {% if secondary_url %}
+  <a href="{{ secondary_url }}" class="btn btn-secondary">{{ secondary_label }}</a>
+  {% endif %}
+{% endblock %}

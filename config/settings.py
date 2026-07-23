@@ -138,6 +138,7 @@ CATEGORIZACAO_LLM_AB_ROLLOUT_PCT = 0
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'config.middleware_maintenance.MaintenanceModeMiddleware',
     'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -237,6 +238,9 @@ AXES_ENABLE_ADMIN = True
 AXES_USERNAME_FORM_FIELD = "email"
 AXES_LOCKOUT_CALLABLE = "config.axes_lockout.lockout_response"
 
+# CSRF failure usa a mesma página 403 brandada (não o HTML padrão do Django).
+CSRF_FAILURE_VIEW = "config.error_handlers.csrf_failure"
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -306,6 +310,9 @@ LANDING_HOSTS = config("LANDING_HOSTS", default="").strip()
 APP_LOGIN_URL = (
     f"https://{APP_HOST}/login/" if APP_HOST else ""
 )
+
+# Manutenção planejada: 503 brandado (exceto /health/ e static).
+MAINTENANCE_MODE = config("MAINTENANCE_MODE", default=False, cast=bool)
 
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 dia (em segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)

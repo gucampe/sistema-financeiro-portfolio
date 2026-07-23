@@ -6,6 +6,10 @@ from django.views.generic import RedirectView
 
 from config.health_views import health
 
+handler404 = "config.error_handlers.handler404"
+handler403 = "config.error_handlers.handler403"
+handler500 = "config.error_handlers.handler500"
+
 urlpatterns = [
     path("health/", health, name="health"),
     path('admin/', admin.site.urls),

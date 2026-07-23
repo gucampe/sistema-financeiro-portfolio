@@ -1,0 +1,16 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Acesso negado{% endblock %}
+{% block status_code %}403{% endblock %}
+{% block heading %}Acesso negado{% endblock %}
+{% block message %}
+Você não tem permissão para ver esta página ou realizar esta ação.
+Se acabou de enviar um formulário, atualize a página e tente novamente.
+{% endblock %}
+
+{% block actions %}
+  <a href="{{ primary_url }}" class="btn btn-primary">{{ primary_label }}</a>
+  {% if secondary_url %}
+  <a href="{{ secondary_url }}" class="btn btn-secondary">{{ secondary_label }}</a>
+  {% endif %}
+{% endblock %}

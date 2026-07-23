@@ -1,0 +1,13 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Em manutenção{% endblock %}
+{% block status_code %}503{% endblock %}
+{% block heading %}Estamos em manutenção{% endblock %}
+{% block message %}
+O GranaGo está temporariamente indisponível para melhorias.
+Voltamos em breve — obrigado pela paciência.
+{% endblock %}
+
+{% block actions %}
+  <a href="{{ primary_url }}" class="btn btn-primary">{{ primary_label }}</a>
+{% endblock %}

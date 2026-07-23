@@ -1,0 +1,16 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Algo deu errado{% endblock %}
+{% block status_code %}500{% endblock %}
+{% block heading %}Algo deu errado{% endblock %}
+{% block message %}
+Ocorreu um problema do nosso lado. Já estamos trabalhando para resolver.
+Tente novamente em alguns instantes.
+{% endblock %}
+
+{% block actions %}
+  <a href="{{ primary_url }}" class="btn btn-primary">{{ primary_label }}</a>
+  {% if secondary_url %}
+  <a href="{{ secondary_url }}" class="btn btn-secondary">{{ secondary_label }}</a>
+  {% endif %}
+{% endblock %}
