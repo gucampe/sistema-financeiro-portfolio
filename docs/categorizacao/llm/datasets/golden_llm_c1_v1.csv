@@ -1,0 +1,21 @@
+id,descricao,tipo,valor,categoria_esperada,categorias_aceitaveis,bucket,banco_origem,notas_avaliador
+C1-001,AMAZON BR,despesa,-50.00,Compras,Compras|Supermercado,C1,sintetico,categoria subjetiva
+C1-002,MERCADO LIVRE ELETRONICOS,despesa,-50.00,Compras,Compras,C1,sintetico,categoria subjetiva
+C1-003,RAPPI CONVENIENCIA,despesa,-50.00,Alimentação,Alimentação|Restaurantes e bares,C1,sintetico,categoria subjetiva
+C1-004,IFOOD MERCADO,despesa,-50.00,Alimentação,Alimentação|Supermercado,C1,sintetico,categoria subjetiva
+C1-005,UBER EATS,despesa,-50.00,Alimentação,Alimentação|Restaurantes e bares,C1,sintetico,categoria subjetiva
+C1-006,MERCADO MUNICIPAL FEIRA,despesa,-50.00,Supermercado,Supermercado|Compras,C1,sintetico,categoria subjetiva
+C1-007,POSTO IPIRANGA CONVENIENCIA,despesa,-50.00,Transporte e locomoção,Transporte e locomoção|Alimentação,C1,sintetico,categoria subjetiva
+C1-008,FARMACIA POPULAR DROGASIL,despesa,-50.00,Saúde,Saúde,C1,sintetico,categoria subjetiva
+C1-009,APPLE STORE COMPRA,despesa,-50.00,Compras,Compras|Trabalho,C1,sintetico,categoria subjetiva
+C1-010,GOOGLE ONE STORAGE,despesa,-50.00,Serviços e Assinaturas,Serviços e Assinaturas|Trabalho,C1,sintetico,categoria subjetiva
+C1-011,NUBANK TARIFA PACOTE,despesa,-50.00,Taxas e tributos,Taxas e tributos|Diversos,C1,sintetico,categoria subjetiva
+C1-012,ITAU ANUIDADE CARTAO,despesa,-50.00,Taxas e tributos,Taxas e tributos,C1,sintetico,categoria subjetiva
+C1-013,SUPERMERCADO EXTRA PAES,despesa,-50.00,Supermercado,Supermercado|Alimentação,C1,sintetico,categoria subjetiva
+C1-014,RESTAURANTE JAPONES SUSHI,despesa,-50.00,Restaurantes e bares,Restaurantes e bares|Alimentação,C1,sintetico,categoria subjetiva
+C1-015,PRESENTE AMAZON,despesa,-50.00,Presentes e doações,Presentes e doações|Compras,C1,sintetico,categoria subjetiva
+C1-016,DOACAO INSTITUICAO,despesa,-50.00,Presentes e doações,Presentes e doações,C1,sintetico,categoria subjetiva
+C1-017,CURSO ONLINE UDEMY,despesa,-50.00,Educação,Educação|Trabalho,C1,sintetico,categoria subjetiva
+C1-018,MATERIAL ESCRITORIO,despesa,-50.00,Trabalho,Trabalho|Compras,C1,sintetico,categoria subjetiva
+C1-019,VIAGEM HOTEL AIRBNB,despesa,-50.00,Viagens,Viagens,C1,sintetico,categoria subjetiva
+C1-020,PASSAGEM GOL LINHAS,despesa,-50.00,Viagens,Viagens,C1,sintetico,categoria subjetiva

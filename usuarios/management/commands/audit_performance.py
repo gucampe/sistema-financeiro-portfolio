@@ -89,7 +89,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--output",
             default="",
-            help="Salvar JSON em arquivo (ex: docs/perf/baseline.json)",
+            help="Salvar JSON em arquivo (ex: docs/performance/baseline.json)",
         )
         parser.add_argument(
             "--host",

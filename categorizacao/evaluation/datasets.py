@@ -4,7 +4,7 @@ import csv
 from dataclasses import dataclass
 from pathlib import Path
 
-AVALIACAO_DIR = Path(__file__).resolve().parents[2] / "docs" / "avaliacao"
+AVALIACAO_DIR = Path(__file__).resolve().parents[2] / "docs" / "categorizacao"
 GOLDEN_CSV = AVALIACAO_DIR / "datasets" / "golden_categorizacao_v1.csv"
 
 CSV_HEADER = [

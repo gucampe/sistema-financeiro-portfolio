@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 LONGITUDINAL_DIR = (
-    Path(__file__).resolve().parents[3] / "docs" / "avaliacao" / "longitudinal"
+    Path(__file__).resolve().parents[3] / "docs" / "categorizacao" / "longitudinal"
 )
 
 CHECKPOINTS = ("T0", "T1", "T2", "T3", "T4", "T5")

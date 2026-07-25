@@ -24,7 +24,7 @@ from transacoes.ofx_parse import parse_ofx_bytes
 User = get_user_model()
 
 OFX_REAL_GLOB = "/home/gucampe/Documentos/extratoCC*.ofx"
-OFX_DATASET_DIR = "docs/avaliacao/datasets/ofx"
+OFX_DATASET_DIR = "docs/categorizacao/datasets/ofx"
 
 
 @dataclass
@@ -52,7 +52,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--output",
-            default="docs/auditoria/categorizacao/registros/validacao_pre_producao.json",
+            default="docs/categorizacao/registros/validacao_pre_producao.json",
         )
         parser.add_argument("--limit-linhas", type=int, default=0, help="0 = todas")
 
