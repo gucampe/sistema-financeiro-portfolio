@@ -56,10 +56,31 @@
     });
   }
 
+  function initLegalToc() {
+    var details = document.querySelector(".lp-legal-toc__details");
+    if (!details || typeof window.matchMedia !== "function") return;
+
+    var mq = window.matchMedia("(min-width: 1024px)");
+
+    function syncOpenState() {
+      // Desktop: sempre aberto. Mobile: começa fechado para não empurrar o conteúdo.
+      details.open = mq.matches;
+    }
+
+    syncOpenState();
+
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", syncOpenState);
+    } else if (typeof mq.addListener === "function") {
+      mq.addListener(syncOpenState);
+    }
+  }
+
   function init() {
     initReveal();
     initHeader();
     initFaq();
+    initLegalToc();
   }
 
   if (document.readyState === "loading") {

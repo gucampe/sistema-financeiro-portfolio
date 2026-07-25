@@ -30,10 +30,16 @@ from .models import Perfil, Usuario
 from .utils import iniciais_avatar
 
 
-def _legal_context():
+def _legal_context(request=None):
+    site_url = getattr(settings, "SITE_URL", "") or (
+        request.build_absolute_uri("/") if request is not None else ""
+    )
     return {
         "privacidade_email": getattr(settings, "PRIVACIDADE_EMAIL", "privacidade@granago.app"),
         "llm_ativo": getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False),
+        "checkout_url": getattr(settings, "LANDING_CHECKOUT_URL", "") or reverse("usuarios:landing") + "#oferta",
+        "site_url": site_url.rstrip("/"),
+        "app_login_url": getattr(settings, "APP_LOGIN_URL", "") or reverse("usuarios:login"),
     }
 
 
@@ -68,15 +74,15 @@ def login_view(request):
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect("usuarios:login")
 
-    return render(request, "usuarios/partials/login.html", _legal_context())
+    return render(request, "usuarios/partials/login.html", _legal_context(request))
 
 
 def privacidade_view(request):
-    return render(request, "usuarios/legal/privacidade.html", _legal_context())
+    return render(request, "usuarios/legal/privacidade.html", _legal_context(request))
 
 
 def termos_view(request):
-    return render(request, "usuarios/legal/termos.html", _legal_context())
+    return render(request, "usuarios/legal/termos.html", _legal_context(request))
 
 
 class GranaGoPasswordResetView(PasswordResetView):

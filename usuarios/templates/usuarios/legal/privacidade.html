@@ -1,260 +1,301 @@
-{% extends "base.html" %}
+{% extends "usuarios/legal/base_legal.html" %}
 {% load static %}
 
-{% block title %}Política de Privacidade — GranaGo{% endblock %}
+{% block meta %}
+<title>Política de Privacidade — GranaGo</title>
+<meta
+  name="description"
+  content="Como o GranaGo trata dados pessoais, em conformidade com a LGPD. Cookies, retenção, direitos do titular e contato."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}{% url 'usuarios:privacidade' %}" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="Política de Privacidade — GranaGo" />
+<meta
+  property="og:description"
+  content="Como o GranaGo trata dados pessoais, em conformidade com a LGPD."
+/>
+<meta property="og:url" content="{{ site_url }}{% url 'usuarios:privacidade' %}" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+{% endblock %}
 
-{% block show_header_sidebar %}
-<div class="min-h-screen bg-surface px-4 py-10">
-  <article class="card mx-auto max-w-3xl p-8 prose prose-sm max-w-none text-fg">
-    <header class="mb-8 border-b border-gray-100 pb-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-2">Política de Privacidade</h1>
-      <p class="text-fg-muted text-sm">Última atualização: julho de 2026</p>
-      <p class="mt-3 text-sm text-gray-600 leading-relaxed">
+{% block legal_body %}
+<section class="lp-band lp-band--legal lp-section" aria-labelledby="legal-title">
+  <div class="lp-band__inner lp-band__inner--legal">
+    <div class="lp-container">
+      <nav class="lp-legal-breadcrumb" aria-label="Navegação">
+        <a href="{% url 'usuarios:landing' %}">Início</a>
+        <span aria-hidden="true">/</span>
+        <span>Privacidade</span>
+      </nav>
+      <h1 id="legal-title" class="lp-legal-title">Política de Privacidade</h1>
+      <p class="lp-legal-meta">Última atualização: julho de 2026</p>
+      <p class="lp-legal-lead">
         Esta política explica como o <strong>GranaGo</strong> trata dados pessoais ao oferecer ferramentas de organização financeira pessoal,
         em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
       </p>
-    </header>
+    </div>
+  </div>
+</section>
 
-    <nav class="mb-8 rounded-xl bg-gray-50/80 px-4 py-3 text-sm text-gray-600" aria-label="Índice da política">
-      <p class="font-medium text-gray-800 mb-2">Nesta página</p>
-      <ul class="grid gap-1 sm:grid-cols-2">
-        <li><a href="#controlador" class="text-brand-600 hover:underline">1. Controlador</a></li>
-        <li><a href="#servico" class="text-brand-600 hover:underline">2. Como o serviço funciona</a></li>
-        <li><a href="#dados" class="text-brand-600 hover:underline">3. Dados que tratamos</a></li>
-        <li><a href="#bases" class="text-brand-600 hover:underline">4. Bases legais</a></li>
-        <li><a href="#subprocessadores" class="text-brand-600 hover:underline">5. Parceiros e infraestrutura</a></li>
-        {% if llm_ativo %}<li><a href="#ia" class="text-brand-600 hover:underline">6. Categorização com IA</a></li>{% endif %}
-        <li><a href="#seguranca" class="text-brand-600 hover:underline">{% if llm_ativo %}7{% else %}6{% endif %}. Segurança</a></li>
-        <li><a href="#cookies" class="text-brand-600 hover:underline">{% if llm_ativo %}8{% else %}7{% endif %}. Cookies</a></li>
-        <li><a href="#retencao" class="text-brand-600 hover:underline">{% if llm_ativo %}9{% else %}8{% endif %}. Retenção</a></li>
-        <li><a href="#direitos" class="text-brand-600 hover:underline">{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos</a></li>
-        <li><a href="#contato" class="text-brand-600 hover:underline">{% if llm_ativo %}11{% else %}10{% endif %}. Contato</a></li>
-      </ul>
-    </nav>
+<div class="lp-legal-shell">
+  <div class="lp-container lp-legal-layout">
+    <aside class="lp-legal-toc" aria-label="Índice da política">
+      <details class="lp-legal-toc__details">
+        <summary class="lp-legal-toc__summary">
+          <span>Nesta página</span>
+          <svg class="lp-legal-toc__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <nav class="lp-legal-toc__nav">
+          <ol class="lp-legal-toc__list">
+            <li><a href="#controlador">1. Controlador</a></li>
+            <li><a href="#servico">2. Como o serviço funciona</a></li>
+            <li><a href="#dados">3. Dados que tratamos</a></li>
+            <li><a href="#bases">4. Bases legais</a></li>
+            <li><a href="#subprocessadores">5. Parceiros e infraestrutura</a></li>
+            {% if llm_ativo %}<li><a href="#ia">6. Categorização com IA</a></li>{% endif %}
+            <li><a href="#seguranca">{% if llm_ativo %}7{% else %}6{% endif %}. Segurança</a></li>
+            <li><a href="#cookies">{% if llm_ativo %}8{% else %}7{% endif %}. Cookies</a></li>
+            <li><a href="#retencao">{% if llm_ativo %}9{% else %}8{% endif %}. Retenção</a></li>
+            <li><a href="#direitos">{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos</a></li>
+            <li><a href="#contato">{% if llm_ativo %}11{% else %}10{% endif %}. Contato</a></li>
+          </ol>
+        </nav>
+      </details>
+    </aside>
 
-    <section class="mb-8" id="controlador">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">1. Quem é o controlador</h2>
-      <p class="leading-relaxed">
-        O <strong>GranaGo</strong> é operado por <strong>[RAZÃO SOCIAL]</strong>, inscrita no CNPJ <strong>[●]</strong>,
-        responsável pelo tratamento dos dados pessoais descritos nesta Política.
-      </p>
-      <p class="mt-2 text-sm text-fg-muted">
-        O GranaGo é um software de gestão financeira pessoal oferecido na modalidade SaaS (software como serviço).
-      </p>
-    </section>
+    <article class="lp-legal-article">
+      <section class="lp-legal-section" id="controlador">
+        <h2>1. Quem é o controlador</h2>
+        <p>
+          O <strong>GranaGo</strong> é operado por <strong>[RAZÃO SOCIAL]</strong>, inscrita no CNPJ <strong>[●]</strong>,
+          responsável pelo tratamento dos dados pessoais descritos nesta Política.
+        </p>
+        <p class="lp-legal-note">
+          O GranaGo é um software de gestão financeira pessoal oferecido na modalidade SaaS (software como serviço).
+        </p>
+      </section>
 
-    <section class="mb-8" id="servico">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">2. Como o serviço funciona</h2>
-      <p class="leading-relaxed mb-3">
-        O GranaGo ajuda você a organizar receitas, despesas, contas, cartões e orçamentos.
-        Para isso, você informa dados diretamente na plataforma ou importa arquivos de extrato quando desejar.
-      </p>
-      <div class="rounded-xl border border-emerald-200/80 bg-emerald-50/50 px-4 py-3 text-sm text-gray-700">
-        <p class="font-medium text-gray-900 mb-2">O GranaGo não acessa sua conta bancária</p>
-        <ul class="list-disc pl-5 space-y-1">
-          <li>Não solicitamos senha bancária, token, código de autenticação ou credenciais de internet banking.</li>
-          <li>Não possuímos integração oficial com bancos nem com Open Finance.</li>
-          <li>Não nos conectamos automaticamente às suas instituições financeiras.</li>
-          <li>Você mantém o controle: registra informações manualmente ou envia arquivos de extrato (OFX/XLSX) para importação.</li>
+      <section class="lp-legal-section" id="servico">
+        <h2>2. Como o serviço funciona</h2>
+        <p>
+          O GranaGo ajuda você a organizar receitas, despesas, contas, cartões e orçamentos.
+          Para isso, você informa dados diretamente na plataforma ou importa arquivos de extrato quando desejar.
+        </p>
+        <div class="lp-legal-callout lp-legal-callout--success">
+          <p class="lp-legal-callout__title">O GranaGo não acessa sua conta bancária</p>
+          <ul>
+            <li>Não solicitamos senha bancária, token, código de autenticação ou credenciais de internet banking.</li>
+            <li>Não possuímos integração oficial com bancos nem com Open Finance.</li>
+            <li>Não nos conectamos automaticamente às suas instituições financeiras.</li>
+            <li>Você mantém o controle: registra informações manualmente ou envia arquivos de extrato (OFX/XLSX) para importação.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="lp-legal-section" id="dados">
+        <h2>3. Dados que tratamos</h2>
+        <p class="lp-legal-intro">Tratamos apenas os dados necessários para operar o serviço, conforme as categorias abaixo.</p>
+
+        <h3>3.1 Dados cadastrais</h3>
+        <p>
+          E-mail, nome, senha (armazenada de forma protegida), data de nascimento (opcional) e foto de perfil (opcional),
+          além de preferências da conta (moeda, padrões de transação e configurações de exibição).
+        </p>
+
+        <h3>3.2 Dados financeiros</h3>
+        <p>
+          Transações (data, valor, tipo, descrição, categoria), contas, cartões, faturas, orçamentos, categorias personalizadas
+          e regras de categorização que você criar ou que forem aprendidas a partir do seu uso.
+        </p>
+
+        <h3>3.3 Arquivos enviados (OFX e XLSX)</h3>
+        <p>
+          Quando você importa um extrato, o arquivo é processado para identificar movimentações e organizá-las no sistema.
+        </p>
+        <ul>
+          <li>O arquivo é utilizado somente para importação e organização das suas informações financeiras.</li>
+          <li>O conteúdo integral do arquivo <strong>não</strong> é enviado a provedores de inteligência artificial.</li>
+          <li>Arquivos não são compartilhados com terceiros além dos parceiros de infraestrutura descritos nesta Política, necessários para hospedar e operar o serviço.</li>
         </ul>
-      </div>
-    </section>
 
-    <section class="mb-8" id="dados">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">3. Dados que tratamos</h2>
-      <p class="mb-4 text-sm text-gray-600">Tratamos apenas os dados necessários para operar o serviço, conforme as categorias abaixo.</p>
+        <h3>3.4 Dados técnicos</h3>
+        <p>
+          Endereço IP, identificadores de sessão, registros de acesso e de segurança (por exemplo, tentativas de login malsucedidas),
+          cookies essenciais e informações técnicas de erro para manutenção da estabilidade do sistema.
+        </p>
+      </section>
 
-      <h3 class="text-base font-medium text-gray-800 mb-2">3.1 Dados cadastrais</h3>
-      <p class="mb-4 leading-relaxed">
-        E-mail, nome, senha (armazenada de forma protegida), data de nascimento (opcional) e foto de perfil (opcional),
-        além de preferências da conta (moeda, padrões de transação e configurações de exibição).
-      </p>
+      <section class="lp-legal-section" id="bases">
+        <h2>4. Bases legais</h2>
+        <p>Tratamos dados pessoais com fundamento nas seguintes bases, conforme o caso:</p>
+        <ul>
+          <li><strong>Execução de contrato</strong> — para criar e manter sua conta, processar importações, exibir relatórios e cumprir funcionalidades solicitadas por você.</li>
+          <li><strong>Legítimo interesse</strong> — para segurança da plataforma, prevenção a fraudes e abusos, melhoria do serviço e monitoramento técnico de erros.</li>
+          <li><strong>Consentimento</strong> — quando exigido por lei, inclusive para cookies não essenciais, caso venham a ser utilizados no futuro.</li>
+          <li><strong>Cumprimento de obrigação legal</strong> — quando necessário para atender exigências legais ou regulatórias aplicáveis.</li>
+        </ul>
+      </section>
 
-      <h3 class="text-base font-medium text-gray-800 mb-2">3.2 Dados financeiros</h3>
-      <p class="mb-4 leading-relaxed">
-        Transações (data, valor, tipo, descrição, categoria), contas, cartões, faturas, orçamentos, categorias personalizadas
-        e regras de categorização que você criar ou que forem aprendidas a partir do seu uso.
-      </p>
-
-      <h3 class="text-base font-medium text-gray-800 mb-2">3.3 Arquivos enviados (OFX e XLSX)</h3>
-      <p class="mb-2 leading-relaxed">
-        Quando você importa um extrato, o arquivo é processado para identificar movimentações e organizá-las no sistema.
-      </p>
-      <ul class="list-disc pl-5 space-y-1 mb-4 text-sm text-gray-700">
-        <li>O arquivo é utilizado somente para importação e organização das suas informações financeiras.</li>
-        <li>O conteúdo integral do arquivo <strong>não</strong> é enviado a provedores de inteligência artificial.</li>
-        <li>Arquivos não são compartilhados com terceiros além dos parceiros de infraestrutura descritos nesta Política, necessários para hospedar e operar o serviço.</li>
-      </ul>
-
-      <h3 class="text-base font-medium text-gray-800 mb-2">3.4 Dados técnicos</h3>
-      <p class="leading-relaxed">
-        Endereço IP, identificadores de sessão, registros de acesso e de segurança (por exemplo, tentativas de login malsucedidas),
-        cookies essenciais e informações técnicas de erro para manutenção da estabilidade do sistema.
-      </p>
-    </section>
-
-    <section class="mb-8" id="bases">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">4. Bases legais</h2>
-      <p class="leading-relaxed mb-3">Tratamos dados pessoais com fundamento nas seguintes bases, conforme o caso:</p>
-      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
-        <li><strong>Execução de contrato</strong> — para criar e manter sua conta, processar importações, exibir relatórios e cumprir funcionalidades solicitadas por você.</li>
-        <li><strong>Legítimo interesse</strong> — para segurança da plataforma, prevenção a fraudes e abusos, melhoria do serviço e monitoramento técnico de erros.</li>
-        <li><strong>Consentimento</strong> — quando exigido por lei, inclusive para cookies não essenciais, caso venham a ser utilizados no futuro.</li>
-        <li><strong>Cumprimento de obrigação legal</strong> — quando necessário para atender exigências legais ou regulatórias aplicáveis.</li>
-      </ul>
-    </section>
-
-    <section class="mb-8" id="subprocessadores">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">5. Parceiros e infraestrutura</h2>
-      <p class="leading-relaxed mb-3 text-sm text-gray-700">
-        Para operar o GranaGo, podemos utilizar fornecedores responsáveis por hospedagem da aplicação, banco de dados,
-        envio de e-mails, monitoramento técnico e infraestrutura de segurança.
-      </p>
-      <p class="leading-relaxed mb-3 text-sm text-gray-700">
-        Esses fornecedores podem processar dados pessoais em nosso nome exclusivamente para viabilizar o funcionamento
-        da plataforma, melhorar estabilidade, prevenir fraudes e prestar suporte operacional.
-      </p>
-      <p class="leading-relaxed mb-3 text-sm text-gray-700">
-        Alguns desses serviços podem estar localizados fora do Brasil, incluindo servidores nos Estados Unidos,
-        sendo adotadas medidas compatíveis com a legislação aplicável para proteção dos dados pessoais.
-      </p>
-      {% if llm_ativo %}
-      <p class="leading-relaxed text-sm text-gray-700">
-        Quando a funcionalidade de categorização assistida por IA estiver habilitada, informações limitadas e minimizadas
-        poderão ser processadas por provedores de inteligência artificial apenas para geração de sugestões de categoria,
-        conforme descrito na <a href="#ia" class="text-brand-600 hover:underline">seção sobre IA</a> desta Política.
-      </p>
-      {% endif %}
-    </section>
-
-    {% if llm_ativo %}
-    <section class="mb-8" id="ia">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">6. Categorização com inteligência artificial</h2>
-      <p class="leading-relaxed mb-3">
-        Quando habilitada pelo operador do serviço, o GranaGo pode usar o <strong>Google Gemini</strong> para sugerir categorias
-        em transações em que o sistema automático não tem confiança suficiente.
-      </p>
-      <ul class="list-disc pl-5 space-y-2 mb-4 text-sm text-gray-700">
-        <li>A IA <strong>apenas sugere</strong> categorias — nunca aplica alterações automaticamente sem sua revisão.</li>
-        <li>Enviamos somente descrição resumida e normalizada, tipo da transação, faixa de valor e identificadores de categorias disponíveis.</li>
-        <li><strong>Não enviamos</strong> valor exato da transação, CPF, e-mail, senhas nem o arquivo OFX/XLSX bruto.</li>
-        <li>Prompts e respostas completas da IA <strong>não são armazenados</strong> em nossos sistemas.</li>
-        <li>Registramos apenas métricas operacionais (por exemplo, volume de chamadas, tempo de resposta e identificador resumido da descrição) por até <strong>90 dias</strong>, para monitoramento e melhoria do serviço.</li>
-      </ul>
-      <p class="text-sm text-gray-600">
-        Você pode se opor a esse tratamento ou solicitar esclarecimentos pelo canal indicado na seção
-        <a href="#contato" class="text-brand-600 hover:underline">Contato</a>.
-      </p>
-    </section>
-    {% endif %}
-
-    <section class="mb-8" id="seguranca">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">{% if llm_ativo %}7{% else %}6{% endif %}. Segurança das informações</h2>
-      <p class="leading-relaxed mb-3">
-        Adotamos medidas técnicas e administrativas proporcionais ao estágio do serviço, com o objetivo de:
-      </p>
-      <ul class="list-disc pl-5 space-y-1 mb-3 text-sm text-gray-700">
-        <li>reduzir o risco de acesso não autorizado às contas e aos dados;</li>
-        <li>proteger informações contra perda, uso indevido ou alteração indevida;</li>
-        <li>preservar a integridade das informações financeiras que você registra na plataforma.</li>
-      </ul>
-      <p class="text-sm text-fg-muted leading-relaxed">
-        Nenhum sistema é totalmente imune a incidentes. Se identificarmos um problema relevante que afete seus dados,
-        buscaremos adotar medidas de contenção e comunicação conforme a legislação aplicável.
-      </p>
-    </section>
-
-    <section class="mb-8" id="cookies">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">{% if llm_ativo %}8{% else %}7{% endif %}. Cookies e tecnologias similares</h2>
-      <p class="leading-relaxed mb-3">
-        Utilizamos cookies e mecanismos equivalentes estritamente necessários ao funcionamento do GranaGo:
-      </p>
-      <ul class="list-disc pl-5 space-y-1 mb-4 text-sm text-gray-700">
-        <li><strong>Sessão</strong> — mantém você autenticado enquanto usa a plataforma.</li>
-        <li><strong>CSRF</strong> — protege formulários contra envios não autorizados.</li>
-      </ul>
-      <p class="text-sm text-gray-600 leading-relaxed mb-3">
-        Exibimos um aviso simplificado na primeira visita para informar sobre cookies essenciais.
-        O monitoramento de erros via Sentry baseia-se em legítimo interesse para estabilidade e diagnóstico técnico,
-        sem uso para publicidade ou perfilamento comercial.
-      </p>
-      <p class="text-sm text-fg-muted">
-        No momento, não utilizamos cookies de marketing ou rastreamento publicitário de terceiros.
-      </p>
-    </section>
-
-    <section class="mb-8" id="retencao">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">{% if llm_ativo %}9{% else %}8{% endif %}. Prazo de retenção</h2>
-      <p class="mb-3 text-sm text-gray-600">Mantemos dados pelo tempo necessário para as finalidades descritas nesta Política:</p>
-      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
-        <li>
-          <strong>Dados da conta e informações financeiras</strong> — enquanto sua conta estiver ativa ou pelo tempo necessário
-          para cumprir obrigações legais, resolver disputas, garantir segurança e prevenir fraudes.
-        </li>
-        <li>
-          <strong>Arquivos de exportação gerados na plataforma</strong> — disponíveis por até <strong>72 horas</strong>,
-          após o que são removidos ou expiram automaticamente.
-        </li>
+      <section class="lp-legal-section" id="subprocessadores">
+        <h2>5. Parceiros e infraestrutura</h2>
+        <p>
+          Para operar o GranaGo, podemos utilizar fornecedores responsáveis por hospedagem da aplicação, banco de dados,
+          envio de e-mails, monitoramento técnico e infraestrutura de segurança.
+        </p>
+        <p>
+          Esses fornecedores podem processar dados pessoais em nosso nome exclusivamente para viabilizar o funcionamento
+          da plataforma, melhorar estabilidade, prevenir fraudes e prestar suporte operacional.
+        </p>
+        <p>
+          Alguns desses serviços podem estar localizados fora do Brasil, incluindo servidores nos Estados Unidos,
+          sendo adotadas medidas compatíveis com a legislação aplicável para proteção dos dados pessoais.
+        </p>
         {% if llm_ativo %}
-        <li>
-          <strong>Métricas de uso da categorização por IA</strong> — até <strong>90 dias</strong>.
-        </li>
+        <p>
+          Quando a funcionalidade de categorização assistida por IA estiver habilitada, informações limitadas e minimizadas
+          poderão ser processadas por provedores de inteligência artificial apenas para geração de sugestões de categoria,
+          conforme descrito na <a href="#ia">seção sobre IA</a> desta Política.
+        </p>
         {% endif %}
-        <li>
-          <strong>Registros de auditoria de ações sensíveis</strong> (como alteração de senha, solicitação de exportação ou exclusão de conta) —
-          até <strong>12 meses</strong>.
-        </li>
-        <li>
-          <strong>Exclusão de conta</strong> — quando você solicita a remoção, os dados vinculados à conta são excluídos em cascata,
-          ressalvadas retenções mínimas exigidas por lei ou necessárias à segurança.
-        </li>
-      </ul>
-    </section>
+      </section>
 
-    <section class="mb-8" id="direitos">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos (LGPD)</h2>
-      <p class="leading-relaxed mb-3">
-        Nos termos do artigo 18 da LGPD, você pode solicitar, conforme aplicável:
-      </p>
-      <ul class="list-disc pl-5 space-y-1 mb-4 text-sm text-gray-700">
-        <li>confirmação da existência de tratamento;</li>
-        <li>acesso aos dados;</li>
-        <li>correção de dados incompletos, inexatos ou desatualizados;</li>
-        <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade;</li>
-        <li>portabilidade dos dados a outro fornecedor;</li>
-        <li>eliminação dos dados tratados com base no consentimento;</li>
-        <li>informação sobre compartilhamento com terceiros;</li>
-        <li>oposição a tratamentos realizados com base em legítimo interesse, quando cabível;</li>
-        <li>revisão de decisões automatizadas que afetem seus interesses, quando aplicável.</li>
-      </ul>
-      <p class="text-sm text-gray-600 leading-relaxed">
-        Na área logada, você já pode <strong>corrigir dados cadastrais</strong> em Configurações,
-        <strong>exportar uma cópia dos seus dados</strong> (pacote LGPD em ZIP) e
-        <strong>excluir sua conta</strong> de forma permanente.
-      </p>
-    </section>
+      {% if llm_ativo %}
+      <section class="lp-legal-section" id="ia">
+        <h2>6. Categorização com inteligência artificial</h2>
+        <p>
+          Quando habilitada pelo operador do serviço, o GranaGo pode usar o <strong>Google Gemini</strong> para sugerir categorias
+          em transações em que o sistema automático não tem confiança suficiente.
+        </p>
+        <ul>
+          <li>A IA <strong>apenas sugere</strong> categorias — nunca aplica alterações automaticamente sem sua revisão.</li>
+          <li>Enviamos somente descrição resumida e normalizada, tipo da transação, faixa de valor e identificadores de categorias disponíveis.</li>
+          <li><strong>Não enviamos</strong> valor exato da transação, CPF, e-mail, senhas nem o arquivo OFX/XLSX bruto.</li>
+          <li>Prompts e respostas completas da IA <strong>não são armazenados</strong> em nossos sistemas.</li>
+          <li>Registramos apenas métricas operacionais (por exemplo, volume de chamadas, tempo de resposta e identificador resumido da descrição) por até <strong>90 dias</strong>, para monitoramento e melhoria do serviço.</li>
+        </ul>
+        <p>
+          Você pode se opor a esse tratamento ou solicitar esclarecimentos pelo canal indicado na seção
+          <a href="#contato">Contato</a>.
+        </p>
+      </section>
+      {% endif %}
 
-    <section class="mb-8" id="contato">
-      <h2 class="text-lg font-semibold text-gray-900 mb-3">{% if llm_ativo %}11{% else %}10{% endif %}. Contato e exercício de direitos</h2>
-      <p class="leading-relaxed mb-3">
-        Para dúvidas sobre esta Política ou para exercer seus direitos como titular de dados, entre em contato:
-      </p>
-      <p class="rounded-xl border border-brand-200/60 bg-brand-50/40 px-4 py-3 text-sm">
-        <a href="mailto:{{ privacidade_email }}" class="font-medium text-brand-700 hover:underline">{{ privacidade_email }}</a>
-        <span class="block mt-1 text-gray-600">Responderemos em até <strong>15 dias úteis</strong>, prorrogáveis conforme a LGPD quando houver justificativa.</span>
-      </p>
-      <p class="mt-4 text-sm text-fg-muted">
-        Você também pode registrar reclamação perante a Autoridade Nacional de Proteção de Dados (ANPD), se entender que seus direitos não foram atendidos adequadamente.
-      </p>
-    </section>
+      <section class="lp-legal-section" id="seguranca">
+        <h2>{% if llm_ativo %}7{% else %}6{% endif %}. Segurança das informações</h2>
+        <p>
+          Adotamos medidas técnicas e administrativas proporcionais ao estágio do serviço, com o objetivo de:
+        </p>
+        <ul>
+          <li>reduzir o risco de acesso não autorizado às contas e aos dados;</li>
+          <li>proteger informações contra perda, uso indevido ou alteração indevida;</li>
+          <li>preservar a integridade das informações financeiras que você registra na plataforma.</li>
+        </ul>
+        <p class="lp-legal-note">
+          Nenhum sistema é totalmente imune a incidentes. Se identificarmos um problema relevante que afete seus dados,
+          buscaremos adotar medidas de contenção e comunicação conforme a legislação aplicável.
+        </p>
+      </section>
 
-    <footer class="border-t border-gray-100 pt-6 text-sm text-fg-muted">
-      <p>
-        <a href="{% url 'usuarios:termos' %}" class="text-brand-600 hover:underline">Termos de uso</a>
-        ·
-        <a href="{% url 'usuarios:login' %}" class="text-brand-600 hover:underline">Login</a>
-      </p>
-    </footer>
-  </article>
+      <section class="lp-legal-section" id="cookies">
+        <h2>{% if llm_ativo %}8{% else %}7{% endif %}. Cookies e tecnologias similares</h2>
+        <p>
+          Utilizamos cookies e mecanismos equivalentes estritamente necessários ao funcionamento do GranaGo:
+        </p>
+        <ul>
+          <li><strong>Sessão</strong> — mantém você autenticado enquanto usa a plataforma.</li>
+          <li><strong>CSRF</strong> — protege formulários contra envios não autorizados.</li>
+        </ul>
+        <p>
+          Exibimos um aviso simplificado na primeira visita para informar sobre cookies essenciais.
+          O monitoramento de erros via Sentry baseia-se em legítimo interesse para estabilidade e diagnóstico técnico,
+          sem uso para publicidade ou perfilamento comercial.
+        </p>
+        <p class="lp-legal-note">
+          No momento, não utilizamos cookies de marketing ou rastreamento publicitário de terceiros.
+        </p>
+      </section>
+
+      <section class="lp-legal-section" id="retencao">
+        <h2>{% if llm_ativo %}9{% else %}8{% endif %}. Prazo de retenção</h2>
+        <p class="lp-legal-intro">Mantemos dados pelo tempo necessário para as finalidades descritas nesta Política:</p>
+        <ul>
+          <li>
+            <strong>Dados da conta e informações financeiras</strong> — enquanto sua conta estiver ativa ou pelo tempo necessário
+            para cumprir obrigações legais, resolver disputas, garantir segurança e prevenir fraudes.
+          </li>
+          <li>
+            <strong>Arquivos de exportação gerados na plataforma</strong> — disponíveis por até <strong>72 horas</strong>,
+            após o que são removidos ou expiram automaticamente.
+          </li>
+          {% if llm_ativo %}
+          <li>
+            <strong>Métricas de uso da categorização por IA</strong> — até <strong>90 dias</strong>.
+          </li>
+          {% endif %}
+          <li>
+            <strong>Registros de auditoria de ações sensíveis</strong> (como alteração de senha, solicitação de exportação ou exclusão de conta) —
+            até <strong>12 meses</strong>.
+          </li>
+          <li>
+            <strong>Exclusão de conta</strong> — quando você solicita a remoção, os dados vinculados à conta são excluídos em cascata,
+            ressalvadas retenções mínimas exigidas por lei ou necessárias à segurança.
+          </li>
+        </ul>
+      </section>
+
+      <section class="lp-legal-section" id="direitos">
+        <h2>{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos (LGPD)</h2>
+        <p>
+          Nos termos do artigo 18 da LGPD, você pode solicitar, conforme aplicável:
+        </p>
+        <ul>
+          <li>confirmação da existência de tratamento;</li>
+          <li>acesso aos dados;</li>
+          <li>correção de dados incompletos, inexatos ou desatualizados;</li>
+          <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade;</li>
+          <li>portabilidade dos dados a outro fornecedor;</li>
+          <li>eliminação dos dados tratados com base no consentimento;</li>
+          <li>informação sobre compartilhamento com terceiros;</li>
+          <li>oposição a tratamentos realizados com base em legítimo interesse, quando cabível;</li>
+          <li>revisão de decisões automatizadas que afetem seus interesses, quando aplicável.</li>
+        </ul>
+        <p>
+          Na área logada, você já pode <strong>corrigir dados cadastrais</strong> em Configurações,
+          <strong>exportar uma cópia dos seus dados</strong> (pacote LGPD em ZIP) e
+          <strong>excluir sua conta</strong> de forma permanente.
+        </p>
+      </section>
+
+      <section class="lp-legal-section" id="contato">
+        <h2>{% if llm_ativo %}11{% else %}10{% endif %}. Contato e exercício de direitos</h2>
+        <p>
+          Para dúvidas sobre esta Política ou para exercer seus direitos como titular de dados, entre em contato:
+        </p>
+        <div class="lp-legal-contact">
+          <a href="mailto:{{ privacidade_email }}">{{ privacidade_email }}</a>
+          <p>Responderemos em até <strong>15 dias úteis</strong>, prorrogáveis conforme a LGPD quando houver justificativa.</p>
+        </div>
+        <p class="lp-legal-note">
+          Você também pode registrar reclamação perante a Autoridade Nacional de Proteção de Dados (ANPD), se entender que seus direitos não foram atendidos adequadamente.
+        </p>
+      </section>
+
+      <nav class="lp-legal-related" aria-label="Documentos relacionados">
+        <a href="{% url 'usuarios:termos' %}" class="lp-legal-related__link">
+          <span class="lp-legal-related__label">Próximo</span>
+          <span class="lp-legal-related__title">Termos de uso</span>
+        </a>
+        <a href="{{ app_login_url }}" class="lp-legal-related__link">
+          <span class="lp-legal-related__label">Acesso</span>
+          <span class="lp-legal-related__title">Entrar na conta</span>
+        </a>
+      </nav>
+    </article>
+  </div>
 </div>
 {% endblock %}
