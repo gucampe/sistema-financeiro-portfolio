@@ -2485,10 +2485,6 @@ select.\!input,
   max-width: 28rem;
 }
 
-.max-w-none {
-  max-width: none;
-}
-
 .max-w-sm {
   max-width: 24rem;
 }
@@ -2588,10 +2584,6 @@ select.\!input,
 
 .scroll-mt-28 {
   scroll-margin-top: 7rem;
-}
-
-.list-disc {
-  list-style-type: disc;
 }
 
 .list-none {
@@ -3294,10 +3286,6 @@ select.\!input,
   background-color: rgb(236 253 245 / 0.3);
 }
 
-.bg-emerald-50\/50 {
-  background-color: rgb(236 253 245 / 0.5);
-}
-
 .bg-emerald-50\/60 {
   background-color: rgb(236 253 245 / 0.6);
 }
@@ -3345,10 +3333,6 @@ select.\!input,
 
 .bg-gray-50\/50 {
   background-color: rgb(249 250 251 / 0.5);
-}
-
-.bg-gray-50\/60 {
-  background-color: rgb(249 250 251 / 0.6);
 }
 
 .bg-gray-50\/80 {
@@ -3889,10 +3873,6 @@ select.\!input,
   padding-left: 0.75rem;
 }
 
-.pl-5 {
-  padding-left: 1.25rem;
-}
-
 .pr-1 {
   padding-right: 0.25rem;
 }
@@ -3927,10 +3907,6 @@ select.\!input,
 
 .pt-5 {
   padding-top: 1.25rem;
-}
-
-.pt-6 {
-  padding-top: 1.5rem;
 }
 
 .pt-8 {
