@@ -1,0 +1,236 @@
+{% load static %}
+{# Mockup Visão Geral — espelha o home real; variant: hero | featured #}
+<div class="lp-mockup-stage{% if mockup_variant == 'featured' %} lp-mockup-stage--featured lp-mockup-stage--showcase{% elif mockup_variant == 'hero' %} lp-mockup-stage--hero{% endif %}">
+  <div class="lp-mockup-stage__plate" aria-hidden="true"></div>
+  {% if mockup_variant != 'hero' %}
+  <div class="lp-mockup-stage__glow" aria-hidden="true"></div>
+  {% endif %}
+  <div class="lp-mockup-stage__frame{% if mockup_variant == 'hero' %} lp-mockup-stage__frame--hero{% endif %}">
+    <div class="lp-mockup{% if mockup_variant == 'featured' %} lp-mockup--featured{% endif %}{% if mockup_variant == 'hero' %} lp-mockup--hero{% endif %}" aria-hidden="true">
+      <div class="lp-mockup__chrome">
+        <span class="lp-mockup__dot bg-red-400/90"></span>
+        <span class="lp-mockup__dot bg-amber-400/90"></span>
+        <span class="lp-mockup__dot bg-emerald-400/90"></span>
+        <span class="lp-mockup__url">app.granago.com.br</span>
+      </div>
+
+      <div class="lp-mockup__shell">
+        {# Sidebar — equivalente visual ao app-sidebar #}
+        <aside class="lp-mockup__sidebar">
+          <div class="lp-mockup__brand">
+            <img src="{% static 'img/icons/logo.svg' %}" alt="" width="22" height="22" />
+            <span class="lp-mockup__brand-text">GranaGo</span>
+          </div>
+          <span class="lp-mockup__cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+            <span class="lp-mockup__cta-text">Adicionar</span>
+          </span>
+          <nav class="lp-mockup__nav">
+            <span class="lp-mockup__nav-item lp-mockup__nav-item--active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              <span>Relatórios</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+              <span>Transações</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"/></svg>
+              <span>Categorias</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10.75 12 2.25 22 10.75"/><path d="M6 10.75V21M10 10.75V21M14 10.75V21M18 10.75V21"/><path d="M2 21h20"/></svg>
+              <span>Contas</span>
+            </span>
+            <span class="lp-mockup__nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 9.5h20"/></svg>
+              <span>Cartões</span>
+            </span>
+          </nav>
+        </aside>
+
+        <div class="lp-mockup__main">
+          <div class="lp-mockup__topbar">
+            <p class="lp-mockup__page-title">Visão Geral</p>
+          </div>
+
+          {# Hero — classes alinhadas ao home real #}
+          <article class="overflow-hidden rounded-2xl border border-gray-200/70 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 p-3 shadow-sm sm:rounded-3xl sm:p-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0 space-y-0.5">
+                <p class="text-[10px] font-medium text-brand-600 sm:text-xs">Boa tarde,</p>
+                <p class="text-base font-semibold tracking-tight text-gray-900 sm:text-xl">Gustavo</p>
+                <p class="text-[10px] text-gray-500 sm:text-xs">Julho · 2026</p>
+              </div>
+              <div class="flex shrink-0 flex-col gap-1 sm:flex-row">
+                <span class="inline-flex items-center justify-center rounded-lg border border-transparent bg-gradient-to-br from-emerald-500 to-emerald-600 px-2 py-1 text-[9px] font-semibold text-white shadow-sm sm:text-[10px]">Nova Receita</span>
+                <span class="inline-flex items-center justify-center rounded-lg border border-transparent bg-gradient-to-br from-brand-500 to-brand-600 px-2 py-1 text-[9px] font-semibold text-white shadow-sm sm:text-[10px]">Nova Despesa</span>
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-3 gap-1.5 sm:mt-4 sm:gap-2.5">
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Receitas do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-emerald-700 sm:text-sm">R$ 5.200,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-emerald-600 sm:text-[10px]">↑ 12% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Despesas do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-rose-700 sm:text-sm">R$ 3.847,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-rose-600 sm:text-[10px]">↑ 4% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="rounded-xl border border-gray-100 bg-white/80 p-2 shadow-sm backdrop-blur-sm sm:rounded-2xl sm:p-3">
+                <div class="flex items-start justify-between gap-1">
+                  <div class="min-w-0">
+                    <p class="text-[8px] font-semibold uppercase tracking-wider text-gray-500 sm:text-[10px]">Resultado do mês</p>
+                    <p class="mt-1 text-xs font-semibold tabular-nums text-emerald-700 sm:text-sm">+ R$ 1.353,00</p>
+                    <p class="mt-0.5 text-[8px] font-medium text-emerald-600 sm:text-[10px]">↑ 28% vs mês anterior</p>
+                  </div>
+                  <span class="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600 sm:flex" aria-hidden="true">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h4l3 9 4-18 3 9h4" /></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="mt-2.5 grid gap-2.5{% if mockup_variant == 'featured' %} sm:grid-cols-2{% endif %}">
+            {# Categorias — doughnut + lista (como o home) #}
+            <section class="rounded-2xl bg-white/90 p-3 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm sm:p-4">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <h3 class="text-xs font-semibold tracking-tight text-gray-900 sm:text-sm">Para onde seu dinheiro está indo</h3>
+                  <p class="mt-0.5 text-[10px] text-gray-500">Top categorias de despesa no mês</p>
+                </div>
+                <span class="shrink-0 text-[10px] font-medium text-brand-600">Ver análise</span>
+              </div>
+              <div class="mt-3 flex flex-col items-center gap-3 sm:flex-row sm:items-center">
+                <div class="relative h-[4.5rem] w-[4.5rem] shrink-0 sm:h-24 sm:w-24">
+                  <svg viewBox="0 0 120 120" class="h-full w-full -rotate-90" aria-hidden="true">
+                    {# Donut: Alimentação 35%, Moradia 32%, Transporte 18%, Assinaturas 15% — cutout ~68% #}
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#f1f5f9" stroke-width="16"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#f97316" stroke-width="16" stroke-dasharray="92.4 263.9" stroke-dashoffset="0" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#14b8a6" stroke-width="16" stroke-dasharray="84.4 263.9" stroke-dashoffset="-92.4" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#6366f1" stroke-width="16" stroke-dasharray="47.5 263.9" stroke-dashoffset="-176.8" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="#ec4899" stroke-width="16" stroke-dasharray="39.6 263.9" stroke-dashoffset="-224.3" stroke-linecap="butt"/>
+                    <circle cx="60" cy="60" r="30" fill="#ffffff"/>
+                  </svg>
+                </div>
+                <ul class="min-w-0 w-full flex-1 space-y-1">
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-orange-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Alimentação</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 892</span>
+                      <span class="block text-[9px] text-gray-500">35%</span>
+                    </span>
+                  </li>
+                  {% if mockup_variant == 'featured' %}
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-teal-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Moradia</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 1.240</span>
+                      <span class="block text-[9px] text-gray-500">32%</span>
+                    </span>
+                  </li>
+                  {% endif %}
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-indigo-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Transporte</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 456</span>
+                      <span class="block text-[9px] text-gray-500">18%</span>
+                    </span>
+                  </li>
+                  <li class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+                    <span class="flex min-w-0 items-center gap-2">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-pink-500"></span>
+                      <span class="truncate text-[11px] font-medium text-gray-800 sm:text-xs">Assinaturas</span>
+                    </span>
+                    <span class="shrink-0 text-right">
+                      <span class="block text-[11px] font-semibold tabular-nums text-gray-900 sm:text-xs">R$ 187</span>
+                      <span class="block text-[9px] text-gray-500">15%</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            {% if mockup_variant == 'featured' %}
+            <section class="rounded-2xl bg-white/90 p-3 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm sm:p-4">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h3 class="text-xs font-semibold tracking-tight text-gray-900 sm:text-sm">Orçamento do mês</h3>
+                  <p class="mt-0.5 text-[10px] text-gray-500">Categorias com maior consumo do limite</p>
+                </div>
+                <span class="text-[10px] font-medium text-brand-600">Ver todos</span>
+              </div>
+              <ul class="mt-3 space-y-3">
+                <li>
+                  <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="truncate text-[11px] font-medium text-gray-900">Alimentação</span>
+                    <span class="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">No limite</span>
+                  </div>
+                  <div class="flex items-baseline justify-between text-[10px]">
+                    <span class="font-semibold tabular-nums text-gray-800">72%</span>
+                    <span class="tabular-nums text-gray-500">R$ 892 / R$ 1.240</span>
+                  </div>
+                  <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <div class="h-full rounded-full bg-emerald-500" style="width: 72%"></div>
+                  </div>
+                </li>
+                <li>
+                  <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="truncate text-[11px] font-medium text-gray-900">Transporte</span>
+                    <span class="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold text-amber-900">Atenção</span>
+                  </div>
+                  <div class="flex items-baseline justify-between text-[10px]">
+                    <span class="font-semibold tabular-nums text-gray-800">88%</span>
+                    <span class="tabular-nums text-gray-500">R$ 456 / R$ 520</span>
+                  </div>
+                  <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <div class="h-full rounded-full bg-amber-400" style="width: 88%"></div>
+                  </div>
+                </li>
+              </ul>
+            </section>
+            {% endif %}
+          </div>
+
+          {# Chip de sugestão — copy da landing mantida #}
+          <div class="lp-mockup__ai-chip mt-2.5" data-lp-callout="sugestao">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+            </span>
+            <p class="text-[11px] text-gray-700 sm:text-xs">
+              <span class="font-semibold text-brand-700">Sugestão:</span> iFood → Alimentação
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

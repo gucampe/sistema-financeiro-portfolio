@@ -6,11 +6,13 @@ from .views import (
     GranaGoPasswordResetConfirmView,
     GranaGoPasswordResetDoneView,
     GranaGoPasswordResetView,
+    captura_lead_view,
     configuracoes,
     configuracoes_alterar_senha,
     excluir_conta,
     landing_view,
     login_view,
+    obrigado_view,
     primeiros_passos,
     primeiros_passos_status,
     privacidade_view,
@@ -21,6 +23,8 @@ app_name = "usuarios"
 
 urlpatterns = [
     path("", landing_view, name="landing"),
+    path("captura/", captura_lead_view, name="captura_lead"),
+    path("obrigado/", obrigado_view, name="obrigado"),
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("privacidade/", privacidade_view, name="privacidade"),

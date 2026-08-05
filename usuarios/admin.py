@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import AuditLog, Perfil, Usuario
+from .models import AuditLog, LeadPrimeirosDonos, Perfil, Usuario
 
 
 class PerfilInline(admin.StackedInline):
@@ -52,3 +52,11 @@ class AuditLogAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(LeadPrimeirosDonos)
+class LeadPrimeirosDonosAdmin(admin.ModelAdmin):
+    list_display = ("nome", "email", "whatsapp", "criado_em")
+    search_fields = ("nome", "email", "whatsapp")
+    readonly_fields = ("criado_em", "atualizado_em")
+    ordering = ("-criado_em",)

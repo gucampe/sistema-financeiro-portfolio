@@ -1,0 +1,81 @@
+<div
+  id="modal-captura"
+  data-modal
+  data-modal-fade="300"
+  class="modal-overlay lp-modal-overlay hidden"
+  data-modal-labelledby="titulo-modal-captura"
+  {% if abrir_modal_captura %}data-captura-open-on-load="1"{% endif %}
+>
+  <div data-modal-panel class="modal-panel lp-modal-panel mx-auto w-full max-w-md">
+    <div class="lp-modal-header flex shrink-0 items-start justify-between gap-4 px-5 py-5 sm:px-7 sm:py-6">
+      <div class="min-w-0 pr-2">
+        <p class="lp-modal-kicker" aria-hidden="true">Primeiros Donos</p>
+        <h2 id="titulo-modal-captura" class="lp-modal-title">
+          Garanta sua vaga
+        </h2>
+        <p class="lp-modal-subtitle">
+          Você recebe o acesso no e-mail — em instantes.
+        </p>
+      </div>
+      <button
+        type="button"
+        data-modal-close
+        class="lp-modal-close"
+        aria-label="Fechar modal"
+      >
+        ✕
+      </button>
+    </div>
+
+    <form
+      id="form-captura"
+      method="post"
+      action="{% url 'usuarios:captura_lead' %}"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden"
+      novalidate
+    >
+      {% csrf_token %}
+      <div class="modal-panel__body lp-modal-body space-y-5 px-5 py-5 sm:px-7">
+        {% if captura_form.non_field_errors %}
+          <div class="rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger" role="alert">
+            {{ captura_form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div>
+          <label for="id_nome" class="lp-modal-label">Nome</label>
+          {{ captura_form.nome }}
+          {% if captura_form.nome.errors %}
+            <p class="mt-1.5 text-sm text-danger" role="alert">{{ captura_form.nome.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="id_email" class="lp-modal-label">E-mail</label>
+          {{ captura_form.email }}
+          {% if captura_form.email.errors %}
+            <p class="mt-1.5 text-sm text-danger" role="alert">{{ captura_form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="id_whatsapp" class="lp-modal-label">WhatsApp</label>
+          {{ captura_form.whatsapp }}
+          {% if captura_form.whatsapp.errors %}
+            <p class="mt-1.5 text-sm text-danger" role="alert">{{ captura_form.whatsapp.errors.0 }}</p>
+          {% endif %}
+          <p class="lp-modal-hint">Só para te guiar no primeiro acesso.</p>
+        </div>
+      </div>
+
+      <div class="modal-panel__footer lp-modal-footer space-y-3 px-5 py-5 sm:px-7">
+        <button type="submit" class="btn btn-primary lp-btn-premium btn-block py-3.5 text-base" data-captura-submit>
+          Quero meu acesso gratuito ao GranaGo <span class="lp-cta-arrow" aria-hidden="true">→</span>
+        </button>
+        <p class="lp-modal-privacy">
+          🔒 Seus dados ficam comigo. Sem spam, sem lista, sem venda.
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

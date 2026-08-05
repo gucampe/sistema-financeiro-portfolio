@@ -1,8 +1,8 @@
 {% load static %}
-<section id="fundador" class="lp-section lp-band lp-band--founder lp-reveal">
+<section id="prova-social" class="lp-section lp-band lp-band--founder lp-reveal">
   <div class="lp-band__inner lp-container">
     <div class="lp-founder">
-      <article class="min-w-0">
+      <article class="lp-founder__story min-w-0">
         <div class="lp-founder__header flex items-center gap-4">
           <span class="lp-founder__avatar" aria-hidden="true">
             <img
@@ -13,88 +13,53 @@
               class="lp-founder__avatar-img"
             />
           </span>
-          <h2 class="lp-headline">Quem sou eu</h2>
-        </div>
-
-        <div class="lp-founder__timeline">
-          <div class="lp-founder__chapter">
-            <div class="lp-founder__marker" aria-hidden="true">
-              <span class="lp-founder__node"></span>
-              <span class="lp-founder__step">01</span>
-            </div>
-            <div class="lp-founder__chapter-body">
-              <p class="lp-body-sm">
-                Eu sou desenvolvedor de software. E durante anos, fiz exatamente o que você faz: abri o app do banco no final do mês, levei um susto com o saldo e fechei o app sem entender o que tinha acontecido.
-              </p>
-              <p class="lp-highlight">O problema era visibilidade.</p>
-            </div>
-          </div>
-
-          <div class="lp-founder__chapter">
-            <div class="lp-founder__marker" aria-hidden="true">
-              <span class="lp-founder__node"></span>
-              <span class="lp-founder__step">02</span>
-            </div>
-            <div class="lp-founder__chapter-body">
-              <p class="lp-body-sm">
-                Tentei todos os apps de controle financeiro que existiam. Nenhum durou mais de algumas semanas: eram complicados demais. Pediam configuração constante e exigiam atenção diária que eu não tinha.
-              </p>
-              <p class="lp-body-sm">
-                Numa fase de alta demanda no trabalho, as finanças ficaram completamente em segundo plano. Quando voltei a atenção para elas, o estrago já estava feito. Gastos pequenos tinham se acumulado ao longo de meses, nenhum deles grande o suficiente para chamar atenção.
-              </p>
-            </div>
-          </div>
-
-          <div class="lp-founder__chapter">
-            <div class="lp-founder__marker" aria-hidden="true">
-              <span class="lp-founder__node"></span>
-              <span class="lp-founder__step">03</span>
-            </div>
-            <div class="lp-founder__chapter-body">
-              <p class="lp-body-sm">Foi aí que entendi: esse é o mesmo tipo de problema que enfrento todos os dias no trabalho.</p>
-              <p class="lp-body-sm">
-                Como desenvolvedor, passei anos caçando bugs. Aprendi que os maiores problemas quase sempre têm causas ridiculamente simples, escondidas à vista de todos. Passei uma semana inteira procurando um erro crítico uma vez: a causa era uma linha de código que ninguém tinha notado.
-              </p>
-              <p class="lp-body-sm">Finanças pessoais funcionam da mesma forma.</p>
-            </div>
-          </div>
-
-          <div class="lp-founder__chapter lp-founder__chapter--final">
-            <div class="lp-founder__marker" aria-hidden="true">
-              <span class="lp-founder__node lp-founder__node--final"></span>
-              <span class="lp-founder__step">04</span>
-            </div>
-            <div class="lp-founder__chapter-body lp-founder__chapter-body--final">
-              <p class="lp-body-sm">
-                Os gastos que desequilibram o orçamento chegam pequenos, em dezenas de vezes, sem que nenhum individual pareça grave. Eles só fazem sentido quando ficam visíveis juntos, organizados por categoria.
-              </p>
-              <p class="lp-body-sm">
-                Então construí a ferramenta que eu queria que existisse: simples o suficiente para funcionar até nos períodos de maior caos da rotina. Uma ferramenta que aprende com o uso e que responde uma pergunta de cada vez. Para onde foi o meu dinheiro?
-              </p>
-            </div>
+          <div class="min-w-0">
+            <h2 class="lp-founder__name">Gustavo — fundador do GranaGo</h2>
+            <p class="lp-founder__context">Minha própria experiência antes de lançar o produto</p>
           </div>
         </div>
 
-        <p class="mt-10 text-sm leading-relaxed text-fg-muted">
-          ⚠️ Nota de publicação: este bloco usa o Case 0 (a transformação do próprio fundador). Depoimentos reais de clientes devem ser inseridos aqui assim que disponíveis, antes de escalar tráfego pago.
-        </p>
+        <blockquote class="lp-quote">
+          <p>
+            Importei o extrato. Em segundos, o app já tinha organizado tudo por categoria — não precisei fazer nada.
+            Fui direto procurar o que eu achava que estava me pesando: transporte. Era irrelevante.
+            O que pesava eram R$493 em compras no cartão que eu tinha feito e esquecido, mas que iam aparecer na fatura e me pegar de surpresa.
+            Tudo isso em 2 minutos.
+          </p>
+        </blockquote>
+
+        <div class="lp-founder__prints" aria-label="Prints do painel">
+          <figure class="lp-print-placeholder">
+            <span class="lp-print-placeholder__chrome" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+            {# Trocar o bloco abaixo por <img src="..." alt="Print 1 do painel"> #}
+            <span class="lp-print-placeholder__body">
+              <span class="lp-print-placeholder__label">Print 1 — painel</span>
+            </span>
+          </figure>
+          <figure class="lp-print-placeholder">
+            <span class="lp-print-placeholder__chrome" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+            {# Trocar o bloco abaixo por <img src="..." alt="Print 2 do painel"> #}
+            <span class="lp-print-placeholder__body">
+              <span class="lp-print-placeholder__label">Print 2 — painel</span>
+            </span>
+          </figure>
+        </div>
       </article>
 
       <aside class="lp-founder__aside">
         <figure class="lp-founder__photo">
           <img
             src="{% static 'img/landing/founder.png' %}"
-            alt="Foto do fundador do GranaGo"
+            alt="Gustavo, fundador do GranaGo"
             width="400"
             height="480"
             class="lp-founder__photo-img"
           />
         </figure>
-        <blockquote class="lp-quote">
-          <p>
-            “Os gastos que desequilibram o orçamento chegam pequenos, em dezenas de vezes, sem que nenhum individual pareça grave. Eles só fazem sentido quando ficam visíveis juntos, organizados por categoria.”
-          </p>
-        </blockquote>
       </aside>
     </div>
   </div>

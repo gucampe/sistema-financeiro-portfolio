@@ -155,3 +155,21 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.acao} ({self.usuario_id})"
+
+
+class LeadPrimeirosDonos(models.Model):
+    """Lead da página de captura do programa Primeiros Donos."""
+
+    nome = models.CharField(_("Nome"), max_length=120)
+    email = models.EmailField(_("E-mail"), unique=True)
+    whatsapp = models.CharField(_("WhatsApp"), max_length=30)
+    criado_em = models.DateTimeField(_("Criado em"), auto_now_add=True, db_index=True)
+    atualizado_em = models.DateTimeField(_("Atualizado em"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Lead Primeiros Donos")
+        verbose_name_plural = _("Leads Primeiros Donos")
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.nome} <{self.email}>"

@@ -12,7 +12,7 @@ from core.forms_ui import (
     IsoDateInput,
 )
 
-from .models import Perfil, Usuario
+from .models import LeadPrimeirosDonos, Perfil, Usuario
 
 
 def categoria_compativel_com_tipo_transacao_padrao(categoria: Categoria, tipo_tx: str) -> bool:
@@ -181,3 +181,62 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
         self.fields["new_password1"].help_text = ""
         # Evita foco automático em "senha antiga" ao abrir a página de configurações.
         self.fields["old_password"].widget.attrs.pop("autofocus", None)
+
+
+class CapturaLeadForm(forms.ModelForm):
+    """Formulário da página de captura — Primeiros Donos."""
+
+    class Meta:
+        model = LeadPrimeirosDonos
+        fields = ("nome", "email", "whatsapp")
+        widgets = {
+            "nome": forms.TextInput(
+                attrs={
+                    "class": "input w-full",
+                    "placeholder": "Seu nome",
+                    "autocomplete": "name",
+                    "required": True,
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={
+                    "class": "input w-full",
+                    "placeholder": "seu@email.com",
+                    "autocomplete": "email",
+                    "required": True,
+                    "inputmode": "email",
+                }
+            ),
+            "whatsapp": forms.TextInput(
+                attrs={
+                    "class": "input w-full",
+                    "placeholder": "(11) 99999-9999",
+                    "autocomplete": "tel",
+                    "inputmode": "tel",
+                    "required": True,
+                    "maxlength": "16",
+                }
+            ),
+        }
+
+    def clean_nome(self):
+        nome = (self.cleaned_data.get("nome") or "").strip()
+        if len(nome) < 2:
+            raise ValidationError("Informe seu nome.")
+        return nome
+
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        # Permite reenvio: update_or_create na view atualiza o lead existente.
+        return email
+
+    def validate_unique(self):
+        # Unicidade tratada na view via update_or_create.
+        return
+
+    def clean_whatsapp(self):
+        raw = (self.cleaned_data.get("whatsapp") or "").strip()
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if len(digits) < 10 or len(digits) > 13:
+            raise ValidationError("Informe um WhatsApp válido com DDD.")
+        return raw

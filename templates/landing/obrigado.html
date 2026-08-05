@@ -1,0 +1,61 @@
+{% extends "landing/base_landing.html" %}
+{% load static %}
+
+{% block meta %}
+<title>Vaga garantida — GranaGo</title>
+<meta name="description" content="Vaga garantida no programa Primeiros Donos. Configure sua conta agora." />
+<meta name="robots" content="noindex, nofollow" />
+{% endblock %}
+
+{% block body %}
+<main id="lp-main" class="lp-main">
+  {% include "landing/partials/header.html" %}
+
+  <section class="lp-section lp-band lp-band--hero lp-reveal">
+    <div class="lp-band__inner lp-container">
+      <div class="lp-obrigado mx-auto max-w-2xl">
+        <div class="lp-obrigado__badge" aria-hidden="true">
+          <span class="lp-obrigado__check">✓</span>
+        </div>
+        <h1 class="lp-headline text-center">Vaga garantida. Configure sua conta agora.</h1>
+
+        <div class="lp-obrigado__cta">
+          <a
+            href="{{ app_login_url }}"
+            class="btn btn-primary lp-btn-premium lp-hero-btn px-8 py-3.5 text-base btn-block sm:w-auto"
+          >
+            Configurar minha conta <span class="lp-cta-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="lp-obrigado__help">
+          <p>
+            Também enviei o link de acesso para o seu e-mail{% if lead_nome %} — procura pelo assunto: <strong>{{ lead_nome }}, seu acesso ao GranaGo chegou</strong>{% else %} — procura pelo assunto: <strong>[Nome], seu acesso ao GranaGo chegou</strong>{% endif %}. Útil se precisar entrar mais tarde ou em outro dispositivo.
+          </p>
+          <p>Não encontrou? Confere a caixa de spam.</p>
+          <p>
+            Ainda assim não achou? Pode ter sido um erro na digitação do e-mail. Me chama no WhatsApp:
+            <a href="{{ whatsapp_suporte_url }}" class="font-semibold text-brand-600 hover:underline" target="_blank" rel="noopener noreferrer">{{ whatsapp_suporte_display }}</a>
+          </p>
+        </div>
+
+        <div class="lp-card lp-card--offer lp-obrigado__tip">
+          <h2 class="lp-title">Quando entrar no GranaGo:</h2>
+          <p class="lp-body-sm mt-3">
+            Começa pela importação do extrato — importa os últimos 3 meses se conseguir. É o que vai te dar o panorama completo na primeira olhada.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include "landing/partials/footer.html" %}
+</main>
+
+{% include "landing/partials/modal_captura.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modal.js' %}" defer></script>
+<script src="{% static 'landing/js/landing.js' %}" defer></script>
+{% endblock %}

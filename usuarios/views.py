@@ -12,22 +12,27 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_http_methods
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 
 from usuarios.audit import registrar_audit
-from usuarios.models import AuditLog
+from usuarios.models import AuditLog, LeadPrimeirosDonos
 from usuarios.services.onboarding import progresso_primeiros_passos
 from relatorios.models import ExportJob
 
 from .forms import (
+    CapturaLeadForm,
     ConfiguracoesPasswordChangeForm,
     DadosPessoaisForm,
     PreferenciasFinanceirasForm,
 )
 from .models import Perfil, Usuario
 from .utils import iniciais_avatar
+
+
+WHATSAPP_SUPORTE = "11931496081"
+WHATSAPP_SUPORTE_DISPLAY = "(11) 93149-6081"
 
 
 def _legal_context(request=None):
@@ -37,28 +42,63 @@ def _legal_context(request=None):
     return {
         "privacidade_email": getattr(settings, "PRIVACIDADE_EMAIL", "privacidade@granago.app"),
         "llm_ativo": getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False),
-        "checkout_url": getattr(settings, "LANDING_CHECKOUT_URL", "") or reverse("usuarios:landing") + "#oferta",
+        "checkout_url": getattr(settings, "LANDING_CHECKOUT_URL", "") or reverse("usuarios:landing") + "#garantir-vaga",
         "site_url": site_url.rstrip("/"),
         "app_login_url": getattr(settings, "APP_LOGIN_URL", "") or reverse("usuarios:login"),
+        "whatsapp_suporte": WHATSAPP_SUPORTE,
+        "whatsapp_suporte_display": WHATSAPP_SUPORTE_DISPLAY,
+        "whatsapp_suporte_url": f"https://wa.me/55{WHATSAPP_SUPORTE}",
     }
+
+
+def _landing_context(request):
+    ctx = _legal_context(request)
+    ctx["captura_form"] = CapturaLeadForm()
+    return ctx
 
 
 @never_cache
 def landing_view(request):
     if request.user.is_authenticated:
         return redirect("relatorios:home")
-    checkout_url = getattr(settings, "LANDING_CHECKOUT_URL", "") or "#oferta"
-    site_url = getattr(settings, "SITE_URL", "") or request.build_absolute_uri("/")
-    app_login_url = getattr(settings, "APP_LOGIN_URL", "") or reverse("usuarios:login")
-    return render(
-        request,
-        "landing/landing.html",
-        {
-            "checkout_url": checkout_url,
-            "site_url": site_url.rstrip("/"),
-            "app_login_url": app_login_url,
-        },
-    )
+    return render(request, "landing/landing.html", _landing_context(request))
+
+
+@require_http_methods(["POST"])
+def captura_lead_view(request):
+    if request.user.is_authenticated:
+        return redirect("relatorios:home")
+
+    form = CapturaLeadForm(request.POST)
+    if form.is_valid():
+        email = form.cleaned_data["email"]
+        LeadPrimeirosDonos.objects.update_or_create(
+            email=email,
+            defaults={
+                "nome": form.cleaned_data["nome"],
+                "whatsapp": form.cleaned_data["whatsapp"],
+            },
+        )
+        request.session["captura_lead_nome"] = form.cleaned_data["nome"]
+        request.session["captura_lead_email"] = email
+        return redirect("usuarios:obrigado")
+
+    ctx = _landing_context(request)
+    ctx["captura_form"] = form
+    ctx["abrir_modal_captura"] = True
+    return render(request, "landing/landing.html", ctx, status=400)
+
+
+@never_cache
+@require_GET
+def obrigado_view(request):
+    if request.user.is_authenticated:
+        return redirect("relatorios:home")
+
+    ctx = _landing_context(request)
+    ctx["lead_nome"] = request.session.get("captura_lead_nome", "")
+    ctx["lead_email"] = request.session.get("captura_lead_email", "")
+    return render(request, "landing/obrigado.html", ctx)
 
 
 def login_view(request):

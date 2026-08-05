@@ -2185,6 +2185,10 @@ select.\!input,
   height: 3.5rem;
 }
 
+.h-16 {
+  height: 4rem;
+}
+
 .h-2 {
   height: 0.5rem;
 }
@@ -4347,11 +4351,6 @@ select.\!input,
   color: rgb(7 89 133 / var(--tw-text-opacity, 1));
 }
 
-.text-slate-300 {
-  --tw-text-opacity: 1;
-  color: rgb(203 213 225 / var(--tw-text-opacity, 1));
-}
-
 .text-slate-600 {
   --tw-text-opacity: 1;
   color: rgb(71 85 105 / var(--tw-text-opacity, 1));
@@ -5461,6 +5460,14 @@ select.\!input,
     height: 18rem;
   }
 
+  .sm\:h-9 {
+    height: 2.25rem;
+  }
+
+  .sm\:h-\[4\.5rem\] {
+    height: 4.5rem;
+  }
+
   .sm\:max-h-48 {
     max-height: 12rem;
   }
@@ -5483,6 +5490,10 @@ select.\!input,
 
   .sm\:w-40 {
     width: 10rem;
+  }
+
+  .sm\:w-9 {
+    width: 2.25rem;
   }
 
   .sm\:w-auto {

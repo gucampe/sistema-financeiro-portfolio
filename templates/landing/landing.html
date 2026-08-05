@@ -1,17 +1,44 @@
 {% extends "landing/base_landing.html" %}
 {% load static %}
 
+{% block meta %}
+<title>GranaGo — Veja 3 meses de gastos em 2 minutos</title>
+<meta
+  name="description"
+  content="Para quem toma susto no extrato todo mês e não consegue explicar por quê. Importe os últimos 3 meses e veja tudo por categoria — a IA organiza sozinha. Programa Primeiros Donos."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="GranaGo — Veja 3 meses de gastos em 2 minutos" />
+<meta
+  property="og:description"
+  content="Importe os últimos 3 meses de extrato e veja tudo por categoria — a IA organiza sozinha. Vagas limitadas no programa Primeiros Donos."
+/>
+<meta property="og:url" content="{{ site_url }}/" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="GranaGo — Veja 3 meses de gastos em 2 minutos" />
+<meta
+  name="twitter:description"
+  content="Para quem toma susto no extrato todo mês. Acesso gratuito no programa Primeiros Donos."
+/>
+{% endblock %}
+
 {% block body %}
 <main id="lp-main" class="lp-main">
   {% include "landing/partials/header.html" %}
   {% include "landing/partials/hero.html" %}
-  {% include "landing/partials/benefits.html" %}
+  {% include "landing/partials/pain.html" %}
   {% include "landing/partials/founder.html" %}
-  {% include "landing/partials/how_it_works.html" %}
-  {% include "landing/partials/offer.html" %}
+  {% include "landing/partials/programa.html" %}
   {% include "landing/partials/cta_final.html" %}
   {% include "landing/partials/footer.html" %}
 </main>
+
+{% include "landing/partials/modal_captura.html" %}
 
 <script type="application/ld+json">
 {
@@ -20,15 +47,14 @@
   "name": "GranaGo",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web",
-  "description": "Plataforma de controle financeiro essencial. Simples, leve e inteligente — saiba para onde vai cada real do seu dinheiro.",
+  "description": "Veja 3 meses de gastos em 2 minutos. Importe o extrato e a IA organiza tudo por categoria.",
   "url": "{{ site_url }}/",
   "offers": {
     "@type": "Offer",
-    "price": "97",
+    "price": "0",
     "priceCurrency": "BRL",
-    "priceValidUntil": "2026-12-31",
-    "availability": "https://schema.org/InStock",
-    "url": "{{ checkout_url }}"
+    "availability": "https://schema.org/LimitedAvailability",
+    "description": "Acesso gratuito no programa Primeiros Donos"
   },
   "brand": {
     "@type": "Brand",
@@ -39,5 +65,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/modal.js' %}" defer></script>
 <script src="{% static 'landing/js/landing.js' %}" defer></script>
 {% endblock %}
