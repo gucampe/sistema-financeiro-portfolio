@@ -26,7 +26,15 @@
     );
 
     items.forEach(function (el, index) {
-      if (!el.classList.contains("lp-reveal--delay") && !el.classList.contains("lp-reveal--delay-2")) {
+      var hasPainStagger =
+        el.classList.contains("lp-pain--1") ||
+        el.classList.contains("lp-pain--2") ||
+        el.classList.contains("lp-pain--3");
+      if (
+        !hasPainStagger &&
+        !el.classList.contains("lp-reveal--delay") &&
+        !el.classList.contains("lp-reveal--delay-2")
+      ) {
         el.style.transitionDelay = Math.min(index * 0.04, 0.2) + "s";
       }
       observer.observe(el);
