@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chart_loader.js' %}" defer></script>
+<script src="{% static 'js/chart_loader.js' %}" data-chart-src="{% static 'vendor/chart.js/chart.umd.min.js' %}" defer></script>
 <script defer>
 document.addEventListener('DOMContentLoaded', () => {
   const el = document.getElementById('serie-fluxo-data');

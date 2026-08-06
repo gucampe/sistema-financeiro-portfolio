@@ -329,7 +329,7 @@
       {% if top_despesas_mes %}
       <div class="dash-section-body mt-6 flex flex-col gap-6 lg:flex-row lg:items-center">
         <div class="dash-chart-wrap relative mx-auto h-44 w-44 shrink-0 lg:mx-0">
-          <canvas id="grafico-categorias" aria-label="Distribuição de gastos por categoria"></canvas>
+          <canvas id="grafico-categorias" class="absolute inset-0 h-full w-full" aria-label="Distribuição de gastos por categoria"></canvas>
         </div>
         <ul class="dash-category-list min-w-0 flex-1 space-y-2">
           {% for cat in top_despesas_mes %}
@@ -434,7 +434,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chart_loader.js' %}" defer></script>
+<script src="{% static 'js/chart_loader.js' %}" data-chart-src="{% static 'vendor/chart.js/chart.umd.min.js' %}" defer></script>
 <script src="{% static 'relatorios/js/dash.js' %}" defer></script>
 <script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
 {% endblock %}

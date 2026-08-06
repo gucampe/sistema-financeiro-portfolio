@@ -399,16 +399,23 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@example.com")
 
-# --- CSP (django-csp 3.x: CSP_* ; 4.x usa CONTENT_SECURITY_POLICY) ---
+# --- CSP (django-csp 3.8: usa CSP_*; CONTENT_SECURITY_POLICY é API 4.x) ---
 # Sem style-src explícito, o default-src 'self' bloqueia style="" e os floats
 # do hero colapsam todos em 10%/10%.
+#
+# IMPORTANTE: manter REPORT_ONLY=True. Com enforce em DEBUG, o navegador
+# bloqueava Chart.js (CDN), Google Fonts e outros assets — regressões em
+# massa no SaaS local. Chart.js já é vendor local; fontes da landing ainda
+# vêm do Google (liberadas abaixo para quando formos enforce).
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_FONT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
+CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_IMG_SRC = ("'self'", "data:")
 CSP_CONNECT_SRC = ("'self'",)
+CSP_REPORT_ONLY = True
 CONTENT_SECURITY_POLICY = {
+    "REPORT_ONLY": True,
     "DIRECTIVES": {
         "default-src": CSP_DEFAULT_SRC,
         "script-src": CSP_SCRIPT_SRC,
@@ -416,11 +423,8 @@ CONTENT_SECURITY_POLICY = {
         "font-src": CSP_FONT_SRC,
         "img-src": CSP_IMG_SRC,
         "connect-src": CSP_CONNECT_SRC,
-    }
+    },
 }
-if not DEBUG:
-    CSP_REPORT_ONLY = True
-    CONTENT_SECURITY_POLICY["REPORT_ONLY"] = True
 
 # --- Storage S3/R2 (opcional) ---
 _aws_bucket = config("AWS_STORAGE_BUCKET_NAME", default="").strip()

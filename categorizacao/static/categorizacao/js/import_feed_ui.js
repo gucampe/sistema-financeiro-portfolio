@@ -474,16 +474,21 @@
     if (!modal || modal.dataset.bound) return;
     modal.dataset.bound = "1";
 
-    btnConfirmar?.addEventListener("click", () => {
-      globalThis.GranaGoModal?.close("modal-import-revisar-categorias");
-      confirmResolver?.(true);
+    function finalizeConfirmacao(ok) {
+      // Limpa o resolver antes do close: GranaGoModal.close chama onClose
+      // de forma síncrona e, senão, cancelaria a confirmação.
+      const resolve = confirmResolver;
       confirmResolver = null;
+      globalThis.GranaGoModal?.close("modal-import-revisar-categorias");
+      resolve?.(ok);
+    }
+
+    btnConfirmar?.addEventListener("click", () => {
+      finalizeConfirmacao(true);
     });
 
     btnVoltar?.addEventListener("click", () => {
-      globalThis.GranaGoModal?.close("modal-import-revisar-categorias");
-      confirmResolver?.(false);
-      confirmResolver = null;
+      finalizeConfirmacao(false);
     });
 
     globalThis.GranaGoModal?.bind?.(modal, {

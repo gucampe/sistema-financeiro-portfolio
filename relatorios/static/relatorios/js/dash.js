@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         animation: false,
         cutout: '68%',
         plugins: {
