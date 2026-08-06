@@ -399,18 +399,27 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@example.com")
 
-# --- CSP (report-only em produção) ---
+# --- CSP (django-csp 3.x: CSP_* ; 4.x usa CONTENT_SECURITY_POLICY) ---
+# Sem style-src explícito, o default-src 'self' bloqueia style="" e os floats
+# do hero colapsam todos em 10%/10%.
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_FONT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_CONNECT_SRC = ("'self'",)
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
-        "default-src": ("'self'",),
-        "script-src": ("'self'", "'unsafe-inline'"),
-        "style-src": ("'self'", "'unsafe-inline'"),
-        "font-src": ("'self'",),
-        "img-src": ("'self'", "data:"),
-        "connect-src": ("'self'",),
+        "default-src": CSP_DEFAULT_SRC,
+        "script-src": CSP_SCRIPT_SRC,
+        "style-src": CSP_STYLE_SRC,
+        "font-src": CSP_FONT_SRC,
+        "img-src": CSP_IMG_SRC,
+        "connect-src": CSP_CONNECT_SRC,
     }
 }
 if not DEBUG:
+    CSP_REPORT_ONLY = True
     CONTENT_SECURITY_POLICY["REPORT_ONLY"] = True
 
 # --- Storage S3/R2 (opcional) ---

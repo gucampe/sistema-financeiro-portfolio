@@ -39,12 +39,16 @@
   --lp-shadow-cta: 0 14px 36px rgba(22, 163, 74, 0.28);
 
   /* Spacing / layout */
-  --lp-space-section: clamp(5rem, 11vw, 8rem);
-  --lp-space-section-tight: clamp(3.5rem, 8vw, 5.5rem);
+  --lp-space-section: clamp(3.75rem, 11vw, 8rem);
+  --lp-space-section-tight: clamp(2.75rem, 8vw, 5.5rem);
   --lp-max: 76rem;
   --lp-prose: 38rem;
   --lp-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --lp-duration: 0.55s;
+}
+
+html {
+  overflow-x: clip;
 }
 
 .lp-main {
@@ -129,25 +133,34 @@
 }
 
 .lp-band__inner--hero {
-  padding-block: clamp(4.5rem, 10vw, 7.5rem);
-  padding-top: clamp(5.5rem, 11vw, 8rem);
+  padding-top: clamp(1.25rem, 2.5vw, 2.25rem);
+  padding-bottom: clamp(3.5rem, 10vw, 8.5rem);
   max-width: 92rem;
-  padding-inline: 0.75rem;
+  padding-inline: 1rem;
+  overflow: visible;
 }
 
 @media (min-width: 640px) {
-  .lp-band__inner--hero {
-    padding-inline: 1rem;
-  }
-}
-
-@media (min-width: 1024px) {
   .lp-band__inner--hero {
     padding-inline: 1.25rem;
   }
 }
 
+@media (min-width: 1024px) {
+  .lp-band__inner--hero {
+    padding-inline: 1.5rem;
+    padding-bottom: clamp(5.5rem, 12vw, 8.5rem);
+  }
+}
+
+@media (min-width: 1280px) {
+  .lp-band__inner--hero {
+    padding-inline: 2rem;
+  }
+}
+
 .lp-band--hero {
+  overflow: visible;
   background:
     radial-gradient(ellipse 70% 55% at 12% 18%, rgba(34, 197, 94, 0.12), transparent 58%),
     radial-gradient(ellipse 55% 45% at 88% 8%, rgba(16, 185, 129, 0.08), transparent 52%),
@@ -156,6 +169,11 @@
 
 .lp-band--muted-light {
   background: var(--lp-mint-soft);
+}
+
+.lp-band--preview {
+  background:
+    linear-gradient(180deg, #ecfdf5 0%, #f0fdf4 42%, #ffffff 100%);
 }
 
 .lp-band--founder {
@@ -239,25 +257,71 @@
 /* ── Hero ── */
 .lp-hero-grid {
   display: grid;
-  gap: clamp(1.25rem, 3vw, 2rem);
+  gap: clamp(1.75rem, 4vw, 2.5rem);
   align-items: start;
+}
+
+/* Tablet landscape / desktop: 2 colunas */
+@media (min-width: 768px) {
+  .lp-hero-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    align-items: center;
+  }
 }
 
 @media (min-width: 1024px) {
   .lp-hero-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(1rem, 2vw, 1.75rem);
+    gap: clamp(1.75rem, 3.5vw, 3.5rem);
+  }
+}
+
+@media (min-width: 1280px) {
+  .lp-hero-grid {
+    gap: clamp(2rem, 4vw, 4rem);
   }
 }
 
 .lp-hero-copy {
-  padding-top: clamp(1.5rem, 3.5vw, 3rem);
+  width: 100%;
+  min-width: 0;
+  padding-top: 0;
+  margin-top: -0.25rem;
+}
+
+@media (min-width: 768px) {
+  .lp-hero-copy {
+    margin-top: -1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-hero-copy {
+    margin-top: -2rem;
+  }
 }
 
 .lp-hero-title {
   margin: 0;
-  max-width: 16ch;
+  max-width: none;
+  width: 100%;
   font-weight: 500;
+  font-size: clamp(2.125rem, 7.5vw, 2.75rem);
+  line-height: 1.08;
+}
+
+@media (min-width: 768px) {
+  .lp-hero-title {
+    font-size: clamp(2.4rem, 4.2vw, 3.25rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-hero-title {
+    font-size: clamp(2.75rem, 3.6vw, 4rem);
+    line-height: 1.02;
+  }
 }
 
 .lp-hero-title__mark {
@@ -310,105 +374,97 @@
 }
 
 /* ==========================================================================
-   Hero Visual
-   Grupos: person | spotlight | floating-ui | floating-cards | animations | responsive
+   Hero Visual — molde: foto full-column + cards flutuantes absolutos
+   (estrutura equivalente a hero-final + laterais do mercado)
    ========================================================================== */
 
-/* --- Tokens do Hero Visual --- */
 .lp-hero-visual {
-  --lp-hero-visual-ratio: 4 / 5;
-  --lp-hero-person-width: 86%;
-  --lp-hero-person-shift: -3%;
-  --lp-hero-crossfade: 400ms;
-  --lp-hero-focus-x: 52%;
-  --lp-hero-focus-y: 56%;
-  --lp-float-glass-bg: rgba(255, 255, 255, 0.74);
-  --lp-float-glass-border: rgba(255, 255, 255, 0.58);
-  --lp-float-glass-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
-  --lp-float-blur: 14px;
+  --lp-hero-visual-ratio: 1254 / 1428;
+  --lp-hero-crossfade: 420ms;
+  --lp-float-glass-bg: #ffffff;
+  --lp-float-glass-border: #e5e7eb;
+  --lp-float-glass-shadow: 0 24px 48px rgba(0, 0, 0, 0.14);
+  --lp-float-blur: 0px;
   --lp-float-radius: 0.95rem;
   --lp-float-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
+  position: relative;
   width: 100%;
-  max-width: 46rem;
+  max-width: 22rem;
   margin-inline: auto;
+  /* Espaço para cards que vazam embaixo */
+  padding-bottom: clamp(2.25rem, 7vw, 3.5rem);
+}
+
+@media (min-width: 640px) {
+  .lp-hero-visual {
+    max-width: 26rem;
+    padding-bottom: clamp(2.75rem, 6vw, 4rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .lp-hero-visual {
+    max-width: none;
+    margin-inline: 0;
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+    padding-right: 0.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
   .lp-hero-visual {
-    max-width: none;
-    min-width: 0;
-    margin-inline: 0;
-    width: 100%;
+    padding-right: clamp(0.75rem, 2vw, 1.75rem);
+    padding-bottom: clamp(3rem, 5vw, 4.5rem);
   }
 }
 
+/* Stage = caixa da foto (referência de posicionamento dos floats) */
 .lp-hero-visual__stage {
   position: relative;
   width: 100%;
-  aspect-ratio: var(--lp-hero-visual-ratio);
-  display: grid;
-  place-items: center;
   overflow: visible;
-  /* Zona de interesse (celular): ~centro-direita inferior da silhueta */
-  --lp-safe-face: inset(8% 28% 58% 28%);
-  --lp-safe-device: inset(38% 30% 18% 30%);
 }
 
-/* --- Spotlight (atrás da pessoa; quase imperceptível) --- */
 .lp-hero-spotlight {
-  position: absolute;
-  z-index: 0;
-  left: 48%;
-  top: 54%;
-  width: min(92%, 34rem);
-  height: min(78%, 30rem);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse 55% 50% at 50% 48%,
-      rgba(34, 197, 94, 0.14) 0%,
-      rgba(34, 197, 94, 0.06) 38%,
-      rgba(16, 185, 129, 0.03) 58%,
-      transparent 72%
-    );
-  opacity: 0.7;
-  filter: blur(8px);
+  display: none;
 }
 
-/* --- Person slot + imagem --- */
+/* Foto principal: w-full h-auto (como hero-final.webp) */
 .lp-hero-person-slot {
   position: relative;
-  z-index: 2;
-  width: var(--lp-hero-person-width);
-  max-width: 28rem;
-  aspect-ratio: 3 / 4;
-  margin-left: var(--lp-hero-person-shift);
-  display: grid;
-  place-items: end center;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+  display: block;
+}
+
+.lp-hero-person-slot--photo {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+  overflow: hidden;
+  border-radius: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .lp-hero-person-slot--photo {
+    border-radius: 1rem;
+  }
 }
 
 .lp-hero-person-slot__glow {
-  position: absolute;
-  inset: 22% 10% -2%;
-  z-index: 0;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.1), transparent 70%);
-  filter: blur(22px);
-  pointer-events: none;
-  opacity: 0.85;
+  display: none;
 }
 
 .lp-hero-person-slot__silhouette {
   position: absolute;
-  inset: 8% 14% 0;
+  inset: 8% 10% 6%;
   z-index: 0;
-  border-radius: 46% 46% 18% 18% / 28% 28% 12% 12%;
+  border-radius: 42% 42% 28% 28% / 32% 32% 22% 22%;
   background:
-    linear-gradient(180deg, rgba(236, 253, 245, 0.5) 0%, rgba(226, 232, 240, 0.28) 100%);
-  border: 1px solid rgba(207, 230, 215, 0.4);
+    linear-gradient(180deg, rgba(236, 253, 245, 0.55) 0%, rgba(226, 232, 240, 0.3) 100%);
+  border: 1px solid rgba(207, 230, 215, 0.35);
   pointer-events: none;
   opacity: 1;
   transition: opacity var(--lp-hero-crossfade) var(--lp-float-enter-ease);
@@ -419,13 +475,29 @@
   z-index: 1;
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
+  height: auto;
+  object-fit: cover;
+  object-position: center center;
   user-select: none;
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--lp-hero-crossfade) var(--lp-float-enter-ease);
+}
+
+.lp-hero-person--photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--lp-hero-visual-ratio);
+  object-fit: cover;
+  object-position: center center;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  filter: none;
+  mix-blend-mode: normal;
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .lp-hero-person.is-missing {
@@ -440,7 +512,7 @@
   opacity: 0;
 }
 
-/* --- Floating UI (camada orbitando; cards fora de rosto/mãos/celular) --- */
+/* --- Floating UI: absolutos sobre a foto, podendo vazar --- */
 .lp-floating-ui {
   position: absolute;
   inset: 0;
@@ -450,24 +522,73 @@
 
 .lp-float-item {
   position: absolute;
-  left: var(--fx, 10%);
-  top: var(--fy, 10%);
-  max-width: min(12.5rem, 44%);
   pointer-events: auto;
   opacity: 0;
+  max-width: none;
   --f-scale: 1;
+  --f-dur: 7.5s;
+  --f-amp: 6px;
+  --f-x: 0px;
+  --fd: 0.2s;
   will-change: opacity, transform;
+  filter: drop-shadow(0 28px 40px rgba(0, 0, 0, 0.14));
+  transition: transform 0.3s ease;
 }
 
-/* Narrativa: só inicia após o visual entrar na viewport */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .lp-hero-visual.is-visible .lp-float-item:hover {
+    animation-play-state: paused;
+    transform: scale(1.05);
+  }
+}
+
+/*
+  Âncoras (desktop base; refinadas por breakpoint abaixo):
+  - KPI: topo esquerdo
+  - iFood: meio direito (pode vazar)
+  - categorias: inferior (pode vazar)
+*/
+.lp-float-item--kpi {
+  top: 7%;
+  left: 0;
+  width: auto;
+  max-width: min(54%, 11rem);
+  --fd: 0.2s;
+  --f-dur: 8.5s;
+  --f-amp: 4px;
+  --f-x: 1px;
+}
+
+.lp-float-item--cat-1 {
+  top: 46%;
+  right: 0;
+  left: auto;
+  width: auto;
+  max-width: min(52%, 10.5rem);
+  --fd: 0.45s;
+  --f-dur: 9s;
+  --f-amp: 4px;
+  --f-x: -1px;
+}
+
+.lp-float-item--categorias {
+  bottom: -8%;
+  left: 10%;
+  top: auto;
+  width: min(80%, 17rem);
+  --fd: 0.7s;
+  --f-dur: 8.8s;
+  --f-amp: 4px;
+  --f-x: 0px;
+}
+
 .lp-hero-visual.is-visible .lp-float-item {
   animation:
     lp-float-enter 0.55s var(--lp-float-enter-ease) forwards,
-    lp-float-drift var(--f-dur, 7.5s) ease-in-out infinite;
+    lp-float-drift-anchor var(--f-dur, 7.5s) ease-in-out infinite;
   animation-delay: var(--fd, 0.2s), calc(var(--fd, 0.2s) + 0.55s);
 }
 
-/* Hierarquia de profundidade */
 .lp-float-item--depth-front {
   z-index: 4;
 }
@@ -488,8 +609,8 @@
 }
 
 .lp-float-item--depth-back > * {
-  opacity: 0.92;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  opacity: 1;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.11);
 }
 
 .lp-float-item--focus > * {
@@ -499,18 +620,55 @@
     0 0 0 1px rgba(34, 197, 94, 0.08);
 }
 
-/* --- Floating cards / chips --- */
+.lp-float-saas {
+  width: 100%;
+  max-width: 100%;
+  pointer-events: none;
+  background: #ffffff;
+  opacity: 1;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    transform 0.28s var(--lp-float-enter-ease),
+    box-shadow 0.28s var(--lp-float-enter-ease);
+}
+
+.lp-float-saas--kpi {
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
+}
+
+.lp-float-saas--categorias {
+  min-width: 0;
+}
+
+.lp-float-item--cat-1 .lp-float-card {
+  width: fit-content;
+  max-width: 100%;
+  justify-content: flex-start;
+}
+
+.lp-float-saas--categorias .relative {
+  filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08));
+}
+
 .lp-float-card,
 .lp-float-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   border-radius: var(--lp-float-radius);
-  background: var(--lp-float-glass-bg);
+  background: #ffffff;
   border: 1px solid var(--lp-float-glass-border);
   box-shadow: var(--lp-float-glass-shadow);
-  backdrop-filter: blur(var(--lp-float-blur));
-  -webkit-backdrop-filter: blur(var(--lp-float-blur));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  opacity: 1;
+  -webkit-font-smoothing: antialiased;
   transition:
     transform 0.28s var(--lp-float-enter-ease),
     box-shadow 0.28s var(--lp-float-enter-ease),
@@ -530,11 +688,32 @@
 }
 
 .lp-float-card--category {
-  gap: 0.35rem;
-  font-size: 0.8125rem;
+  flex-wrap: nowrap;
+  gap: 0.28rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--lp-ink-2);
+  white-space: nowrap;
+}
+
+.lp-float-card__ai {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-right: 0.1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.16);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.22);
 }
 
 .lp-float-card__merchant {
@@ -635,12 +814,17 @@
 }
 
 .lp-float-chip--ai {
-  max-width: 11.5rem;
+  max-width: 12rem;
   white-space: normal;
-  line-height: 1.3;
+  line-height: 1.35;
+  align-items: flex-start;
+  text-align: left;
 }
 
-/* --- Animations (apenas opacity + transform) --- */
+.lp-float-chip--ai .lp-float-chip__dot {
+  margin-top: 0.35em;
+}
+
 @keyframes lp-float-enter {
   from {
     opacity: 0;
@@ -653,94 +837,339 @@
 @keyframes lp-float-drift {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(var(--f-scale, 1));
+    transform: translate3d(-50%, -50%, 0) scale(var(--f-scale, 1));
   }
   50% {
-    transform: translate3d(var(--f-x, 0px), calc(var(--f-amp, 4px) * -1), 0) scale(var(--f-scale, 1));
+    transform: translate3d(
+        calc(-50% + var(--f-x, 0px)),
+        calc(-50% - var(--f-amp, 4px)),
+        0
+      )
+      scale(var(--f-scale, 1));
   }
 }
 
-/* --- Responsive --- */
-@media (max-width: 1023px) {
-  .lp-hero-visual {
-    --lp-hero-person-width: 78%;
-    --lp-hero-person-shift: 0%;
+/* Drift para cards ancorados por top/left/right/bottom (molde concorrente) */
+@keyframes lp-float-drift-anchor {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
   }
-
-  .lp-hero-spotlight {
-    width: min(88%, 28rem);
-    opacity: 0.55;
+  50% {
+    transform: translate3d(var(--f-x, 0px), calc(-1 * var(--f-amp, 6px)), 0);
   }
-
-  .lp-float-item--md-hide {
-    display: none;
-  }
-
-  .lp-float-item--cat-1 { --fx: 0%; --fy: 16%; }
-  .lp-float-item--insight { --fx: 64%; --fy: 40%; }
-  .lp-float-item--ai { --fx: 0%; --fy: 50%; }
-  .lp-float-item--chart { --fx: 60%; --fy: 70%; }
-  .lp-float-item--indicator { --fx: 40%; --fy: 3%; }
 }
 
-@media (max-width: 639px) {
-  .lp-hero-visual__stage {
-    aspect-ratio: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.85rem;
+/* ==========================================================================
+   Hero — responsivo (mobile → tablet → desktop → wide)
+   ========================================================================== */
+
+/* Phones: tipografia/CTA + floats em escala de miniatura */
+@media (max-width: 767px) {
+  .lp-hero-sub {
+    margin-top: 1.35rem;
+    gap: 0.9rem;
   }
 
-  .lp-hero-spotlight {
-    width: min(90%, 20rem);
-    height: 55%;
-    top: 36%;
-    opacity: 0.45;
+  .lp-hero-sub > p {
+    font-size: clamp(1rem, 3.6vw, 1.125rem);
+    line-height: 1.6;
   }
 
-  .lp-hero-person-slot {
-    width: min(82%, 18.5rem);
-    margin-left: 0;
-    z-index: 2;
+  .lp-hero-cta {
+    margin-top: 1.5rem;
   }
 
-  .lp-floating-ui {
-    position: relative;
-    inset: auto;
-    z-index: 1;
+  .lp-hero-cta .lp-hero-btn {
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0 0.25rem 0.15rem;
+    font-size: 0.975rem;
+    line-height: 1.35;
+    padding-inline: 1.25rem;
+    white-space: normal;
   }
 
   .lp-float-item {
-    position: static;
-    left: auto;
-    top: auto;
-    max-width: none;
+    filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.11));
   }
 
-  .lp-hero-visual.is-visible .lp-float-item {
-    animation: lp-float-enter 0.45s var(--lp-float-enter-ease) forwards;
+  /* Padding interno alinhado aos demais floats (KPI / categorias) */
+  .lp-float-card--category {
+    gap: 0.28rem;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.65rem;
+    border-radius: 0.65rem;
   }
 
-  .lp-float-item--sm-hide,
-  .lp-float-item--md-hide,
-  .lp-float-item--depth-back {
-    display: none;
+  .lp-float-card__ai {
+    width: 1.1rem;
+    height: 1.1rem;
+    font-size: 0.65rem;
+    margin-right: 0;
   }
 
-  .lp-float-item--chart {
-    display: none;
+  /* KPI: chip baixo; largura acompanha o conteúdo (sem “vazio” à direita) */
+  .lp-float-item--kpi {
+    width: auto;
+    max-width: min(52%, 9.5rem);
   }
 
+  .lp-float-saas--kpi {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.55rem 0.65rem !important;
+    border-radius: 0.65rem !important;
+  }
+
+  .lp-float-saas--kpi .tabular-nums {
+    font-size: 0.8125rem !important;
+  }
+
+  .lp-float-saas--categorias {
+    padding: 0.55rem 0.65rem !important;
+    border-radius: 0.65rem !important;
+  }
+
+  .lp-float-saas--categorias > p {
+    font-size: 0.62rem !important;
+    line-height: 1.25;
+  }
+}
+
+/* Mobile estreito (≤479) */
+@media (max-width: 479px) {
+  .lp-hero-visual {
+    max-width: 19.5rem;
+    padding-bottom: 3.35rem;
+  }
+
+  .lp-hero-title {
+    font-size: clamp(1.95rem, 8.2vw, 2.35rem);
+  }
+
+  .lp-float-item--kpi {
+    top: 5%;
+    max-width: min(52%, 9rem);
+  }
+
+  .lp-float-item--cat-1 {
+    top: 62%;
+    right: -6%;
+    width: min(52%, 9rem);
+  }
+
+  .lp-float-item--categorias {
+    bottom: -18%;
+    left: 8%;
+    width: min(70%, 12.25rem);
+  }
+
+  .lp-band__inner--hero {
+    padding-top: 1.15rem;
+    padding-bottom: clamp(2.75rem, 10vw, 4rem);
+  }
+}
+
+/* Mobile / phablet (480–767): coluna única, foto maior */
+@media (min-width: 480px) and (max-width: 767px) {
+  .lp-hero-visual {
+    max-width: 24rem;
+    padding-bottom: 3.75rem;
+  }
+
+  .lp-float-item--kpi {
+    top: 5.5%;
+    max-width: min(48%, 9.5rem);
+  }
+
+  .lp-float-item--cat-1 {
+    top: 60%;
+    right: -5%;
+    width: min(48%, 9.5rem);
+  }
+
+  .lp-float-item--categorias {
+    bottom: -16%;
+    left: 10%;
+    width: min(64%, 13.5rem);
+  }
+}
+
+/*
+  Tablet (2 colunas, 768–1023):
+  mesma lógica do mobile (miniaturas), um degrau maior —
+  coluna visual ~metade da tela, sem colidir com o copy.
+*/
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lp-hero-visual {
+    padding-bottom: 3.5rem;
+    padding-right: 0.65rem;
+  }
+
+  .lp-float-item {
+    filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.12));
+  }
+
+  .lp-float-card--category {
+    gap: 0.3rem;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.7rem;
+    border-radius: 0.7rem;
+  }
+
+  .lp-float-card__ai {
+    width: 1.15rem;
+    height: 1.15rem;
+    font-size: 0.7rem;
+    margin-right: 0;
+  }
+
+  .lp-float-item--kpi {
+    top: 5%;
+    left: 0;
+    width: auto;
+    max-width: min(48%, 10.25rem);
+  }
+
+  .lp-float-saas--kpi {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.55rem 0.7rem !important;
+    border-radius: 0.7rem !important;
+  }
+
+  .lp-float-saas--kpi .tabular-nums {
+    font-size: 0.875rem !important;
+  }
+
+  .lp-float-item--cat-1 {
+    top: 58%;
+    right: -4%;
+    width: min(48%, 10.25rem);
+  }
+
+  .lp-float-item--categorias {
+    bottom: -14%;
+    left: 8%;
+    width: min(70%, 14.25rem);
+  }
+
+  .lp-float-saas--categorias {
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 0.7rem !important;
+  }
+
+  .lp-float-saas--categorias > p {
+    font-size: 0.68rem !important;
+    line-height: 1.25;
+  }
+
+  .lp-float-saas--categorias .h-12 {
+    height: 3.25rem !important;
+    width: 3.25rem !important;
+  }
+
+  .lp-hero-sub > p {
+    font-size: clamp(1.05rem, 1.8vw, 1.15rem);
+  }
+
+  .lp-hero-cta .lp-hero-btn {
+    white-space: normal;
+    text-align: left;
+  }
+}
+
+/* Desktop — KPI mantém UI chip do mobile, só escala */
+@media (min-width: 1024px) {
+  .lp-float-item--kpi {
+    top: 8%;
+    width: auto;
+    max-width: min(42%, 13.5rem);
+  }
+
+  .lp-float-saas--kpi {
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.85rem;
+  }
+
+  .lp-float-card--category {
+    gap: 0.35rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.85rem;
+    font-size: 0.8125rem;
+  }
+
+  .lp-float-item--cat-1 {
+    top: 48%;
+    right: -6%;
+    width: auto;
+    max-width: min(42%, 13rem);
+  }
+
+  .lp-float-item--categorias {
+    bottom: -8%;
+    left: 14%;
+    width: min(70%, 20rem);
+  }
+}
+
+/* Wide: overhang editorial do iFood e card inferior */
+@media (min-width: 1280px) {
+  .lp-float-item--kpi {
+    max-width: min(40%, 14.5rem);
+  }
+
+  .lp-float-saas--kpi {
+    padding: 0.85rem 1rem;
+  }
+
+  .lp-float-card--category {
+    padding: 0.85rem 1rem;
+  }
+
+  .lp-float-item--cat-1 {
+    right: -10%;
+    max-width: min(40%, 13.5rem);
+  }
+
+  .lp-float-item--categorias {
+    bottom: -10%;
+    left: 16%;
+    width: min(68%, 21.5rem);
+  }
+}
+
+/* Landscape curto (phones): menos padding vertical no hero */
+@media (max-height: 480px) and (orientation: landscape) {
+  .lp-band__inner--hero {
+    padding-top: 1rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .lp-hero-grid {
+    gap: 1.25rem;
+  }
+
+  .lp-hero-sub {
+    margin-top: 1rem;
+    gap: 0.65rem;
+  }
+
+  .lp-hero-cta {
+    margin-top: 1.15rem;
+  }
+}
+
+/* Touch: sem hover scale; overlays não bloqueiam scroll */
+@media (hover: none), (max-width: 767px) {
   .lp-float-chip,
-  .lp-float-card {
+  .lp-float-card,
+  .lp-float-saas {
     pointer-events: none;
+  }
+
+  .lp-hero-visual.is-visible .lp-float-item:hover {
+    animation-play-state: running;
+    transform: none;
   }
 }
 
@@ -761,7 +1190,8 @@
   }
 
   .lp-float-card:hover,
-  .lp-float-chip:hover {
+  .lp-float-chip:hover,
+  .lp-hero-visual.is-visible .lp-float-item:hover {
     transform: none;
   }
 }
@@ -1269,28 +1699,165 @@
   .lp-benefit-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
 }
 .lp-benefit {
-  display: flex; flex-direction: column; gap: 1rem;
-  padding: 1.75rem 1.5rem; border-radius: var(--lp-radius-xl);
+  display: flex; flex-direction: column; gap: 0.85rem;
+  padding: 1.35rem 1.25rem; border-radius: var(--lp-radius-xl);
   background: var(--lp-white); border: 1px solid transparent; box-shadow: var(--lp-shadow-sm);
 }
-.lp-benefit__index {
-  display: block; font-size: 2rem; font-weight: 600; letter-spacing: -0.04em; line-height: 1; color: var(--lp-green-dark);
+@media (min-width: 640px) {
+  .lp-benefit {
+    gap: 1rem;
+    padding: 1.75rem 1.5rem;
+  }
 }
-.lp-benefit p { margin: 0; font-size: 1.125rem; line-height: 1.72; color: var(--lp-body); }
+.lp-benefit__index {
+  display: block; font-size: 1.75rem; font-weight: 600; letter-spacing: -0.04em; line-height: 1; color: var(--lp-green-dark);
+}
+@media (min-width: 640px) {
+  .lp-benefit__index { font-size: 2rem; }
+}
+.lp-benefit p { margin: 0; font-size: clamp(1.05rem, 2.4vw, 1.125rem); line-height: 1.72; color: var(--lp-body); }
 .lp-benefit p strong { font-weight: 700; color: var(--lp-ink); }
 
-.lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; }
+.lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1rem; }
 @media (min-width: 768px) {
   .lp-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 }
 .lp-step {
-  padding: 1.75rem; border-radius: var(--lp-radius-xl); background: var(--lp-white);
+  padding: 1.35rem 1.25rem; border-radius: var(--lp-radius-xl); background: var(--lp-white);
   border: 1px solid rgba(216, 235, 224, 0.9); box-shadow: var(--lp-shadow-sm);
+}
+@media (min-width: 640px) {
+  .lp-step { padding: 1.75rem; }
 }
 .lp-step__num {
   display: inline-flex; min-width: 2.5rem; height: 2.5rem; padding-inline: 0.65rem;
   align-items: center; justify-content: center; border-radius: 9999px;
   background: var(--lp-mint); font-size: 0.875rem; font-weight: 700; color: var(--lp-green-dark);
+}
+
+/* ── Preview do produto ── */
+.lp-preview-layout {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .lp-preview-layout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2.5rem, 4vw, 4rem);
+  }
+}
+
+.lp-preview-copy {
+  min-width: 0;
+}
+
+.lp-preview-stage {
+  position: relative;
+  min-width: 0;
+}
+
+.lp-preview-stage__backdrop {
+  display: none;
+}
+
+/* ── Checklist ── */
+.lp-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lp-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  font-size: clamp(1rem, 2.2vw, 1.0625rem);
+  line-height: 1.6;
+  color: var(--lp-ink-2);
+}
+
+.lp-checklist__mark {
+  display: flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--lp-mint);
+  color: var(--lp-green-dark);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+
+/* ── FAQ ── */
+.lp-faq-wrap {
+  border-top: 1px solid var(--lp-line);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.lp-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.lp-faq summary {
+  padding: 1.15rem 0;
+  font-size: clamp(1rem, 2.4vw, 1.0625rem);
+  font-weight: 600;
+  color: var(--lp-ink);
+  transition: color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .lp-faq summary {
+    padding: 1.375rem 0;
+  }
+}
+
+.lp-faq summary:hover {
+  color: var(--lp-green-dark);
+  background: transparent;
+}
+
+.lp-faq[open] summary {
+  background: transparent;
+  color: var(--lp-green-dark);
+}
+
+.lp-faq[open] .lp-faq__icon {
+  transform: rotate(45deg);
+}
+
+.lp-faq__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: var(--lp-mint);
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--lp-green-dark);
+  transition: transform 0.2s ease;
+}
+
+.lp-faq__answer {
+  padding: 0 0 1.25rem;
+  font-size: clamp(1rem, 2.2vw, 1.0625rem);
+  line-height: 1.7;
+  color: var(--lp-body);
+}
+
+.lp-faq + .lp-faq {
+  border-top: 1px solid var(--lp-line);
 }
 
 /* ── Programa Primeiros Donos ── */
@@ -1510,6 +2077,16 @@
   border-radius: var(--lp-radius-2xl) !important;
   box-shadow: var(--lp-shadow-lg) !important;
   overflow: hidden;
+  max-height: min(92dvh, 40rem);
+}
+
+@media (max-width: 479px) {
+  .lp-modal-panel {
+    border-radius: 1.25rem !important;
+    margin-inline: 0.75rem;
+    width: calc(100% - 1.5rem) !important;
+    max-width: none;
+  }
 }
 
 .lp-modal-header {
@@ -1705,6 +2282,10 @@
 
   .lp-mockup-stage--hero .lp-mockup-stage__frame {
     transform: none;
+  }
+
+  .lp-faq__icon {
+    transition-duration: 0.01ms !important;
   }
 }
 

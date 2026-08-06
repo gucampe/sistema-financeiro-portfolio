@@ -1,82 +1,32 @@
-{# Hero Visual — camadas independentes: pessoa (img) + floating UI (HTML/CSS).
-   Para publicar a imagem: coloque o arquivo em static/img/landing/hero-person.webp
-   (ou .png) e, se necessário, ajuste só o atributo src abaixo. #}
 {% load static %}
 
-<div class="lp-hero-visual" data-hero-visual>
+<div class="lp-hero-visual lp-reveal lp-reveal--delay" data-hero-visual>
   <div class="lp-hero-visual__stage">
-    {# Spotlight — glow radial suave atrás da pessoa #}
-    <span class="lp-hero-spotlight" aria-hidden="true"></span>
-
-    <div class="lp-hero-person-slot" aria-hidden="true">
-      <span class="lp-hero-person-slot__glow" aria-hidden="true"></span>
+    <div class="lp-hero-person-slot lp-hero-person-slot--photo" aria-hidden="true">
       <span class="lp-hero-person-slot__silhouette" aria-hidden="true"></span>
       <img
-        class="lp-hero-person"
+        class="lp-hero-person lp-hero-person--photo"
         data-hero-person
         src="{% static 'img/landing/hero-person.webp' %}"
         alt="Pessoa usando o GranaGo no celular"
-        width="720"
-        height="900"
+        width="1254"
+        height="1428"
         decoding="async"
         fetchpriority="high"
       />
     </div>
 
-    {# Floating UI — órbita assimétrica; evita rosto / mãos / celular (zona central) #}
     <div class="lp-floating-ui" aria-hidden="true">
-      {# 1º — narrativa #}
-      <div
-        class="lp-float-item lp-float-item--cat-1 lp-float-item--depth-mid"
-        style="--fx: 1%; --fy: 20%; --fd: 0.2s; --f-dur: 7.2s; --f-amp: 4px; --f-x: 2px;"
-      >
+      <div class="lp-float-item lp-float-item--kpi lp-float-item--depth-front">
+        {% include "landing/partials/float/kpi_receitas.html" %}
+      </div>
+
+      <div class="lp-float-item lp-float-item--cat-1 lp-float-item--depth-front">
         {% include "landing/partials/float/category.html" with merchant="iFood" category="Alimentação" %}
       </div>
 
-      {# 2º #}
-      <div
-        class="lp-float-item lp-float-item--cat-2 lp-float-item--md-hide lp-float-item--depth-back"
-        style="--fx: 76%; --fy: 14%; --fd: 0.35s; --f-dur: 8.4s; --f-amp: 3px; --f-x: -2px;"
-      >
-        {% include "landing/partials/float/category.html" with merchant="Uber" category="Transporte" %}
-      </div>
-
-      {# 3º #}
-      <div
-        class="lp-float-item lp-float-item--chart lp-float-item--depth-back"
-        style="--fx: 3%; --fy: 72%; --fd: 0.5s; --f-dur: 6.8s; --f-amp: 3.5px; --f-x: 1px;"
-      >
-        {% include "landing/partials/float/mini_chart.html" %}
-      </div>
-
-      {# 4º — insight principal (foco próximo ao celular) #}
-      <div
-        class="lp-float-item lp-float-item--insight lp-float-item--depth-front lp-float-item--focus"
-        style="--fx: 69%; --fy: 42%; --fd: 0.7s; --f-dur: 7.8s; --f-amp: 5px; --f-x: -1px;"
-      >
-        {% include "landing/partials/float/insight.html" with value="R$493" label="esquecidos" %}
-      </div>
-
-      {# 5º — badge IA #}
-      <div
-        class="lp-float-item lp-float-item--ai lp-float-item--depth-front"
-        style="--fx: 0%; --fy: 46%; --fd: 0.9s; --f-dur: 8.1s; --f-amp: 4px; --f-x: 2px;"
-      >
-        {% include "landing/partials/float/ai_chip.html" with text="IA classificou esta compra" %}
-      </div>
-
-      <div
-        class="lp-float-item lp-float-item--badge lp-float-item--md-hide lp-float-item--depth-mid"
-        style="--fx: 62%; --fy: 74%; --fd: 1.05s; --f-dur: 9s; --f-amp: 3px; --f-x: -2px;"
-      >
-        {% include "landing/partials/float/badge.html" with text="Organizado automaticamente" %}
-      </div>
-
-      <div
-        class="lp-float-item lp-float-item--indicator lp-float-item--sm-hide lp-float-item--depth-back"
-        style="--fx: 52%; --fy: 4%; --fd: 0.35s; --f-dur: 6.2s; --f-amp: 2.5px; --f-x: 1px;"
-      >
-        {% include "landing/partials/float/indicator.html" with text="Mercado" %}
+      <div class="lp-float-item lp-float-item--categorias lp-float-item--depth-front lp-float-item--focus">
+        {% include "landing/partials/float/categorias_despesas.html" %}
       </div>
     </div>
   </div>

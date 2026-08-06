@@ -210,7 +210,7 @@ class CapturaLeadForm(forms.ModelForm):
             "whatsapp": forms.TextInput(
                 attrs={
                     "class": "input w-full",
-                    "placeholder": "(11) 99999-9999",
+                    "placeholder": "(00) 00000-0000",
                     "autocomplete": "tel",
                     "inputmode": "tel",
                     "required": True,
