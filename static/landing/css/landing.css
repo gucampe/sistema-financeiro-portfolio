@@ -1373,6 +1373,10 @@ html {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.15rem;
   }
+
+  .lp-print-placeholder--wide {
+    grid-column: 1 / -1;
+  }
 }
 
 .lp-print-placeholder {
@@ -1423,19 +1427,16 @@ html {
 .lp-print-placeholder img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
   object-position: top center;
+  background: #f8fafc;
 }
 
-.lp-print-placeholder__label {
-  padding: 0.75rem 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--lp-muted);
+.lp-print-placeholder--wide img {
+  aspect-ratio: auto;
+  object-fit: contain;
 }
 
 .lp-founder__aside {
