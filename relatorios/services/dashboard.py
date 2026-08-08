@@ -101,58 +101,62 @@ def _delta_pct(novo: Decimal, antigo: Decimal) -> Decimal | None:
     return (novo - antigo) / abs(antigo) * 100
 
 
-def comparacao_mensal(user) -> dict[str, Any]:
+def _comparacao_de_totais(
+    tot_atual: dict[str, Decimal],
+    tot_anterior: dict[str, Decimal],
+) -> dict[str, Any]:
+    res_atual = resultado_fluxo(tot_atual)
+    res_anterior = resultado_fluxo(tot_anterior)
+    return {
+        "atual": tot_atual,
+        "anterior": tot_anterior,
+        "resultado_atual": res_atual,
+        "resultado_anterior": res_anterior,
+        "delta_pct_receitas": _delta_pct(tot_atual["receitas"], tot_anterior["receitas"]),
+        "delta_pct_despesas": _delta_pct(tot_atual["despesas"], tot_anterior["despesas"]),
+        "delta_pct_resultado": _delta_pct(res_atual, res_anterior),
+    }
+
+
+def _totais_periodo(user, filtros: RelatorioFiltros) -> dict[str, Decimal]:
+    qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
+    return totais_por_tipo(qs)
+
+
+def comparacao_mensal(user, filtros: RelatorioFiltros | None = None) -> dict[str, Any]:
     from config.observability import perf_span
+    from relatorios.services.despesas_categoria import filtros_periodo_anterior
 
     with perf_span("db.aggregate", "comparacao_mensal"):
-        hoje = timezone.localdate()
-        tot_atual = _totais_mes(user, hoje.year, hoje.month)
-        if hoje.month == 1:
-            ant_ano, ant_mes = hoje.year - 1, 12
-        else:
-            ant_ano, ant_mes = hoje.year, hoje.month - 1
-        tot_anterior = _totais_mes(user, ant_ano, ant_mes)
-        res_atual = resultado_fluxo(tot_atual)
-        res_anterior = resultado_fluxo(tot_anterior)
-        return {
-            "atual": tot_atual,
-            "anterior": tot_anterior,
-            "resultado_atual": res_atual,
-            "resultado_anterior": res_anterior,
-            "delta_pct_receitas": _delta_pct(tot_atual["receitas"], tot_anterior["receitas"]),
-            "delta_pct_despesas": _delta_pct(tot_atual["despesas"], tot_anterior["despesas"]),
-            "delta_pct_resultado": _delta_pct(res_atual, res_anterior),
-        }
+        if filtros is None:
+            hoje = timezone.localdate()
+            filtros = _filtros_mes(hoje.year, hoje.month)
+        tot_atual = _totais_periodo(user, filtros)
+        tot_anterior = _totais_periodo(user, filtros_periodo_anterior(filtros))
+        return _comparacao_de_totais(tot_atual, tot_anterior)
 
 
-def comparacao_mensal_e_top_despesas(user, *, limit: int = 5) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    """Uma passagem no queryset do mês atual para totais + top despesas."""
+def comparacao_mensal_e_top_despesas(
+    user,
+    filtros: RelatorioFiltros | None = None,
+    *,
+    limit: int = 5,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Totais + top despesas no período dos filtros (mês atual se omitido)."""
     from config.observability import perf_span
+    from relatorios.services.despesas_categoria import filtros_periodo_anterior
 
     with perf_span("db.aggregate", "comparacao_mensal_e_top_despesas"):
-        hoje = timezone.localdate()
-        filtros_atual = _filtros_mes(hoje.year, hoje.month)
-        qs_atual = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros_atual)
+        if filtros is None:
+            hoje = timezone.localdate()
+            filtros = _filtros_mes(hoje.year, hoje.month)
+        qs_atual = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
         tot_atual = totais_por_tipo(qs_atual)
-        top_despesas = cores_distintas_para_categorias(top_categorias(qs_atual, "despesa", limit=limit))
-
-        if hoje.month == 1:
-            ant_ano, ant_mes = hoje.year - 1, 12
-        else:
-            ant_ano, ant_mes = hoje.year, hoje.month - 1
-        tot_anterior = _totais_mes(user, ant_ano, ant_mes)
-        res_atual = resultado_fluxo(tot_atual)
-        res_anterior = resultado_fluxo(tot_anterior)
-        comparacao = {
-            "atual": tot_atual,
-            "anterior": tot_anterior,
-            "resultado_atual": res_atual,
-            "resultado_anterior": res_anterior,
-            "delta_pct_receitas": _delta_pct(tot_atual["receitas"], tot_anterior["receitas"]),
-            "delta_pct_despesas": _delta_pct(tot_atual["despesas"], tot_anterior["despesas"]),
-            "delta_pct_resultado": _delta_pct(res_atual, res_anterior),
-        }
-        return comparacao, top_despesas
+        top_despesas = cores_distintas_para_categorias(
+            top_categorias(qs_atual, "despesa", limit=limit)
+        )
+        tot_anterior = _totais_periodo(user, filtros_periodo_anterior(filtros))
+        return _comparacao_de_totais(tot_atual, tot_anterior), top_despesas
 
 
 def serie_evolucao_meses(user, *, meses: int = 6) -> dict[str, Any]:
@@ -184,9 +188,15 @@ def serie_evolucao_meses(user, *, meses: int = 6) -> dict[str, Any]:
     }
 
 
-def top_despesas_mes_atual(user, *, limit: int = 5) -> list[dict[str, Any]]:
-    hoje = timezone.localdate()
-    filtros = _filtros_mes(hoje.year, hoje.month)
+def top_despesas_mes_atual(
+    user,
+    filtros: RelatorioFiltros | None = None,
+    *,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    if filtros is None:
+        hoje = timezone.localdate()
+        filtros = _filtros_mes(hoje.year, hoje.month)
     qs = aplicar_filtros_relatorio(transacoes_base_qs(user), filtros)
     return cores_distintas_para_categorias(top_categorias(qs, "despesa", limit=limit))
 
@@ -226,6 +236,28 @@ def rotulo_periodo_atual() -> str:
     return f"Resumo de {MESES_PT[hoje.month]} de {hoje.year}"
 
 
+def rotulo_periodo_dashboard(filtros: RelatorioFiltros) -> str:
+    from relatorios.services.orcamentos import (
+        periodo_orcamento_multi_mes,
+        rotulo_periodo_orcamento,
+    )
+
+    corpo = rotulo_periodo_orcamento(filtros)
+    if periodo_orcamento_multi_mes(filtros):
+        return f"Resumo · {corpo}"
+    return f"Resumo de {corpo}"
+
+
+def rotulo_delta_periodo(filtros: RelatorioFiltros) -> str:
+    from relatorios.services.orcamentos import periodo_orcamento_multi_mes
+
+    if filtros.preset in ("este_mes", "mes_anterior") and not periodo_orcamento_multi_mes(
+        filtros
+    ):
+        return "vs mês anterior"
+    return "vs período anterior"
+
+
 def query_transacoes_mes_atual() -> str:
     hoje = timezone.localdate()
     inicio = date(hoje.year, hoje.month, 1)
@@ -263,8 +295,17 @@ def _nome_instituicao_conta(conta: Conta) -> str:
     return dict(Conta.TIPO_CHOICES).get(conta.tipo, conta.tipo)
 
 
-def contas_dashboard(user, *, limit: int = 5) -> dict[str, Any]:
+def contas_dashboard(
+    user,
+    *,
+    limit: int = 5,
+    conta_ids: list[int] | tuple[int, ...] | None = None,
+) -> dict[str, Any]:
     lista, total = saldos_por_conta_totais(user)
+    if conta_ids:
+        id_set = set(conta_ids)
+        lista = [item for item in lista if item["conta_id"] in id_set]
+        total = sum((item["saldo"] for item in lista), Decimal("0"))
     contas_qs = {
         c.id: c
         for c in Conta.objects.filter(usuario=user, ativa=True).only("id", "tipo", "icone", "nome")

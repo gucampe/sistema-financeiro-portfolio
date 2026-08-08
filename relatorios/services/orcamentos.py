@@ -537,9 +537,25 @@ def navegacao_mes_context(
     }
 
 
-def listar_orcamentos_dashboard(usuario, *, limite: int = 3) -> list[LinhaOrcamento]:
-    hoje = date.today()
-    linhas = listar_orcamentos_mes(usuario, hoje.year, hoje.month)
+def listar_orcamentos_dashboard(
+    usuario,
+    filtros: RelatorioFiltros | None = None,
+    *,
+    limite: int = 3,
+    cache: RelatorioRequestCache | None = None,
+) -> list[LinhaOrcamento]:
+    if filtros is None:
+        hoje = date.today()
+        linhas = listar_orcamentos_mes(usuario, hoje.year, hoje.month)
+    else:
+        ano_ref, mes_ref = referencia_mes_orcamento(filtros)
+        linhas = listar_orcamentos(
+            usuario,
+            filtros,
+            ano_ref=ano_ref,
+            mes_ref=mes_ref,
+            cache=cache,
+        )
     linhas = [l for l in linhas if l.planejado > 0]
     linhas.sort(key=lambda x: x.percentual or 0, reverse=True)
     return linhas[:limite]

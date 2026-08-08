@@ -78,14 +78,14 @@
           <div class="rounded-2xl border border-gray-100 bg-white/80 p-5 shadow-sm backdrop-blur-sm">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Receitas do mês</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Receitas do período</p>
                 <p class="mt-2 text-2xl font-semibold tabular-nums text-emerald-700">
                   <span class="dash-valor" data-valor="{{ totais_mes.receitas|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{{ totais_mes.receitas|moeda }}{% endif %}</span>
                 </p>
                 {% with pct=comparacao_mensal.delta_pct_receitas %}
                 {% if pct != None %}
                 <p class="mt-1.5 text-xs font-medium {% if pct >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
-                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% vs mês anterior
+                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% {{ rotulo_delta }}
                 </p>
                 {% else %}
                 <p class="mt-1.5 text-xs text-gray-400">Sem base comparativa</p>
@@ -102,14 +102,14 @@
           <div class="rounded-2xl border border-gray-100 bg-white/80 p-5 shadow-sm backdrop-blur-sm">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Despesas do mês</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Despesas do período</p>
                 <p class="mt-2 text-2xl font-semibold tabular-nums text-rose-700">
                   <span class="dash-valor" data-valor="{{ totais_mes.despesas|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{{ totais_mes.despesas|moeda }}{% endif %}</span>
                 </p>
                 {% with pct=comparacao_mensal.delta_pct_despesas %}
                 {% if pct != None %}
                 <p class="mt-1.5 text-xs font-medium {% if pct <= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
-                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% vs mês anterior
+                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% {{ rotulo_delta }}
                 </p>
                 {% else %}
                 <p class="mt-1.5 text-xs text-gray-400">Sem base comparativa</p>
@@ -126,14 +126,14 @@
           <div class="rounded-2xl border border-gray-100 bg-white/80 p-5 shadow-sm backdrop-blur-sm">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resultado do mês</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Resultado do período</p>
                 <p class="mt-2 text-2xl font-semibold tabular-nums {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
                   <span class="dash-valor" data-valor="{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}{% endif %}</span>
                 </p>
                 {% with pct=comparacao_mensal.delta_pct_resultado %}
                 {% if pct != None %}
                 <p class="mt-1.5 text-xs font-medium {% if pct >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
-                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% vs mês anterior
+                  {% if pct >= 0 %}↑{% else %}↓{% endif %} {{ pct|floatformat:0 }}% {{ rotulo_delta }}
                 </p>
                 {% else %}
                 <p class="mt-1.5 text-xs text-gray-400">Receitas − despesas</p>
@@ -152,7 +152,7 @@
     <div id="dashboard-masonry" class="dashboard-masonry--pending flex w-full flex-col gap-6 lg:relative">
 
     {# MOBILE (<sm) — mesmo stack de gap dos demais cards #}
-    <div class="dash-mobile min-w-0 overflow-hidden rounded-xl bg-white p-3 sm:hidden" data-filtros-vertical-anchor aria-label="Resumo do mês">
+    <div class="dash-mobile min-w-0 overflow-hidden rounded-xl bg-white p-3 sm:hidden" data-filtros-vertical-anchor aria-label="Resumo do período">
       <header class="dash-mobile__header">
         <p class="dash-mobile__greeting text-xs leading-snug">
           <span class="font-semibold text-brand-600">{{ saudacao }},</span>
@@ -162,7 +162,7 @@
       </header>
 
       <div class="dash-mobile__summary">
-        <p class="dash-mobile__summary-label">Saldo do mês</p>
+        <p class="dash-mobile__summary-label">Saldo do período</p>
         <p class="dash-mobile__summary-value {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
           <span class="dash-valor" data-valor="{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}{% endif %}</span>
         </p>
@@ -321,9 +321,9 @@
       <div class="rel-secao-cabecalho dash-section-header flex items-start justify-between gap-3">
         <div>
           <h2 class="rel-secao-titulo">Para onde seu dinheiro está indo</h2>
-          <p class="rel-secao-subtitulo">Top categorias de despesa no mês</p>
+          <p class="rel-secao-subtitulo">Top categorias de despesa no período</p>
         </div>
-        <a href="{% url 'relatorios:despesas_categoria' %}?preset=este_mes" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver análise completa</a>
+        <a href="{% url 'relatorios:despesas_categoria' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver análise completa</a>
       </div>
 
       {% if top_despesas_mes %}
@@ -352,7 +352,7 @@
       </div>
       {% else %}
       <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
-        <p class="rel-empty-state__titulo">Sem despesas no mês</p>
+        <p class="rel-empty-state__titulo">Sem despesas no período</p>
         <p class="rel-empty-state__desc">Registre despesas para ver a distribuição por categoria.</p>
         <button type="button" data-abrir-transacao="despesa" class="btn btn-primary btn-sm mt-5">Registrar despesa</button>
       </div>
@@ -363,11 +363,11 @@
     <section class="dashboard-masonry-item card rel-secao-shell order-4 min-w-0 p-5 sm:order-none sm:p-7">
       <div class="rel-secao-cabecalho dash-section-header flex items-start justify-between gap-3">
         <div>
-          <h2 class="rel-secao-titulo">Orçamento do mês</h2>
+          <h2 class="rel-secao-titulo">Orçamento do período</h2>
           <p class="rel-secao-subtitulo">Categorias com maior consumo do limite</p>
         </div>
         {% if tem_orcamentos_cadastrados %}
-        <a href="{% url 'relatorios:orcamentos' %}" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver todos</a>
+        <a href="{% url 'relatorios:orcamentos' %}{% if filtros_querystring %}?{{ filtros_querystring }}{% endif %}" class="dash-section-link shrink-0 text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline">Ver todos</a>
         {% endif %}
       </div>
 
@@ -405,8 +405,8 @@
       </ul>
       {% elif tem_orcamentos_cadastrados %}
       <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
-        <p class="rel-empty-state__titulo">Nenhum orçamento vigente neste mês</p>
-        <p class="rel-empty-state__desc">Revise a vigência dos seus limites ou cadastre novos para o mês atual.</p>
+        <p class="rel-empty-state__titulo">Nenhum orçamento vigente neste período</p>
+        <p class="rel-empty-state__desc">Revise a vigência dos seus limites ou cadastre novos para o período selecionado.</p>
         <a href="{% url 'relatorios:orcamentos' %}" class="btn btn-secondary btn-sm mt-5">Gerenciar orçamentos</a>
       </div>
       {% else %}

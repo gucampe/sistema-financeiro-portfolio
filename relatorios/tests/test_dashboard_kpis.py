@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import calendar
 import json
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -126,7 +126,7 @@ class UnitDashTests(TestCase):
         self.assertEqual(kpi["resultado"], tot["receitas"] - tot["despesas"])
 
     def test_unit_dash_03_filtros_url_nao_afetam_kpi(self):
-        """parse_relatorio_filtros não altera kpi_home."""
+        """kpi_home (mês calendário) não muda só por parsear URL — baseline isolado."""
         Transacao.objects.create(
             usuario=self.user,
             conta=self.conta,
@@ -143,6 +143,42 @@ class UnitDashTests(TestCase):
         depois = kpi_home(self.user)
         self.assertEqual(antes["receitas"], depois["receitas"])
         self.assertEqual(antes["despesas"], depois["despesas"])
+
+    def test_unit_dash_03b_contexto_respeita_filtros(self):
+        """montar_contexto_dashboard aplica período/conta dos filtros."""
+        from relatorios.services.dashboard_context import montar_contexto_dashboard
+
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_rec,
+            tipo="receita",
+            valor=Decimal("100.00"),
+            data=self.hoje,
+            descricao="Mes atual",
+        )
+        fora = self.inicio_mes - timedelta(days=5)
+        Transacao.objects.create(
+            usuario=self.user,
+            conta=self.conta,
+            categoria=self.cat_rec,
+            tipo="receita",
+            valor=Decimal("400.00"),
+            data=fora,
+            descricao="Fora do mes",
+        )
+        q = QueryDict(mutable=True)
+        q["preset"] = "este_mes"
+        filtros_mes = parse_relatorio_filtros(q, usuario=self.user)
+        ctx_mes = montar_contexto_dashboard(self.user, filtros=filtros_mes)
+        self.assertEqual(ctx_mes["totais_mes"]["receitas"], Decimal("100.00"))
+
+        q90 = QueryDict(mutable=True)
+        q90["preset"] = "ultimos_90d"
+        filtros_90 = parse_relatorio_filtros(q90, usuario=self.user)
+        ctx_90 = montar_contexto_dashboard(self.user, filtros=filtros_90)
+        self.assertEqual(ctx_90["totais_mes"]["receitas"], Decimal("500.00"))
+        self.assertNotEqual(ctx_mes["rotulo_periodo"], ctx_90["rotulo_periodo"])
 
     def test_unit_dash_04_comparativo_mes_anterior(self):
         """delta_pct correto; None se anterior zerado; jan usa dez/ano-1."""

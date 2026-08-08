@@ -77,6 +77,7 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
             montar_contexto_dashboard(
                 self.request.user,
                 cache,
+                filtros=ctx["filtros"],
                 categorias_preloaded=ctx.get("categorias_filtro"),
             )
         )
