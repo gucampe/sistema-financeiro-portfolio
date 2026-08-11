@@ -9,6 +9,15 @@
   --lp-mint-soft: #f8fcf9;
   --lp-mint-band: #eef8f1;
 
+  /* Section surfaces — light-first cadence (mint → soft green → white → mint → dark → mint) */
+  --lp-band-hero-from: #f3faf5;
+  --lp-band-hero-mid: #fbfefc;
+  --lp-band-pain: #eaf7ef;
+  --lp-band-pain-to: #eff9f2;
+  --lp-band-programa-from: #e8f6ec;
+  --lp-band-programa-to: #f3faf5;
+  --lp-band-footer: #f7fbf8;
+
   /* Ink */
   --lp-ink: #0b1220;
   --lp-ink-2: #1e293b;
@@ -164,7 +173,12 @@ html {
   background:
     radial-gradient(ellipse 70% 55% at 12% 18%, rgba(34, 197, 94, 0.12), transparent 58%),
     radial-gradient(ellipse 55% 45% at 88% 8%, rgba(16, 185, 129, 0.08), transparent 52%),
-    linear-gradient(180deg, #f3faf5 0%, #fbfefc 42%, #ffffff 100%);
+    linear-gradient(
+      180deg,
+      var(--lp-band-hero-from) 0%,
+      var(--lp-band-hero-mid) 42%,
+      var(--lp-white) 100%
+    );
 }
 
 .lp-band--muted-light {
@@ -183,7 +197,11 @@ html {
 .lp-band--pain {
   position: relative;
   overflow: hidden;
-  background: rgba(34, 197, 94, 0.05);
+  background: linear-gradient(
+    180deg,
+    var(--lp-band-pain) 0%,
+    var(--lp-band-pain-to) 100%
+  );
 }
 
 .lp-band--white,
@@ -191,11 +209,20 @@ html {
   background: var(--lp-white);
 }
 
-.lp-band--steps,
-.lp-band--programa {
+.lp-band--steps {
   background:
     radial-gradient(ellipse 50% 40% at 100% 0%, rgba(34, 197, 94, 0.08), transparent 55%),
-    linear-gradient(180deg, #f7fbf8 0%, #ffffff 100%);
+    linear-gradient(180deg, var(--lp-band-footer) 0%, var(--lp-white) 100%);
+}
+
+.lp-band--programa {
+  background:
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgba(34, 197, 94, 0.07), transparent 55%),
+    linear-gradient(
+      180deg,
+      var(--lp-band-programa-from) 0%,
+      var(--lp-band-programa-to) 100%
+    );
 }
 
 .lp-band--cta {
@@ -2152,10 +2179,9 @@ html {
 .lp-modal-kicker {
   margin: 0 0 0.35rem;
   font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--lp-green-deep);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--lp-green-dark);
 }
 
 .lp-modal-title {
