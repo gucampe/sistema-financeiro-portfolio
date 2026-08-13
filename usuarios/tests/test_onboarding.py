@@ -204,7 +204,7 @@ class PrimeirosPassosFluxoIntegradoTests(OnboardingTestMixin, TestCase):
     def setUp(self):
         self.user = self.criar_usuario("fluxo-onb@test.local")
         self.client = Client()
-        self.client.login(email="fluxo-onb@test.local", password="x")
+        self.client.force_login(self.user)
         self.home_url = reverse("relatorios:home")
         self.page_url = reverse("usuarios:primeiros_passos")
 
@@ -282,7 +282,7 @@ class PrimeirosPassosDashboardTests(OnboardingTestMixin, TestCase):
     def setUp(self):
         self.user = self.criar_usuario("dash-onb@test.local")
         self.client = Client()
-        self.client.login(email="dash-onb@test.local", password="x")
+        self.client.force_login(self.user)
         self.url = reverse("relatorios:home")
 
     def test_dashboard_inclui_assets_onboarding(self):
@@ -308,7 +308,7 @@ class PrimeirosPassosStatusViewTests(OnboardingTestMixin, TestCase):
     def setUp(self):
         self.user = self.criar_usuario("pp-status@test.local")
         self.client = Client()
-        self.client.login(email="pp-status@test.local", password="x")
+        self.client.force_login(self.user)
         self.url = reverse("usuarios:primeiros_passos_status")
 
     def test_endpoint_retorna_json_progresso(self):
@@ -340,7 +340,7 @@ class PrimeirosPassosPageViewTests(OnboardingTestMixin, TestCase):
     def setUp(self):
         self.user = self.criar_usuario("pp-page@test.local")
         self.client = Client()
-        self.client.login(email="pp-page@test.local", password="x")
+        self.client.force_login(self.user)
         self.url = reverse("usuarios:primeiros_passos")
 
     def test_pagina_renders_estrutura(self):

@@ -2,19 +2,39 @@
 
 from __future__ import annotations
 
+from importlib import reload
+
 import pytest
-from django.test import Client, override_settings
-from django.urls import reverse
+from django.test import Client
+from django.urls import clear_url_caches, reverse, set_urlconf
 
 from relatorios.models import ExportJob
 from usuarios.models import Perfil
 from usuarios.tests.helpers.seguranca_fixtures import par_usuarios
 
 
+@pytest.fixture
+def enable_protected_media(settings):
+    """Recarrega as URLs com a rota de mídia protegida (só existe fora de DEBUG)."""
+    import config.urls as urls_mod
+
+    settings.DEBUG = False
+    settings.PROTECT_MEDIA = True
+    settings.ALLOWED_HOSTS = ["testserver", "localhost", "127.0.0.1"]
+    clear_url_caches()
+    reload(urls_mod)
+    set_urlconf(urls_mod)
+    yield
+    settings.DEBUG = True
+    settings.PROTECT_MEDIA = False
+    clear_url_caches()
+    reload(urls_mod)
+    set_urlconf(urls_mod)
+
+
 @pytest.mark.seguranca
 @pytest.mark.django_db
-@override_settings(PROTECT_MEDIA=True, MEDIA_ROOT="/tmp/test_media_granago")
-def test_protected_media_cross_user_404(settings, tmp_path, monkeypatch):
+def test_protected_media_cross_user_404(enable_protected_media, settings, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "MEDIA_ROOT", tmp_path)
     par = par_usuarios()
     foto_rel = "perfis/fotos/user_b.jpg"
@@ -31,8 +51,7 @@ def test_protected_media_cross_user_404(settings, tmp_path, monkeypatch):
 
 @pytest.mark.seguranca
 @pytest.mark.django_db
-@override_settings(PROTECT_MEDIA=True)
-def test_protected_media_path_traversal_404(settings, tmp_path, monkeypatch):
+def test_protected_media_path_traversal_404(enable_protected_media, settings, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "MEDIA_ROOT", tmp_path)
     par = par_usuarios()
     url = reverse("protected_media", kwargs={"path": "../.env"})
@@ -42,8 +61,7 @@ def test_protected_media_path_traversal_404(settings, tmp_path, monkeypatch):
 
 @pytest.mark.seguranca
 @pytest.mark.django_db
-@override_settings(PROTECT_MEDIA=True)
-def test_protected_media_owner_ok(settings, tmp_path, monkeypatch):
+def test_protected_media_owner_ok(enable_protected_media, settings, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "MEDIA_ROOT", tmp_path)
     par = par_usuarios()
     foto_rel = "perfis/fotos/user_a.jpg"
@@ -62,8 +80,7 @@ def test_protected_media_owner_ok(settings, tmp_path, monkeypatch):
 
 @pytest.mark.seguranca
 @pytest.mark.django_db
-@override_settings(PROTECT_MEDIA=True)
-def test_protected_media_export_owner(settings, tmp_path, monkeypatch):
+def test_protected_media_export_owner(enable_protected_media, settings, tmp_path, monkeypatch):
     from django.core.files.uploadedfile import SimpleUploadedFile
 
     monkeypatch.setattr(settings, "MEDIA_ROOT", tmp_path)
@@ -87,8 +104,7 @@ def test_protected_media_export_owner(settings, tmp_path, monkeypatch):
 
 @pytest.mark.seguranca
 @pytest.mark.django_db
-@override_settings(PROTECT_MEDIA=True)
-def test_protected_media_anon_redirect_login(settings, tmp_path, monkeypatch):
+def test_protected_media_anon_redirect_login(enable_protected_media, settings, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "MEDIA_ROOT", tmp_path)
     url = reverse("protected_media", kwargs={"path": "exports/x.zip"})
     resp = Client().get(url)

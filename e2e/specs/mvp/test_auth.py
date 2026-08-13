@@ -11,7 +11,7 @@ def test_auth_01_login_valido_redirect_dashboard(page, app_base_url, persona_bas
     login = LoginPage(page, app_base_url)
     login.login(persona_basic["user"].email, E2E_PASSWORD)
     login.expect_redirect_dashboard()
-    expect(page.locator("text=Receitas do mês").first).to_be_visible()
+    expect(page.locator("text=Receitas do período").first).to_be_visible()
 
 
 @pytest.mark.mvp

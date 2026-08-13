@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db.models import DecimalField, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -155,6 +155,8 @@ def salvar_conta(request):
                 "ativa": conta.ativa,
             }
         )
+    except Http404:
+        raise
     except Exception:
         logger.exception("contas.salvar_conta falhou user_id=%s", request.user.pk)
         return JsonResponse(

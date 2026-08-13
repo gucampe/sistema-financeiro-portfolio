@@ -45,6 +45,7 @@ def _build_n_tx(n: int, *, prefix: str) -> bytes:
 
 
 @pytest.mark.importacao_avancada
+@pytest.mark.performance_extended
 class ImportStressTests(TestCase):
     @classmethod
     def setUpTestData(cls):
