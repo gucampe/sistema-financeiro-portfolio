@@ -9,7 +9,7 @@ from django.contrib.auth.views import (
 )
 from django.core.cache import cache
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods
@@ -55,6 +55,76 @@ def _landing_context(request):
     ctx = _legal_context(request)
     ctx["captura_form"] = CapturaLeadForm()
     return ctx
+
+
+def _institucional_context(request, nav_current=""):
+    ctx = _legal_context(request)
+    ctx["nav_current"] = nav_current
+    return ctx
+
+
+def home_view(request):
+    return render(request, "institucional/home.html", _institucional_context(request, "home"))
+
+
+def nossa_historia_view(request):
+    return render(
+        request,
+        "institucional/nossa_historia.html",
+        _institucional_context(request, "historia"),
+    )
+
+
+def como_funciona_view(request):
+    return render(
+        request,
+        "institucional/como_funciona.html",
+        _institucional_context(request, "como_funciona"),
+    )
+
+
+def faq_view(request):
+    return render(request, "institucional/faq.html", _institucional_context(request, "faq"))
+
+
+def robots_txt(request):
+    site = _legal_context(request)["site_url"]
+    body = "\n".join(
+        [
+            "User-agent: *",
+            "Allow: /",
+            "Disallow: /obrigado/",
+            "Disallow: /captura/",
+            "Disallow: /admin/",
+            "",
+            f"Sitemap: {site}/sitemap.xml",
+            "",
+        ]
+    )
+    return HttpResponse(body, content_type="text/plain; charset=utf-8")
+
+
+def sitemap_xml(request):
+    site = _legal_context(request)["site_url"]
+    paths = [
+        "/",
+        "/nossa-historia/",
+        "/como-funciona/",
+        "/faq/",
+        "/politica-de-privacidade/",
+        "/termos-de-uso/",
+        "/primeiros-donos/",
+    ]
+    urls = "\n".join(
+        f"  <url><loc>{site}{path}</loc></url>" for path in paths
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{urls}\n"
+        "</urlset>\n"
+    )
+    return HttpResponse(xml, content_type="application/xml")
 
 
 @never_cache

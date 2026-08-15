@@ -11,7 +11,7 @@
       content="Para quem chega no final do mês com o saldo abaixo do esperado e não consegue explicar por quê. Controle financeiro essencial, simples e fácil de manter."
     />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="{{ site_url }}/" />
+    <link rel="canonical" href="{{ site_url }}{% url 'usuarios:home' %}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:site_name" content="GranaGo" />
@@ -20,7 +20,7 @@
       property="og:description"
       content="Você não gasta demais. Você simplesmente não enxerga o suficiente. Controle financeiro essencial para quem desistiu dos apps complicados."
     />
-    <meta property="og:url" content="{{ site_url }}/" />
+    <meta property="og:url" content="{{ site_url }}{% url 'usuarios:home' %}" />
     <meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="GranaGo — Controle Financeiro Essencial" />

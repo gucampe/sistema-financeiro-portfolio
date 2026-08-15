@@ -1,14 +1,6 @@
-{% extends "landing/base_landing.html" %}
+{% extends "institucional/base.html" %}
 {% load static %}
 
-{% block body %}
-<main id="lp-main" class="lp-main">
-  {% include "landing/partials/header.html" %}
+{% block content %}
   {% block legal_body %}{% endblock %}
-  {% include "landing/partials/footer.html" %}
-</main>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'landing/js/landing.js' %}" defer></script>
 {% endblock %}

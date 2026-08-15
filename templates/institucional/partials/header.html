@@ -1,0 +1,49 @@
+{% load static %}
+<header
+  id="lp-header"
+  class="lp-header sticky top-0 z-30 border-b border-transparent backdrop-blur-md"
+>
+  <div class="lp-container flex h-16 items-center justify-between gap-3 sm:h-[4.5rem]">
+    <a href="{% url 'usuarios:home' %}" class="flex shrink-0 items-center gap-2.5 no-underline" aria-label="GranaGo, página inicial">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="" class="h-8 w-8 sm:h-9 sm:w-9" width="36" height="36" />
+      <span class="inst-wordmark text-lg font-semibold tracking-tight text-brand-600 sm:text-xl">GranaGo</span>
+    </a>
+
+    <nav class="inst-nav" aria-label="Principal">
+      <a href="{% url 'usuarios:home' %}" class="inst-nav__link{% if nav_current == 'home' %} is-active{% endif %}">O GranaGo</a>
+      <a href="{% url 'usuarios:nossa_historia' %}" class="inst-nav__link{% if nav_current == 'historia' %} is-active{% endif %}">Nossa História</a>
+      <a href="{% url 'usuarios:como_funciona' %}" class="inst-nav__link{% if nav_current == 'como_funciona' %} is-active{% endif %}">Como Funciona</a>
+      <a href="{% url 'usuarios:faq' %}" class="inst-nav__link{% if nav_current == 'faq' %} is-active{% endif %}">FAQ</a>
+    </nav>
+
+    <div class="inst-header-actions">
+      <a href="{{ app_login_url }}" class="btn btn-secondary btn-sm hidden sm:inline-flex">Entrar</a>
+      <a href="{% url 'usuarios:landing' %}" class="btn btn-primary lp-btn-premium btn-sm whitespace-nowrap px-3 sm:px-4">
+        Quero minha vaga
+      </a>
+      <button
+        type="button"
+        id="inst-menu-btn"
+        class="inst-menu-btn"
+        aria-controls="inst-mobile-nav"
+        aria-expanded="false"
+        aria-label="Abrir menu"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav id="inst-mobile-nav" class="inst-mobile-nav lp-container" hidden aria-label="Menu">
+    <a href="{% url 'usuarios:home' %}" class="inst-mobile-nav__link{% if nav_current == 'home' %} is-active{% endif %}">O GranaGo</a>
+    <a href="{% url 'usuarios:nossa_historia' %}" class="inst-mobile-nav__link{% if nav_current == 'historia' %} is-active{% endif %}">Nossa História</a>
+    <a href="{% url 'usuarios:como_funciona' %}" class="inst-mobile-nav__link{% if nav_current == 'como_funciona' %} is-active{% endif %}">Como Funciona</a>
+    <a href="{% url 'usuarios:faq' %}" class="inst-mobile-nav__link{% if nav_current == 'faq' %} is-active{% endif %}">FAQ</a>
+    <a href="{{ app_login_url }}" class="inst-mobile-nav__link sm:hidden">Entrar</a>
+    <a href="{% url 'usuarios:landing' %}" class="btn btn-primary lp-btn-premium btn-block inst-mobile-nav__cta">
+      Quero minha vaga
+    </a>
+  </nav>
+</header>

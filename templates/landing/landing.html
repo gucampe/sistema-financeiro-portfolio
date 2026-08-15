@@ -8,7 +8,7 @@
   content="Para quem toma susto no extrato todo mês e não consegue explicar por quê. Importe os últimos 3 meses e veja tudo por categoria — a IA organiza sozinha. Programa Primeiros Donos."
 />
 <meta name="robots" content="index, follow" />
-<link rel="canonical" href="{{ site_url }}/" />
+<link rel="canonical" href="{{ site_url }}{% url 'usuarios:landing' %}" />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:site_name" content="GranaGo" />
@@ -17,7 +17,7 @@
   property="og:description"
   content="Importe os últimos 3 meses de extrato e veja tudo por categoria — a IA organiza sozinha. Vagas limitadas no programa Primeiros Donos."
 />
-<meta property="og:url" content="{{ site_url }}/" />
+<meta property="og:url" content="{{ site_url }}{% url 'usuarios:landing' %}" />
 <meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="GranaGo — Veja 3 meses de gastos em 2 minutos" />
@@ -48,7 +48,7 @@
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Web",
   "description": "Veja 3 meses de gastos em 2 minutos. Importe o extrato e a IA organiza tudo por categoria.",
-  "url": "{{ site_url }}/",
+  "url": "{{ site_url }}{% url 'usuarios:landing' %}",
   "offers": {
     "@type": "Offer",
     "price": "0",

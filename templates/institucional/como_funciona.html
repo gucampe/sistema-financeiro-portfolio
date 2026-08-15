@@ -1,0 +1,92 @@
+{% extends "institucional/base.html" %}
+{% load static %}
+
+{% block meta %}
+<title>Como funciona — GranaGo</title>
+<meta
+  name="description"
+  content="Como usar o GranaGo em três passos: crie sua conta, registre a primeira transação e veja para onde vai cada real. Sem conexão bancária obrigatória."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}{% url 'usuarios:como_funciona' %}" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="Como funciona — GranaGo" />
+<meta
+  property="og:description"
+  content="Três passos: conta, primeira transação e o painel. Feito para quem acha que esses apps são complicados demais."
+/>
+<meta property="og:url" content="{{ site_url }}{% url 'usuarios:como_funciona' %}" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Como funciona — GranaGo" />
+<meta
+  name="twitter:description"
+  content="Crie a conta, registre uma transação e veja o panorama. Sem burocracia."
+/>
+{% endblock %}
+
+{% block content %}
+<section class="lp-section lp-band lp-band--hero inst-page-hero lp-reveal" aria-labelledby="como-title">
+  <div class="lp-band__inner lp-container">
+    <p class="inst-eyebrow">Como funciona</p>
+    <h1 id="como-title" class="inst-display max-w-3xl">
+      Três passos. Sem configuração longa.
+    </h1>
+    <p class="lp-body inst-lead">
+      Se você já desistiu de um app de finanças no meio do cadastro, o GranaGo foi pensado para o contrário: começar pequeno e enxergar rápido.
+    </p>
+  </div>
+</section>
+
+<section class="lp-section lp-band lp-band--white lp-reveal">
+  <div class="lp-band__inner lp-container">
+    <ol class="inst-steps">
+      <li class="inst-step">
+        <div class="inst-step__copy">
+          <span class="inst-step__num">1</span>
+          <h2 class="lp-headline">Crie sua conta</h2>
+          <p class="lp-body">
+            Com e-mail e senha. Sem pedir dados bancários, token do banco ou uma lista infinita de permissões.
+            Você entra e já está no seu espaço.
+          </p>
+        </div>
+        <div>
+          {% include "institucional/partials/screenshot.html" with src="img/institucional/dashboard.webp" alt="Painel inicial do GranaGo após o acesso à conta" width="1440" height="1482" %}
+        </div>
+      </li>
+
+      <li class="inst-step inst-step--reverse">
+        <div class="inst-step__copy">
+          <span class="inst-step__num">2</span>
+          <h2 class="lp-headline">Registre sua primeira transação</h2>
+          <p class="lp-body">
+            Uma entrada ou uma saída: valor, uma descrição rápida e a categoria.
+            O GranaGo sugere a categoria a partir do que você escreveu — você confirma ou ajusta.
+          </p>
+        </div>
+        <div>
+          {% include "institucional/partials/screenshot.html" with src="img/institucional/transacoes.webp" alt="Tela de transações do GranaGo com lançamentos e categorias" width="1440" height="1196" %}
+        </div>
+      </li>
+
+      <li class="inst-step">
+        <div class="inst-step__copy">
+          <span class="inst-step__num">3</span>
+          <h2 class="lp-headline">Veja para onde vai cada real</h2>
+          <p class="lp-body">
+            O painel junta o que entrou, o que saiu e as categorias.
+            A pergunta do extrato — “para onde foi meu dinheiro?” — passa a ter uma resposta visível.
+          </p>
+        </div>
+        <div>
+          {% include "institucional/partials/screenshot.html" with src="img/institucional/relatorios.webp" alt="Relatórios do GranaGo mostrando para onde foi o dinheiro" width="1440" height="1847" %}
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+{% include "institucional/partials/cta_band.html" with heading="Se cabe na sua rotina, o próximo passo é experimentar" lead="A versão beta é gratuita. Você se inscreve na página do programa de primeiros usuários." %}
+{% endblock %}

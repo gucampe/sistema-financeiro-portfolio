@@ -1,5 +1,6 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
+from django.views.generic import RedirectView
 
 from .views import (
     GranaGoPasswordResetCompleteView,
@@ -7,28 +8,50 @@ from .views import (
     GranaGoPasswordResetDoneView,
     GranaGoPasswordResetView,
     captura_lead_view,
+    como_funciona_view,
     configuracoes,
     configuracoes_alterar_senha,
     excluir_conta,
+    faq_view,
+    home_view,
     landing_view,
     login_view,
+    nossa_historia_view,
     obrigado_view,
     primeiros_passos,
     primeiros_passos_status,
     privacidade_view,
+    robots_txt,
+    sitemap_xml,
     termos_view,
 )
 
 app_name = "usuarios"
 
 urlpatterns = [
-    path("", landing_view, name="landing"),
+    path("", home_view, name="home"),
+    path("nossa-historia/", nossa_historia_view, name="nossa_historia"),
+    path("como-funciona/", como_funciona_view, name="como_funciona"),
+    path("faq/", faq_view, name="faq"),
+    path("primeiros-donos/", landing_view, name="landing"),
     path("captura/", captura_lead_view, name="captura_lead"),
     path("obrigado/", obrigado_view, name="obrigado"),
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("privacidade/", privacidade_view, name="privacidade"),
-    path("termos/", termos_view, name="termos"),
+    path("politica-de-privacidade/", privacidade_view, name="privacidade"),
+    path("termos-de-uso/", termos_view, name="termos"),
+    path(
+        "privacidade/",
+        RedirectView.as_view(pattern_name="usuarios:privacidade", permanent=True),
+        name="privacidade_legacy",
+    ),
+    path(
+        "termos/",
+        RedirectView.as_view(pattern_name="usuarios:termos", permanent=True),
+        name="termos_legacy",
+    ),
+    path("robots.txt", robots_txt, name="robots"),
+    path("sitemap.xml", sitemap_xml, name="sitemap"),
     path("senha/redefinir/", GranaGoPasswordResetView.as_view(), name="password_reset"),
     path("senha/redefinir/enviado/", GranaGoPasswordResetDoneView.as_view(), name="password_reset_done"),
     path(

@@ -1,0 +1,11 @@
+<div class="{% if center %}mx-auto max-w-3xl text-center{% else %}max-w-3xl{% endif %}">
+  {% if eyebrow %}
+  <p class="inst-eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  <{{ heading_tag|default:"h2" }} class="{{ heading_class|default:'lp-headline' }}" {% if heading_id %}id="{{ heading_id }}"{% endif %}>
+    {{ title }}
+  </{{ heading_tag|default:"h2" }}>
+  {% if lead %}
+  <p class="lp-body inst-lead{% if center %} inst-lead--center{% endif %}">{{ lead }}</p>
+  {% endif %}
+</div>

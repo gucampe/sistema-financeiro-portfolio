@@ -1,0 +1,83 @@
+{% extends "institucional/base.html" %}
+{% load static %}
+
+{% block meta %}
+<title>Nossa História — GranaGo</title>
+<meta
+  name="description"
+  content="O GranaGo nasceu da experiência de um desenvolvedor que tentou vários apps de finanças, viu o controle escapar na correria do trabalho e construiu uma solução simples o bastante para durar."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}{% url 'usuarios:nossa_historia' %}" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="Nossa História — GranaGo" />
+<meta
+  property="og:description"
+  content="Quem está por trás do GranaGo passou pelo mesmo problema: saber quanto ganhava, sem saber para onde ia o dinheiro."
+/>
+<meta property="og:url" content="{{ site_url }}{% url 'usuarios:nossa_historia' %}" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Nossa História — GranaGo" />
+<meta
+  name="twitter:description"
+  content="O GranaGo nasceu de quem também tentou outros apps e precisava de algo simples o bastante para manter."
+/>
+{% endblock %}
+
+{% block content %}
+<section class="lp-section lp-band lp-band--hero inst-page-hero lp-reveal" aria-labelledby="historia-title">
+  <div class="lp-band__inner lp-container">
+    <p class="inst-eyebrow">Nossa história</p>
+    <h1 id="historia-title" class="inst-display max-w-3xl">
+      Quem criou o GranaGo passou pelo mesmo problema.
+    </h1>
+    <p class="lp-body inst-lead">
+      Não começou como um projeto para “revolucionar finanças”.
+      Começou como uma tentativa de entender para onde o próprio dinheiro estava indo.
+    </p>
+  </div>
+</section>
+
+<section class="lp-section lp-band lp-band--white lp-reveal">
+  <div class="lp-band__inner lp-container">
+    <div class="inst-story">
+      <figure class="inst-story__photo">
+        <img
+          src="{% static 'img/landing/founder.png' %}"
+          alt="Gustavo, fundador do GranaGo"
+          width="556"
+          height="592"
+        />
+      </figure>
+      <div class="inst-story__prose">
+        <p>
+          Gustavo é desenvolvedor. Quando começou a trabalhar e ganhar o próprio dinheiro, fez o que muita gente faz: tentou diferentes aplicativos e ferramentas para controlar as finanças.
+        </p>
+        <p>
+          Nenhum durou. Pediam demais. Eram complexos demais. Não encaixavam numa rotina que já era cheia.
+        </p>
+        <p>
+          Numa fase de alta demanda no trabalho, o controle financeiro ficou em segundo plano. Não foi uma decisão dramática. Foi o tipo de coisa que se adia um dia, depois uma semana, depois some da lista.
+        </p>
+        <p>
+          Quando ele voltou a olhar, o problema já tinha se acumulado em silêncio. Não por um gasto absurdo e óbvio — mas porque, sem visibilidade, o dinheiro escapa sem anúncio.
+        </p>
+        <p>
+          Foi aí que ele construiu uma solução para si mesmo. A regra era simples: precisava funcionar mesmo nos períodos caóticos. Se a ferramenta exigisse energia que ele não tinha, ela seria abandonada — como as outras.
+        </p>
+        <p>
+          Com o tempo, ficou claro que o problema não era só dele. Outras pessoas também sabiam quanto ganhavam, mas não conseguiam explicar para onde tinha ido cada real. Também já tinham tentado um app ou uma planilha. Também tinham desistido.
+        </p>
+        <p>
+          <strong>O GranaGo nasceu dessa experiência.</strong> Não de uma tese de mercado. De alguém que precisava de clareza, e de uma ferramenta simples o bastante para continuar usando quando a vida aperta.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include "institucional/partials/cta_band.html" with heading="Se isso parece familiar, o GranaGo foi feito para você" lead="A versão beta é gratuita. O próximo passo é o programa de primeiros usuários." %}
+{% endblock %}

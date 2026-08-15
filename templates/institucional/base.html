@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% block meta %}
+    <title>GranaGo — Controle financeiro pessoal simples</title>
+    <meta
+      name="description"
+      content="O GranaGo é um app de controle financeiro pessoal: simples de manter, sem conexão bancária obrigatória. Saiba para onde vai cada real."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="{{ site_url }}/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="GranaGo" />
+    <meta property="og:title" content="GranaGo — Controle financeiro pessoal simples" />
+    <meta
+      property="og:description"
+      content="O GranaGo é um app de controle financeiro pessoal: simples de manter, sem conexão bancária obrigatória."
+    />
+    <meta property="og:url" content="{{ site_url }}/" />
+    <meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="GranaGo — Controle financeiro pessoal simples" />
+    <meta
+      name="twitter:description"
+      content="Saiba para onde vai cada real — sem planilha e sem precisar conectar sua conta bancária."
+    />
+    {% endblock %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'landing/css/landing.css' %}" />
+    <link rel="stylesheet" href="{% static 'institucional/css/institucional.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-white font-sans text-fg antialiased">
+    <a class="inst-skip" href="#conteudo">Pular para o conteúdo</a>
+    {% block body %}
+    <div id="lp-main" class="lp-main">
+      {% include "institucional/partials/header.html" %}
+      <main id="conteudo">
+        {% block content %}{% endblock %}
+      </main>
+      {% include "institucional/partials/footer.html" %}
+    </div>
+    {% endblock %}
+    {% include "partials/cookie_consent.html" %}
+    <script src="{% static 'js/cookie_consent.js' %}" defer></script>
+    {% block extra_js %}
+    <script src="{% static 'landing/js/landing.js' %}" defer></script>
+    <script src="{% static 'institucional/js/institucional.js' %}" defer></script>
+    {% endblock %}
+  </body>
+</html>

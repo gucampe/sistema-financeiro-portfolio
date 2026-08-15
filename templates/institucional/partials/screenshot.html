@@ -1,0 +1,14 @@
+{% load static %}
+<figure class="lp-print-placeholder lp-print-placeholder--wide">
+  <span class="lp-print-placeholder__chrome" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </span>
+  <img
+    src="{% static src %}"
+    alt="{{ alt }}"
+    width="{{ width }}"
+    height="{{ height }}"
+    {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+    decoding="async"
+  />
+</figure>

@@ -301,7 +301,7 @@ LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = "relatorios:home"  # após login: página de relatórios
 LOGOUT_REDIRECT_URL = 'usuarios:login'  # após logout
 
-# Landing page pública (/) e split de hosts (raiz = landing, app. = SaaS)
+# Site institucional em /; landing de captura em /primeiros-donos/; SaaS em APP_HOST.
 LANDING_CHECKOUT_URL = config("LANDING_CHECKOUT_URL", default="").strip()
 SITE_URL = config("SITE_URL", default="").strip()
 APP_HOST = config("APP_HOST", default="").strip()

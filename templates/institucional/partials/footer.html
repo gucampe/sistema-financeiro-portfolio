@@ -1,0 +1,48 @@
+{% load static %}
+<footer class="inst-footer">
+  <div class="lp-container">
+    <div class="inst-footer__grid">
+      <div class="inst-footer__brand">
+        <a href="{% url 'usuarios:home' %}" class="flex items-center gap-2.5 no-underline">
+          <img src="{% static 'img/icons/logo.svg' %}" alt="" class="h-8 w-8" width="32" height="32" />
+          <span class="text-lg font-semibold tracking-tight text-brand-600">GranaGo</span>
+        </a>
+        <p>Controle financeiro pessoal simples de manter.</p>
+      </div>
+
+      <div>
+        <p class="inst-footer__title">Navegação</p>
+        <ul class="inst-footer__list">
+          <li><a href="{% url 'usuarios:nossa_historia' %}">Nossa História</a></li>
+          <li><a href="{% url 'usuarios:como_funciona' %}">Como Funciona</a></li>
+          <li><a href="{% url 'usuarios:faq' %}">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="inst-footer__title">Produto</p>
+        <ul class="inst-footer__list">
+          <li><a href="{{ app_login_url }}">Entrar</a></li>
+          <li><a href="{% url 'usuarios:landing' %}">Quero minha vaga</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="inst-footer__title">Institucional</p>
+        <ul class="inst-footer__list">
+          <li><a href="{% url 'usuarios:privacidade' %}">Política de Privacidade</a></li>
+          <li><a href="{% url 'usuarios:termos' %}">Termos de Uso</a></li>
+          {% if whatsapp_suporte_url %}
+          <li>
+            <a href="{{ whatsapp_suporte_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="inst-footer__bottom">
+      <p>© {% now "Y" %} GranaGo</p>
+    </div>
+  </div>
+</footer>

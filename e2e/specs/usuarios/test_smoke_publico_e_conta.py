@@ -12,6 +12,16 @@ def test_landing_publica_exibe_marca(page, app_base_url):
     page.goto(f"{app_base_url}/")
     page.wait_for_load_state("domcontentloaded")
     expect(page.locator("text=GranaGo").first).to_be_visible()
+    expect(
+        page.get_by_role(
+            "heading",
+            name="Você sabe quanto ganhou. Mas sabe pra onde foi cada real?",
+        )
+    ).to_be_visible()
+
+    page.goto(f"{app_base_url}/primeiros-donos/")
+    page.wait_for_load_state("domcontentloaded")
+    expect(page.get_by_text("Veja 3 meses de gastos").first).to_be_visible()
 
 
 @pytest.mark.cadastro_smoke

@@ -1,0 +1,119 @@
+{% extends "institucional/base.html" %}
+{% load static %}
+
+{% block meta %}
+<title>GranaGo — Controle financeiro pessoal simples</title>
+<meta
+  name="description"
+  content="O GranaGo é um app de controle financeiro pessoal. Você registra o que entra e o que sai e passa a ver para onde vai cada real — sem conectar o banco."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="GranaGo — Controle financeiro pessoal simples" />
+<meta
+  property="og:description"
+  content="Você sabe quanto ganhou. Mas sabe pra onde foi cada real? O GranaGo torna isso visível, de um jeito simples de manter."
+/>
+<meta property="og:url" content="{{ site_url }}/" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="GranaGo — Controle financeiro pessoal" />
+<meta
+  name="twitter:description"
+  content="App de controle financeiro pessoal simples: veja para onde vai cada real, sem conectar sua conta bancária."
+/>
+{% endblock %}
+
+{% block content %}
+<section class="lp-section lp-band lp-band--hero lp-reveal" aria-labelledby="inst-hero-title">
+  <div class="lp-band__inner lp-band__inner--hero lp-container">
+    <div class="lp-hero-grid">
+      <div class="lp-hero-copy relative z-10 min-w-0">
+        <p class="inst-eyebrow">Controle financeiro pessoal</p>
+        <h1 id="inst-hero-title" class="inst-display">
+          Você sabe quanto ganhou. Mas sabe pra onde foi cada real?
+        </h1>
+        <p class="lp-body inst-lead">
+          O GranaGo é um app para organizar o que entra e o que sai — e mostrar, com clareza, para onde o dinheiro está indo.
+        </p>
+        <div class="lp-hero-cta">
+          <a href="{% url 'usuarios:landing' %}" class="btn btn-primary lp-btn-premium px-6 py-3">
+            Garantir minha vaga no GranaGo
+          </a>
+        </div>
+      </div>
+      <div class="inst-hero-visual relative z-10 min-w-0" role="img" aria-label="Prévia do painel do GranaGo">
+        {% include "landing/partials/mockup_dashboard.html" with mockup_variant="hero" %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lp-section lp-band lp-band--pain lp-reveal" aria-labelledby="inst-problema">
+  <div class="lp-band__inner lp-container">
+    <div class="inst-problem">
+      <p class="inst-eyebrow">O problema</p>
+      <h2 id="inst-problema" class="lp-headline">O salário cai. No fim do mês, some.</h2>
+      <p class="lp-body inst-lead inst-lead--center">
+        Você recebe. Paga algumas coisas. Usa o cartão. Faz PIX. Quita as contas.
+        No fim do mês abre o extrato e pensa:
+      </p>
+      <p class="inst-quote">“Para onde foi meu dinheiro?”</p>
+    </div>
+  </div>
+</section>
+
+<section id="o-granago" class="lp-section lp-band lp-band--muted-light lp-reveal" aria-labelledby="inst-solucao">
+  <div class="lp-band__inner lp-container">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="inst-eyebrow">A solução</p>
+      <h2 id="inst-solucao" class="lp-headline">
+        O GranaGo transforma seus gastos espalhados em uma visão simples de entender.
+      </h2>
+      <p class="lp-body inst-lead inst-lead--center">
+        Nada de planilha infinita nem app que pede o banco inteiro.
+        Você registra o que quer acompanhar e o painel mostra o retrato.
+      </p>
+    </div>
+    <div class="mx-auto mt-12 max-w-4xl">
+      {% include "institucional/partials/screenshot.html" with src="img/institucional/visao-geral.webp" alt="Painel do GranaGo com receitas, despesas, patrimônio e para onde o dinheiro está indo" width="1024" height="879" %}
+    </div>
+  </div>
+</section>
+
+<section class="lp-section lp-band lp-band--white lp-reveal" aria-labelledby="inst-diferenciais">
+  <div class="lp-band__inner lp-container">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="inst-eyebrow">Por que continua no dia a dia</p>
+      <h2 id="inst-diferenciais" class="lp-headline">Feito para caber na rotina de verdade</h2>
+    </div>
+    <div class="inst-features mt-12">
+      {% include "institucional/partials/feature.html" with title="Simples de manter" text="Não precisa virar um ritual. O GranaGo nasceu para funcionar mesmo nos períodos em que o trabalho ocupa tudo — quando o controle financeiro costuma ser o primeiro a cair." %}
+      {% include "institucional/partials/feature.html" with title="Categorização inteligente" text="Você descreve a transação. O GranaGo sugere a categoria. Você confirma ou ajusta. Com o uso, a sugestão fica mais precisa — e o trabalho manual diminui." %}
+      {% include "institucional/partials/feature.html" with title="Sem burocracia" text="Não é preciso conectar sua conta bancária. Você escolhe o que entra: um lançamento manual ou, se quiser, a importação de um extrato. O controle dos dados continua com você." %}
+    </div>
+  </div>
+</section>
+
+{% include "institucional/partials/cta_band.html" %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GranaGo",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "description": "App de controle financeiro pessoal simples. Veja para onde vai cada real, sem conectar sua conta bancária.",
+  "url": "{{ site_url }}/",
+  "inLanguage": "pt-BR",
+  "brand": {
+    "@type": "Brand",
+    "name": "GranaGo"
+  }
+}
+</script>
+{% endblock %}

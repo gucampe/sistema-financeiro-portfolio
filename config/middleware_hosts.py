@@ -1,4 +1,4 @@
-"""Roteamento por host: landing na raiz, SaaS em APP_HOST."""
+"""Roteamento por host: site institucional + landing na raiz, SaaS em APP_HOST."""
 
 from __future__ import annotations
 

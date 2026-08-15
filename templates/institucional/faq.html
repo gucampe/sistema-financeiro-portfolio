@@ -1,0 +1,170 @@
+{% extends "institucional/base.html" %}
+{% load static %}
+
+{% block meta %}
+<title>Dúvidas frequentes — GranaGo</title>
+<meta
+  name="description"
+  content="O GranaGo precisa conectar o banco? É seguro? Preciso usar todo dia? Respostas diretas sobre o app de controle financeiro pessoal."
+/>
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{ site_url }}{% url 'usuarios:faq' %}" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="GranaGo" />
+<meta property="og:title" content="Dúvidas frequentes — GranaGo" />
+<meta
+  property="og:description"
+  content="Respostas sobre segurança, conexão bancária, rotina de uso e a versão beta do GranaGo."
+/>
+<meta property="og:url" content="{{ site_url }}{% url 'usuarios:faq' %}" />
+<meta property="og:image" content="{{ site_url }}{% static 'img/icons/logo.png' %}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Dúvidas frequentes — GranaGo" />
+<meta
+  name="twitter:description"
+  content="O GranaGo não exige conexão com sua conta bancária. Veja as respostas mais comuns."
+/>
+{% endblock %}
+
+{% block content %}
+<section class="lp-section lp-band lp-band--hero inst-page-hero lp-reveal" aria-labelledby="faq-title">
+  <div class="lp-band__inner lp-container">
+    <p class="inst-eyebrow">Dúvidas frequentes</p>
+    <h1 id="faq-title" class="inst-display max-w-3xl">
+      Perguntas que costumam aparecer depois do primeiro contato.
+    </h1>
+    <p class="lp-body inst-lead">
+      Respostas diretas, sem enrolação. Se a sua dúvida não estiver aqui, o WhatsApp de suporte está no rodapé.
+    </p>
+  </div>
+</section>
+
+<section class="lp-section lp-band lp-band--white lp-reveal">
+  <div class="lp-band__inner lp-container">
+    <div class="mx-auto max-w-2xl">
+      <div class="lp-faq-wrap">
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            Precisa conectar minha conta bancária?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            Não. O GranaGo não exige conexão com a sua conta bancária.
+            Você registra manualmente o que deseja acompanhar — e, se preferir, pode importar um arquivo de extrato.
+            O que entra no sistema é o que você escolhe colocar.
+          </div>
+        </details>
+
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            É seguro?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            O GranaGo não acessa as suas contas bancárias: não pedimos senha do banco, token nem integração com Open Finance.
+            Os dados que você registra ficam na sua conta, protegidos por login.
+            Nenhum sistema é seguro de forma absoluta — o ponto honesto é este: sem conexão bancária, o GranaGo não tem acesso ao seu banco.
+          </div>
+        </details>
+
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            Vou ter que alimentar isso todo dia?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            Não. O objetivo é o acompanhamento caber na rotina, não virar mais uma tarefa pesada.
+            Você lança quando fizer sentido — uma transação agora, um conjunto depois, ou um extrato importado.
+            Não é preciso passar horas no sistema para ele ser útil.
+          </div>
+        </details>
+
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            E quando virar pago?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            Na beta, o acesso é gratuito.
+            Quando houver plano pago, quem entrou na beta terá condições especiais para continuar.
+          </div>
+        </details>
+
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            Já tentei apps e desisti. Por que esse seria diferente?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            O GranaGo nasceu exatamente disso: alguém que também tentou outras ferramentas, viu o controle escapar na correria e precisava de algo simples o bastante para não abandonar de novo.
+            A aposta não é ter mais recursos. É ter menos atrito — para continuar usando quando a semana aperta.
+          </div>
+        </details>
+
+        <details class="lp-faq group">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+            Preciso entender de finanças para usar?
+            <span class="lp-faq__icon shrink-0" aria-hidden="true">+</span>
+          </summary>
+          <div class="lp-faq__answer">
+            Não. Você não precisa ser especialista.
+            O GranaGo organiza o que você registra e mostra o panorama. A leitura é “para onde foi o dinheiro”, não um curso de educação financeira.
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include "institucional/partials/cta_band.html" %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Precisa conectar minha conta bancária?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. O GranaGo não exige conexão com a sua conta bancária. Você registra manualmente o que deseja acompanhar — e, se preferir, pode importar um arquivo de extrato."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "É seguro?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "O GranaGo não acessa as suas contas bancárias e não pede senha do banco nem integração com Open Finance. Os dados que você registra ficam na sua conta, protegidos por login."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Vou ter que alimentar isso todo dia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. O objetivo é o acompanhamento caber na rotina. Você lança quando fizer sentido. Não é preciso passar horas no sistema para ele ser útil."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "E quando virar pago?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Na beta, o acesso é gratuito. Quando houver plano pago, quem entrou na beta terá condições especiais para continuar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Já tentei apps e desisti. Por que esse seria diferente?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "O GranaGo nasceu da experiência de alguém que também tentou outras ferramentas e precisava de algo simples o bastante para não abandonar de novo."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}

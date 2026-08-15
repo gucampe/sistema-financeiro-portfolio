@@ -1,0 +1,13 @@
+<section class="lp-section lp-band inst-cta-band lp-reveal" aria-labelledby="{{ cta_heading_id|default:'cta-final' }}">
+  <div class="lp-band__inner lp-container">
+    <h2 id="{{ cta_heading_id|default:'cta-final' }}" class="lp-headline">
+      {{ heading|default:"Pronto para enxergar para onde vai cada real?" }}
+    </h2>
+    <p class="lp-body">
+      {{ lead|default:"O acesso à versão beta é gratuito. Você entra pelo programa de primeiros usuários." }}
+    </p>
+    <a href="{% url 'usuarios:landing' %}" class="btn btn-primary lp-btn-premium px-6 py-3">
+      Garantir minha vaga no GranaGo
+    </a>
+  </div>
+</section>

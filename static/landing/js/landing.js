@@ -128,7 +128,7 @@
     openButtons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         if (!overlay || !globalThis.GranaGoModal) {
-          window.location.href = btn.getAttribute("data-captura-fallback") || "/#garantir-vaga";
+          window.location.href = btn.getAttribute("data-captura-fallback") || "/primeiros-donos/#garantir-vaga";
           return;
         }
         GranaGoModal.open(overlay, { trigger: btn });

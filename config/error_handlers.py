@@ -66,7 +66,7 @@ def error_page_context(request: HttpRequest, *, status: int) -> dict[str, Any]:
     on_landing = _is_landing_host(request)
     authenticated = _is_authenticated(request)
 
-    landing_url = _safe_reverse("usuarios:landing", "/")
+    landing_url = _safe_reverse("usuarios:home", "/")
     login_url = _safe_reverse("usuarios:login", "/login/")
     dashboard_url = _safe_reverse("relatorios:home", "/dashboard/")
     app_login = _absolute_app_login()
