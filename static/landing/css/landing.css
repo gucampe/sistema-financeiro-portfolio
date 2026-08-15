@@ -1248,26 +1248,6 @@ html {
   box-shadow: var(--lp-shadow-sm);
 }
 
-/* Watermark tipográfico — extrato que não fecha a conta */
-.lp-band--pain::before {
-  content: "R$ ???";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(5.5rem, 18vw, 9.5rem);
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  line-height: 1;
-  color: var(--lp-ink);
-  opacity: 0.05;
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-}
-
 .lp-pain-stack {
   position: relative;
   z-index: 1;
