@@ -33,7 +33,12 @@ urlpatterns = [
     path("nossa-historia/", nossa_historia_view, name="nossa_historia"),
     path("como-funciona/", como_funciona_view, name="como_funciona"),
     path("faq/", faq_view, name="faq"),
-    path("primeiros-donos/", landing_view, name="landing"),
+    path("comece/", landing_view, name="landing"),
+    path(
+        "primeiros-donos/",
+        RedirectView.as_view(pattern_name="usuarios:landing", permanent=True),
+        name="landing_legacy",
+    ),
     path("captura/", captura_lead_view, name="captura_lead"),
     path("obrigado/", obrigado_view, name="obrigado"),
     path("login/", login_view, name="login"),

@@ -117,7 +117,7 @@ def sitemap_xml(request):
         "/faq/",
         "/politica-de-privacidade/",
         "/termos-de-uso/",
-        "/primeiros-donos/",
+        "/comece/",
     ]
     urls = "\n".join(
         f"  <url><loc>{site}{path}</loc></url>" for path in paths

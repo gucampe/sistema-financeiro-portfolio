@@ -15,11 +15,11 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("GranaGo", html)
         self.assertIn("pra onde foi cada real", html)
         self.assertNotIn("Veja 3 meses de gastos", html)
-        self.assertIn("/primeiros-donos/", html)
+        self.assertIn("/comece/", html)
         self.assertIn("Garantir minha vaga no GranaGo", html)
 
-    def test_landing_permanece_em_primeiros_donos(self):
-        resp = self.client.get("/primeiros-donos/")
+    def test_landing_em_comece(self):
+        resp = self.client.get("/comece/")
         self.assertEqual(resp.status_code, 200)
         html = resp.content.decode()
         self.assertIn("Veja 3 meses de gastos", html)
@@ -27,6 +27,11 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("/politica-de-privacidade/", html)
         self.assertIn("/termos-de-uso/", html)
         self.assertIn("Ao garantir sua vaga, você concorda", html)
+
+    def test_landing_legacy_primeiros_donos_redireciona(self):
+        resp = self.client.get("/primeiros-donos/")
+        self.assertEqual(resp.status_code, 301)
+        self.assertTrue(resp["Location"].endswith("/comece/"))
 
     def test_paginas_institucionais(self):
         paginas = [
@@ -41,7 +46,7 @@ class InstitucionalSiteTests(TestCase):
                 html = resp.content.decode()
                 self.assertIn(title, html)
                 self.assertIn(trecho, html)
-                self.assertIn("/primeiros-donos/", html)
+                self.assertIn("/comece/", html)
 
     def test_legais_novas_urls_e_redirects(self):
         priv = self.client.get("/politica-de-privacidade/")
@@ -108,7 +113,7 @@ class InstitucionalSiteTests(TestCase):
             "/faq/",
             "/politica-de-privacidade/",
             "/termos-de-uso/",
-            "/primeiros-donos/",
+            "/comece/",
         ):
             self.assertIn(path, xml)
 

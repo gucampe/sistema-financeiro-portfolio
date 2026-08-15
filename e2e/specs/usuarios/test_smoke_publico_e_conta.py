@@ -19,7 +19,7 @@ def test_landing_publica_exibe_marca(page, app_base_url):
         )
     ).to_be_visible()
 
-    page.goto(f"{app_base_url}/primeiros-donos/")
+    page.goto(f"{app_base_url}/comece/")
     page.wait_for_load_state("domcontentloaded")
     expect(page.get_by_text("Veja 3 meses de gastos").first).to_be_visible()
 
