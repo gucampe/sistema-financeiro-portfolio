@@ -4270,6 +4270,10 @@ select.\!input,
   color: rgb(100 116 139 / var(--tw-text-opacity, 1));
 }
 
+.text-fg\/70 {
+  color: rgb(51 65 85 / 0.7);
+}
+
 .text-gray-300 {
   --tw-text-opacity: 1;
   color: rgb(209 213 219 / var(--tw-text-opacity, 1));
