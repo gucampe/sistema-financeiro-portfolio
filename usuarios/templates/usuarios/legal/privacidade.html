@@ -31,7 +31,7 @@
         <span>Privacidade</span>
       </nav>
       <h1 id="legal-title" class="lp-legal-title">Política de Privacidade</h1>
-      <p class="lp-legal-meta">Última atualização: julho de 2026</p>
+      <p class="lp-legal-meta">Última atualização: 14 de agosto de 2026</p>
       <p class="lp-legal-lead">
         Esta política explica como o <strong>GranaGo</strong> trata dados pessoais ao oferecer ferramentas de organização financeira pessoal,
         em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
@@ -55,14 +55,16 @@
             <li><a href="#controlador">1. Controlador</a></li>
             <li><a href="#servico">2. Como o serviço funciona</a></li>
             <li><a href="#dados">3. Dados que tratamos</a></li>
-            <li><a href="#bases">4. Bases legais</a></li>
-            <li><a href="#subprocessadores">5. Parceiros e infraestrutura</a></li>
-            {% if llm_ativo %}<li><a href="#ia">6. Categorização com IA</a></li>{% endif %}
-            <li><a href="#seguranca">{% if llm_ativo %}7{% else %}6{% endif %}. Segurança</a></li>
-            <li><a href="#cookies">{% if llm_ativo %}8{% else %}7{% endif %}. Cookies</a></li>
-            <li><a href="#retencao">{% if llm_ativo %}9{% else %}8{% endif %}. Retenção</a></li>
-            <li><a href="#direitos">{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos</a></li>
-            <li><a href="#contato">{% if llm_ativo %}11{% else %}10{% endif %}. Contato</a></li>
+            <li><a href="#finalidades">4. Como usamos os dados</a></li>
+            <li><a href="#bases">5. Bases legais</a></li>
+            <li><a href="#subprocessadores">6. Parceiros e transferência internacional</a></li>
+            {% if llm_ativo %}<li><a href="#ia">7. Categorização com IA</a></li>{% endif %}
+            <li><a href="#seguranca">{% if llm_ativo %}8{% else %}7{% endif %}. Segurança</a></li>
+            <li><a href="#cookies">{% if llm_ativo %}9{% else %}8{% endif %}. Cookies</a></li>
+            <li><a href="#retencao">{% if llm_ativo %}10{% else %}9{% endif %}. Retenção</a></li>
+            <li><a href="#direitos">{% if llm_ativo %}11{% else %}10{% endif %}. Seus direitos</a></li>
+            <li><a href="#alteracoes">{% if llm_ativo %}12{% else %}11{% endif %}. Alterações</a></li>
+            <li><a href="#contato">{% if llm_ativo %}13{% else %}12{% endif %}. Contato</a></li>
           </ol>
         </nav>
       </details>
@@ -72,11 +74,20 @@
       <section class="lp-legal-section" id="controlador">
         <h2>1. Quem é o controlador</h2>
         <p>
-          O <strong>GranaGo</strong> é operado por <strong>[RAZÃO SOCIAL]</strong>, inscrita no CNPJ <strong>[●]</strong>,
-          responsável pelo tratamento dos dados pessoais descritos nesta Política.
+          O <strong>GranaGo</strong> é oferecido, neste momento, por
+          <strong>{{ controlador_nome }}</strong>, pessoa física, responsável pelas decisões
+          sobre o tratamento dos dados pessoais descritos nesta Política.
+          Ainda não há pessoa jurídica constituída nem inscrição no CNPJ.
+        </p>
+        <p>
+          O serviço é disponibilizado em caráter experimental e gratuito no programa
+          <strong>Primeiros Donos</strong>. Esta política será atualizada quando for constituída
+          pessoa jurídica, passando a indicar razão social e CNPJ.
         </p>
         <p class="lp-legal-note">
           O GranaGo é um software de gestão financeira pessoal oferecido na modalidade SaaS (software como serviço).
+          Para exercer os direitos do art. 18 da LGPD, use o canal indicado na seção
+          <a href="#contato">Contato</a>.
         </p>
       </section>
 
@@ -92,6 +103,7 @@
             <li>Não solicitamos senha bancária, token, código de autenticação ou credenciais de internet banking.</li>
             <li>Não possuímos integração oficial com bancos nem com Open Finance.</li>
             <li>Não nos conectamos automaticamente às suas instituições financeiras.</li>
+            <li>Não solicitamos nem armazenamos número real de cartão, CVV, validade, senha do cartão ou dados completos de conta-corrente.</li>
             <li>Você mantém o controle: registra informações manualmente ou envia arquivos de extrato (OFX/XLSX) para importação.</li>
           </ul>
         </div>
@@ -112,6 +124,10 @@
           Transações (data, valor, tipo, descrição, categoria), contas, cartões, faturas, orçamentos, categorias personalizadas
           e regras de categorização que você criar ou que forem aprendidas a partir do seu uso.
         </p>
+        <p>
+          Os nomes de contas, bancos e cartões são rótulos definidos por você para organização pessoal.
+          Não correspondem, necessariamente, a dados bancários reais nem a números completos de cartão.
+        </p>
 
         <h3>3.3 Arquivos enviados (OFX e XLSX)</h3>
         <p>
@@ -128,13 +144,43 @@
           Endereço IP, identificadores de sessão, registros de acesso e de segurança (por exemplo, tentativas de login malsucedidas),
           cookies essenciais e informações técnicas de erro para manutenção da estabilidade do sistema.
         </p>
+
+        <h3>3.5 Dados do programa Primeiros Donos</h3>
+        <p>
+          Se você se inscreve pelo formulário do programa, tratamos <strong>nome, e-mail e WhatsApp</strong> para:
+        </p>
+        <ul>
+          <li>reservar sua vaga e enviar o acesso à plataforma;</li>
+          <li>falar com você sobre o programa e o primeiro uso, inclusive pelo WhatsApp informado;</li>
+          <li>organizar a lista de participantes da fase experimental.</li>
+        </ul>
+        <p>
+          Não vendemos esses dados e não os usamos para disparo de spam.
+          Mensagens pelo WhatsApp transitam pela plataforma do aplicativo, operada por terceiros.
+        </p>
+      </section>
+
+      <section class="lp-legal-section" id="finalidades">
+        <h2>4. Como usamos os dados</h2>
+        <p>Tratamos os dados descritos nesta Política para:</p>
+        <ul>
+          <li>criar e manter sua conta, inclusive recuperação de acesso;</li>
+          <li>registrar, organizar e exibir suas informações financeiras;</li>
+          <li>processar importações de extrato que você enviar;</li>
+          <li>reservar vaga no programa Primeiros Donos, enviar o acesso e falar sobre o primeiro uso;</li>
+          <li>prestar suporte e responder solicitações de privacidade;</li>
+          <li>proteger a plataforma contra uso indevido, fraude e incidentes de segurança;</li>
+          <li>manter estabilidade, diagnosticar erros e melhorar o funcionamento do serviço;</li>
+          <li>enviar comunicações relacionadas à conta e à prestação do serviço — não usamos esses canais para spam.</li>
+        </ul>
       </section>
 
       <section class="lp-legal-section" id="bases">
-        <h2>4. Bases legais</h2>
+        <h2>5. Bases legais</h2>
         <p>Tratamos dados pessoais com fundamento nas seguintes bases, conforme o caso:</p>
         <ul>
           <li><strong>Execução de contrato</strong> — para criar e manter sua conta, processar importações, exibir relatórios e cumprir funcionalidades solicitadas por você.</li>
+          <li><strong>Procedimentos preliminares ao contrato e legítimo interesse</strong> — para receber sua inscrição no programa Primeiros Donos, enviar o acesso e comunicar sobre o uso experimental.</li>
           <li><strong>Legítimo interesse</strong> — para segurança da plataforma, prevenção a fraudes e abusos, melhoria do serviço e monitoramento técnico de erros.</li>
           <li><strong>Consentimento</strong> — quando exigido por lei, inclusive para cookies não essenciais, caso venham a ser utilizados no futuro.</li>
           <li><strong>Cumprimento de obrigação legal</strong> — quando necessário para atender exigências legais ou regulatórias aplicáveis.</li>
@@ -142,7 +188,7 @@
       </section>
 
       <section class="lp-legal-section" id="subprocessadores">
-        <h2>5. Parceiros e infraestrutura</h2>
+        <h2>6. Parceiros, infraestrutura e transferência internacional</h2>
         <p>
           Para operar o GranaGo, podemos utilizar fornecedores responsáveis por hospedagem da aplicação, banco de dados,
           envio de e-mails, monitoramento técnico e infraestrutura de segurança.
@@ -151,9 +197,11 @@
           Esses fornecedores podem processar dados pessoais em nosso nome exclusivamente para viabilizar o funcionamento
           da plataforma, melhorar estabilidade, prevenir fraudes e prestar suporte operacional.
         </p>
+        <h3 id="transferencia">Transferência internacional</h3>
         <p>
-          Alguns desses serviços podem estar localizados fora do Brasil, incluindo servidores nos Estados Unidos,
-          sendo adotadas medidas compatíveis com a legislação aplicável para proteção dos dados pessoais.
+          Alguns desses serviços podem estar localizados fora do Brasil, incluindo servidores nos Estados Unidos.
+          Quando isso ocorrer, adotamos as salvaguardas previstas na LGPD para buscar um nível adequado de proteção
+          dos dados pessoais.
         </p>
         {% if llm_ativo %}
         <p>
@@ -166,9 +214,9 @@
 
       {% if llm_ativo %}
       <section class="lp-legal-section" id="ia">
-        <h2>6. Categorização com inteligência artificial</h2>
+        <h2>7. Categorização com inteligência artificial</h2>
         <p>
-          Quando habilitada pelo operador do serviço, o GranaGo pode usar o <strong>Google Gemini</strong> para sugerir categorias
+          Quando habilitada pelo responsável pelo serviço, o GranaGo pode usar o <strong>Google Gemini</strong> para sugerir categorias
           em transações em que o sistema automático não tem confiança suficiente.
         </p>
         <ul>
@@ -186,7 +234,7 @@
       {% endif %}
 
       <section class="lp-legal-section" id="seguranca">
-        <h2>{% if llm_ativo %}7{% else %}6{% endif %}. Segurança das informações</h2>
+        <h2>{% if llm_ativo %}8{% else %}7{% endif %}. Segurança das informações</h2>
         <p>
           Adotamos medidas técnicas e administrativas proporcionais ao estágio do serviço, com o objetivo de:
         </p>
@@ -202,7 +250,7 @@
       </section>
 
       <section class="lp-legal-section" id="cookies">
-        <h2>{% if llm_ativo %}8{% else %}7{% endif %}. Cookies e tecnologias similares</h2>
+        <h2>{% if llm_ativo %}9{% else %}8{% endif %}. Cookies e tecnologias similares</h2>
         <p>
           Utilizamos cookies e mecanismos equivalentes estritamente necessários ao funcionamento do GranaGo:
         </p>
@@ -217,16 +265,21 @@
         </p>
         <p class="lp-legal-note">
           No momento, não utilizamos cookies de marketing ou rastreamento publicitário de terceiros.
+          Você pode gerenciar cookies nas configurações do navegador; bloquear cookies essenciais pode impedir o login ou o uso da plataforma.
         </p>
       </section>
 
       <section class="lp-legal-section" id="retencao">
-        <h2>{% if llm_ativo %}9{% else %}8{% endif %}. Prazo de retenção</h2>
+        <h2>{% if llm_ativo %}10{% else %}9{% endif %}. Prazo de retenção</h2>
         <p class="lp-legal-intro">Mantemos dados pelo tempo necessário para as finalidades descritas nesta Política:</p>
         <ul>
           <li>
             <strong>Dados da conta e informações financeiras</strong> — enquanto sua conta estiver ativa ou pelo tempo necessário
             para cumprir obrigações legais, resolver disputas, garantir segurança e prevenir fraudes.
+          </li>
+          <li>
+            <strong>Dados de inscrição no programa Primeiros Donos</strong> — enquanto o programa estiver ativo ou até você
+            pedir a exclusão, o que ocorrer primeiro, ressalvadas retenções mínimas de segurança.
           </li>
           <li>
             <strong>Arquivos de exportação gerados na plataforma</strong> — disponíveis por até <strong>72 horas</strong>,
@@ -249,7 +302,7 @@
       </section>
 
       <section class="lp-legal-section" id="direitos">
-        <h2>{% if llm_ativo %}10{% else %}9{% endif %}. Seus direitos (LGPD)</h2>
+        <h2>{% if llm_ativo %}11{% else %}10{% endif %}. Seus direitos (LGPD)</h2>
         <p>
           Nos termos do artigo 18 da LGPD, você pode solicitar, conforme aplicável:
         </p>
@@ -271,17 +324,38 @@
         </p>
       </section>
 
+      <section class="lp-legal-section" id="alteracoes">
+        <h2>{% if llm_ativo %}12{% else %}11{% endif %}. Alterações desta Política</h2>
+        <p>
+          Podemos atualizar esta Política para refletir mudanças no serviço, na legislação ou em nossas práticas.
+          A versão vigente estará sempre nesta página, com a data de atualização no topo.
+        </p>
+        <p>
+          Se a alteração for relevante para o tratamento dos seus dados, buscaremos informar de forma adequada,
+          inclusive pelos canais que você já utilizou (e-mail ou WhatsApp).
+        </p>
+      </section>
+
       <section class="lp-legal-section" id="contato">
-        <h2>{% if llm_ativo %}11{% else %}10{% endif %}. Contato e exercício de direitos</h2>
+        <h2>{% if llm_ativo %}13{% else %}12{% endif %}. Contato e exercício de direitos</h2>
         <p>
           Para dúvidas sobre esta Política ou para exercer seus direitos como titular de dados, entre em contato:
         </p>
-        <div class="lp-legal-contact">
-          <a href="mailto:{{ privacidade_email }}">{{ privacidade_email }}</a>
-          <p>Responderemos em até <strong>15 dias úteis</strong>, prorrogáveis conforme a LGPD quando houver justificativa.</p>
-        </div>
+        <ul class="lp-legal-contact-list">
+          <li>
+            <span>Canal do titular (LGPD)</span>
+            <a href="mailto:{{ privacidade_email }}">{{ privacidade_email }}</a>
+          </li>
+          <li>
+            <span>Contato geral</span>
+            <a href="mailto:{{ contato_email }}">{{ contato_email }}</a>
+          </li>
+        </ul>
+        <p>Responderemos em até <strong>15 dias úteis</strong>, prorrogáveis conforme a LGPD quando houver justificativa.</p>
         <p class="lp-legal-note">
-          Você também pode registrar reclamação perante a Autoridade Nacional de Proteção de Dados (ANPD), se entender que seus direitos não foram atendidos adequadamente.
+          Neste momento não há encarregado (DPO) formalmente indicado. O e-mail de privacidade acima é o canal de comunicação
+          com titulares e com a Autoridade Nacional de Proteção de Dados (ANPD).
+          Você também pode registrar reclamação perante a ANPD se entender que seus direitos não foram atendidos adequadamente.
         </p>
       </section>
 

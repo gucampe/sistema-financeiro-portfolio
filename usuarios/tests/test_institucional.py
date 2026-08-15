@@ -1,4 +1,4 @@
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from django.contrib.auth import get_user_model
@@ -24,6 +24,9 @@ class InstitucionalSiteTests(TestCase):
         html = resp.content.decode()
         self.assertIn("Veja 3 meses de gastos", html)
         self.assertIn("Primeiros Donos", html)
+        self.assertIn("/politica-de-privacidade/", html)
+        self.assertIn("/termos-de-uso/", html)
+        self.assertIn("Ao garantir sua vaga, você concorda", html)
 
     def test_paginas_institucionais(self):
         paginas = [
@@ -56,6 +59,39 @@ class InstitucionalSiteTests(TestCase):
         legacy_t = self.client.get("/termos/")
         self.assertEqual(legacy_t.status_code, 301)
         self.assertTrue(legacy_t["Location"].endswith("/termos-de-uso/"))
+
+    def test_legais_identificam_controlador_pessoa_fisica(self):
+        with override_settings(
+            PRIVACIDADE_EMAIL="privacidade@granago.com.br",
+            CONTATO_EMAIL="ola@granago.com.br",
+            CONTROLADOR_NOME="Gustavo Campelo de Santana",
+        ):
+            priv = self.client.get("/politica-de-privacidade/").content.decode()
+            termos = self.client.get("/termos-de-uso/").content.decode()
+
+        for html in (priv, termos):
+            self.assertIn("Gustavo Campelo de Santana", html)
+            self.assertIn("pessoa física", html)
+            self.assertIn("privacidade@granago.com.br", html)
+            self.assertIn("Primeiros Donos", html)
+            self.assertNotIn("[RAZÃO SOCIAL]", html)
+            self.assertNotIn("CNPJ <strong>[●]</strong>", html)
+            self.assertNotIn("suporte@granago.app", html)
+
+        self.assertIn("ola@granago.com.br", priv)
+        self.assertIn("WhatsApp", priv)
+        self.assertIn("não há encarregado", priv)
+        self.assertIn("Como usamos os dados", priv)
+        self.assertIn("Transferência internacional", priv)
+        self.assertIn("rótulos definidos por você", priv)
+        self.assertIn("número real de cartão", priv)
+        self.assertIn("configurações do navegador", priv)
+        self.assertIn("ola@granago.com.br", termos)
+        self.assertIn("leis da República Federativa do Brasil", termos)
+        self.assertIn("atividades realizadas a partir da sua conta", termos)
+        self.assertIn("cópias próprias", termos)
+        self.assertIn("não solicita", termos)
+        self.assertNotIn("operador", termos)
 
     def test_robots_e_sitemap(self):
         robots = self.client.get("/robots.txt")

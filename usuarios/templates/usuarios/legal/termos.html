@@ -31,7 +31,7 @@
         <span>Termos</span>
       </nav>
       <h1 id="legal-title" class="lp-legal-title">Termos de Uso</h1>
-      <p class="lp-legal-meta">Última atualização: julho de 2026</p>
+      <p class="lp-legal-meta">Última atualização: 14 de agosto de 2026</p>
       <p class="lp-legal-lead">
         Estes Termos regulam o uso da plataforma <strong>GranaGo</strong>, um software de organização financeira pessoal.
         Ao criar uma conta ou utilizar o serviço, você declara ter lido, compreendido e concordado com as condições abaixo.
@@ -61,9 +61,11 @@
             <li><a href="#disponibilidade">7. Disponibilidade</a></li>
             <li><a href="#privacidade">8. Privacidade</a></li>
             <li><a href="#seguranca">9. Segurança</a></li>
-            <li><a href="#limitacao">10. Limitação de responsabilidade</a></li>
-            <li><a href="#alteracoes">11. Alterações</a></li>
-            <li><a href="#contato">12. Contato</a></li>
+            <li><a href="#terceiros">10. Serviços de terceiros</a></li>
+            <li><a href="#limitacao">11. Limitação de responsabilidade</a></li>
+            <li><a href="#alteracoes">12. Alterações</a></li>
+            <li><a href="#legislacao">13. Legislação aplicável</a></li>
+            <li><a href="#contato">14. Contato</a></li>
           </ol>
         </nav>
       </details>
@@ -73,9 +75,15 @@
       <section class="lp-legal-section" id="introducao">
         <h2>1. Introdução</h2>
         <p>
-          O <strong>GranaGo</strong> é operado por <strong>[RAZÃO SOCIAL]</strong>, inscrita no CNPJ <strong>[●]</strong>
-          (“nós”, “nosso” ou “operador”), e oferece ferramentas digitais para ajudar você a registrar, organizar e visualizar
-          informações financeiras pessoais.
+          O <strong>GranaGo</strong> é operado por <strong>{{ controlador_nome }}</strong>, pessoa física
+          (“nós” ou “nosso”). Ainda não há pessoa jurídica constituída.
+          O serviço é disponibilizado em caráter experimental e gratuito no programa
+          <strong>Primeiros Donos</strong> e oferece ferramentas digitais para ajudar você a registrar,
+          organizar e visualizar informações financeiras pessoais.
+        </p>
+        <p>
+          Estes Termos serão atualizados quando for constituída pessoa jurídica, passando a indicar
+          razão social e CNPJ.
         </p>
         <p>
           O GranaGo <strong>não é</strong> instituição financeira, corretora, consultoria financeira, contábil ou de investimentos.
@@ -86,10 +94,14 @@
       <section class="lp-legal-section" id="conta">
         <h2>2. Acesso e conta</h2>
         <ul>
+          <li>O acesso atual ocorre pelo programa <strong>Primeiros Donos</strong>, mediante inscrição e convite. É pessoal e intransferível.</li>
           <li>O acesso é pessoal, mediante login e senha. Você é responsável por manter suas credenciais em sigilo.</li>
+          <li>Você é responsável pelas atividades realizadas a partir da sua conta, inclusive se decorrentes do uso das suas credenciais.</li>
           <li>Comprometa-se a fornecer informações verdadeiras e mantê-las atualizadas em Configurações.</li>
           <li>Notifique-nos imediatamente se suspeitar de acesso não autorizado à sua conta.</li>
+          <li>Na extensão permitida pela legislação aplicável, não nos responsabilizamos por acessos indevidos decorrentes de negligência no uso da conta, compartilhamento de credenciais, dispositivo desprotegido ou falhas de segurança fora do nosso controle razoável.</li>
           <li>Podemos suspender ou encerrar o acesso em caso de uso abusivo, fraudulento, ilegal ou que comprometa a segurança ou estabilidade da plataforma.</li>
+          <li>Você pode encerrar o uso a qualquer momento e solicitar a exclusão da conta pelos canais indicados nestes Termos ou na área logada.</li>
         </ul>
       </section>
 
@@ -108,7 +120,7 @@
           <li>importação de extratos em arquivos OFX e XLSX;</li>
           <li>exportação de dados e relatórios;</li>
           {% if llm_ativo %}
-          <li>categorização assistida por inteligência artificial (quando habilitada pelo operador).</li>
+          <li>categorização assistida por inteligência artificial (quando habilitada).</li>
           {% else %}
           <li>recursos de categorização automática baseados em regras e aprendizado do seu uso.</li>
           {% endif %}
@@ -118,7 +130,10 @@
           <p>
             Você informa dados diretamente na plataforma ou importa arquivos quando desejar.
             O GranaGo <strong>não se conecta</strong> à sua conta bancária, não solicita senha de internet banking
-            e não possui integração automática com instituições financeiras.
+            e não possui integração automática com instituições financeiras, salvo se isso vier a ser
+            informado de forma expressa em funcionalidade específica.
+            Não solicitamos nem armazenamos número real de cartão, CVV ou senha bancária.
+            Os nomes de contas e cartões são rótulos definidos por você.
           </p>
         </div>
         {% if llm_ativo %}
@@ -165,8 +180,8 @@
       <section class="lp-legal-section" id="propriedade">
         <h2>6. Propriedade intelectual</h2>
         <p>
-          O software, a marca, a interface, os textos, o design e demais elementos do GranaGo são de propriedade do operador
-          ou de seus licenciadores, protegidos pela legislação aplicável.
+          O software, a marca, a interface, os textos, o design e demais elementos do GranaGo são de nossa propriedade
+          ou de licenciadores, protegidos pela legislação aplicável.
         </p>
         <p>
           Estes Termos concedem a você uma licença limitada, pessoal, não exclusiva e revogável para usar a plataforma
@@ -178,12 +193,25 @@
       <section class="lp-legal-section" id="disponibilidade">
         <h2>7. Disponibilidade e manutenção</h2>
         <p>
+          O GranaGo está em fase experimental. Podem ocorrer instabilidade, erros, perda temporária de acesso
+          ou mudança de funcionalidades. Não há acordo de nível de serviço (SLA) neste programa.
+        </p>
+        <p>
           Trabalhamos para manter o GranaGo estável e disponível, mas interrupções podem ocorrer por manutenção programada,
           atualizações, falhas técnicas ou fatores fora do nosso controle razoável.
         </p>
         <p>
-          Funcionalidades podem ser adicionadas, modificadas ou descontinuadas ao longo do tempo, especialmente em um produto
-          em evolução. Quando mudanças relevantes afetarem seu uso, buscaremos comunicá-las de forma adequada.
+          Funcionalidades podem ser adicionadas, modificadas ou descontinuadas ao longo do tempo.
+          O programa Primeiros Donos pode ser alterado ou encerrado. Quando houver plano pago, as condições serão
+          informadas previamente; o acesso neste programa permanece gratuito até lá.
+        </p>
+        <p>
+          Quando mudanças relevantes afetarem seu uso, buscaremos comunicá-las de forma adequada.
+        </p>
+        <p>
+          Recomendamos que você mantenha, sempre que considerar necessário, cópias próprias das informações
+          que registrar ou importar — em especial antes de exclusão de conta, alterações relevantes ou importações em massa.
+          Na área logada, você pode exportar uma cópia dos seus dados.
         </p>
       </section>
 
@@ -213,10 +241,27 @@
           A segurança também depende de você: utilize senhas fortes, evite compartilhar credenciais e mantenha seus
           dispositivos protegidos. Em caso de suspeita de incidente, entre em contato pelos canais indicados ao final deste documento.
         </p>
+        <p>
+          O GranaGo <strong>não solicita</strong> senhas, códigos de autenticação, tokens ou transferências financeiras
+          como condição de suporte. Se alguém pedir isso em nosso nome, trate como golpe e avise pelos canais oficiais.
+        </p>
+      </section>
+
+      <section class="lp-legal-section" id="terceiros">
+        <h2>10. Serviços de terceiros</h2>
+        <p>
+          Para operar o GranaGo podemos utilizar serviços de terceiros, como hospedagem, envio de e-mail,
+          monitoramento técnico e, quando você informa um WhatsApp, o aplicativo de mensagens correspondente.
+        </p>
+        <p>
+          Esses serviços têm regras, limitações e indisponibilidades próprias.
+          Na extensão permitida pela legislação aplicável, não nos responsabilizamos por falhas, bloqueios ou
+          alterações desses terceiros quando estiverem fora do nosso controle razoável.
+        </p>
       </section>
 
       <section class="lp-legal-section" id="limitacao">
-        <h2>10. Limitação de responsabilidade</h2>
+        <h2>11. Limitação de responsabilidade</h2>
         <p>
           O GranaGo é uma ferramenta de apoio à organização financeira pessoal. As decisões financeiras — incluindo orçamento,
           gastos, investimentos e planejamento — são exclusivamente suas.
@@ -227,14 +272,14 @@
           <li>Você deve validar informações relevantes antes de tomar decisões com impacto financeiro ou legal.</li>
         </ul>
         <p class="lp-legal-note">
-          Na extensão permitida pela legislação aplicável, o operador não será responsável por danos indiretos, lucros cessantes
+          Na extensão permitida pela legislação aplicável, não seremos responsáveis por danos indiretos, lucros cessantes
           ou perdas decorrentes do uso ou da impossibilidade de uso do serviço, salvo em casos de dolo ou culpa grave,
           conforme previsto em lei.
         </p>
       </section>
 
       <section class="lp-legal-section" id="alteracoes">
-        <h2>11. Alterações destes Termos</h2>
+        <h2>12. Alterações destes Termos</h2>
         <p>
           Podemos atualizar estes Termos periodicamente para refletir mudanças no serviço, na legislação ou em nossas práticas.
           A versão vigente estará sempre disponível nesta página, com a data de atualização indicada no topo.
@@ -245,21 +290,38 @@
         </p>
       </section>
 
+      <section class="lp-legal-section" id="legislacao">
+        <h2>13. Legislação aplicável</h2>
+        <p>
+          Estes Termos são regidos pelas leis da República Federativa do Brasil, em especial o Código Civil,
+          o Marco Civil da Internet, a Lei Geral de Proteção de Dados e o Código de Defesa do Consumidor, quando aplicável.
+        </p>
+        <p>
+          Eventuais controvérsias poderão ser ajuizadas no foro do domicílio do usuário quando se tratar de relação de consumo,
+          sem prejuízo de outros foros previstos em lei.
+        </p>
+      </section>
+
       <section class="lp-legal-section" id="contato">
-        <h2>12. Contato</h2>
+        <h2>14. Contato</h2>
         <p>
           Para dúvidas sobre estes Termos, suporte ao uso da plataforma ou questões relacionadas a dados pessoais:
         </p>
         <ul class="lp-legal-contact-list">
           <li>
             <span>Suporte geral</span>
-            <a href="mailto:suporte@granago.app">suporte@granago.app</a>
+            <a href="mailto:{{ contato_email }}">{{ contato_email }}</a>
           </li>
           <li>
             <span>Privacidade e LGPD</span>
             <a href="mailto:{{ privacidade_email }}">{{ privacidade_email }}</a>
           </li>
         </ul>
+        <p class="lp-legal-note">
+          Canais oficiais de contato são os e-mails acima
+          {% if whatsapp_suporte_url %} e o WhatsApp indicado no site{% endif %}.
+          Nunca pedimos senha, código de autenticação ou transferência de valores por esses canais.
+        </p>
       </section>
 
       <nav class="lp-legal-related" aria-label="Documentos relacionados">
