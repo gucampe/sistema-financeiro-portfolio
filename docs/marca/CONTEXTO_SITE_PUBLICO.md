@@ -552,7 +552,7 @@ Com o tempo, ficou claro que o problema não era só meu. Outras pessoas também
 
 **Índice.** `<aside>` com `<details>`. No desktop (≥1024px) o JS abre o índice; no mobile fica colapsado em “Nesta página”. Âncoras por seção.
 
-**Tom visual.** Mesma família tipográfica, mas densidade de prosa jurídica. Notas (`.lp-legal-note`) para esclarecimentos. Controlador identificado como pessoa física (Gustavo Campelo de Santana), sem CNPJ; canais `ola@` e `privacidade@granago.com.br`.
+**Tom visual.** Mesma família tipográfica, mas densidade de prosa jurídica. Notas (`.lp-legal-note`) para esclarecimentos. Controlador descrito como pessoa física, sem nome civil nem CNPJ nas páginas públicas; canais `ola@` e `privacidade@granago.com.br`.
 
 **Copy de chrome (não o corpo jurídico completo)**
 

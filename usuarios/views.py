@@ -42,9 +42,6 @@ def _legal_context(request=None):
     return {
         "privacidade_email": getattr(settings, "PRIVACIDADE_EMAIL", "privacidade@granago.com.br"),
         "contato_email": getattr(settings, "CONTATO_EMAIL", "ola@granago.com.br"),
-        "controlador_nome": getattr(
-            settings, "CONTROLADOR_NOME", "Gustavo Campelo de Santana"
-        ),
         "llm_ativo": getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False),
         "checkout_url": getattr(settings, "LANDING_CHECKOUT_URL", "") or reverse("usuarios:landing") + "#garantir-vaga",
         "site_url": site_url.rstrip("/"),

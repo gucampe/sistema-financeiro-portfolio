@@ -69,13 +69,12 @@ class InstitucionalSiteTests(TestCase):
         with override_settings(
             PRIVACIDADE_EMAIL="privacidade@granago.com.br",
             CONTATO_EMAIL="ola@granago.com.br",
-            CONTROLADOR_NOME="Gustavo Campelo de Santana",
         ):
             priv = self.client.get("/politica-de-privacidade/").content.decode()
             termos = self.client.get("/termos-de-uso/").content.decode()
 
         for html in (priv, termos):
-            self.assertIn("Gustavo Campelo de Santana", html)
+            self.assertNotIn("Gustavo Campelo de Santana", html)
             self.assertIn("pessoa física", html)
             self.assertIn("privacidade@granago.com.br", html)
             self.assertIn("Primeiros Donos", html)

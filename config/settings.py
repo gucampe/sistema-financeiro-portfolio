@@ -399,7 +399,6 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@granago.com.br")
 CONTATO_EMAIL = config("CONTATO_EMAIL", default="ola@granago.com.br")
-CONTROLADOR_NOME = config("CONTROLADOR_NOME", default="Gustavo Campelo de Santana")
 
 # --- CSP (django-csp 3.8: usa CSP_*; CONTENT_SECURITY_POLICY é API 4.x) ---
 # Sem style-src explícito, o default-src 'self' bloqueia style="" e os floats
