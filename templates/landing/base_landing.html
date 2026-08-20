@@ -40,5 +40,8 @@
   <body class="min-h-screen bg-white font-sans text-fg antialiased">
     {% block body %}{% endblock %}
     {% block extra_js %}{% endblock %}
+    {% if turnstile_site_key %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {% endif %}
   </body>
 </html>

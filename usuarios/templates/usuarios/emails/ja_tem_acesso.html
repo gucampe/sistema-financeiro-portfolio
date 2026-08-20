@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<body style="font-family: system-ui, sans-serif; color: #1e293b; line-height: 1.6;">
+  <p>Olá, {{ primeiro_nome }}.</p>
+  <p>Você já tem uma conta no GranaGo com este e-mail. Entre com sua senha:</p>
+  <p><a href="{{ login_url }}" style="display:inline-block;background:#16a34a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Entrar no GranaGo</a></p>
+  <p>Se não lembrar da senha, <a href="{{ reset_url }}">redefina aqui</a>.</p>
+  <p>Se você não pediu isso, ignore este e-mail.</p>
+  <p>WhatsApp: <a href="{{ whatsapp_suporte_url }}">{{ whatsapp_suporte_display }}</a></p>
+</body>
+</html>

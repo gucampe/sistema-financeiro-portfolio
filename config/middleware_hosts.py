@@ -34,6 +34,8 @@ _APP_PATH_PREFIXES = (
     "/relatorios/",
     "/api/",
     "/senha/",
+    "/conta/",
+    "/primeiros-passos/",
     "/configuracoes/",
     "/media/",
 )

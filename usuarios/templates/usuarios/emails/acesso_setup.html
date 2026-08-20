@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<body style="font-family: system-ui, sans-serif; color: #1e293b; line-height: 1.6;">
+  <p>Olá, {{ primeiro_nome }}.</p>
+  <p>Sua vaga no GranaGo está garantida. Configure sua conta neste link (válido por 48 horas):</p>
+  <p><a href="{{ setup_url }}" style="display:inline-block;background:#16a34a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Configurar minha conta</a></p>
+  <p style="font-size:14px;color:#64748b;">Se o botão não funcionar, copie e cole: {{ setup_url }}</p>
+  <p>Se você não pediu esse acesso, ignore este e-mail.</p>
+  <p>Não encontrou? Confere a caixa de spam. Ainda assim não achou? Me chama no WhatsApp: <a href="{{ whatsapp_suporte_url }}">{{ whatsapp_suporte_display }}</a></p>
+</body>
+</html>

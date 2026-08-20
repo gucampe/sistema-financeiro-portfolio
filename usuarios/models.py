@@ -17,11 +17,25 @@ class Usuario(AbstractUser):
     first_name = None  # remove first_name herdado
     last_name = None   # remove last_name herdado
     date_joined = None # substituído por 'criado_em'
-    
+
+    ORIGEM_ADMIN = "admin"
+    ORIGEM_PRIMEIROS_DONOS = "primeiros_donos"
+    ORIGEM_CHOICES = (
+        (ORIGEM_ADMIN, _("Admin")),
+        (ORIGEM_PRIMEIROS_DONOS, _("Primeiros Donos")),
+    )
 
     email = models.EmailField(_('E-mail'), unique=True)
     nome = models.CharField(_('Nome completo'), max_length=100)
     data_nascimento = models.DateField(_('Data de nascimento'), null=True, blank=True)
+    whatsapp = models.CharField(_('WhatsApp'), max_length=20, blank=True, default="")
+    origem = models.CharField(
+        _('Origem'),
+        max_length=32,
+        choices=ORIGEM_CHOICES,
+        default=ORIGEM_ADMIN,
+        db_index=True,
+    )
     criado_em = models.DateTimeField(_('Criado em'), auto_now_add=True)
     atualizado_em = models.DateTimeField(_('Atualizado em'), auto_now=True)
     ativo = models.BooleanField(_('Usuário ativo'), default=True)
@@ -125,12 +139,14 @@ class AuditLog(models.Model):
     ACAO_EXPORT_REQUESTED = "export_requested"
     ACAO_PASSWORD_CHANGE = "password_change"
     ACAO_LOGIN_FAILED = "login_failed"
+    ACAO_SIGNUP = "signup"
 
     ACAO_CHOICES = (
         (ACAO_DELETE_ACCOUNT, "Exclusão de conta"),
         (ACAO_EXPORT_REQUESTED, "Exportação solicitada"),
         (ACAO_PASSWORD_CHANGE, "Alteração de senha"),
         (ACAO_LOGIN_FAILED, "Falha de login"),
+        (ACAO_SIGNUP, "Cadastro"),
     )
 
     usuario = models.ForeignKey(
@@ -162,7 +178,15 @@ class LeadPrimeirosDonos(models.Model):
 
     nome = models.CharField(_("Nome"), max_length=120)
     email = models.EmailField(_("E-mail"), unique=True)
-    whatsapp = models.CharField(_("WhatsApp"), max_length=30)
+    whatsapp = models.CharField(_("WhatsApp"), max_length=20)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="leads_primeiros_donos",
+        verbose_name=_("Usuário"),
+    )
     criado_em = models.DateTimeField(_("Criado em"), auto_now_add=True, db_index=True)
     atualizado_em = models.DateTimeField(_("Atualizado em"), auto_now=True)
 
@@ -173,3 +197,34 @@ class LeadPrimeirosDonos(models.Model):
 
     def __str__(self):
         return f"{self.nome} <{self.email}>"
+
+
+class Consentimento(models.Model):
+    """Evidência de clickwrap (aceite de Termos e Privacidade). Não é a base legal do tratamento."""
+
+    CANAL_CAPTURA = "captura"
+    CANAL_CHOICES = (
+        (CANAL_CAPTURA, _("Captura Primeiros Donos")),
+    )
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="consentimentos",
+        verbose_name=_("Usuário"),
+    )
+    email = models.EmailField(_("E-mail"))
+    canal = models.CharField(_("Canal"), max_length=32, choices=CANAL_CHOICES, default=CANAL_CAPTURA)
+    versao_termos = models.CharField(_("Versão dos Termos"), max_length=32)
+    versao_privacidade = models.CharField(_("Versão da Privacidade"), max_length=32)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(_("User-Agent"), max_length=256, blank=True, default="")
+    aceito_em = models.DateTimeField(_("Aceito em"), auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("Aceite de documentos")
+        verbose_name_plural = _("Aceites de documentos")
+        ordering = ["-aceito_em"]
+
+    def __str__(self):
+        return f"{self.email} ({self.canal} {self.aceito_em:%Y-%m-%d})"

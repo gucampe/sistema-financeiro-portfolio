@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configure sua conta — GranaGo{% endblock %}
+
+{% block show_header_sidebar %}
+<div class="flex min-h-screen items-center justify-center bg-surface px-4">
+  <div class="card w-full max-w-md p-8">
+    <div class="mb-6 flex items-center justify-center">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="" class="mr-2 h-8">
+      <span class="text-xl font-bold text-brand-600">GranaGo</span>
+    </div>
+    <h1 class="mb-2 text-center text-2xl font-semibold text-gray-900">Configure sua conta</h1>
+    <p class="mb-6 text-center text-sm text-fg-muted">Defina uma senha para entrar no GranaGo.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="mb-4 rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger" role="alert">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+      {% for field in form %}
+        <div class="mb-4">
+          <label class="mb-1 block text-sm font-medium text-fg" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="relative">
+            {{ field }}
+            <button type="button"
+              class="js-toggle-password absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-800"
+              aria-label="Mostrar senha"
+              aria-pressed="false">
+              <svg class="icon-password-eye h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg class="icon-password-eye-off hidden h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
+          </div>
+          {% for error in field.errors %}<p class="mt-1 text-sm text-red-500">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-block">Salvar senha e entrar</button>
+    </form>
+  </div>
+</div>
+<script src="{% static 'usuarios/js/togglePassword.js' %}"></script>
+{% endblock %}

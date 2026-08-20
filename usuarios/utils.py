@@ -1,3 +1,13 @@
+def normalizar_email(email: str) -> str:
+    """Lowercase do endereço completo (local + domínio). Não usar só UserManager.normalize_email."""
+    return (email or "").strip().lower()
+
+
+def normalizar_whatsapp(valor: str) -> str:
+    """Apenas dígitos — máscara fica na UI."""
+    return "".join(ch for ch in (valor or "") if ch.isdigit())[:20]
+
+
 def primeiro_nome(nome: str) -> str:
     nome = (nome or "").strip()
     if not nome:

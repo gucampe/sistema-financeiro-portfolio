@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
@@ -183,6 +183,19 @@ class ConfiguracoesPasswordChangeForm(PasswordChangeForm):
         self.fields["old_password"].widget.attrs.pop("autofocus", None)
 
 
+class ConfigurarContaForm(SetPasswordForm):
+    """Primeira senha do funil Primeiros Donos."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        css = f"{INPUT_CONTROL_CLASSES} !pr-12"
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", css)
+        self.fields["new_password1"].help_text = ""
+        self.fields["new_password1"].label = "Senha"
+        self.fields["new_password2"].label = "Confirme a senha"
+
+
 class CapturaLeadForm(forms.ModelForm):
     """Formulário da página de captura — Primeiros Donos."""
 
@@ -226,17 +239,19 @@ class CapturaLeadForm(forms.ModelForm):
         return nome
 
     def clean_email(self):
-        email = (self.cleaned_data.get("email") or "").strip().lower()
+        from usuarios.utils import normalizar_email
+
         # Permite reenvio: update_or_create na view atualiza o lead existente.
-        return email
+        return normalizar_email(self.cleaned_data.get("email") or "")
 
     def validate_unique(self):
         # Unicidade tratada na view via update_or_create.
         return
 
     def clean_whatsapp(self):
-        raw = (self.cleaned_data.get("whatsapp") or "").strip()
-        digits = "".join(ch for ch in raw if ch.isdigit())
+        from usuarios.utils import normalizar_whatsapp
+
+        digits = normalizar_whatsapp(self.cleaned_data.get("whatsapp") or "")
         if len(digits) < 10 or len(digits) > 13:
             raise ValidationError("Informe um WhatsApp válido com DDD.")
-        return raw
+        return digits

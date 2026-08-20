@@ -400,6 +400,30 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 PRIVACIDADE_EMAIL = config("PRIVACIDADE_EMAIL", default="privacidade@granago.com.br")
 CONTATO_EMAIL = config("CONTATO_EMAIL", default="ola@granago.com.br")
 
+# --- Cadastro Primeiros Donos ---
+PRIMEIROS_DONOS_SIGNUP_ENABLED = config(
+    "PRIMEIROS_DONOS_SIGNUP_ENABLED",
+    default=not IS_PRODUCTION,
+    cast=bool,
+)
+LEGAL_TERMS_VERSION = config("LEGAL_TERMS_VERSION", default="2026-08-14")
+LEGAL_PRIVACY_VERSION = config("LEGAL_PRIVACY_VERSION", default="2026-08-14")
+CONTA_SETUP_TIMEOUT = config("CONTA_SETUP_TIMEOUT", default=48 * 60 * 60, cast=int)
+SETUP_EMAIL_COOLDOWN_SECONDS = config("SETUP_EMAIL_COOLDOWN_SECONDS", default=60, cast=int)
+SETUP_EMAIL_RATE_LIMIT_PER_HOUR = config("SETUP_EMAIL_RATE_LIMIT_PER_HOUR", default=5, cast=int)
+
+TURNSTILE_SITE_KEY = config("TURNSTILE_SITE_KEY", default="").strip()
+TURNSTILE_SECRET_KEY = config("TURNSTILE_SECRET_KEY", default="").strip()
+if (
+    IS_PRODUCTION
+    and PRIMEIROS_DONOS_SIGNUP_ENABLED
+    and (not TURNSTILE_SITE_KEY or not TURNSTILE_SECRET_KEY)
+):
+    raise ImproperlyConfigured(
+        "TURNSTILE_SITE_KEY e TURNSTILE_SECRET_KEY são obrigatórios em produção "
+        "com PRIMEIROS_DONOS_SIGNUP_ENABLED=True."
+    )
+
 # --- CSP (django-csp 3.8: usa CSP_*; CONTENT_SECURITY_POLICY é API 4.x) ---
 # Sem style-src explícito, o default-src 'self' bloqueia style="" e os floats
 # do hero colapsam todos em 10%/10%.
@@ -409,11 +433,12 @@ CONTATO_EMAIL = config("CONTATO_EMAIL", default="ola@granago.com.br")
 # massa no SaaS local. Chart.js já é vendor local; fontes da landing ainda
 # vêm do Google (liberadas abaixo para quando formos enforce).
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://challenges.cloudflare.com")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_IMG_SRC = ("'self'", "data:")
-CSP_CONNECT_SRC = ("'self'",)
+CSP_CONNECT_SRC = ("'self'", "https://challenges.cloudflare.com")
+CSP_FRAME_SRC = ("'self'", "https://challenges.cloudflare.com")
 CSP_REPORT_ONLY = True
 CONTENT_SECURITY_POLICY = {
     "REPORT_ONLY": True,
@@ -424,6 +449,7 @@ CONTENT_SECURITY_POLICY = {
         "font-src": CSP_FONT_SRC,
         "img-src": CSP_IMG_SRC,
         "connect-src": CSP_CONNECT_SRC,
+        "frame-src": CSP_FRAME_SRC,
     },
 }
 

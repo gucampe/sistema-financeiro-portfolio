@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import AuditLog, LeadPrimeirosDonos, Perfil, Usuario
+from .models import AuditLog, Consentimento, LeadPrimeirosDonos, Perfil, Usuario
 
 
 class PerfilInline(admin.StackedInline):
@@ -17,16 +17,16 @@ class UsuarioAdmin(UserAdmin):
     model = Usuario
     inlines = (PerfilInline,)
 
-    list_display = ('email', 'nome', 'is_staff', 'is_superuser', 'ativo')
-    list_filter = ('is_staff', 'is_superuser', 'ativo')
-    search_fields = ('email', 'nome')
+    list_display = ('email', 'nome', 'origem', 'is_staff', 'is_superuser', 'ativo')
+    list_filter = ('is_staff', 'is_superuser', 'ativo', 'origem')
+    search_fields = ('email', 'nome', 'whatsapp')
     ordering = ('email',)
 
     readonly_fields = ('criado_em', 'atualizado_em', 'last_login')
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Informações pessoais'), {'fields': ('nome', 'data_nascimento')}),
+        (_('Informações pessoais'), {'fields': ('nome', 'whatsapp', 'data_nascimento', 'origem')}),
         (_('Permissões'), {'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions', 'ativo')}),
         (_('Datas importantes'), {'fields': ('last_login', 'criado_em', 'atualizado_em')}),
     )
@@ -56,7 +56,32 @@ class AuditLogAdmin(admin.ModelAdmin):
 
 @admin.register(LeadPrimeirosDonos)
 class LeadPrimeirosDonosAdmin(admin.ModelAdmin):
-    list_display = ("nome", "email", "whatsapp", "criado_em")
+    list_display = ("nome", "email", "whatsapp", "usuario", "criado_em")
     search_fields = ("nome", "email", "whatsapp")
     readonly_fields = ("criado_em", "atualizado_em")
     ordering = ("-criado_em",)
+    raw_id_fields = ("usuario",)
+
+
+@admin.register(Consentimento)
+class ConsentimentoAdmin(admin.ModelAdmin):
+    list_display = ("email", "canal", "versao_termos", "versao_privacidade", "aceito_em")
+    list_filter = ("canal",)
+    search_fields = ("email", "usuario__email")
+    readonly_fields = (
+        "usuario",
+        "email",
+        "canal",
+        "versao_termos",
+        "versao_privacidade",
+        "ip",
+        "user_agent",
+        "aceito_em",
+    )
+    ordering = ("-aceito_em",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

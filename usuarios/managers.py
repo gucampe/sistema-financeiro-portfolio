@@ -1,13 +1,16 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
+from usuarios.utils import normalizar_email
+
+
 class UsuarioManager(BaseUserManager):
     use_in_migrations = True
 
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError(_('O campo de e-mail é obrigatório'))
-        email = self.normalize_email(email)
+        email = normalizar_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

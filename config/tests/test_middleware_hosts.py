@@ -60,3 +60,17 @@ def test_www_redirects_to_apex(mw):
     assert resp is not None
     assert resp.status_code == 301
     assert resp["Location"] == "https://granago.com.br/faq"
+
+
+@override_settings(
+    APP_HOST="app.granago.com.br",
+    LANDING_HOSTS="granago.com.br,www.granago.com.br",
+)
+def test_landing_conta_e_primeiros_passos_redirecionam_ao_app(mw):
+    rf = RequestFactory()
+    for path in ("/conta/configurar/abc/tok/", "/primeiros-passos/"):
+        req = rf.get(path, HTTP_HOST="granago.com.br")
+        resp = mw.process_request(req)
+        assert resp is not None
+        assert resp.status_code == 302
+        assert resp["Location"] == f"https://app.granago.com.br{path}"

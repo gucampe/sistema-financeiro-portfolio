@@ -43,8 +43,12 @@ class Command(BaseCommand):
         if not nome:
             raise CommandError("O nome é obrigatório.")
 
-        email = User.objects.normalize_email(email)
+        from usuarios.utils import normalizar_email
+
+        email = normalizar_email(email)
         existente = User.objects.filter(email=email).first()
+        if existente is None:
+            existente = User.objects.filter(email__iexact=email).first()
 
         if existente:
             if not atualizar:

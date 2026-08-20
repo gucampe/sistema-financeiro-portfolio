@@ -1,0 +1,10 @@
+Olá, {{ primeiro_nome }}.
+
+Sua vaga no GranaGo está garantida. Configure sua conta neste link (válido por 48 horas):
+
+{{ setup_url }}
+
+Se você não pediu esse acesso, ignore este e-mail.
+
+Não encontrou? Confere a caixa de spam. Ainda assim não achou? Me chama no WhatsApp: {{ whatsapp_suporte_display }}
+{{ whatsapp_suporte_url }}

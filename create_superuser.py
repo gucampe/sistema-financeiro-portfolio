@@ -29,10 +29,12 @@ def main() -> int:
         )
         return 0
 
-    User = get_user_model()
-    email = User.objects.normalize_email(email)
+    from usuarios.utils import normalizar_email
 
-    if User.objects.filter(email=email).exists():
+    User = get_user_model()
+    email = normalizar_email(email)
+
+    if User.objects.filter(email=email).exists() or User.objects.filter(email__iexact=email).exists():
         print(f"Superusuário já existe: {email}")
         return 0
 

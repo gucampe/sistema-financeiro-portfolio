@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Link inválido — GranaGo{% endblock %}
+
+{% block show_header_sidebar %}
+<div class="flex min-h-screen items-center justify-center bg-surface px-4">
+  <div class="card w-full max-w-md p-8 text-center">
+    <div class="mb-6 flex items-center justify-center">
+      <img src="{% static 'img/icons/logo.svg' %}" alt="" class="mr-2 h-8">
+      <span class="text-xl font-bold text-brand-600">GranaGo</span>
+    </div>
+    <h1 class="mb-2 text-2xl font-semibold text-gray-900">Link inválido ou vencido</h1>
+    <p class="mb-6 text-sm text-fg-muted">
+      Este link de acesso não é mais válido. Você pode pedir um novo pelo e-mail da sua conta.
+    </p>
+    <a href="{{ reset_url }}" class="btn btn-primary btn-block">Redefinir senha</a>
+  </div>
+</div>
+{% endblock %}

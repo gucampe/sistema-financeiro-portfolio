@@ -1,0 +1,14 @@
+Olá, {{ primeiro_nome }}.
+
+Você já tem uma conta no GranaGo com este e-mail. Entre com sua senha:
+
+{{ login_url }}
+
+Se não lembrar da senha, redefina aqui:
+
+{{ reset_url }}
+
+Se você não pediu isso, ignore este e-mail.
+
+WhatsApp: {{ whatsapp_suporte_display }}
+{{ whatsapp_suporte_url }}

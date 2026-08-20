@@ -64,20 +64,23 @@
           {% if captura_form.whatsapp.errors %}
             <p class="mt-1.5 text-sm text-danger" role="alert">{{ captura_form.whatsapp.errors.0 }}</p>
           {% endif %}
-          <p class="lp-modal-hint">Para acompanharmos sua experiência com o GranaGo.</p>
+        <p class="lp-modal-hint">Só para te guiar no primeiro acesso.</p>
         </div>
       </div>
 
       <div class="modal-panel__footer lp-modal-footer space-y-3 px-5 py-5 sm:px-7">
+        {% if turnstile_site_key %}
+          <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+        {% endif %}
         <button type="submit" class="btn btn-primary lp-btn-premium btn-block py-3.5 text-base" data-captura-submit>
-          Garantir minha vaga no GranaGo
+          Garantir minha vaga no GranaGo <span class="lp-cta-arrow" aria-hidden="true">→</span>
         </button>
         <p class="lp-modal-privacy">
           Ao garantir sua vaga, você concorda com a
           <a href="{% url 'usuarios:privacidade' %}" class="font-semibold text-brand-600 underline underline-offset-2">Política de Privacidade</a>
           e os
           <a href="{% url 'usuarios:termos' %}" class="font-semibold text-brand-600 underline underline-offset-2">Termos de Uso</a>.
-          Não enviamos spam.
+          Seus dados são protegidos. Não enviamos spam.
         </p>
       </div>
     </form>
