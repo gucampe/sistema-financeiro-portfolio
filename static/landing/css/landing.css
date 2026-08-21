@@ -1301,7 +1301,11 @@ html {
 /* ── Founder / prova social ── */
 .lp-founder {
   display: grid;
-  gap: 2.75rem;
+  grid-template-areas:
+    "header"
+    "photo"
+    "story";
+  gap: 1.75rem;
   max-width: 48rem;
   margin-inline: auto;
 }
@@ -1310,9 +1314,20 @@ html {
   .lp-founder {
     max-width: none;
     grid-template-columns: minmax(0, 1fr) minmax(0, 16.5rem);
-    gap: 3.5rem;
+    grid-template-areas:
+      "header photo"
+      "story photo";
+    gap: 1.75rem 3.5rem;
     align-items: start;
   }
+}
+
+.lp-founder__header {
+  grid-area: header;
+}
+
+.lp-founder__story {
+  grid-area: story;
 }
 
 .lp-founder__name {
@@ -1333,7 +1348,6 @@ html {
 }
 
 .lp-founder__avatar {
-  display: flex;
   height: 3.25rem;
   width: 3.25rem;
   flex-shrink: 0;
@@ -1448,6 +1462,7 @@ html {
 
 .lp-founder__aside {
   position: relative;
+  grid-area: photo;
 }
 
 @media (min-width: 1024px) {
@@ -1459,7 +1474,7 @@ html {
 
 .lp-quote {
   position: relative;
-  margin-top: 1.75rem;
+  margin-top: 0;
   border-radius: var(--lp-radius-xl);
   background: var(--lp-white);
   border: 1px solid var(--lp-line);

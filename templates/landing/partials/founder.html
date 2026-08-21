@@ -2,23 +2,40 @@
 <section id="prova-social" class="lp-section lp-band lp-band--founder lp-reveal">
   <div class="lp-band__inner lp-container">
     <div class="lp-founder">
-      <article class="lp-founder__story min-w-0">
-        <div class="lp-founder__header flex items-center gap-4">
-          <span class="lp-founder__avatar" aria-hidden="true">
+      <div class="lp-founder__header flex min-w-0 items-center gap-4">
+        <span class="lp-founder__avatar hidden shrink-0 lg:flex" aria-hidden="true">
+          <img
+            src="{% static 'img/landing/founder.png' %}"
+            alt=""
+            width="56"
+            height="56"
+            class="lp-founder__avatar-img"
+          />
+        </span>
+        <div class="min-w-0">
+          <h2 class="lp-founder__name">Gustavo — fundador do GranaGo</h2>
+          <p class="lp-founder__context">Minha própria experiência antes de lançar o produto</p>
+        </div>
+      </div>
+
+      <aside class="lp-founder__aside">
+        <figure class="m-0 mx-auto w-full max-w-[12rem] lg:max-w-none">
+          <div class="lp-founder__photo">
             <img
               src="{% static 'img/landing/founder.png' %}"
-              alt=""
-              width="56"
-              height="56"
-              class="lp-founder__avatar-img"
+              alt="Gustavo, fundador do GranaGo"
+              width="400"
+              height="480"
+              class="lp-founder__photo-img"
             />
-          </span>
-          <div class="min-w-0">
-            <h2 class="lp-founder__name">Gustavo — fundador do GranaGo</h2>
-            <p class="lp-founder__context">Minha própria experiência antes de lançar o produto</p>
           </div>
-        </div>
+          <figcaption class="mt-3 hidden text-sm leading-snug text-fg/70 lg:block">
+            Gustavo, fundador do GranaGo
+          </figcaption>
+        </figure>
+      </aside>
 
+      <article class="lp-founder__story min-w-0">
         <blockquote class="lp-quote">
           <p>
             Importei o extrato. Em segundos, o app já tinha organizado tudo por categoria — não precisei fazer nada.
@@ -44,18 +61,6 @@
           </figure>
         </div>
       </article>
-
-      <aside class="lp-founder__aside">
-        <figure class="lp-founder__photo">
-          <img
-            src="{% static 'img/landing/founder.png' %}"
-            alt="Gustavo, fundador do GranaGo"
-            width="400"
-            height="480"
-            class="lp-founder__photo-img"
-          />
-        </figure>
-      </aside>
     </div>
   </div>
 </section>

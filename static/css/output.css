@@ -2465,6 +2465,10 @@ select.\!input,
   max-width: 11rem;
 }
 
+.max-w-\[12rem\] {
+  max-width: 12rem;
+}
+
 .max-w-\[14rem\] {
   max-width: 14rem;
 }
