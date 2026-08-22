@@ -1,664 +1,360 @@
 # Análise de arquitetura: importação de extratos bancários em PDF
 
 **Data de criação:** 21 de agosto de 2026  
-**Status:** análise — sem implementação  
-**Produto:** GranaGo
+**Atualizado em:** 22 de agosto de 2026  
+**Status:** estado da arte da análise — **sem implementação**  
+**Produto:** GranaGo  
+
+Documento canônico desta feature. Medições de laboratório estão em [`ANALISE_SPIKE_IMPORTACAO_PDF.md`](ANALISE_SPIKE_IMPORTACAO_PDF.md) e nos scripts em `docs/arquitetura/spike_importacao_pdf/`. PDFs bancários reais **não** entram no git.
+
+O spike registrou hipóteses anteriores (Celery no v1, lib em aberto). **Este arquivo prevalece** onde houver conflito.
+
+Trata a feature como:
+
+> um pipeline seguro de transformação de um documento bancário altamente sensível em um conjunto mínimo de transações necessárias ao GranaGo.
+
+Não como “um leitor de PDF” nem como “um detector de tabela de biblioteca”.
+
+Prioridade: (1) segurança e privacidade, (2) correção financeira, (3) minimização, (4) confiabilidade, (5) vários layouts, (6) performance, (7) UX.
+
+Afirmações abaixo distinguem **requisito técnico**, **boa prática de segurança** e **ponto jurídico**. Isto **não** substitui revisão jurídica profissional.
 
 ---
 
-## 1. Objetivo
+## 1. Parecer de viabilidade
 
-Permitir que o usuário envie um PDF de extrato bancário (em geral gerado pelo aplicativo do banco) e que o GranaGo transforme esse documento em transações financeiras estruturadas, com alto grau de confiabilidade:
+**A feature é viável para produção incremental. Não é viável como “chamar detector de tabela e importar”.**
 
-- sem inventar lançamentos;
-- sem perder movimentações reais;
-- sem duplicar o que já está no ledger;
-- com revisão humana sempre que a confiança for insuficiente.
+Foram medidos **6 PDFs reais** (anexos locais, sem PII neste repositório):
 
-O fluxo alvo é:
+| PDF | Tipo | Transações localizáveis sem OCR? | Como |
+| --- | --- | --- | --- |
+| Santander (11 p., ~208 KB, dossiê Compart) | digital | Sim | `dd/mm` sem ano + valor na mesma faixa Y |
+| Bradesco (5 p., ~17 KB) | digital | Sim | cabeçalhos C/D/saldo; duas colunas de data; Y mais folgado |
+| Nubank (2 p., ~23 KB, HTML→PDF) | digital | Sim | data = dia + mês por extenso como **cabeçalho de grupo**; valores herdam a data |
+| Nubank (5 p., ~37 KB, HTML→PDF) | digital | Sim | mesma família; 61 candidatos no interpretador do spike (4 libs empatam) |
+| Caixa (1 p., ~367 KB) | **raster** (JPEG 1957×3230, zero texto) | Não no v1 | recusar; sugerir OFX/Excel |
+| Comprovante 2 p. (~981 KB) | **raster** (2× JPEG 1957×3230, pdfmake) | Não no v1 | mesmo padrão do Caixa; recusar |
 
-**Banco → app → gerar/baixar PDF → enviar ao GranaGo → extrato convertido em movimentações.**
+Nos seis, `find_tables()` / `extract_tables()` **não devolveram a lista de lançamentos**. Nos quatro digitais o texto está lá; o caminho é **palavras + coordenadas**. Os dois rasters são foto da página (pdfmake).
 
-Isso precisa funcionar de forma **ampla** (vários bancos e vários layouts), não como um parser pontual de um único banco.
+**Não prometer “todos os bancos do Brasil”.** Prometer: PDF com texto, revisão humana, recusa de imagem, famílias de data (`dd/mm` e cabeçalho de mês).
 
----
-
-## 2. Diagnóstico do GranaGo hoje
-
-A importação já existe e é madura para formatos **estruturados**. O PDF não deve ser um terceiro parser “no mesmo estilo”; deve **desaguar no mesmo contrato** depois de extraído e validado.
-
-### 2.1 O que já existe e deve ser reutilizado
-
-| Peça | Onde | Papel |
-|------|------|--------|
-| Formato intermediário | `transacoes/ofx_parse.py` → `LinhaOfx` | `data`, `valor` (magnitude positiva), `tipo` (`receita`/`despesa`/`ajuste`), `descricao`, `ofx_fitid` opcional |
-| Parser OFX | `parse_ofx_bytes` | Síncrono, em memória |
-| Parser Excel | `transacoes/xlsx_parse.py` → `parse_planilha_padrao_bytes` | Layout **fixo** (`data \| descricao \| valor`); devolve a mesma `LinhaOfx` |
-| Preview compartilhado | `_payload_preview_importacao` em `transacoes/views.py` | Linhas + flags de duplicata + categorias; **sem** categorização automática |
-| Confirmação compartilhada | `importar_ofx_confirmar` | JSON do cliente; validação; `bulk_create` atômico; **não reparseia** o arquivo |
-| Deduplicação | `transacoes/ofx_duplicatas.py` | FITID forte + heurística `data + valor + descrição normalizada` |
-| UI de revisão | modal OFX/planilha no histórico | Conta → upload → preview editável → confirmar; IA de categoria é passo **opcional e posterior** |
-| Jobs assíncronos | `ExportJob` + Celery (`relatorios/`) | Padrão de fila, status, TTL de arquivo, rate limit, dispatch `celery`/`thread`/`sync` |
-| LLM já em produção | Gemini (`categorizacao/services/llm/`) | Só para **sugerir categoria**, com minimização forte de dados |
-| Mídia protegida | `PROTECT_MEDIA` + ownership | Exports e fotos não são públicos |
-
-Limites atuais relevantes: upload de 6 MB (`DATA_UPLOAD_MAX_MEMORY_SIZE` / `_MAX_OFX_BYTES` / `_MAX_XLSX_BYTES`); até **2000 linhas** por lote.
-
-### 2.2 O que o PDF **não** pode herdar cegamente
-
-1. **Sincronismo no request.** OFX/XLSX cabem no request HTTP. PDF com OCR, tabelas multipágina e fallback de modelo **não cabe**. Precisa de job, como os exports.
-2. **Layout único.** A planilha só aceita um cabeçalho oficial. Extrato PDF não tem schema.
-3. **FITID.** Quase nenhum PDF de banco brasileiro expõe identificador estável por lançamento. A deduplicação forte do OFX não existe aqui.
-4. **Confiança binária.** OFX parseado ou falha. PDF pode “quase” funcionar: 47 de 48 linhas certas, uma descrição colada, um saldo que não fecha. Isso exige **estado de revisão**, não só preview.
-5. **Política de LLM.** O DPIA atual (`docs/seguranca/DPIA_CATEGORIZACAO_LLM.md`) **proíbe** enviar arquivo bruto e valor exato ao Gemini. Mandar o PDF inteiro (ou a imagem do extrato) para um modelo de visão **quebra essa política**. Extração de lançamentos **não** pode reutilizar o mesmo contrato da categorização.
-
-### 2.3 Modelo de dados atual (lacunas)
-
-`Transacao` tem `ofx_fitid` (único por conta quando preenchido) e não tem:
-
-- origem da importação (`ofx` / `xlsx` / `pdf` / `manual`);
-- identificador de lote;
-- hash do arquivo de origem;
-- fingerprint sintético estável para PDF;
-- metadados de confiança da extração.
-
-`Conta` não tem banco, agência, número mascarado nem fingerprint institucional. O usuário escolhe a conta no upload; o sistema **não** infere a conta a partir do PDF (e não deve, no v1, para evitar gravar no lugar errado).
+Há informação suficiente para **implementar o v1**. Não há spike de biblioteca pendente. Falta, no PR, micro-benchmark de RSS do pypdfium2 (o spike mediu tempo; pico de memória ficou para o código).
 
 ---
 
-## 3. Princípios de produto e engenharia
-
-1. **PDF é evidência, não verdade.** A verdade só existe depois de extração + interpretação + validação + (quando necessário) revisão humana.
-2. **Não inventar.** Na dúvida, omitir a linha ou marcar para revisão. Nunca “completar” valor, data ou sentido (crédito/débito) por palpite.
-3. **Não perder.** Se o saldo do extrato não fecha com as linhas extraídas, o lote **não** entra automaticamente.
-4. **Um único ledger.** Depois de normalizado, o PDF usa o mesmo preview, a mesma confirmação e as mesmas regras de `Transacao` que OFX/Excel.
-5. **Adapters são aceleradores, não o produto.** A arquitetura precisa funcionar para um banco **desconhecido**. Parsers por instituição vêm depois, para layouts que o caminho genérico falha.
-6. **Reconciliação é o gate de qualidade.** Saldo inicial + movimentações = saldo final (com tolerância de R$ 0,01) é o critério objetivo de “deu certo”.
-7. **Privacidade primeiro.** Extrato PDF contém CPF, agência, conta, endereço, PIX. Retenção curta, acesso autenticado, sem treinar modelo com dado do usuário, sem enviar documento bruto a terceiro sem base legal e opt-in explícitos.
-8. **Revisão humana é feature, não falha.** Especialmente em OCR e em layouts novos.
-
----
-
-## 4. Por que um parser por banco não escala
-
-Layouts reais variam por:
-
-- banco;
-- produto (corrente, poupança, pagamento, cartão — **cartão fica fora do v1 de conta corrente**, ver §15);
-- canal (app iOS, app Android, internet banking, e-mail);
-- período (redesigns frequentes);
-- página (cabeçalho/rodapé, tabela quebrada, “continua”);
-- tipo de PDF (texto selecionável vs imagem/scan/foto da tela).
-
-Uma solução “Santander v1 e depois a gente vê” cria dívida: cada banco vira um regex frágil, e o usuário do banco N+1 continua bloqueado. O desenho certo é um **pipeline de documento** com camadas, e adapters opcionais por *fingerprint* de layout.
-
-```
-                    ┌─────────────────────────┐
-                    │  PDF (bytes) + conta    │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Ingestão e higiene     │
-                    │  (tipo, tamanho, hash)  │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Análise do documento   │
-                    │  texto vs imagem        │
-                    │  fingerprint de layout  │
-                    └───────────┬─────────────┘
-                                ▼
-              ┌─────────────────┴─────────────────┐
-              ▼                                   ▼
-     Extração textual                      OCR (só se preciso)
-     (layout/tabelas)                      (fila pesada)
-              └─────────────────┬─────────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Interpretação          │
-                    │  genérico → adapter     │
-                    │  → LLM estruturado      │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Normalização           │
-                    │  → LinhaImportacao      │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Validação / saldo      │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Deduplicação           │
-                    └───────────┬─────────────┘
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Revisão (UI)           │
-                    │  → confirmar existente  │
-                    └─────────────────────────┘
-```
-
-Cada etapa tem contrato de entrada/saída. Falha **não** derruba o pipeline inteiro: degrada a confiança e empurra para revisão.
-
----
-
-## 5. Contrato canônico (o ponto de união)
-
-Hoje `LinhaOfx` é o contrato de fato, mas o nome mente (já é usado pelo Excel). Para PDF, evoluir para um tipo de importação **agnóstico de origem**, sem quebrar OFX/XLSX.
-
-### 5.1 `LinhaImportacao` (proposto)
-
-Campos que o confirmar **já entende**:
-
-- `data: date`
-- `valor: Decimal` (sempre ≥ 0)
-- `tipo: receita | despesa | ajuste`
-- `descricao: str` (≤ 255, mesma regra atual)
-- `identificador_externo: str | None` — no OFX é o FITID; no PDF em geral `None`
-
-Campos **novos**, só de extração (não precisam ir para `Transacao` no v1, mas devem ir ao preview):
-
-- `origem: ofx | xlsx | pdf`
-- `confianca: float` (0–1) da linha
-- `motivo_baixa_confianca: str | None` (descrição quebrada, valor ambíguo, data inferida, etc.)
-- `saldo_apos: Decimal | None` (se o extrato tiver coluna de saldo)
-- `pagina: int | None`
-- `texto_bruto: str` (recorte da região, para o usuário conferir)
-- `indice_no_documento: int` (ordem no extrato, estável)
-
-Regra de ouro: **o endpoint `importar_ofx_confirmar` continua sendo o único gravador de lote.** O PDF só produz o JSON de preview no mesmo formato (`data`, `valor`, `tipo`, `descricao`, flags de duplicata). Não criar um segundo `bulk_create`.
-
-### 5.2 Objeto de documento (lote)
-
-Além das linhas, o job precisa persistir um resumo do extrato:
-
-- banco/layout detectado (`desconhecido` é um valor válido);
-- período declarado (`data_inicio`, `data_fim`);
-- saldo inicial e saldo final extraídos (se existirem);
-- soma de créditos / débitos;
-- `reconciliacao_ok: bool`;
-- `delta_saldo: Decimal | None`;
-- `modo_extracao: text | ocr | hibrido`;
-- `parser_id` + versão (ex.: `generic_table@1`, `adapter:nubank_cc@3`, `llm_struct@1`);
-- `sha256` do arquivo;
-- `precisa_revisao: bool` e lista de *blockers*.
-
-Sem esse objeto, a UI não consegue explicar “por que não importamos automaticamente”.
-
----
-
-## 6. Camadas do pipeline
-
-### 6.1 Ingestão
-
-**Entrada:** multipart (`conta_id` + arquivo PDF), usuário autenticado, conta ativa do usuário.
-
-Responsabilidades:
-
-- Validar `Content-Type` **e** magic bytes (`%PDF`), não só a extensão.
-- Limite de tamanho próprio (sugerido: **10 MB**; extrato mensal típico é bem menor; foto de tela infla).
-- Recusar PDF criptografado com senha (mensagem clara: “remova a senha e envie de novo”).
-- Calcular `sha256`; se o mesmo usuário + mesma conta + mesmo hash já tiver lote importado ou em revisão, **não reprocessar**: reabrir o lote existente (idempotência de arquivo).
-- Persistir o arquivo em mídia **protegida**, path `imports/pdf/{user_id}/{job_uuid}.pdf`, ownership igual a `ExportJob`.
-- Criar `ImportJob` (`pending`) e responder **202** com `job_id` + URL de polling. Não parsear no Gunicorn.
-
-Rate limit: espelhar exports (ex.: N jobs/hora e no máximo 1–2 PDF em processamento por usuário). Fila Celery **separada** (`imports`) para não competir com geração de relatório.
-
-### 6.2 Análise do documento (classificação)
-
-Objetivo: decidir **como** extrair, não ainda **o que** são as transações.
-
-Sinais:
-
-| Sinal | Uso |
-|-------|-----|
-| Há texto extraível com densidade mínima? | Caminho textual vs OCR |
-| Metadata `Producer`/`Creator` | Às vezes identifica o gerador do banco |
-| Texto da 1ª página (razão social, CNPJ, “extrato”, “conta corrente”) | Fingerprint de instituição |
-| Cabeçalhos de coluna (“Data”, “Histórico”, “Valor”, “Saldo”, “D/C”) | Fingerprint de **layout**, mais estável que o nome do banco |
-| Número de páginas, páginas só com imagem | OCR seletivo por página |
-
-Saída: `DocumentoAnalise` com `kind = digital_text | scanned | mixed`, `layout_key`, `banco_candidato` (opcional), `ocr_necessario`.
-
-**Fingerprint de layout, não de marca.** “Tabela com colunas Data | Lançamento | Valor | Saldo, valores `1.234,56`, débito à esquerda” é mais reutilizável do que “parser Santander 2024”. Vários bancos compartilham famílias de layout (especialmente PDFs gerados por núcleos de internet banking antigos).
-
-### 6.3 Extração
-
-Dois motores, mesma saída: **páginas com elementos** (texto, retângulos, palavras com bounding box, imagens).
-
-**Caminho A — PDF digital (prioritário, v1)**
-
-Bibliotecas candidatas (a escolher na implementação, com prova em fixtures reais):
-
-- **PyMuPDF (`fitz`)**: rápido, texto + coordenadas, rasterização para OCR pontual.
-- **pdfplumber**: melhor para **tabelas** (estratégia lines/text), muito usado em extratos.
-
-Não usar só `pypdf.extract_text()`: perde estrutura, junta colunas e quebra a reconciliação.
-
-**Caminho B — PDF imagem / scan / foto (v2)**
-
-- Rasterizar página (300 DPI).
-- OCR local (Tesseract `por`+`eng` ou PaddleOCR). Preferir **local** por LGPD.
-- OCR de nuvem (Document AI / Textract / Gemini Vision) só como **opt-in explícito**, fila própria, DPIA novo.
-
-Páginas mistas: OCR só onde a densidade de texto for baixa.
-
-Saída desta camada: ainda **não** são transações. São `tokens` + `tabelas candidatas` + `blocos de texto` com posição. Inventar lançamentos aqui é o erro mais caro do sistema.
-
-### 6.4 Interpretação estrutural (o coração)
-
-Três estratégias em cascata. A primeira que passar na validação (§6.6) ganha. Se nenhuma passar, o lote vai para revisão com o melhor candidato **marcado como incompleto**.
-
-#### Estratégia 1 — Intérprete genérico de tabela (default)
-
-Heurísticas, sem nome de banco:
-
-1. Detectar região de tabela (linhas/colunas por alinhamento de x).
-2. Identificar linha de cabeçalho por vocabulário (`data`, `históric`, `descri`, `valor`, `crédito`, `débito`, `saldo`, `documento`, `d/c`).
-3. Mapear colunas para papéis: `DATA`, `DESCRICAO`, `VALOR_UNICO`, `CREDITO`, `DEBITO`, `SINAL`, `SALDO`, `IGNORAR`.
-4. Percorrer o corpo:
-   - linha com data → inicia lançamento;
-   - linhas seguintes **sem** data e sem valor, alinhadas à coluna de descrição → **continuação** (concatenar);
-   - ignorar cabeçalhos repetidos, rodapés, “total do dia”, “saldo do dia”, “a transportar”, “de transporte”, numeração de página.
-5. Interpretar valor:
-   - `1.234,56` / `1,234.56` / `1234.56`;
-   - parênteses = débito;
-   - colunas C e D separadas;
-   - sufixo `C`/`D` / `CR`/`DB`;
-   - **nunca** usar cor como único sinal (extração textual perde cor).
-6. Recortar saldo inicial/final em blocos fora da tabela (“Saldo anterior”, “Saldo final”, “Saldo disponível” — este último **não** é saldo contábil do período; não usar para reconciliação).
-
-Esta estratégia sozinha já cobre uma fração grande dos PDFs de app/internet banking brasileiros, que são tabelas com texto selecionável.
-
-#### Estratégia 2 — Adapter de layout conhecido
-
-Registry:
+## 2. Decisão de produto: terceira origem do import atual
 
 ```text
-layout_key  →  Adapter
+OFX  ─┐
+XLSX ─┼─► preview editável ─► categorização inteligente (opcional) ─► confirmar ─► Transacao
+PDF  ─┘
 ```
 
-O adapter só entra se o fingerprint bater com confiança alta. Ele não substitui o genérico: **corrige** o que o genérico erra naquele layout (ex.: descrição em duas colunas, TED com favorecido na linha de baixo, PIX com chave na terceira linha, valores em fonte menor).
+Depois de extraído, o PDF usa o **mesmo contrato** que OFX e Excel: revisar, categorizar (pipeline híbrido atual, sob demanda), confirmar em `importar_ofx_confirmar`, mesmo ledger.
 
-Contrato do adapter:
+A extração é o único trecho novo. Unificar o botão “Importar extrato” fica para depois do v1.
 
-- entrada: páginas extraídas (não o PDF bruto, se possível);
-- saída: `list[LinhaImportacao]` + `DocumentoResumo`;
-- testes golden obrigatórios;
-- versão no `parser_id`.
-
-**Ordem de construção dos adapters:** os layouts com PDF digital + saldo no extrato + volume de usuários, **não** “começar pelo Santander”. Santander entra na fila se o genérico falhar nele, como qualquer outro.
-
-Esboço de priorização técnica (a validar com corpus real):
-
-| Prioridade | Família típica | Por quê |
-|------------|----------------|---------|
-| P0 | PDF digital com tabela + coluna de saldo | Reconciliação possível; genérico tende a funcionar |
-| P1 | PDF digital sem saldo, mas com totais de período | Dá para validar soma, não running balance |
-| P2 | Layouts conhecidos que quebram o genérico (descrição multilinha agressiva, duas tabelas, cartão disfarçado de extrato) | Adapter pontual |
-| P3 | Scan/foto | OCR + mesmo intérprete |
-| P4 | PDF de investimento, TED agrupado, comprovante (não é extrato) | Recusar com mensagem, não “forçar” |
-
-Bancos/formatos a **provar com fixtures** (não a hardcodar no dia 1): Nubank, Inter, C6, Itaú, Bradesco, Banco do Brasil, Caixa, Santander, PicPay, Mercado Pago, BTG. A lista é de **corpus de teste**, não de parsers.
-
-#### Estratégia 3 — Interpretação assistida por modelo (fallback, nunca sozinha)
-
-Usar LLM **somente** se 1 e 2 falharem a reconciliação, e somente sobre **texto já extraído e minimizado**:
-
-- recortar só a região da tabela (sem cabeçalho com CPF/endereço, sem agência/conta completos);
-- pedir JSON com schema rígido (data ISO, valor string, sentido, descrição, saldo_apos opcional);
-- `temperature = 0`;
-- **validar** cada linha (data no período, valor parseável, sentido explícito);
-- se o modelo devolver N linhas e o saldo não fechar, **descartar a saída do modelo** e ir para revisão humana com a extração bruta — não “aceitar o palpite”.
-
-Proibido no v1:
-
-- enviar o PDF/imagem completo a um modelo de visão por padrão;
-- usar a saída do LLM sem reconciliação;
-- persistir o extrato bruto em log de prompt.
-
-Isso exige DPIA específico (`DPIA_IMPORTACAO_PDF_LLM.md`) **antes** de ligar a estratégia 3 em produção.
-
-### 6.5 Normalização
-
-Regras alinhadas ao ledger atual (`valor_e_tipo_de_importacao`):
-
-- valor sempre positivo;
-- saída da conta → `despesa`; entrada → `receita`; zero → `ajuste` (raro em extrato; tratar com baixa confiança);
-- data em `date` (sem timezone; extrato brasileiro = calendário civil);
-- descrição: colapsar espaços, limitar 255, preservar informação útil (favorecido PIX, se existir);
-- **não** categorizar nesta etapa (o pipeline de categorização já existe e é posterior).
-
-Datas parciais (`10/03` sem ano): completar com o ano do período do extrato; se o período cruzar virada de ano, usar a página/contexto; se ambíguo, linha em revisão.
-
-### 6.6 Validação (gate)
-
-Um lote só pode ser oferecido como “pronto para confirmar com confiança alta” se passar nos checks abaixo. Falha = `precisa_revisao = true` e, em blockers, **não** pré-selecionar “importar todas”.
-
-| Check | Blocker? | Notas |
-|-------|----------|--------|
-| Pelo menos 1 lançamento | Sim | Senão, erro de extração |
-| Todas as linhas têm data + valor + tipo + descrição | Sim as incompletas | Incompletas ficam desmarcadas |
-| Datas dentro do período do extrato (folga de 1 dia) | Não | Flag por linha |
-| `saldo_inicial + créditos − débitos = saldo_final` (± R$ 0,01) | **Sim para auto-confiança** | Se não houver saldos, usar totais do período se existirem; se não houver nenhum âncora, revisão obrigatória |
-| Running balance (se houver coluna saldo) consistente linha a linha | Não | Detecta linha pulada no meio |
-| Ordem cronológica razoável | Não | Extratos às vezes são do mais novo para o mais antigo; aceitar ambos |
-| Contagem vs “N lançamentos” declarado no PDF | Não | Se o banco imprimir o total |
-| Nenhum valor absurdo (`>= 1e9`, regra já do confirmar) | Sim a linha | |
-| Documento parece extrato (não boleto, não comprovante único, não fatura de cartão no v1) | Sim o lote | Mensagem acionável |
-
-**Política de produto recomendada:** nunca auto-confirmar PDF. Sempre preview. O que muda é o *nível de alarme*: lote reconciliado chega com linhas pré-selecionadas; lote quebrado chega com aviso vermelho e linhas duvidosas desmarcadas.
-
-### 6.7 Deduplicação
-
-O FITID não vai salvar o PDF. Usar **várias camadas**, reaproveitando `avaliar_duplicatas_importacao` e estendendo.
-
-1. **Arquivo:** mesmo `sha256` + mesma conta → mesmo lote (já tratado na ingestão).
-2. **Heurística atual:** `data + valor + descrição normalizada` na mesma conta — já pega reimportação do mesmo PDF e lançamento manual idêntico.
-3. **Fingerprint sintético (opcional, v1.1):** `sha256(conta_id | data | valor | desc_norm | origem=pdf)` persistido em campo novo, **não** em `ofx_fitid`. Sobrecarregar FITID misturaria OFX com PDF e atrapalharia a constraint atual.
-4. **Cruzamento OFX × PDF (o caso difícil):** o mesmo mês importado via OFX e depois via PDF (ou o contrário) quase sempre tem **descrições diferentes** (`PIX 123` vs `Pix enviado - Maria Silva`). A heurística atual **não** pega. Mitigações:
-   - no preview, se já existir na conta, no mesmo dia, o mesmo valor (magnitude + tipo), marcar `duplicata_por_valor_data` (nova flag **fraca**);
-   - se houver *várias* transações iguais no mesmo dia (dois PIX de R$ 50), **não** auto-marcar: mostrar “possível duplicata” e deixar o usuário decidir;
-   - nunca bloquear no banco por essa flag fraca.
-5. **Sobreposição de período:** se o usuário importar 01–15 e depois 01–30, as linhas da primeira quinzena devem aparecer como duplicata heurística quando a descrição coincidir; quando não coincidir, a flag fraca (item 4) cobre parte.
-
-O usuário continua podendo importar linha marcada (comportamento atual do OFX).
-
-### 6.8 Revisão e importação
-
-Reusar o modal de preview (feed, categorias opcionais, “Organizar automaticamente”, confirmar JSON). Extensões de UX específicas de PDF:
-
-- faixa de status do documento: banco/layout, período, “saldo fecha” / “saldo não fecha (Δ = R$ x,xx)”;
-- badge por linha: confiança alta / revisar / possível duplicata;
-- texto bruto expansível (“como estava no PDF”);
-- ação de **juntar** duas linhas (descrição partida mal interpretada) e **dividir**;
-- não confirmar se ainda houver blocker sem o usuário marcar “importar mesmo assim” (opt-in consciente, logado).
-
-Depois do confirmar, o arquivo PDF:
-
-- **recomendação:** apagar ou criptografar e expirar em 24–72 h (igual TTL de export), salvo o usuário ter um “manter comprovante” futuro;
-- o ledger não precisa do PDF para existir.
-
-Categorização: **não** misturar com extração. O botão já existente de IA de categoria roda sobre descrições já normalizadas.
+Manter **`LinhaOfx`** no v1 (`ofx_fitid=None`). Não inventar FITID.
 
 ---
 
-## 7. Modelo de persistência proposto
+## 3. Dados: o mínimo necessário
 
-Novo app ou módulo `transacoes/importacao/` (preferível módulo, para não fragmentar o domínio).
+Um comprovante consolidado **não** é só lançamentos. Encontrar no PDF não é motivo para extrair.
 
-### 7.1 `ImportJob`
+**Necessários para `Transacao`:** data, descrição da linha de movimentação (≤ 255), valor, direção, identificação da região de movimento (só no processamento).
 
-Espelhar `ExportJob` no que já funciona em produção:
+**Só em memória:** saldo da **mesma** região, totais C/D, período, `layout_key`.
 
-- `usuario`, `conta`
-- `formato` (`pdf`; o modelo aguenta `ofx`/`xlsx` no futuro se unificarmos)
-- `status`: `pending | processing | needs_review | ready | imported | error | expired | cancelled`
-- `arquivo` (FileField protegido)
-- `sha256`
-- `parser_id`, `layout_key`, `banco_detectado`
-- `resumo_json` (saldos, período, flags)
-- `linhas_json` (resultado normalizado para o preview; tamanho limitado — 2000 linhas)
-- `mensagem_erro` (amigável) + `erro_interno` (não vazar ao cliente)
-- `task_id`, tentativas, timestamps, `expira_em`
+**Não no v1:** titular, agência/conta, ISPB, comprovantes TED/Pix detalhados, crédito, investimentos, perfil de risco.
 
-`needs_review` vs `ready`: ambos mostram preview; `ready` significa reconciliação OK.
+**Terceiros:** na descrição, só o histórico da linha (como OFX). Strip de CPF/CNPJ. Não parsear seção de comprovantes.
 
-### 7.2 Evolução de `Transacao` (mínima e justificada)
+---
 
-Não é obrigatório no primeiro corte. Quando for:
+## 4. Evidência do spike (o que mudou a hipótese)
 
-- `origem_importacao` (`CharField` nullable) — analítica e suporte;
-- `import_job_id` FK nullable — rastreio;
-- **não** criar `pdf_fitid`.
+Detalhe: [`ANALISE_SPIKE_IMPORTACAO_PDF.md`](ANALISE_SPIKE_IMPORTACAO_PDF.md) §§E–E5.
 
-Evitar migration pesada só para telemetria. O lote já guarda a origem.
+1. PDF digital ≠ PDF fácil. Detector de tabela da lib não é o produto.
+2. Tabela detectada ≠ extração correta (sintético 05: células podres; pdfplumber ainda inventa o **valor** em `extract_words`).
+3. Santander real: 27 tabelas, 0 linhas de movimento nelas; words em dezenas de ms.
+4. **pypdfium2** (Apache/BSD) acerta o 05, empata com PyMuPDF nos 6 reais, abre **bytes**. PyMuPDF só com licença Artifex (AGPL). pdfplumber erra valor no 05. pypdf quebra nos reais. pdf-oxide (MIT, 0.3) fica como reserva, não v1.
+5. `extract_text()` segue ordem de desenho. Ordenar palavras por `(y, x)` no espaço da página.
+6. Logo ≠ scan. Scan = nenhuma página com texto extraível.
 
-### 7.3 Registry de adapters (código, não tabela no v1)
+---
+
+## 5. Arquitetura recomendada (v1)
+
+### 5.1 Biblioteca
+
+**Engine: `pypdfium2`.** Isolada atrás de uma camada que só devolve palavras + bounding boxes (origem top-left, ordem visual). O parser financeiro não importa PDFium direto.
+
+Motivo: licença permissiva para SaaS fechado; no spike resolveu o caso em que o pdfplumber inventou o valor; nos 6 reais empatou com PyMuPDF. Atribuição Apache/NOTICE do wheel no deploy (compliance, não feature).
+
+`find_tables` **desligado no default**.
+
+### 5.2 Pipeline — síncrono, como OFX
+
+**Revogado (22/08/2026):** Celery fila `imports` no v1; tempfile como caso normal; “Gunicorn não carrega a lib”.
+
+Evidência de tempo com pypdfium2: Santander ~0,27 s; 40 páginas sintéticas ~0,7 s. OFX/XLSX já parseiam arquivo de usuário no request. Celery no v1 **piora privacidade** (precisaria persistir `linhas_json` para poll) e cria um terceiro fluxo de UX sem evidência de timeout.
 
 ```text
-transacoes/importacao/pdf/
-  ingest.py
-  analyze.py
-  extract/
-    text.py
-    ocr.py
-  interpret/
-    generic_table.py
-    adapters/          # um módulo por layout_key
-    llm_struct.py      # desligado por flag
-  normalize.py
-  validate.py
-  registry.py
+[UI] 3º botão Importar PDF → conta GranaGo + arquivo
+        │
+        ▼
+Higiene no web (auth, CSRF, magic %PDF, ≤6 MB, ≤30 págs, senha, rate)
+        │
+        ▼
+Bytes em memória (upload.read() / BytesIO)
+  — pypdfium2 aceita bytes/stream/path
+  — NÃO MEDIA_ROOT, NÃO S3, NÃO Redis, NÃO FileField
+        │
+        ▼
+Parse síncrono no request (mesmo molde OFX)
+  - nenhuma página com texto → SCANNED_PDF
+  - senha / malformado → recusar
+  - palavras + bbox, ordem (y, x)
+  - propor regiões LÓGICAS (podem atravessar páginas)
+  - classificar: movimento vs outro (investimento/cartão/comprovante ≠ opção)
+  - 0 movimento → recusar
+  - 1 movimento → preview
+  - 2+ movimento → usuário escolhe UMA; nunca fundir; nunca pegar a maior
+  - generic_table_v1 (registry; adapters vazios)
+  - LinhaOfx[] + validação + estado do lote
+  - fechar o PdfDocument no finally
+        │
+        ▼
+JSON de preview (cliente) — igual OFX
+        │
+        ▼
+Revisão → categorizar-import-batch (contexto import_pdf) → importar_ofx_confirmar
 ```
 
-`registry.py` escolhe adapter por `layout_key`; fallback sempre `generic_table`.
+Tempfile `0700` **só** se alguma API futura exigir path. Janitor só se existir esse dir. Caso normal: nada em disco.
 
-Adicionar um layout novo = fixture golden + módulo adapter + registro. Sem if-spaghetti na view.
+**Quando voltar a Celery:** P95 de extração > ~5–8 s, worker no `MemoryMax`, ou CVE de PDFium com blast no HTTP. Aí: fila `imports`, apagar PDF **antes** do `ready`, persistir só linhas + metadados técnicos, TTL curto. Não misturar com export WeasyPrint.
 
----
+### 5.3 Contrato e categorização
 
-## 8. Integração HTTP e UX
+Confirmar: `data`, `valor` ≥ 0, `tipo`, `descricao`, `ofx_fitid=None`.
 
-### 8.1 Endpoints
+Só no preview: `origem=pdf`, estado do lote, `parser_id`, `layout_key`, flags de duplicata. Sem `texto_bruto` no banco. Confirmar **não** reparseia o PDF.
 
-| Método | Caminho (proposta) | Papel |
-|--------|-------------------|--------|
-| `POST` | `/transacoes/importar/pdf/` | Cria job, 202 |
-| `GET` | `/transacoes/importar/pdf/<uuid>/` | Polling: status + progresso |
-| `GET` | `/transacoes/importar/pdf/<uuid>/preview/` | Payload compatível com `_payload_preview_importacao` quando `ready`/`needs_review` |
-| `POST` | `/transacoes/importar/ofx/confirmar/` | **Reutilizado** (linhas JSON) |
-| `POST` | `/transacoes/importar/pdf/<uuid>/descartar/` | Cancela, apaga arquivo |
-
-Não reparsear o PDF no confirmar. O preview congela `linhas_json` no job (como o OFX congela no cliente). O servidor **valida** o JSON como hoje.
-
-### 8.2 UI no histórico
-
-Hoje há dois botões: Importar OFX e Importar planilha. Opções:
-
-- **A (recomendado no v1):** terceiro botão “Importar PDF”, modal irmão, para não arriscar regressão nos fluxos estáveis.
-- **B (v1.1):** um único “Importar extrato” que detecta OFX / XLSX / PDF.
-
-Fluxo PDF: upload → spinner com etapas reais (“Lendo PDF”, “Detectando tabela”, “Conferindo saldo”) via polling → o **mesmo** feed de preview.
-
-Tempo esperado: digital 2–15 s; OCR 20–90 s. Por isso job + polling, não overlay mudo de 70 s.
-
-### 8.3 Mensagens quando não der
-
-Exemplos acionáveis (não “erro genérico”):
-
-- “Este PDF parece uma imagem. No momento importamos melhor extratos com texto selecionável. Você pode baixar o OFX no internet banking ou tentar um PDF gerado pelo app (não uma foto).”
-- “Encontramos a tabela, mas o saldo do extrato não fecha com as linhas (diferença de R$ 12,30). Revise as linhas destacadas.”
-- “Este arquivo parece fatura de cartão. A importação por PDF no momento é só para conta.”
-- “PDF protegido por senha.”
+Categorização: **nenhuma mudança de algoritmo**. Gemini, se ligado, continua com `redact_pii_for_llm` e **sem** o arquivo. Botão de IA sob demanda.
 
 ---
 
-## 9. Segurança, LGPD e operação
+## 6. Scan, regiões, parser, fingerprint, adapters
 
-### 9.1 Dados especialmente sensíveis
+### 6.1 Classe do documento
 
-Extrato PDF é **dado financeiro identificável** (categoria LGPD de alto cuidado): identificação civil, conta, histórico de consumo, PIX para pessoas.
+Classificar **por página** (tem texto / não tem). O documento é `SCANNED_PDF` só se **nenhuma** página tiver texto extraível. Páginas só-imagem no meio de um digital são ignoradas.
 
-Controles:
+| Classe | Sinal | v1 |
+| ------ | ----- | --- |
+| `raster` | 0 páginas com texto e há imagem de página | recusar (`SCANNED_PDF`); UI pode citar foto/OFX/Excel |
+| `textual_aligned` | colunas por X; datas e valores | **caminho principal** |
+| `textual_tabular` | tabela da lib com linhas de movimento úteis | raro; não é o default |
+| `textual_linear` | texto sem grade | recusar ou `baixa` |
+| `encrypted` / `malformed` | flags | recusar |
 
-- mídia autenticada (já existe o padrão);
-- path com `user_id` + UUID, sem nome original do arquivo;
-- TTL curto + comando de purge (espelhar `limpar_exports_expirados`);
-- exclusão de conta apaga jobs e arquivos (cascade + file cleanup);
-- logs: hash, `parser_id`, status, **nunca** dump de linhas com nomes de favorecidos;
-- staff: mesmo cuidado de exports (acesso a mídia é ponto já marcado como parcial na política de segurança).
+Híbrido com pouquíssimo texto e o resto foto: **não** é `SCANNED_PDF`; cai em `NENHUMA_REGIAO_MOVIMENTO`. Mensagem pode mencionar também scan/foto. Sem threshold de densidade (`chars/página < 40` já mentiu no Santander).
 
-### 9.2 LLM e subprocessadores
+PDF OCRizado ruim entra como textual; o preview e a confiança (`baixa`) são a rede. Texto invisível é risco residual.
 
-Alinhar com o DPIA de categorização:
+### 6.2 Região = tabela lógica, não página
 
-- extração **local** é o caminho padrão;
-- qualquer envio a Gemini/outro provedor = minimização + opt-in + subprocessador documentado + retenção zero do documento;
-- não reutilizar `GEMINI_API_KEY` da categorização sem orçamento e circuit breaker **separados** (custo de visão/documento é outra ordem de grandeza).
+Sinais: geometria, alinhamento de colunas, cabeçalhos, datas, dinheiro, continuidade entre páginas, vocabulário positivo/negativo. Título de seção é **auxiliar**.
 
-### 9.3 Abuso e robustez
+Mesma CC em 3 páginas, cabeçalho incompleto na seguinte (visto no Santander) = **uma** região (mesmos papéis + X relativo ±1 décimo + datas em sequência).
 
-- PDF enorme, mil páginas, zip bomb de streams: limites de páginas (ex.: 50) e de tempo (soft/hard Celery, fila `imports`).
-- Arquivo malicioso: não executar JavaScript de PDF; bibliotecas de extração em worker isolado; atualizar dependências.
-- Não interpolar caminho do usuário em shell (Ghostscript/Tesseract só com args controlados).
+| Situação | v1 |
+| -------- | -- |
+| 0 movimento | recusar |
+| 1 movimento | preview |
+| CC + poupança | 2 opções; usuário escolhe; sem pré-seleção |
+| CC + investimentos / cartão / comprovante | **não** oferecer; não é movimento de conta |
+| Fatura de cartão | fora do v1 |
 
-### 9.4 Infra atual
+### 6.3 `generic_table_v1`
 
-A VPS já tem Celery para export. PDF entra na mesma família operacional, **fila distinta** e timeout maior para OCR. Disco efêmero continua sendo risco (já apontado para media/exports): jobs em processamento morrem no redeploy; reconciliar órfãos como em `ExportJob`.
+O nome não deve esconder que o núcleo é **palavras + colunas**, não `find_tables`. No lançamento o registry só tem esse interpreter.
 
----
+**Obrigatório no v1:**
 
-## 10. Testes e corpus (condição de qualidade)
+- `Data | Histórico | Valor` e `… | Valor | Saldo`
+- `Data | Histórico | Débito | Crédito` (± saldo)
+- valores BR; sinal
+- `dd/mm` com ano do **período** do extrato
+- descrição multilinha **sem** virar segundo lançamento
+- **herança de data** (família Nubank: dia+mês como cabeçalho de grupo) — genérico de família, não `nubank.py`
 
-PDF sem golden set vira teatro. Antes de produção:
+**Fora:** cartão; direção só por cor; OCR.
 
-1. **Corpus interno** (não versionar PII): PDFs reais anonimizados (mascarar CPF, agência, nomes) em storage privado de fixtures.
-2. **Fixtures sintéticas** no git: PDFs mínimos gerados (reportlab) cobrindo tabela simples, multilinha, duas páginas, cabeçalho repetido, `1.234,56`, colunas C/D.
-3. **Invariantes** (estender `transacoes/tests/helpers/ledger_invariants.py`):
-   - reconciliação quando o fixture declara saldo;
-   - nenhuma linha sem data/valor;
-   - confirmar PDF usa o mesmo `bulk_create` e não duplica FITID de OFX;
-   - reenvio do mesmo hash não cria segundo lote importado.
-4. **Fuzz:** PDF truncado, só imagem, 0 páginas, 2000+ linhas, valores `R$`.
-5. **E2E:** um caminho feliz digital + um caminho `needs_review`, reusando `e2e/specs/import/`.
+**Errar com sucesso (prioridade de testes):** valor = saldo; tipo invertido; data/ano herdados errados; duas colunas de data (Bradesco); continuação da descrição com número; rodapé “saldo inicial/final”; investimento com várias colunas `valor`.
 
-Critério de “banco suportado”: não é ter adapter. É **taxa de reconciliação** no corpus daquele layout (ex.: ≥ 95% dos PDFs fecham saldo, e 100% dos que não fecham caem em revisão sem gravar sozinhos).
+### 6.4 Fingerprint (`layout_key`)
 
----
+Determinístico, sem ML, sem PII. No primeiro PR pode ser pobre (cabeçalhos ordenados + nº de colunas) só para log. Não escolhe parser enquanto o registry de adapters estiver vazio.
 
-## 11. Fases de entrega (sem atalho Santander)
+**Entram:** tokens de cabeçalho normalizados; papéis (DATE, DESC, DEBIT, CREDIT, AMOUNT, BALANCE); X relativo de DATE e AMOUNT em décimos da largura; família de data (`ddmm` vs `mes_extenso`).
 
-Implementação **ainda não** está neste documento; isto é o recorte de risco.
+**Não entram:** nome, agência, conta, CPF, Producer, logo, cor, marca do banco, texto de lançamento.
 
-### Fase 0 — Fundação (desbloqueia tudo)
+Exemplo: `h:data+historico+debito+credito+saldo|c5|x:date1,amt8|d:ddmm|v1`
 
-- `ImportJob` + worker Celery fila `imports` + storage protegido + TTL.
-- `LinhaImportacao` e preview/confirm reutilizados.
-- UI: upload PDF + polling + preview existente.
-- Extração textual + intérprete genérico + validação de saldo.
-- Corpus inicial com **vários** bancos digitais (não um).
-- Recusar senha, scan, fatura de cartão, não-PDF.
+Redesign de colunas → chave nova → genérico.
 
-**Saída:** usuário com PDF *digital e tabelado* já importa, com revisão. Vários bancos “ganham de graça” se o genérico reconciliar.
+### 6.5 Adapters
 
-### Fase 1 — Robustez do genérico
-
-- Continuação de descrição multilinha.
-- Tabelas que atravessam páginas.
-- Totais do período quando não há saldo inicial/final.
-- Flag fraca `data+valor` para choque com OFX/manual.
-- Telemetria: `layout_key`, `reconciliacao_ok`, `parser_id` (sem PII).
-
-### Fase 2 — Adapters pontuais
-
-Só para `layout_key` com falha sistemática no genérico (medida na telemetria da Fase 1). Cada adapter nasce de evidência, não de lista comercial de bancos.
-
-### Fase 3 — OCR
-
-- Worker pesado, Tesseract/Paddle local, mesmas etapas 6.4–6.8.
-- Revisão **obrigatória**.
-- Limite de páginas mais baixo.
-
-### Fase 4 — Fallback LLM estruturado
-
-- Flag, DPIA, minimização, orçamento, circuit breaker próprio.
-- Nunca grava sem reconciliação.
-
-### Fase 5 (paralela, produto)
-
-- Unificar botão “Importar extrato”.
-- Open Finance / agregadores (Pluggy, Belvo, etc.) como **alternativa** ao PDF — não substitui o caso “só tenho o PDF do app”, mas reduz volume futuro.
+**Zero no lançamento.** Primeiro adapter só com evidência: mesmo `layout_key` (ou família) em **≥ 3 PDFs de origens distintas**; erro repetível de **valor ou direção**; golden reproduz; corrigir no genérico pioraria outro layout. Não criar `santander.py` por um PDF.
 
 ---
 
-## 12. O que deliberadamente não fazer
+## 7. Validação financeira, confiança, duplicatas
 
-- Parser único “Santander” como MVP (ensina o time a especializar cedo e deixa o resto de fora).
-- Mandar todo PDF para GPT/Gemini Vision como solução principal (custo, alucinação, LGPD, DPIA atual).
-- Auto-import sem preview.
-- Tratar fatura de cartão no mesmo pipeline no v1 (competência, `Cartao`/`Fatura` são outro domínio; o GranaGo já tem faturas).
-- Reparsear o PDF no confirmar.
-- Gravar identificador sintético em `ofx_fitid`.
-- Confiar em cor, logo ou posição absoluta em pixels como único sinal.
-- Manter PDFs para sempre no disco “para debug”.
-- Usar o request web (Gunicorn) para OCR.
+Reconciliação (`saldo_inicial + C − D = saldo_final` ± R$ 0,01) só âncora de **`alta`**, só com saldo da **região escolhida**. Pode fechar por coincidência (linha omitida, direções que se cancelam, saldo de outra seção).
 
----
+Sem saldo → `media` se a estrutura ok (“não validamos”), não recusa. Saldo disponível / limite / aplicação **nunca** âncora. Direção não só por cor. Linha sem data ou valor parseável: incompleta, **não selecionável**.
 
-## 13. Riscos e mitigações
+Estados: `recusado` | `baixa` | `media` | `alta`. Sem score 0–1. Sempre preview. Sem auto-import. Importação parcial ok.
 
-| Risco | Impacto | Mitigação |
-|-------|---------|-----------|
-| Alucinação / linha inventada | Ledger errado, perda de confiança | Reconciliação obrigatória; LLM só fallback; não inventar |
-| Linha omitida | Saldo da conta no app ≠ banco | Running balance + Δ de saldo → revisão |
-| Duplicata OFX×PDF | Receita/despesa em dobro | Flag `data+valor`; UI clara; nunca unique constraint fraca |
-| Layout muda no app do banco | Adapter quebra | Genérico como default; adapter versionado; telemetria |
-| PII em LLM/logs | LGPD | Extração local; minimização; TTL; DPIA |
-| OCR ruim (foto torta) | Lixo no preview | Recusar confiança baixa; orientar PDF nativo do app |
-| Custo de CPU/OCR | Worker saturado | Fila separada, limites, rate limit |
-| PDF de 80 páginas de 2 anos | Timeout | Limite de páginas; sugerir recorte mensal |
-| Conta errada no select | Lançamentos no lugar errado | Conta escolhida pelo usuário; no v1 não autodetectar conta |
+| Estado | UI |
+| ------ | -- |
+| `recusado` | sem feed; mensagem acionável (OFX, Excel, PDF com texto) |
+| `alta` | completas pré-selecionadas |
+| `media` | completas pré-selecionadas + aviso |
+| `baixa` | desmarcadas; aviso com causa; **checkbox de ciência** (o feed OFX tem “marcar todos”) |
+
+**Duplicata PDF×OFX no v1:** flag fraca `data+valor+tipo` só na origem PDF, no preview, desmarcada, usuário remarca. Sem unique no banco. Sem apagar. OFX/Excel **não** mudam a heurística (`data+valor+descrição`). Falso positivo (dois Pix iguais no dia) é aceitável.
 
 ---
 
-## 14. Decisões recomendadas (para quando for implementar)
+## 8. Retenção, privacidade, logs
 
-1. **Caminho padrão = genérico + reconciliação**, não catálogo de bancos.
-2. **Sempre preview**; PDF nunca grava direto.
-3. **Job assíncrono** no padrão `ExportJob` / Celery.
-4. **Confirmar = endpoint atual.**
-5. **Categorização continua desacoplada.**
-6. **OCR e LLM são fases posteriores**, com revisão obrigatória / DPIA.
-7. **Corpus multi-banco no dia 1**, mesmo que só o genérico esteja ligado.
-8. **Cartão e comprovante avulso fora do v1.**
+| Artefato | Persistir? |
+| -------- | ---------- |
+| PDF | Não (RAM do request; tempfile só se path for inevitável) |
+| Texto integral / OCR | Não no v1 |
+| Palavras+bbox | RAM; fim do request |
+| Linhas | JSON no cliente até confirmar ou fechar o modal |
+| `Transacao` | Sim, o que o usuário confirmou |
+| Logs | códigos técnicos |
+| Backup | PDF nunca |
 
----
+Pergunta-guia de PR: *vazamento amanhã aumenta o que o atacante leva além das transações confirmadas?*
 
-## 15. Fora de escopo do v1 (explícito)
+Logger `importacao.pdf` allowlist: `user_id`, `parser_id`, `layout_key`, `stage`, `error_code`, contagens, `duration_ms` (e RSS no micro-benchmark). Sem texto de célula. Sem attachment de PDF no Sentry.
 
-- Fatura de cartão em PDF.
-- Open Finance / sincronização contínua com o banco.
-- Foto da tela sem passar por OCR de fase 3.
-- Detecção automática da conta GranaGo a partir de agência/conta do PDF.
-- Edição do PDF; assinatura digital; conciliação contábil SPED.
-- Importar vários PDFs em um clique (pode ser fase seguinte: N jobs).
+Auditável para a Política (§3.3 no **go-live**, não neste desenho): nenhum FileField; após preview o temp está vazio; confirmar não reparseia; extração sem Gemini; batch de categoria só linhas; strip de CPF/CNPJ na descrição.
+
+Base legal indicativa da Política atual para OFX: execução de contrato. **Não é parecer jurídico.** Encaminhar redação sobre terceiros; DPIA da extração se o risco mudar (hoje o stub é LLM de categoria). pypdfium2: NOTICE no deploy, não AGPL.
 
 ---
 
-## 16. Relação com o código atual (mapa)
+## 9. IA e limites
 
-```
-PDF ──ImportJob──► extract/interpret/validate
-                         │
-                         ▼
-                  linhas_json ≈ LinhaOfx
-                         │
-                         ▼
-            _payload_preview_importacao()
-            avaliar_duplicatas_importacao()
-                         │
-                         ▼
-              UI preview (modal irmão)
-                         │
-                         ▼
-              importar_ofx_confirmar()
-                         │
-                         ▼
-                    Transacao
-                         │
-                         ▼
-           categorizar_import_batch (opcional)
-```
+Extração local e determinística. Sem LLM/OCR no v1. Categorização = pipeline atual.
 
-O trabalho novo está **à esquerda** do contrato `LinhaOfx`. O ledger, as invariantes, o confirmar e a IA de categoria permanecem.
+| Controle | v1 |
+| -------- | -- |
+| Auth / conta | `@login_required`; `Conta` ativa do dono |
+| Tamanho / páginas / linhas | 6 MB; 30 páginas; 2000 linhas (espelho OFX) |
+| Tipo | `.pdf` + magic `%PDF` |
+| Senha / malformado / raster | recusar |
+| Timeout extração | ~15–20 s no request (Gunicorn está em 120 s) |
+| Rate | teto/hora (espelhar IA de categoria); 1 PDF em voo é desejável, não bloqueante |
+| Isolamento | **request síncrono**; sem URL do arquivo |
+
+Não executar JS de PDF.
 
 ---
 
-## 17. Próximo passo sugerido (quando houver autorização para implementar)
+## 10. Impacto no GranaGo atual
 
-Não começar por adapter de banco. Começar pela Fase 0: job + extração textual + tabela genérica + reconciliação + preview no histórico, com 5–10 PDFs reais de bancos **diferentes** como aceite.
+**Reutilizar:** `LinhaOfx`, `valor_e_tipo_de_importacao`, `_payload_preview_importacao`, `avaliar_duplicatas_importacao` (estender flag fraca **só** para origem PDF), `importar_ofx_confirmar`, feed OFX, `sugerir_batch`.
 
-Se o genérico reconciliar a maioria, o produto já elimina a fricção “preciso ir no internet banking baixar OFX” para muita gente. Os adapters e o OCR passam a ser evolução baseada em evidência, não em palpite de layout.
-)
+**Alterar:** terceiro botão + modal irmão; contexto `import_pdf`; Política §3.3 no lançamento; logger; flag `data+valor+tipo`.
+
+**Criar:** `transacoes/importacao/pdf/` (ingest, extract/pypdfium2, region, interpret/generic, normalize, validate, errors). Fixtures sintéticos no git; reais anonimizados fora.
+
+**Não criar no v1:** FileField, Celery task de import, OCR, LLM de extração, segundo confirmar, inferência de conta, `texto_bruto`, rename de `LinhaOfx`, adapters por banco.
+
+Não migrar OFX para Celery.
+
+---
+
+## 11. Critérios de aceite (verificáveis)
+
+- Nada do PDF em `MEDIA_ROOT` / Redis / backup; bytes liberados no `finally`.
+- Golden 05: valor ≠ saldo; F1 identidade do gabarito.
+- Golden 06: investimento não vaza se a região for CC.
+- Mesma CC em duas páginas = uma região; CC+poupança = escolha.
+- Raster e senha recusados; logs sem conteúdo do extrato.
+- Preview + categoria + `importar_ofx_confirmar`; IA **não** recebe o PDF.
+- `alta` só com reconciliação da região; `baixa` exige ciência; incompletas não selecionáveis.
+- Flag fraca `data+valor+tipo` no preview PDF.
+- `dd/mm` usa o ano do período; Nubank herda data de cabeçalho de grupo.
+- Célula ilegível ≠ valor inventado.
+- Extração não chama Gemini/OCR.
+- Micro-benchmark: `duration_ms` + RSS de pico (40 p. sintético + um digital real anonimizado).
+
+---
+
+## 12. Fases
+
+0. **Fundação (próximo passo de código):** higiene, pypdfium2 em bytes, words+bbox, genérico (incluindo herança de data e merge multipage), escolha de região, preview/confirmar/categoria, recusa raster/senha, logger, flag duplicata, ciência em `baixa`, goldens sintéticos, RSS no PR.  
+1. Calibrar famílias (Y folgado Bradesco; Nubank) com reais anonimizados fora do git.  
+2. Adapters só com falha sistemática de valor/direção.  
+3. OCR local se a telemetria de `SCANNED_PDF` justificar.  
+4. LLM de extração só com DPIA e default off.  
+5. Botão único “Importar extrato”; Open Finance como alternativa.
+
+---
+
+## 13. O que não fazer
+
+- FileField / mídia / S3 / Redis para o PDF.  
+- Celery no v1 sem evidência de timeout/RSS/CVE.  
+- pdfplumber ou pypdf como engine.  
+- PyMuPDF sem licença comercial.  
+- `find_tables` como verdade.  
+- Auto-import; parser “Santander MVP”; fatura de cartão.  
+- `ofx_fitid` sintético; inferir conta GranaGo; direção só por cor.  
+- Tratar cada página como região independente.  
+- Prometer na Política o que o código não faz.
+
+---
+
+## 14. Decisões desta versão (22/08/2026)
+
+1. PDF = terceira origem; mesmo preview, mesma IA de categoria, mesmo confirmar.  
+2. Engine **pypdfium2**; camada words+bbox; pdf-oxide reserva; PyMuPDF só com Artifex.  
+3. **v1 síncrono** (bytes no request), como OFX. Celery revogado até haver evidência.  
+4. Não persistir o PDF; tempfile só se path for inevitável; nunca Redis/mídia.  
+5. Extração local; `find_tables` off; sem LLM/OCR na extração.  
+6. Scan = nenhuma página com texto.  
+7. Região = tabela lógica (pode cruzar página); 2+ movimento → perguntar; investimento não é opção.  
+8. `generic_table_v1` com herança de data; zero adapters no lançamento. Manter `LinhaOfx`.  
+9. Preview sempre; `baixa` com ciência; flag fraca `data+valor+tipo`.  
+10. Feature **viável**; próximo passo é implementar, não novo spike de lib.
+
+---
+
+## 15. Ainda em aberto (não bloqueia o PR de fundação)
+
+- RSS de pico do pypdfium2 em produção (medir no PR).  
+- Gabarito humano de identidade em PDF real anonimizado (fora do git).  
+- Volume de dossiê consolidado vs extrato curto.  
+- Texto jurídico da §3.3 (go-live).
+
+---
+
+## 16. Fora do v1
+
+Fatura de cartão; Open Finance; OCR/foto; detecção automática da conta; guardar comprovante; vários PDFs de uma vez; botão único de importação; Celery; adapters por banco.
