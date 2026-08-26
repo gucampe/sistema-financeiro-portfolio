@@ -137,11 +137,8 @@ def deve_mostrar_atalho_primeiros_passos(
     progresso: dict[str, Any] | None = None,
     perfil: Perfil | None = None,
 ) -> bool:
-    """Atalho some após o essencial (conta + lançamento) ou se o usuário pediu para ocultar."""
+    """Atalho some só se o usuário clicou em “Não mostrar o atalho novamente”."""
+    _ = progresso
     if perfil is None:
         perfil, _ = Perfil.objects.get_or_create(usuario=user)
-    if getattr(perfil, "ocultar_atalho_primeiros_passos", False):
-        return False
-    if progresso is None:
-        progresso = progresso_primeiros_passos(user)
-    return not bool(progresso.get("essencial_completo"))
+    return not bool(getattr(perfil, "ocultar_atalho_primeiros_passos", False))

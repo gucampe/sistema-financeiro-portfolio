@@ -175,11 +175,11 @@ class PrimeirosPassosServiceTests(OnboardingTestMixin, TestCase):
         self.assertTrue(p["essencial_completo"])
         self.assertFalse(p["total_completo"])
 
-    def test_atalho_some_quando_essencial_completo(self):
+    def test_atalho_permanece_quando_essencial_completo(self):
         self.assertTrue(deve_mostrar_atalho_primeiros_passos(self.user))
         conta = self.criar_conta(self.user)
         self.criar_movimentacao(self.user, conta)
-        self.assertFalse(deve_mostrar_atalho_primeiros_passos(self.user))
+        self.assertTrue(deve_mostrar_atalho_primeiros_passos(self.user))
 
     def test_atalho_some_quando_usuario_pede_para_ocultar(self):
         perfil, _ = Perfil.objects.get_or_create(usuario=self.user)
@@ -273,16 +273,16 @@ class PrimeirosPassosFluxoIntegradoTests(OnboardingTestMixin, TestCase):
         self.assertContains(r_page, f'{reverse("cartoes:home")}?nova=1')
         self.assertContains(r_page, "data-pp-skip-cartao")
 
-        # 3 — Movimentação: essencial completo, botão ocultar visível, FAB some do dashboard
+        # 3 — Movimentação: essencial completo, botão ocultar visível; FAB permanece
         conta = Conta.objects.get(usuario=self.user, ativa=True)
         self.criar_movimentacao(self.user, conta)
         r_page = self.client.get(self.page_url)
         self.assertContains(r_page, "2 de 3 etapas concluídas")
         self.assertContains(r_page, "pp-btn-dismiss-essencial")
         r_home = self.client.get(self.home_url)
-        self.assertNotContains(r_home, 'id="pp-fab"')
+        self.assertContains(r_home, 'id="pp-fab"')
 
-        # 4 — Cartão: total completo + banner (atalho no dashboard continua oculto)
+        # 4 — Cartão: total completo + banner; FAB some só após “não mostrar”
         self.criar_cartao(self.user, conta)
         r_page = self.client.get(self.page_url)
         self.assertContains(r_page, "3 de 3 etapas concluídas")
@@ -290,8 +290,14 @@ class PrimeirosPassosFluxoIntegradoTests(OnboardingTestMixin, TestCase):
         self.assertContains(r_page, "pp-btn-dismiss-done")
 
         r_home = self.client.get(self.home_url)
+        self.assertContains(r_home, 'id="pp-fab"')
+        data = self._get_progresso_json(r_home)
+        self.assertTrue(data["total_completo"])
+        self.assertEqual(data["concluidas"], 3)
+
+        self.client.post(reverse("usuarios:primeiros_passos_ocultar_atalho"))
+        r_home = self.client.get(self.home_url)
         self.assertNotContains(r_home, 'id="pp-fab"')
-        self.assertNotContains(r_home, "primeiros-passos-data")
 
 
 class PrimeirosPassosDashboardTests(OnboardingTestMixin, TestCase):
@@ -319,12 +325,12 @@ class PrimeirosPassosDashboardTests(OnboardingTestMixin, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], reverse("relatorios:home"))
 
-    def test_dashboard_esconde_fab_apos_essencial(self):
+    def test_dashboard_mantem_fab_apos_essencial(self):
         conta = self.criar_conta(self.user)
         self.criar_movimentacao(self.user, conta)
         response = self.client.get(self.url)
-        self.assertNotContains(response, 'id="pp-fab"')
-        self.assertNotContains(response, "primeiros-passos.js")
+        self.assertContains(response, 'id="pp-fab"')
+        self.assertContains(response, "primeiros-passos.js")
 
     def test_ocultar_atalho_persiste_no_perfil(self):
         url = reverse("usuarios:primeiros_passos_ocultar_atalho")
