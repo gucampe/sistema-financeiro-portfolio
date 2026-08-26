@@ -44,6 +44,8 @@ from .forms import (
 from .models import Perfil, Usuario
 from .utils import iniciais_avatar
 
+TURNSTILE_FALHA_MSG = "Não foi possível validar a verificação. Tente de novo."
+
 
 def _legal_context(request=None):
     site_url = getattr(settings, "SITE_URL", "") or (
@@ -59,13 +61,13 @@ def _legal_context(request=None):
         "whatsapp_suporte": WHATSAPP_SUPORTE,
         "whatsapp_suporte_display": WHATSAPP_SUPORTE_DISPLAY,
         "whatsapp_suporte_url": f"https://wa.me/55{WHATSAPP_SUPORTE}",
+        "turnstile_site_key": getattr(settings, "TURNSTILE_SITE_KEY", "") or "",
     }
 
 
 def _landing_context(request):
     ctx = _legal_context(request)
     ctx["captura_form"] = CapturaLeadForm()
-    ctx["turnstile_site_key"] = getattr(settings, "TURNSTILE_SITE_KEY", "") or ""
     return ctx
 
 
@@ -161,7 +163,7 @@ def captura_lead_view(request):
 
     token = request.POST.get("cf-turnstile-response", "")
     if not verificar_turnstile(token, _client_ip(request)):
-        form.add_error(None, "Não foi possível validar a verificação. Tente de novo.")
+        form.add_error(None, TURNSTILE_FALHA_MSG)
         ctx = _landing_context(request)
         ctx["captura_form"] = form
         ctx["abrir_modal_captura"] = True
@@ -247,6 +249,13 @@ def conta_configurar_view(request, uidb64, token):
 
 def login_view(request):
     if request.method == "POST":
+        if not verificar_turnstile(
+            request.POST.get("cf-turnstile-response", ""),
+            _client_ip(request),
+        ):
+            messages.error(request, TURNSTILE_FALHA_MSG)
+            return redirect("usuarios:login")
+
         email = request.POST.get("email")
         senha = request.POST.get("senha")
 
@@ -258,7 +267,9 @@ def login_view(request):
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect("usuarios:login")
 
-    return render(request, "usuarios/partials/login.html", _legal_context(request))
+    ctx = _legal_context(request)
+    ctx["turnstile_action"] = "login"
+    return render(request, "usuarios/partials/login.html", ctx)
 
 
 def privacidade_view(request):

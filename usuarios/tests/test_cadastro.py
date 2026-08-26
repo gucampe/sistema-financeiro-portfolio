@@ -203,6 +203,46 @@ class TurnstileTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(User.objects.count(), 0)
 
+    def test_widget_captura_e_login_interaction_only(self):
+        with override_settings(TURNSTILE_SITE_KEY="site", TURNSTILE_SECRET_KEY="secret"):
+            comece = self.client.get(reverse("usuarios:landing")).content.decode()
+            login = self.client.get(reverse("usuarios:login")).content.decode()
+        self.assertIn("data-appearance=\"interaction-only\"", comece)
+        self.assertIn('data-action="cadastro"', comece)
+        self.assertIn("challenges.cloudflare.com/turnstile", comece)
+        self.assertIn("data-appearance=\"interaction-only\"", login)
+        self.assertIn('data-action="login"', login)
+        self.assertIn("challenges.cloudflare.com/turnstile", login)
+
+    def test_token_invalido_rejeita_login(self):
+        User.objects.create_user(
+            email="login@example.com",
+            password=SENHA_OK,
+            nome="Login User",
+        )
+        with override_settings(TURNSTILE_SITE_KEY="site", TURNSTILE_SECRET_KEY="secret"):
+            with patch("usuarios.views.verificar_turnstile", return_value=False):
+                resp = self.client.post(
+                    reverse("usuarios:login"),
+                    {"email": "login@example.com", "senha": SENHA_OK},
+                )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp["Location"].endswith("/login/"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_client_ip_prioriza_cabecalhos_de_proxy(self):
+        from django.test import RequestFactory
+
+        from usuarios.audit import _client_ip, axes_client_ip
+
+        rf = RequestFactory()
+        req = rf.get("/", HTTP_CF_CONNECTING_IP="200.1.2.3", HTTP_X_FORWARDED_FOR="10.0.0.1")
+        self.assertEqual(_client_ip(req), "200.1.2.3")
+        req = rf.get("/", HTTP_X_REAL_IP="200.4.5.6", REMOTE_ADDR="127.0.0.1")
+        self.assertEqual(axes_client_ip(req), "200.4.5.6")
+        req = rf.get("/", REMOTE_ADDR="127.0.0.1")
+        self.assertEqual(axes_client_ip(req), "127.0.0.1")
+
 
 class SetupContaTests(TestCase):
     def setUp(self):

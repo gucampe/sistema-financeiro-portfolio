@@ -1,0 +1,10 @@
+{% if turnstile_site_key %}
+  <div
+    class="cf-turnstile"
+    data-sitekey="{{ turnstile_site_key }}"
+    data-theme="light"
+    data-appearance="interaction-only"
+    data-size="flexible"
+    {% if turnstile_action %}data-action="{{ turnstile_action }}"{% endif %}
+  ></div>
+{% endif %}

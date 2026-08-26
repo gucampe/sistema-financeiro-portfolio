@@ -90,11 +90,14 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("rótulos definidos por você", priv)
         self.assertIn("número real de cartão", priv)
         self.assertIn("configurações do navegador", priv)
+        self.assertIn("Cloudflare Turnstile", priv)
+        self.assertIn("turnstile-privacy-policy", priv)
         self.assertIn("ola@granago.com.br", termos)
         self.assertIn("leis da República Federativa do Brasil", termos)
         self.assertIn("atividades realizadas a partir da sua conta", termos)
         self.assertIn("cópias próprias", termos)
         self.assertIn("não solicita", termos)
+        self.assertIn("Cloudflare Turnstile", termos)
         self.assertNotIn("operador", termos)
 
     def test_robots_e_sitemap(self):

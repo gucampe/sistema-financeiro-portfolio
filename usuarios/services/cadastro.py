@@ -136,8 +136,8 @@ def registrar_primeiro_dono(*, nome: str, email: str, whatsapp: str, request=Non
         usuario=usuario,
         email=email,
         canal=Consentimento.CANAL_CAPTURA,
-        versao_termos=getattr(settings, "LEGAL_TERMS_VERSION", "2026-08-14"),
-        versao_privacidade=getattr(settings, "LEGAL_PRIVACY_VERSION", "2026-08-14"),
+        versao_termos=getattr(settings, "LEGAL_TERMS_VERSION", "2026-08-25"),
+        versao_privacidade=getattr(settings, "LEGAL_PRIVACY_VERSION", "2026-08-25"),
         ip=_client_ip(request),
         user_agent=_user_agent(request),
     )

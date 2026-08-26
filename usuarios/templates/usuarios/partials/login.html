@@ -44,7 +44,9 @@
         </div>
       </div>
 
-
+      <div class="mb-4">
+        {% include "partials/turnstile_widget.html" %}
+      </div>
 
       <button type="submit" class="btn btn-primary btn-block">
         Entrar
@@ -70,4 +72,8 @@
   </div>
 </div>
 <script src="{% static 'usuarios/js/togglePassword.js' %}"></script>
+{% endblock %}
+
+{% block extra_js %}
+{% include "partials/turnstile_script.html" %}
 {% endblock %}

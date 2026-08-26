@@ -358,7 +358,7 @@ class TestSegurancaUnit(TestCase):
 @pytest.mark.seguranca
 @pytest.mark.django_db
 def test_sec_rl_01_login_throttle(settings):
-    """>N POST /login/ mesmo IP → bloqueio axes."""
+    """N falhas no mesmo e-mail → bloqueio Axes (não depende de IP)."""
     from django.test import Client
 
     User = get_user_model()
@@ -370,6 +370,25 @@ def test_sec_rl_01_login_throttle(settings):
         client.post(url, {"email": "rl@test.local", "senha": "wrong"})
     resp = client.post(url, {"email": "rl@test.local", "senha": "wrong"})
     assert resp.status_code in (403, 429)
+
+
+@pytest.mark.seguranca
+@pytest.mark.django_db
+def test_sec_rl_02_lockout_nao_bloqueia_outro_email_no_mesmo_cliente(settings):
+    """Lockout por e-mail: outra conta no mesmo IP/cliente ainda autentica."""
+    from django.test import Client
+
+    User = get_user_model()
+    User.objects.create_user(email="rl-a@test.local", password="good-a", nome="RLA")
+    User.objects.create_user(email="rl-b@test.local", password="good-b", nome="RLB")
+    client = Client(enforce_csrf_checks=False)
+    url = reverse("usuarios:login")
+    limit = getattr(settings, "AXES_FAILURE_LIMIT", 5)
+    for _ in range(limit + 1):
+        client.post(url, {"email": "rl-a@test.local", "senha": "wrong"})
+    resp = client.post(url, {"email": "rl-b@test.local", "senha": "good-b"})
+    assert resp.status_code == 302
+    assert "/login/" not in resp["Location"]
 
 
 @pytest.mark.seguranca

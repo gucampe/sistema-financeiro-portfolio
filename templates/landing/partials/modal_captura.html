@@ -69,9 +69,7 @@
       </div>
 
       <div class="modal-panel__footer lp-modal-footer space-y-3 px-5 py-5 sm:px-7">
-        {% if turnstile_site_key %}
-          <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
-        {% endif %}
+        {% include "partials/turnstile_widget.html" with turnstile_action="cadastro" %}
         <button type="submit" class="btn btn-primary lp-btn-premium btn-block py-3.5 text-base" data-captura-submit>
           Garantir minha vaga no GranaGo <span class="lp-cta-arrow" aria-hidden="true">→</span>
         </button>

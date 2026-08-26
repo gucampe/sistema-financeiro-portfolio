@@ -13,10 +13,21 @@ from usuarios.models import AuditLog
 def _client_ip(request) -> str | None:
     if request is None:
         return None
+    cf = (request.META.get("HTTP_CF_CONNECTING_IP") or "").strip()
+    if cf:
+        return cf[:45]
+    real = (request.META.get("HTTP_X_REAL_IP") or "").strip()
+    if real:
+        return real[:45]
     forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
     if forwarded:
         return forwarded.split(",")[0].strip()[:45]
     return (request.META.get("REMOTE_ADDR") or "")[:45] or None
+
+
+def axes_client_ip(request) -> str:
+    """IP real só para registro no Axes — o lockout é por e-mail, não por IP."""
+    return _client_ip(request) or ""
 
 
 def registrar_audit(

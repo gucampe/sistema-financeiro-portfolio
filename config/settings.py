@@ -232,7 +232,9 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = config("AXES_FAILURE_LIMIT", default=5, cast=int)
 # Horas (float): 0.25 = 15 min — MVP mais tolerante a typos de senha.
 AXES_COOLOFF_TIME = config("AXES_COOLOFF_TIME", default=0.25, cast=float)
-AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
+# Trava só o e-mail (não o IP): evita punir vizinhos em CGNAT de operadora.
+AXES_LOCKOUT_PARAMETERS = ["username"]
+AXES_CLIENT_IP_CALLABLE = "usuarios.audit.axes_client_ip"
 AXES_RESET_ON_SUCCESS = True
 AXES_ENABLE_ADMIN = True
 AXES_USERNAME_FORM_FIELD = "email"
@@ -406,8 +408,8 @@ PRIMEIROS_DONOS_SIGNUP_ENABLED = config(
     default=not IS_PRODUCTION,
     cast=bool,
 )
-LEGAL_TERMS_VERSION = config("LEGAL_TERMS_VERSION", default="2026-08-14")
-LEGAL_PRIVACY_VERSION = config("LEGAL_PRIVACY_VERSION", default="2026-08-14")
+LEGAL_TERMS_VERSION = config("LEGAL_TERMS_VERSION", default="2026-08-25")
+LEGAL_PRIVACY_VERSION = config("LEGAL_PRIVACY_VERSION", default="2026-08-25")
 CONTA_SETUP_TIMEOUT = config("CONTA_SETUP_TIMEOUT", default=48 * 60 * 60, cast=int)
 SETUP_EMAIL_COOLDOWN_SECONDS = config("SETUP_EMAIL_COOLDOWN_SECONDS", default=60, cast=int)
 SETUP_EMAIL_RATE_LIMIT_PER_HOUR = config("SETUP_EMAIL_RATE_LIMIT_PER_HOUR", default=5, cast=int)

@@ -31,7 +31,7 @@
         <span>Privacidade</span>
       </nav>
       <h1 id="legal-title" class="lp-legal-title">Política de Privacidade</h1>
-      <p class="lp-legal-meta">Última atualização: 14 de agosto de 2026</p>
+      <p class="lp-legal-meta">Última atualização: 25 de agosto de 2026</p>
       <p class="lp-legal-lead">
         Esta política explica como o <strong>GranaGo</strong> trata dados pessoais ao oferecer ferramentas de organização financeira pessoal,
         em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
@@ -144,6 +144,9 @@
         <p>
           Endereço IP, identificadores de sessão, registros de acesso e de segurança (por exemplo, tentativas de login malsucedidas),
           cookies essenciais e informações técnicas de erro para manutenção da estabilidade do sistema.
+          Nos formulários públicos de cadastro e login, sinais técnicos do navegador também podem ser processados
+          pelo Cloudflare Turnstile para distinguir pessoas de acessos automatizados, conforme a seção
+          <a href="#subprocessadores">Parceiros</a>.
         </p>
 
         <h3>3.5 Dados do programa Primeiros Donos</h3>
@@ -170,7 +173,7 @@
           <li>processar importações de extrato que você enviar;</li>
           <li>reservar vaga no programa Primeiros Donos, enviar o acesso e falar sobre o primeiro uso;</li>
           <li>prestar suporte e responder solicitações de privacidade;</li>
-          <li>proteger a plataforma contra uso indevido, fraude e incidentes de segurança;</li>
+          <li>proteger a plataforma contra uso indevido, fraude e incidentes de segurança, inclusive com verificação automatizada contra bots no cadastro e no login;</li>
           <li>manter estabilidade, diagnosticar erros e melhorar o funcionamento do serviço;</li>
           <li>enviar comunicações relacionadas à conta e à prestação do serviço — não usamos esses canais para spam.</li>
         </ul>
@@ -197,6 +200,20 @@
         <p>
           Esses fornecedores podem processar dados pessoais em nosso nome exclusivamente para viabilizar o funcionamento
           da plataforma, melhorar estabilidade, prevenir fraudes e prestar suporte operacional.
+        </p>
+        <h3>Cloudflare</h3>
+        <p>
+          Utilizamos serviços da <strong>Cloudflare, Inc.</strong> (Estados Unidos) para entrega do site (DNS, proxy TLS)
+          e para o <strong>Cloudflare Turnstile</strong>, uma verificação contra bots nos formulários de cadastro e de login.
+          O Turnstile pode processar endereço IP, dados do navegador e um token de desafio; não enviamos a ele o conteúdo
+          dos seus lançamentos financeiros nem a senha em si.
+          A verificação ocorre em interesse legítimo de segurança da plataforma.
+        </p>
+        <p>
+          Saiba mais na
+          <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer" target="_blank">Política de Privacidade da Cloudflare</a>
+          e no
+          <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener noreferrer" target="_blank">Turnstile Privacy Addendum</a>.
         </p>
         <h3 id="transferencia">Transferência internacional</h3>
         <p>
@@ -242,7 +259,8 @@
         <ul>
           <li>reduzir o risco de acesso não autorizado às contas e aos dados;</li>
           <li>proteger informações contra perda, uso indevido ou alteração indevida;</li>
-          <li>preservar a integridade das informações financeiras que você registra na plataforma.</li>
+          <li>preservar a integridade das informações financeiras que você registra na plataforma;</li>
+          <li>limitar tentativas repetidas de senha incorreta na mesma conta, sem bloquear outros usuários que compartilhem o mesmo endereço IP (por exemplo, em redes de operadora).</li>
         </ul>
         <p class="lp-legal-note">
           Nenhum sistema é totalmente imune a incidentes. Se identificarmos um problema relevante que afete seus dados,
@@ -258,6 +276,7 @@
         <ul>
           <li><strong>Sessão</strong> — mantém você autenticado enquanto usa a plataforma.</li>
           <li><strong>CSRF</strong> — protege formulários contra envios não autorizados.</li>
+          <li><strong>Turnstile (Cloudflare)</strong> — cookies ou armazenamento local do desafio em challenges.cloudflare.com, usados só para verificar se o acesso é humano no cadastro e no login. Não são cookies de marketing.</li>
         </ul>
         <p>
           Exibimos um aviso simplificado na primeira visita para informar sobre cookies essenciais.
