@@ -152,6 +152,7 @@
 
   function tentarAbrirSheetMobile(target) {
     if (!isMobileTablet()) return false;
+    if (globalThis.GranaGoTouch?.wasScroll()) return false;
     if (target.closest("button, a, input, select, textarea, label, form, [data-cartao-acao]")) {
       return false;
     }
@@ -167,9 +168,14 @@
     GranaGoModal.bind(overlaySheet, { onClose: fecharSheet });
   }
 
-  document.addEventListener("click", (event) => {
-    const acaoBtn = event.target.closest("[data-cartao-acao]");
-    if (acaoBtn) {
+    document.addEventListener("click", (event) => {
+      const acaoBtn = event.target.closest("[data-cartao-acao]");
+      if (acaoBtn) {
+        if (globalThis.GranaGoTouch?.wasScroll()) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
       event.preventDefault();
       event.stopPropagation();
       const acao = acaoBtn.dataset.cartaoAcao;
@@ -206,17 +212,6 @@
       event.preventDefault();
     }
   });
-
-  listaCartoes?.addEventListener(
-    "touchend",
-    (event) => {
-      if (!isMobileTablet()) return;
-      if (tentarAbrirSheetMobile(event.target)) {
-        event.preventDefault();
-      }
-    },
-    { passive: false }
-  );
 
   document.addEventListener(
     "keydown",

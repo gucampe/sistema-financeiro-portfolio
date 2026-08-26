@@ -59,7 +59,7 @@ def sugerir_categoria(request):
         except Exception:
             valor_dec = None
 
-    sugestao = sugerir(request.user, descricao, tipo, valor_dec)
+    sugestao = sugerir(request.user, descricao, tipo, valor_dec, usar_llm=False)
     return JsonResponse({
         "status": "ok",
         "sugestao": sugestao.to_dict() if sugestao else None,

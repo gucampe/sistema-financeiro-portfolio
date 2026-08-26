@@ -290,6 +290,7 @@
 
     _tentarAbrirSheetMobile(target) {
       if (!isMobileTablet()) return false;
+      if (global.GranaGoTouch?.wasScroll()) return false;
       if (target.closest(this.interactiveSelector)) return false;
 
       const item = this._itemFromTarget(target);
@@ -324,17 +325,6 @@
 
       this.root.addEventListener("click", onClick);
 
-      this.root.addEventListener(
-        "touchend",
-        (event) => {
-          if (!isMobileTablet()) return;
-          if (this._tentarAbrirSheetMobile(event.target)) {
-            event.preventDefault();
-          }
-        },
-        { passive: false }
-      );
-
       this.root.addEventListener("keydown", (event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
         if (!isMobileTablet()) return;
@@ -362,6 +352,11 @@
     }
 
     document.addEventListener("click", (event) => {
+      if (global.GranaGoTouch?.wasScroll() && event.target.closest?.(`[${ACTION_ATTR}]`)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
       if (tentarExecutarAcaoDeEvento(event.target)) {
         event.preventDefault();
         event.stopPropagation();
@@ -381,6 +376,7 @@
     document.addEventListener(
       "touchend",
       (event) => {
+        if (global.GranaGoTouch?.wasScroll()) return;
         if (tentarExecutarAcaoDeEvento(event.target)) {
           event.preventDefault();
           event.stopPropagation();

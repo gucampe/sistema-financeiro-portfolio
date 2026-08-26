@@ -79,8 +79,17 @@ def classificar(ctx: ContextoCategorizacao) -> PredicaoCategorizacao | None:
     return melhor
 
 
-def _classificar_para_sugestao(ctx: ContextoCategorizacao) -> PredicaoCategorizacao | None:
-    if getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False):
+def _classificar_para_sugestao(
+    ctx: ContextoCategorizacao,
+    *,
+    usar_llm: bool | None = None,
+) -> PredicaoCategorizacao | None:
+    llm_ligada = getattr(settings, "ENABLE_CATEGORIZACAO_LLM", False)
+    if usar_llm is None:
+        usar_llm = llm_ligada
+    else:
+        usar_llm = bool(usar_llm) and llm_ligada
+    if usar_llm:
         from categorizacao.services.llm.orchestrator import classificar_com_llm
 
         return classificar_com_llm(ctx)
@@ -93,9 +102,11 @@ def sugerir(
     tipo: str,
     valor: Decimal | None = None,
     prefs: PreferenciasCategorizacao | None = None,
+    *,
+    usar_llm: bool | None = None,
 ) -> SugestaoCategorizacao | None:
     ctx = _construir_contexto(usuario, descricao, tipo, valor)
-    pred = _classificar_para_sugestao(ctx)
+    pred = _classificar_para_sugestao(ctx, usar_llm=usar_llm)
     if pred is None:
         return None
     if prefs is None:
@@ -107,6 +118,8 @@ def sugerir_batch(
     usuario,
     linhas: list[dict],
     prefs: PreferenciasCategorizacao | None = None,
+    *,
+    usar_llm: bool | None = None,
 ) -> list[SugestaoCategorizacao | None]:
     if prefs is None:
         prefs = PreferenciasCategorizacao.from_usuario(usuario)
@@ -120,5 +133,7 @@ def sugerir_batch(
                 valor = Decimal(str(valor))
             except Exception:
                 valor = None
-        resultados.append(sugerir(usuario, descricao, tipo, valor, prefs))
+        resultados.append(
+            sugerir(usuario, descricao, tipo, valor, prefs, usar_llm=usar_llm)
+        )
     return resultados

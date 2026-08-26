@@ -10,7 +10,10 @@ from django.http import QueryDict
 from categorias.models import Categoria
 from transacoes.forms import TransacaoForm
 from usuarios.models import Perfil
-from usuarios.services.onboarding import progresso_primeiros_passos
+from usuarios.services.onboarding import (
+    deve_mostrar_atalho_primeiros_passos,
+    progresso_primeiros_passos,
+)
 from usuarios.utils import primeiro_nome
 
 from relatorios.services.dashboard import (
@@ -117,6 +120,7 @@ def montar_contexto_dashboard(
     perfil = _perfil_usuario(user)
     initial_tx, tipo_p = perfil.defaults_transacao_form()
     form = TransacaoForm(usuario=user, tipo_inicial=tipo_p, initial=initial_tx)
+    primeiros_passos = progresso_primeiros_passos(user)
 
     return {
         "relatorio_nav": "home",
@@ -143,7 +147,12 @@ def montar_contexto_dashboard(
         "categorias_receita": categorias_receita,
         "form": form,
         "ocultar_valores_dashboard": perfil.ocultar_valores_dashboard,
-        "primeiros_passos": progresso_primeiros_passos(user),
+        "primeiros_passos": primeiros_passos,
+        "mostrar_atalho_primeiros_passos": deve_mostrar_atalho_primeiros_passos(
+            user,
+            progresso=primeiros_passos,
+            perfil=perfil,
+        ),
     }
 
 

@@ -3,7 +3,8 @@ from __future__ import annotations
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from categorias.models import Categoria
 from categorizacao.models import MemoriaMerchantUsuario, MerchantGlobal, RegraCategorizacao
@@ -238,6 +239,36 @@ class LLMFallbackTests(TestCase):
         ):
             sug = sugerir(self.user, "PADARIA CENTRAL LTDA", "despesa")
         self.assertIsNotNone(sug)
+
+    def test_sugerir_avulso_nao_invoca_llm(self):
+        from unittest.mock import patch
+
+        with self.settings(
+            ENABLE_CATEGORIZACAO_LLM=True,
+            CATEGORIZACAO_LLM_USE_MOCK=True,
+            CATEGORIZACAO_LLM_MODEL="mock-llm",
+        ):
+            with patch(
+                "categorizacao.services.llm.orchestrator.classificar_com_llm"
+            ) as mock_llm:
+                sugerir(self.user, "PADARIA CENTRAL LTDA", "despesa", usar_llm=False)
+        mock_llm.assert_not_called()
+
+    def test_endpoint_sugerir_nao_invoca_llm(self):
+        from unittest.mock import patch
+
+        self.client = Client()
+        self.client.force_login(self.user)
+        with self.settings(ENABLE_CATEGORIZACAO_LLM=True):
+            with patch(
+                "categorizacao.services.llm.orchestrator.classificar_com_llm"
+            ) as mock_llm:
+                resp = self.client.get(
+                    reverse("categorizacao:sugerir_categoria"),
+                    {"descricao": "padaria central ltda xyz", "tipo": "despesa"},
+                )
+        self.assertEqual(resp.status_code, 200)
+        mock_llm.assert_not_called()
 
     def test_llm_contexto_quando_ativa(self):
         with self.settings(

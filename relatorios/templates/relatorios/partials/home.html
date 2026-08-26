@@ -6,7 +6,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'relatorios/css/relatorios-dashboard-mobile.css' %}" />
+{% if mostrar_atalho_primeiros_passos %}
 <link rel="stylesheet" href="{% static 'usuarios/css/primeiros-passos.css' %}" />
+{% endif %}
 {% endblock %}
 
 {% block modal_transacao %}
@@ -38,16 +40,6 @@
 >
   <script>
     window.__ppUserId = "{{ request.user.pk }}";
-    (function () {
-      try {
-        var uid = String(window.__ppUserId || "");
-        if (uid && localStorage.getItem("granago_pp_dismissed_" + uid) === "1") {
-          document.documentElement.classList.add("pp-dismissed");
-        }
-        localStorage.removeItem("granago_pp_dismissed");
-        localStorage.removeItem("granago_pp_skip_cartao");
-      } catch (e) {}
-    })();
   </script>
   {% include 'relatorios/partials/shell_relatorio_abrir.html' %}
 
@@ -423,9 +415,11 @@
   {% include 'relatorios/partials/shell_relatorio_fechar.html' %}
 </div>
 
+{% if mostrar_atalho_primeiros_passos %}
 {% include 'usuarios/primeiros_passos/fab.html' %}
 
 {{ primeiros_passos|json_script:"primeiros-passos-data" }}
+{% endif %}
 {{ top_despesas_chart|json_script:"top-despesas-data" }}
 
 <script>
@@ -436,5 +430,7 @@
 {% block extra_js %}
 <script src="{% static 'js/chart_loader.js' %}" data-chart-src="{% static 'vendor/chart.js/chart.umd.min.js' %}" defer></script>
 <script src="{% static 'relatorios/js/dash.js' %}" defer></script>
+{% if mostrar_atalho_primeiros_passos %}
 <script src="{% static 'usuarios/js/primeiros-passos.js' %}" defer></script>
+{% endif %}
 {% endblock %}

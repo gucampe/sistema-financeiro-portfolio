@@ -61,7 +61,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-tipo">
@@ -94,7 +94,7 @@
             </select>
             <button type="button"
                     data-combobox-trigger
-                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                     aria-haspopup="listbox"
                     aria-expanded="false"
                     aria-controls="cb-list-conta-origem">
@@ -133,7 +133,7 @@
             </select>
             <button type="button"
                     data-combobox-trigger
-                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                     aria-haspopup="listbox"
                     aria-expanded="false"
                     aria-controls="cb-list-conta-destino">
@@ -185,7 +185,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-conta-cartao">
@@ -222,6 +222,18 @@
         {% endif %}
       </div>
 
+      <!-- Descrição (antes da categoria, para a sugestão local orientar a escolha) -->
+      <div class="mb-4 min-w-0">
+        <label for="descricao" class="block text-sm font-medium mb-1 text-fg">Descrição</label>
+        <input type="text" name="descricao" id="descricao" required
+               class="input w-full max-w-full min-w-0">
+        <div id="categorizacao-sugestao-chip" class="hidden mt-2"></div>
+        <input type="hidden" name="categorizacao_sugerida_id" id="categorizacao_sugerida_id" value="">
+        <input type="hidden" name="categorizacao_confianca" id="categorizacao_confianca" value="">
+        <input type="hidden" name="categorizacao_fonte" id="categorizacao_fonte" value="">
+        <input type="hidden" name="categorizacao_merchant_key" id="categorizacao_merchant_key" value="">
+      </div>
+
       <!-- Categoria (select nativo + combobox visual) -->
       <div class="mb-4 min-w-0" data-combobox-root="categoria" id="bloco-categoria">
         <label for="categoria" class="block text-sm font-medium mb-1 text-fg">Categoria</label>
@@ -239,7 +251,7 @@
           </select>
           <button type="button"
                   data-combobox-trigger
-                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  class="flex w-full max-w-full min-w-0 items-center gap-2 rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-left text-sm text-fg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-haspopup="listbox"
                   aria-expanded="false"
                   aria-controls="cb-list-categoria">
@@ -264,18 +276,6 @@
         <input type="text" name="valor" id="valor" required
                class="input input-moeda w-full max-w-full min-w-0"
                data-moeda-input autocomplete="off" inputmode="decimal">
-      </div>
-
-      <!-- Descrição -->
-      <div class="mb-4 min-w-0">
-        <label for="descricao" class="block text-sm font-medium mb-1 text-fg">Descrição</label>
-        <input type="text" name="descricao" id="descricao" required
-               class="input w-full max-w-full min-w-0">
-        <div id="categorizacao-sugestao-chip" class="hidden mt-2"></div>
-        <input type="hidden" name="categorizacao_sugerida_id" id="categorizacao_sugerida_id" value="">
-        <input type="hidden" name="categorizacao_confianca" id="categorizacao_confianca" value="">
-        <input type="hidden" name="categorizacao_fonte" id="categorizacao_fonte" value="">
-        <input type="hidden" name="categorizacao_merchant_key" id="categorizacao_merchant_key" value="">
       </div>
 
       <!-- Data -->

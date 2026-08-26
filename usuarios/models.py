@@ -94,6 +94,11 @@ class Perfil(models.Model):
         default=False,
         help_text=_("Mascara valores sensíveis na tela inicial."),
     )
+    ocultar_atalho_primeiros_passos = models.BooleanField(
+        _("Ocultar atalho de primeiros passos"),
+        default=False,
+        help_text=_("Não mostra o atalho flutuante no dashboard, em qualquer dispositivo."),
+    )
     categorizacao_auto_aplicar = models.BooleanField(
         _("Aplicar categorias automaticamente"),
         default=False,

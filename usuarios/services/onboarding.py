@@ -11,7 +11,7 @@ from django.core.cache import cache
 from cartoes.models import Cartao
 from contas.models import Conta
 from transacoes.models import Transacao
-from usuarios.models import Usuario
+from usuarios.models import Perfil, Usuario
 
 ONBOARDING_CACHE_TTL = 0 if settings.DEBUG else 60
 
@@ -125,3 +125,23 @@ def progresso_primeiros_passos(user: Usuario) -> dict[str, Any]:
     if ONBOARDING_CACHE_TTL > 0:
         cache.set(cache_key, resultado, ONBOARDING_CACHE_TTL)
     return resultado
+
+
+def invalidar_progresso_onboarding(user_id: int) -> None:
+    cache.delete(f"onboarding:progress:{user_id}")
+
+
+def deve_mostrar_atalho_primeiros_passos(
+    user: Usuario,
+    *,
+    progresso: dict[str, Any] | None = None,
+    perfil: Perfil | None = None,
+) -> bool:
+    """Atalho some após o essencial (conta + lançamento) ou se o usuário pediu para ocultar."""
+    if perfil is None:
+        perfil, _ = Perfil.objects.get_or_create(usuario=user)
+    if getattr(perfil, "ocultar_atalho_primeiros_passos", False):
+        return False
+    if progresso is None:
+        progresso = progresso_primeiros_passos(user)
+    return not bool(progresso.get("essencial_completo"))

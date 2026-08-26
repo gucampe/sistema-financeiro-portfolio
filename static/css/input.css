@@ -115,7 +115,7 @@
   [data-combobox-trigger],
   [data-cat-trigger] {
     position: relative;
-    padding-right: 2.25rem;
+    padding-right: 2.75rem;
   }
 
   /* Ícone de seta reutilizável (combobox, dropdown de mês, etc.) */
@@ -136,11 +136,23 @@
   [data-combobox-trigger] > [data-combobox-chevron],
   [data-cat-trigger] > [data-combobox-chevron] {
     position: absolute;
-    right: 0.75rem;
+    right: 1rem;
     top: 50%;
     margin: 0;
     transform: translateY(-50%);
     vertical-align: unset;
+  }
+
+  @media (max-width: 639px) {
+    [data-combobox-trigger],
+    [data-cat-trigger] {
+      padding-right: 3rem;
+    }
+
+    [data-combobox-trigger] > [data-combobox-chevron],
+    [data-cat-trigger] > [data-combobox-chevron] {
+      right: 1.25rem;
+    }
   }
 
   .input-moeda,

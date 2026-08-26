@@ -19,14 +19,17 @@ from django.urls import reverse, reverse_lazy
 from django.conf import settings
 
 from usuarios.audit import registrar_audit, _client_ip
-from usuarios.models import AuditLog
+from usuarios.models import AuditLog, Perfil
 from usuarios.services.cadastro import registrar_primeiro_dono
 from usuarios.services.email_acesso import (
     WHATSAPP_SUPORTE,
     WHATSAPP_SUPORTE_DISPLAY,
     url_redefinir_senha,
 )
-from usuarios.services.onboarding import progresso_primeiros_passos
+from usuarios.services.onboarding import (
+    deve_mostrar_atalho_primeiros_passos,
+    progresso_primeiros_passos,
+)
 from usuarios.tokens import conta_setup_token_generator
 from usuarios.turnstile import verificar_turnstile
 from relatorios.models import ExportJob
@@ -397,10 +400,16 @@ def configuracoes_alterar_senha(request):
 @never_cache
 def primeiros_passos(request):
     """Central de configuração inicial — página dedicada."""
+    progresso = progresso_primeiros_passos(request.user)
     return render(
         request,
         "usuarios/primeiros_passos/primeiros_passos.html",
-        {"primeiros_passos": progresso_primeiros_passos(request.user)},
+        {
+            "primeiros_passos": progresso,
+            "mostrar_atalho_primeiros_passos": deve_mostrar_atalho_primeiros_passos(
+                request.user, progresso=progresso
+            ),
+        },
     )
 
 
@@ -409,6 +418,17 @@ def primeiros_passos(request):
 def primeiros_passos_status(request):
     """Status JSON do checklist — atualização client-side sem reload."""
     return JsonResponse(progresso_primeiros_passos(request.user))
+
+
+@login_required
+@require_http_methods(["POST"])
+def primeiros_passos_ocultar_atalho(request):
+    """Persiste no perfil o pedido para não mostrar o atalho no dashboard."""
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    if not perfil.ocultar_atalho_primeiros_passos:
+        perfil.ocultar_atalho_primeiros_passos = True
+        perfil.save(update_fields=["ocultar_atalho_primeiros_passos"])
+    return JsonResponse({"status": "ok", "oculto": True})
 
 
 def _limpar_arquivos_usuario(usuario):

@@ -20,6 +20,7 @@ from .views import (
     nossa_historia_view,
     obrigado_view,
     primeiros_passos,
+    primeiros_passos_ocultar_atalho,
     primeiros_passos_status,
     privacidade_view,
     robots_txt,
@@ -80,4 +81,9 @@ urlpatterns = [
     path("configuracoes/excluir-conta/", excluir_conta, name="excluir_conta"),
     path("primeiros-passos/", primeiros_passos, name="primeiros_passos"),
     path("primeiros-passos/status/", primeiros_passos_status, name="primeiros_passos_status"),
+    path(
+        "primeiros-passos/ocultar-atalho/",
+        primeiros_passos_ocultar_atalho,
+        name="primeiros_passos_ocultar_atalho",
+    ),
 ]

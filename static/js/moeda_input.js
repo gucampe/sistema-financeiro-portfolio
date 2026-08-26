@@ -77,6 +77,24 @@
     setCents(input, Math.floor(getCents(input) / 10));
   }
 
+  function isCoarsePointer() {
+    try {
+      return window.matchMedia("(pointer: coarse)").matches;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function collapseSelection(input) {
+    if (typeof input.setSelectionRange !== "function") return;
+    var len = (input.value || "").length;
+    try {
+      input.setSelectionRange(len, len);
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
   function hasTextSelection(input) {
     if (
       typeof input.selectionStart !== "number" ||
@@ -168,6 +186,7 @@
       if (!input.value && !allowEmpty(input)) {
         setCents(input, 0);
       }
+      if (isCoarsePointer()) return;
       setTimeout(function () {
         try {
           input.select();
@@ -260,6 +279,13 @@
   function onReady() {
     initAll(document);
   }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    document.querySelectorAll("[data-moeda-input]").forEach(function (input) {
+      if (document.activeElement === input) collapseSelection(input);
+    });
+  });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", onReady);

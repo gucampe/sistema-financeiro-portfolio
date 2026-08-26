@@ -115,6 +115,24 @@
     const fab = document.getElementById("pp-fab");
     fab?.classList.add("pp-fab--hidden");
     if (showFeedback) markDismissButtons();
+
+    const page = document.getElementById("pp-page");
+    const url = page?.dataset.ppOcultarUrl;
+    if (!url) return;
+    const csrf =
+      document.querySelector("[name=csrfmiddlewaretoken]")?.value ||
+      (document.cookie.match(/(?:^|; )csrftoken=([^;]+)/) || [])[1] ||
+      "";
+    fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "X-CSRFToken": decodeURIComponent(csrf),
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    }).catch(() => {
+      /* o atalho some neste aparelho; o servidor tenta de novo no próximo clique */
+    });
   };
 
   const updateFab = (fab, serverData) => {
