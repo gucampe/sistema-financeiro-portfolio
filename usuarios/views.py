@@ -12,11 +12,12 @@ from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
+import json
 
 from usuarios.audit import registrar_audit, _client_ip
 from usuarios.models import AuditLog, Perfil
@@ -31,6 +32,7 @@ from usuarios.services.onboarding import (
     progresso_primeiros_passos,
 )
 from usuarios.tokens import conta_setup_token_generator
+from usuarios.temas import TEMA_CHOICES, TEMA_CLARO, aplicar_cookie_tema, normalizar_tema
 from usuarios.turnstile import verificar_turnstile
 from relatorios.models import ExportJob
 
@@ -263,7 +265,10 @@ def login_view(request):
 
         if usuario is not None:
             login(request, usuario)
-            return redirect("relatorios:home")
+            perfil, _ = Perfil.objects.get_or_create(usuario=usuario)
+            resp = redirect("relatorios:home")
+            aplicar_cookie_tema(resp, getattr(perfil, "tema", TEMA_CLARO))
+            return resp
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect("usuarios:login")
 
@@ -380,6 +385,28 @@ def configuracoes(request):
         "usuarios/configuracoes/configuracoes.html",
         _configuracoes_context(request, perfil=perfil),
     )
+
+
+@login_required
+@require_POST
+def configuracoes_tema(request):
+    """Persiste claro/escuro no perfil. Não segue o tema do sistema operacional."""
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    tema = normalizar_tema(request.POST.get("tema") or "")
+    if request.content_type and "application/json" in request.content_type:
+        try:
+            payload = json.loads(request.body.decode() or "{}")
+        except json.JSONDecodeError:
+            payload = {}
+        tema = normalizar_tema(payload.get("tema") if isinstance(payload, dict) else "")
+    if tema not in {choice[0] for choice in TEMA_CHOICES}:
+        return JsonResponse({"ok": False, "erro": "Tema inválido."}, status=400)
+    if perfil.tema != tema:
+        perfil.tema = tema
+        perfil.save(update_fields=["tema"])
+    resp = JsonResponse({"ok": True, "tema": tema})
+    aplicar_cookie_tema(resp, tema)
+    return resp
 
 
 @login_required

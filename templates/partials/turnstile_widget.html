@@ -2,7 +2,7 @@
   <div
     class="cf-turnstile"
     data-sitekey="{{ turnstile_site_key }}"
-    data-theme="light"
+    data-theme="{% if tema_escuro %}dark{% else %}light{% endif %}"
     data-appearance="interaction-only"
     data-size="flexible"
     {% if turnstile_action %}data-action="{{ turnstile_action }}"{% endif %}

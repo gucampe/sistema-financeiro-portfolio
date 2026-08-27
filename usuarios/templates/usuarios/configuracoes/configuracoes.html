@@ -37,6 +37,9 @@
             <a href="#perfil" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Perfil</a>
           </li>
           <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
+            <a href="#aparencia" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Aparência</a>
+          </li>
+          <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
             <a href="#preferencias" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Preferências</a>
           </li>
           <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
@@ -114,6 +117,51 @@
               </div>
             </div>
           </form>
+        </section>
+
+        <section id="aparencia" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
+          <div class="border-b border-gray-100 pb-5">
+            <h2 class="text-lg font-semibold tracking-tight text-gray-900">Aparência</h2>
+            <p class="mt-1.5 text-sm text-gray-500">O aplicativo começa no modo claro. O escuro só entra se você escolher — não segue o celular.</p>
+          </div>
+          <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              data-tema-opcao="claro"
+              aria-pressed="{% if not tema_escuro %}true{% else %}false{% endif %}"
+              class="flex flex-col overflow-hidden rounded-2xl border-2 bg-surface text-left transition hover:border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 {% if not tema_escuro %}border-brand-500 ring-2 ring-brand-500{% else %}border-gray-200{% endif %}"
+            >
+              <span class="flex h-24 items-center gap-3 bg-[#f4f5f7] px-4">
+                <span class="h-16 w-10 rounded-md bg-[#e2e8f0]"></span>
+                <span class="flex-1 space-y-2">
+                  <span class="block h-3 w-2/3 rounded bg-[#ffffff]"></span>
+                  <span class="block h-8 rounded-lg bg-[#ffffff] shadow-sm"></span>
+                </span>
+              </span>
+              <span class="px-4 py-3">
+                <span class="block text-sm font-semibold text-gray-900">Claro</span>
+                <span class="mt-0.5 block text-xs text-gray-500">Padrão do GranaGo, mint e superfícies limpas.</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              data-tema-opcao="escuro"
+              aria-pressed="{% if tema_escuro %}true{% else %}false{% endif %}"
+              class="flex flex-col overflow-hidden rounded-2xl border-2 bg-surface text-left transition hover:border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 {% if tema_escuro %}border-brand-500 ring-2 ring-brand-500{% else %}border-gray-200{% endif %}"
+            >
+              <span class="flex h-24 items-center gap-3 bg-[#101614] px-4">
+                <span class="h-16 w-10 rounded-md bg-[#0c110f]"></span>
+                <span class="flex-1 space-y-2">
+                  <span class="block h-3 w-2/3 rounded bg-[#3ecf6a]/80"></span>
+                  <span class="block h-8 rounded-lg bg-[#1a211e] ring-1 ring-white/5"></span>
+                </span>
+              </span>
+              <span class="px-4 py-3">
+                <span class="block text-sm font-semibold text-gray-900">Escuro</span>
+                <span class="mt-0.5 block text-xs text-gray-500">Carvão esverdeado para olhar o painel à noite.</span>
+              </span>
+            </button>
+          </div>
         </section>
 
         <section id="preferencias" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
@@ -300,7 +348,7 @@
 
 (function () {
   var links = document.querySelectorAll("[data-config-nav] [data-nav-link]");
-  var sections = document.querySelectorAll("section#perfil, section#preferencias, section#seguranca");
+  var sections = document.querySelectorAll("section#perfil, section#aparencia, section#preferencias, section#seguranca");
   if (!links.length || !sections.length) return;
   var activeCls = ["bg-brand-50/90", "text-brand-900", "ring-1", "ring-brand-200/80"];
   function setActive(hash) {

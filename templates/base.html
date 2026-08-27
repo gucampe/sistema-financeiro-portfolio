@@ -1,14 +1,37 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html
+  lang="pt-BR"
+  class="{% if tema_escuro %}dark{% endif %}"
+  data-tema="{{ tema|default:'claro' }}"
+  {% if request.user.is_authenticated %}data-tema-fonte="perfil" data-tema-url="{% url 'usuarios:configuracoes_tema' %}"{% endif %}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="{% if tema_escuro %}#101614{% else %}#f4f5f7{% endif %}" />
     <title>GranaGo | {% block title %}{% endblock %}</title>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        if (root.getAttribute("data-tema-fonte") === "perfil") return;
+        var m = document.cookie.match(/(?:^|; )granago_tema=([^;]*)/);
+        var t = m ? decodeURIComponent(m[1]) : "";
+        if (t === "escuro") {
+          root.classList.add("dark");
+          root.setAttribute("data-tema", "escuro");
+        } else if (t === "claro") {
+          root.classList.remove("dark");
+          root.setAttribute("data-tema", "claro");
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}">
     <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/fontawesome-subset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/theme-tokens.css' %}" />
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/theme-dark.css' %}" />
     {% block app_shell_css %}
     {% if request.user.is_authenticated %}
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" />
@@ -90,6 +113,7 @@
     <script src="{% static 'js/modal.js' %}" defer></script>
     <script src="{% static 'js/toast.js' %}" defer></script>
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
+    <script src="{% static 'js/theme.js' %}" defer></script>
     {% if request.user.is_authenticated %}
     <script src="{% static 'js/sidebar.js' %}" defer></script>
     <script src="{% static 'vendor/htmx/htmx.min.js' %}" defer></script>

@@ -6,27 +6,6 @@
   html {
     scrollbar-gutter: stable;
   }
-
-  :root {
-    --color-brand-500: theme('colors.brand.500');
-    --color-brand-600: theme('colors.brand.600');
-    --color-brand-700: theme('colors.brand.700');
-    --color-surface: theme('colors.surface.DEFAULT');
-    --color-surface-muted: theme('colors.surface.muted');
-    --color-fg: theme('colors.fg.DEFAULT');
-    --color-fg-muted: theme('colors.fg.muted');
-    /* Camadas globais de UI (modais, toasts, sidebar) */
-    --z-header: 30;
-    --z-modal: 50;
-    --z-modal-dropdown: 60;
-    --z-modal-import: 230;
-    --z-sidebar-overlay: 190;
-    --z-sidebar: 200;
-    --z-toast: 260;
-    --z-combobox-floating: 70;
-    /* Chevron padrão (select + combobox) — Heroicons mini chevron-down */
-    --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
-  }
 }
 
 @layer components {
@@ -42,12 +21,13 @@
   }
 
   .modal-overlay {
-    @apply fixed inset-0 flex min-h-full items-start justify-center overflow-y-auto overscroll-contain bg-black/55 p-3 sm:items-center sm:p-4 md:p-6 opacity-0 transition-opacity duration-300;
+    @apply fixed inset-0 flex min-h-full items-start justify-center overflow-y-auto overscroll-contain p-3 sm:items-center sm:p-4 md:p-6 opacity-0 transition-opacity duration-300;
+    background-color: var(--color-overlay);
     z-index: var(--z-modal);
   }
 
   .modal-panel {
-    @apply my-auto flex w-full max-w-lg min-h-0 max-h-[min(calc(100dvh-1.5rem),calc(100vh-1.5rem),90dvh)] min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl transform transition-all duration-300 scale-95;
+    @apply my-auto flex w-full max-w-lg min-h-0 max-h-[min(calc(100dvh-1.5rem),calc(100vh-1.5rem),90dvh)] min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-surface-elevated shadow-xl transform transition-all duration-300 scale-95;
   }
 
   .modal-panel__body {
@@ -81,11 +61,11 @@
   }
 
   .card {
-    @apply rounded-2xl bg-white/90 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm;
+    @apply rounded-2xl bg-surface-elevated/90 shadow-md ring-1 ring-gray-200/80 backdrop-blur-sm;
   }
 
   .card-dense {
-    @apply rounded-2xl border border-gray-200 bg-white shadow-sm;
+    @apply rounded-2xl border border-gray-200 bg-surface-elevated shadow-sm;
   }
 
   .card-header {
@@ -93,7 +73,7 @@
   }
 
   .input {
-    @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-fg shadow-sm outline-none transition placeholder:text-fg-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0;
+    @apply w-full rounded-lg border border-gray-300 bg-surface-elevated px-3 py-2 text-sm text-fg shadow-sm outline-none transition placeholder:text-fg-muted focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0;
   }
 
   /* Select nativo: seta padrão (--icon-chevron-down), afastada da borda direita */
@@ -103,7 +83,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     padding-right: 2.25rem;
-    background-color: #fff;
+    background-color: var(--color-elevated);
     background-image: var(--icon-chevron-down);
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
@@ -173,7 +153,7 @@
   }
 
   .btn-secondary {
-    @apply btn border-gray-300 bg-white text-fg shadow-sm hover:border-gray-400 hover:bg-gray-50;
+    @apply btn border-gray-300 bg-surface-elevated text-fg shadow-sm hover:border-gray-400 hover:bg-gray-50;
   }
 
   .btn-slate {
@@ -193,7 +173,16 @@
   }
 
   .btn-dark {
-    @apply btn border-transparent bg-gray-900 text-white shadow-sm hover:bg-gray-800 focus-visible:ring-gray-700;
+    @apply btn border-transparent text-white shadow-sm;
+    background-color: #111827;
+  }
+
+  .btn-dark:hover {
+    background-color: #1f2937;
+  }
+
+  .btn-dark:focus-visible {
+    --tw-ring-color: #374151;
   }
 
   .btn-warning-soft {
@@ -222,6 +211,6 @@
   }
 
   .tab-cat--inactive {
-    @apply bg-white text-fg hover:bg-gray-100;
+    @apply bg-surface-elevated text-fg hover:bg-gray-100;
   }
 }

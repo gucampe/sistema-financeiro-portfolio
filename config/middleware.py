@@ -29,6 +29,7 @@ class PrefetchUserPerfilMiddleware:
                     "perfil__id",
                     "perfil__foto",
                     "perfil__ocultar_valores_dashboard",
+                    "perfil__tema",
                 )
                 .get(pk=user.pk)
             )

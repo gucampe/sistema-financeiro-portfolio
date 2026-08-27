@@ -57,9 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const tickSize = isMobile ? 12 : 10;
   const legendSize = isMobile ? 12 : 11;
-  const tickColor = isMobile ? '#6b7280' : '#9ca3af';
+  const temaCores = () => (typeof GranaGoTema !== "undefined" ? GranaGoTema.coresGrafico() : {});
+  const tickColor = temaCores().tick || (isMobile ? '#6b7280' : '#9ca3af');
   const ctx = canvas.getContext('2d');
-  new Chart(ctx, {
+  const chart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: data.labels,
@@ -182,6 +183,17 @@ document.addEventListener('DOMContentLoaded', () => {
       },
     },
   });
+  const aplicarTemaGrafico = () => {
+    const c = temaCores();
+    chart.options.plugins.legend.labels.color = c.legend || tickColor;
+    chart.options.scales.x.ticks.color = c.tick || tickColor;
+    chart.options.scales.y.ticks.color = c.tick || tickColor;
+    chart.options.scales.y.title.color = c.tick || tickColor;
+    chart.options.scales.y.grid.color = c.grid || (isMobile ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.04)');
+    if (chart.data.datasets[2]) chart.data.datasets[2].borderColor = c.saldo || '#d1d5db';
+    chart.update('none');
+  };
+  document.addEventListener('granago:tema', aplicarTemaGrafico);
   };
 
   if (typeof GranaGoChartLoader !== 'undefined') {

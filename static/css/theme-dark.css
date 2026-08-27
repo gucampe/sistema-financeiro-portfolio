@@ -1,0 +1,184 @@
+/* Tema escuro do SaaS — arquivo separado para não ser engolido pelo minify do Tailwind. */
+
+html.dark,
+html.dark body {
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-brand-50: rgb(34 197 94 / 0.12);
+  --color-brand-100: rgb(34 197 94 / 0.18);
+  --color-brand-200: rgb(34 197 94 / 0.28);
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #4ade80;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #3ecf6a;
+  --color-brand-700: #86efac;
+  --color-brand-800: #bbf7d0;
+  --color-brand-900: #ecfdf5;
+  --color-surface: #101614;
+  --color-surface-muted: #141c19;
+  --color-elevated: #1a211e;
+  --color-fg: #c5d0ca;
+  --color-fg-muted: #8b9a94;
+  --color-fg-subtle: #a8b5af;
+  --color-fg-oninverse: #101614;
+  --color-danger: #f87171;
+  --color-danger-soft: rgb(248 113 113 / 0.12);
+  --color-danger-border: rgb(248 113 113 / 0.28);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgb(251 191 36 / 0.12);
+  --color-warning-border: rgb(251 191 36 / 0.28);
+  --color-success: #34d399;
+  --color-success-soft: rgb(52 211 153 / 0.12);
+  --color-success-border: rgb(52 211 153 / 0.28);
+  --color-gray-50: #1f2824;
+  --color-gray-100: #1a211e;
+  --color-gray-200: #2e3a34;
+  --color-gray-300: #3d4a44;
+  --color-gray-400: #6b7a74;
+  --color-gray-500: #8b9a94;
+  --color-gray-600: #b7c4be;
+  --color-gray-700: #cfd8d3;
+  --color-gray-800: #e8eee9;
+  --color-gray-900: #f4f7f5;
+  --color-gray-950: #f8fafc;
+  --rgb-brand-50: 20 42 30;
+  --rgb-brand-100: 24 52 36;
+  --rgb-brand-200: 32 72 48;
+  --rgb-brand-300: 110 231 183;
+  --rgb-brand-400: 74 222 128;
+  --rgb-brand-500: 34 197 94;
+  --rgb-brand-600: 62 207 106;
+  --rgb-brand-700: 134 239 172;
+  --rgb-brand-800: 187 247 208;
+  --rgb-brand-900: 236 253 245;
+  --rgb-surface: 16 22 20;
+  --rgb-surface-muted: 20 28 25;
+  --rgb-elevated: 26 33 30;
+  --rgb-fg: 197 208 202;
+  --rgb-fg-muted: 139 154 148;
+  --rgb-fg-subtle: 168 181 175;
+  --rgb-fg-oninverse: 16 22 20;
+  --rgb-danger: 248 113 113;
+  --rgb-danger-soft: 52 28 30;
+  --rgb-warning: 251 191 36;
+  --rgb-warning-soft: 52 42 22;
+  --rgb-success: 52 211 153;
+  --rgb-success-soft: 20 42 34;
+  --rgb-gray-50: 31 40 36;
+  --rgb-gray-100: 26 33 30;
+  --rgb-gray-200: 46 58 52;
+  --rgb-gray-300: 61 74 68;
+  --rgb-gray-400: 107 122 116;
+  --rgb-gray-500: 139 154 148;
+  --rgb-gray-600: 183 196 190;
+  --rgb-gray-700: 207 216 211;
+  --rgb-gray-800: 232 238 233;
+  --rgb-gray-900: 244 247 245;
+  --rgb-gray-950: 248 250 252;
+  --color-overlay: rgb(0 0 0 / 0.72);
+  --shadow-elevated: 0 12px 32px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.04);
+  --theme-color: #101614;
+  --tw-ring-offset-color: var(--color-surface);
+  --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238b9a94'%3E%3Cpath d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06z'/%3E%3C/svg%3E");
+}
+
+html.dark .bg-white {
+  background-color: var(--color-elevated);
+}
+html.dark .bg-white\/50 {
+  background-color: rgb(26 33 30 / 0.5);
+}
+html.dark .bg-white\/60 {
+  background-color: rgb(26 33 30 / 0.6);
+}
+html.dark .hover\:bg-white\/60:hover,
+html.dark .bg-white\/70 {
+  background-color: rgb(26 33 30 / 0.7);
+}
+html.dark .bg-white\/80 {
+  background-color: rgb(26 33 30 / 0.8);
+}
+html.dark .bg-white\/85 {
+  background-color: rgb(26 33 30 / 0.85);
+}
+html.dark .bg-white\/90,
+html.dark .hover\:bg-white\/90:hover {
+  background-color: rgb(26 33 30 / 0.9);
+}
+html.dark .bg-white\/95 {
+  background-color: rgb(26 33 30 / 0.95);
+}
+html.dark .text-emerald-600,
+html.dark .text-emerald-700,
+html.dark .text-emerald-800,
+html.dark .text-emerald-900 {
+  color: #34d399;
+}
+html.dark .text-rose-600,
+html.dark .text-rose-700,
+html.dark .text-rose-800,
+html.dark .text-red-600,
+html.dark .text-red-700 {
+  color: #fb7185;
+}
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-100 {
+  background-color: rgb(52 211 153 / 0.14);
+}
+html.dark .bg-rose-50,
+html.dark .bg-red-50,
+html.dark .hover\:bg-red-50:hover {
+  background-color: rgb(251 113 133 / 0.12);
+}
+html.dark .bg-amber-50,
+html.dark .bg-amber-50\/90,
+html.dark .bg-amber-100 {
+  background-color: rgb(251 191 36 / 0.14);
+}
+html.dark .text-amber-800,
+html.dark .text-amber-900 {
+  color: #fcd34d;
+}
+html.dark .border-white\/80 {
+  border-color: rgb(46 58 52 / 0.8);
+}
+html.dark .ring-white {
+  --tw-ring-color: rgb(26 33 30 / 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2147483646;
+}
+
+html.tema-animando [data-tema-toggle] svg:not(.hidden) {
+  animation: granago-tema-icon 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes granago-tema-icon {
+  from {
+    opacity: 0;
+    transform: rotate(-40deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.tema-animando [data-tema-toggle] svg:not(.hidden) {
+    animation: none;
+  }
+}

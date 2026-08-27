@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cctx = catCanvas.getContext('2d');
     if (!cctx) return;
     const sliceColors = coresDistintasGrafico(topData);
-    new Chart(cctx, {
+    const chart = new Chart(cctx, {
       type: 'doughnut',
       data: {
         labels: topData.map((x) => x.nome),
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: topData.map((x) => (Number.isFinite(Number(x.total)) ? Number(x.total) : 0)),
             backgroundColor: sliceColors,
             borderWidth: 2,
-            borderColor: '#ffffff',
+            borderColor: (typeof GranaGoTema !== "undefined" && GranaGoTema.coresGrafico().doughnutBorder) || "#ffffff",
             hoverOffset: 8,
           },
         ],
@@ -244,6 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
           },
         },
       },
+    });
+    document.addEventListener("granago:tema", () => {
+      const border =
+        (typeof GranaGoTema !== "undefined" && GranaGoTema.coresGrafico().doughnutBorder) || "#ffffff";
+      chart.data.datasets[0].borderColor = border;
+      chart.update("none");
     });
     relayoutMasonry();
   }

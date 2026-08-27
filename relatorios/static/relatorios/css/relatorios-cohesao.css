@@ -40,6 +40,11 @@
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
 }
 
+html.dark .rel-hero-shell {
+  border-color: rgb(46 58 52 / 0.9);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
 @media (min-width: 640px) {
   .rel-hero-shell {
     border-radius: 1.5rem;
@@ -69,12 +74,20 @@
   color: rgb(107 114 128);
 }
 
+html.dark .rel-hero-eyebrow {
+  color: var(--color-fg-muted);
+}
+
 .rel-hero-title {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.25;
   color: rgb(17 24 39);
+}
+
+html.dark .rel-hero-title {
+  color: var(--color-gray-900);
 }
 
 @media (min-width: 640px) {

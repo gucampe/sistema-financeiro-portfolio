@@ -1,5 +1,22 @@
 {% load static %}
 <div class="flex shrink-0 items-center gap-3 sm:gap-5 pl-2 sm:pl-0">
+  {% if request.user.is_authenticated %}
+  <button
+    type="button"
+    data-tema-toggle
+    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-300/70 bg-surface-elevated/60 text-gray-700 shadow-sm backdrop-blur-sm transition-all duration-150 hover:border-gray-400/80 hover:bg-surface-elevated hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2 active:scale-[0.99] sm:h-10 sm:w-10"
+    aria-pressed="{% if tema_escuro %}true{% else %}false{% endif %}"
+    aria-label="{% if tema_escuro %}Ativar modo claro{% else %}Ativar modo escuro{% endif %}"
+    title="{% if tema_escuro %}Modo claro{% else %}Modo escuro{% endif %}"
+  >
+    <svg class="h-4 w-4 {% if tema_escuro %}hidden{% endif %}" data-tema-icon="lua" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 14.1A8.5 8.5 0 1110.9 3 7 7 0 0021 14.1z" />
+    </svg>
+    <svg class="h-4 w-4 {% if not tema_escuro %}hidden{% endif %}" data-tema-icon="sol" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0L16.95 7.05M7.05 16.95l-1.414 1.414M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  </button>
+  {% endif %}
   <button
     type="button"
     id="btn-tutoriais-header"

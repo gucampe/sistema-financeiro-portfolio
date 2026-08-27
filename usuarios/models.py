@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from .managers import UsuarioManager  # Manager customizado
+from .temas import TEMA_CHOICES, TEMA_CLARO
 
 # Mesmos valores que transacoes.Transacao.TIPO_CHOICES (evita import cruzado na carga de apps).
 TIPO_TRANSACAO_PADRAO_CHOICES = (
@@ -98,6 +99,13 @@ class Perfil(models.Model):
         _("Ocultar atalho de primeiros passos"),
         default=False,
         help_text=_("Não mostra o atalho flutuante no dashboard, em qualquer dispositivo."),
+    )
+    tema = models.CharField(
+        _("Tema"),
+        max_length=8,
+        choices=TEMA_CHOICES,
+        default=TEMA_CLARO,
+        help_text=_("Aparência do aplicativo. O modo escuro só entra se você escolher."),
     )
     categorizacao_auto_aplicar = models.BooleanField(
         _("Aplicar categorias automaticamente"),
