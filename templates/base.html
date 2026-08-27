@@ -1,4 +1,5 @@
 {% load static %}
+{% load ajuda_tags %}
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -86,12 +87,18 @@
     {% block app_modals %}{% endblock %}
     {% block modal_transacao %}{% endblock %}
     {% block export_modal %}{% endblock %}
+    {% if request.user.is_authenticated %}
+    {% ajuda_drawer %}
+    {% endif %}
 
     <script src="{% static 'js/modal.js' %}" defer></script>
     <script src="{% static 'js/toast.js' %}" defer></script>
     <script src="{% static 'js/moeda_input.js' %}" defer></script>
     {% if request.user.is_authenticated %}
     <script src="{% static 'js/sidebar.js' %}" defer></script>
+    <script src="{% static 'js/hint.js' %}" defer></script>
+    <script src="{% static 'usuarios/js/ajuda.js' %}" defer></script>
+    <script src="{% static 'usuarios/js/dicas.js' %}" defer></script>
     <script src="{% static 'vendor/htmx/htmx.min.js' %}" defer></script>
     {% endif %}
     {% include "partials/cookie_consent.html" %}

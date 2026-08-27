@@ -13,6 +13,7 @@ from core.moeda import parse_decimal_moeda_br
 from transacoes.models import Transacao
 from transacoes.saldo_expr import saldo_case_expression
 from transacoes.services import criar_transacao_saldo_inicial
+from usuarios.services.produto_eventos import registrar_evento_seguro
 from .models import Conta
 
 logger = logging.getLogger(__name__)
@@ -135,6 +136,7 @@ def salvar_conta(request):
                 tipo=tipo,
                 icone=icone,
             )
+            registrar_evento_seguro(request.user, "first_account_created")
             if saldo_inicial != Decimal("0.00"):
                 hoje = timezone.now().date()
                 criar_transacao_saldo_inicial(

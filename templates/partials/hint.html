@@ -1,0 +1,21 @@
+{# hint_id, hint_label, hint_text — popover por clique/toque, sem hover. #}
+<span class="app-hint relative inline-flex shrink-0 align-middle" data-hint>
+  <button
+    type="button"
+    class="app-hint__btn relative inline-flex h-6 w-6 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 after:absolute after:-inset-3"
+    aria-expanded="false"
+    aria-controls="hint-panel-{{ hint_id }}"
+    aria-label="O que significa {{ hint_label }}"
+  >
+    <span
+      class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current text-[11px] font-semibold leading-none"
+      aria-hidden="true"
+    >i</span>
+  </button>
+  <span
+    id="hint-panel-{{ hint_id }}"
+    class="app-hint__panel pointer-events-none invisible absolute left-0 top-full z-50 mt-1.5 w-64 max-w-[min(16rem,calc(100vw-2rem))] rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-left text-xs font-normal normal-case tracking-normal text-gray-600 shadow-lg ring-1 ring-black/5"
+    role="tooltip"
+    hidden
+  >{{ hint_text }}</span>
+</span>

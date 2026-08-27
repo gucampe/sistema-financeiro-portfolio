@@ -1,0 +1,29 @@
+<p class="mt-0 text-[15px] leading-relaxed text-[rgb(var(--color-text-muted))]">
+  Tem dois jeitos de colocar seus dados. Escolha o que for mais rápido agora — os dois chegam no mesmo lugar.
+</p>
+<div class="mt-4 space-y-3">
+  <section class="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-soft))] p-4">
+    <h3 class="m-0 text-sm font-semibold text-[rgb(var(--color-text))]">Lançar na mão</h3>
+    <p class="mt-1 mb-3 text-sm leading-relaxed text-[rgb(var(--color-text-muted))]">
+      Uma transação por vez: receita, despesa ou transferência. Bom para começar hoje, sem arquivo.
+    </p>
+    <a
+      href="{% url 'transacoes:historico' %}?nova=1"
+      class="btn btn-primary inline-flex min-h-12 items-center justify-center"
+    >
+      Adicionar transação
+    </a>
+  </section>
+  <section class="rounded-2xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-soft))] p-4">
+    <h3 class="m-0 text-sm font-semibold text-[rgb(var(--color-text))]">Importar extrato</h3>
+    <p class="mt-1 mb-3 text-sm leading-relaxed text-[rgb(var(--color-text-muted))]">
+      Trazer várias movimentações de uma vez, a partir do arquivo do banco (OFX ou planilha).
+    </p>
+    <a
+      href="{% url 'transacoes:historico' %}?importar=1"
+      class="btn btn-secondary inline-flex min-h-12 items-center justify-center"
+    >
+      Importar extrato
+    </a>
+  </section>
+</div>

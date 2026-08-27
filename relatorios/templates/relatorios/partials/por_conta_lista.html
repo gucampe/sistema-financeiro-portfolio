@@ -25,7 +25,7 @@
             <span class="hidden shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 sm:inline">{{ c.tipo_label }}</span>
           </span>
           <span class="mt-0.5 block text-sm tabular-nums text-gray-600">
-            {{ c.saldo|moeda }} · {{ c.percentual_patrimonio|floatformat:0 }}% do patrimônio
+            {{ c.saldo|moeda }} · {{ c.percentual_patrimonio|floatformat:0 }}% do saldo das contas
           </span>
           {% if c.quantidade_transacoes > 0 %}
           <span class="mt-1 block text-xs text-gray-500">

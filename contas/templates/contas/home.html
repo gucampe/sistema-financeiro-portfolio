@@ -119,8 +119,9 @@
               </div>
               <p class="mt-3 font-semibold text-fg">Nenhuma conta ativa</p>
               <p class="text-sm mt-1 text-fg-muted">
-                Clique em <span class="font-semibold">“Adicionar conta”</span> para criar sua primeira conta.
+                Contas são onde o dinheiro está — banco, carteira ou investimento. Cadastre a primeira para acompanhar o saldo.
               </p>
+              <a href="{% url 'contas:home' %}?nova=1" class="btn btn-primary btn-sm mt-4">Adicionar conta</a>
             </div>
           </li>
         {% endfor %}

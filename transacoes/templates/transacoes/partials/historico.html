@@ -3,7 +3,7 @@
 {% load icon_filters %}
 {% load moeda %}
 
-{% block title %}Lançamentos{% endblock %}
+{% block title %}Transações{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/lista-contextual.css' %}" />
@@ -32,7 +32,7 @@
     <!-- Topo -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-5 px-1 sm:px-0">
       <div>
-        <h1 class="text-2xl font-semibold text-fg">Lançamentos</h1>
+        <h1 class="text-2xl font-semibold text-fg">Transações</h1>
         <p class="text-sm text-fg-muted mt-1">Acompanhe suas movimentações recentes</p>
       </div>
 
@@ -42,9 +42,9 @@
           <span>Adicionar transação</span>
         </button>
         <div class="order-2 grid w-full grid-cols-2 gap-2 sm:contents">
-          <button type="button" id="btn-importar-ofx" class="btn btn-emerald btn-sm w-full sm:order-1 sm:w-auto">
+          <button type="button" id="btn-importar-ofx" class="js-abrir-import-ofx btn btn-emerald btn-sm w-full sm:order-1 sm:w-auto">
             <i class="fa-solid fa-file-import text-sm" aria-hidden="true"></i>
-            <span>Importar OFX</span>
+            <span>Importar extrato</span>
           </button>
           <button type="button" id="btn-importar-planilha" class="btn btn-slate btn-sm w-full sm:order-2 sm:w-auto">
             <i class="fa-solid fa-table text-sm" aria-hidden="true"></i>
@@ -130,7 +130,7 @@
 <div class="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
   <div class="mx-auto w-full max-w-5xl px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6">
     <div class="lg:hidden">
-      <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Saldo</p>
+      <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Resultado</p>
       <p class="text-2xl font-bold tabular-nums tracking-tight {% if saldo_mes >= 0 %}text-brand-600{% else %}text-red-600{% endif %}">{{ saldo_mes|moeda }}</p>
       <div class="mt-2 space-y-1 border-t border-gray-100 pt-2 text-sm">
         <p class="flex items-baseline justify-between gap-3">
@@ -153,7 +153,7 @@
         <p class="text-lg font-semibold text-red-600">{{ total_despesas|moeda }}</p>
       </div>
       <div class="flex-1 text-center">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Saldo</p>
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Resultado</p>
         <p class="text-lg font-semibold {% if saldo_mes >= 0 %}text-brand-600{% else %}text-red-600{% endif %}">{{ saldo_mes|moeda }}</p>
       </div>
     </div>

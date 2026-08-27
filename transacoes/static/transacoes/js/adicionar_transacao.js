@@ -701,4 +701,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.clearTimeout(sugestaoTimer);
     sugestaoTimer = window.setTimeout(buscarSugestaoCategoria, 350);
   });
+
+  if (params.get("nova") === "1") {
+    abrirModalNovaTransacao(btnAbrir);
+  }
 });

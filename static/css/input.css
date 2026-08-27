@@ -19,6 +19,7 @@
     --z-header: 30;
     --z-modal: 50;
     --z-modal-dropdown: 60;
+    --z-modal-ajuda: 210;
     --z-modal-import: 230;
     --z-sidebar-overlay: 190;
     --z-sidebar: 200;
@@ -56,6 +57,15 @@
 
   .modal-panel__footer {
     @apply shrink-0 border-t border-gray-100;
+  }
+
+  .modal-overlay--ajuda {
+    @apply items-end justify-center p-0 motion-reduce:transition-none md:items-stretch md:justify-end;
+    z-index: var(--z-modal-ajuda);
+  }
+
+  .modal-overlay--ajuda .modal-panel--ajuda {
+    @apply my-0 h-auto w-full max-w-none max-h-[min(88vh,40rem)] rounded-b-none motion-reduce:transition-none md:h-screen md:max-h-screen md:w-[min(28rem,100vw)] md:rounded-none;
   }
 
   .app-toast-root {

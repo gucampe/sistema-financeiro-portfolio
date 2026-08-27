@@ -30,6 +30,7 @@ from usuarios.services.onboarding import (
     deve_mostrar_atalho_primeiros_passos,
     progresso_primeiros_passos,
 )
+from usuarios.services.produto_eventos import registrar_evento_seguro
 from usuarios.tokens import conta_setup_token_generator
 from usuarios.turnstile import verificar_turnstile
 from relatorios.models import ExportJob
@@ -411,6 +412,7 @@ def configuracoes_alterar_senha(request):
 @never_cache
 def primeiros_passos(request):
     """Central de configuração inicial — página dedicada."""
+    registrar_evento_seguro(request.user, "onboarding_started")
     progresso = progresso_primeiros_passos(request.user)
     return render(
         request,

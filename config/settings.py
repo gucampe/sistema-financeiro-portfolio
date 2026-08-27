@@ -28,6 +28,7 @@ from config.llm_settings import (
     CATEGORIZACAO_LLM_TIMEOUT_S,
     CATEGORIZACAO_LLM_TRIGGER_MAX,
     CATEGORIZACAO_UX_EVENT_RETENTION_DAYS,
+    PRODUTO_EVENTO_RETENTION_DAYS,
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

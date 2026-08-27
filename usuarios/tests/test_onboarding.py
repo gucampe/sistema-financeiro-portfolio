@@ -198,7 +198,7 @@ class PrimeirosPassosServiceTests(OnboardingTestMixin, TestCase):
         by_id = {e["id"]: e for e in p["etapas"]}
         self.assertEqual(by_id["conta"]["cta_acao"], "link_conta")
         self.assertEqual(by_id["movimentacao"]["cta_acao"], "link_transacoes")
-        self.assertIn("OFX", by_id["movimentacao"]["descricao"])
+        self.assertIn("extrato", by_id["movimentacao"]["descricao"])
         self.assertEqual(by_id["cartao"]["cta_acao"], "link_cartao")
         self.assertFalse(by_id["cartao"]["obrigatoria"])
 
@@ -269,7 +269,8 @@ class PrimeirosPassosFluxoIntegradoTests(OnboardingTestMixin, TestCase):
         r_page = self.client.get(self.page_url)
         self.assertContains(r_page, "1 de 3 etapas concluídas")
         self.assertContains(r_page, f'{reverse("contas:home")}?nova=1')
-        self.assertContains(r_page, reverse("transacoes:historico"))
+        self.assertContains(r_page, f'{reverse("transacoes:historico")}?nova=1')
+        self.assertContains(r_page, f'{reverse("transacoes:historico")}?importar=1')
         self.assertContains(r_page, f'{reverse("cartoes:home")}?nova=1')
         self.assertContains(r_page, "data-pp-skip-cartao")
 
@@ -390,7 +391,8 @@ class PrimeirosPassosPageViewTests(OnboardingTestMixin, TestCase):
         self.assertContains(response, "Conta financeira")
         self.assertContains(response, "Primeira movimentação")
         self.assertContains(response, "Cartão de crédito")
-        self.assertContains(response, "Ir para transações")
+        self.assertContains(response, "Adicionar transação")
+        self.assertContains(response, "Importar extrato")
         self.assertContains(response, 'data-pp-user-id')
         self.assertContains(response, "Voltar ao dashboard")
         self.assertNotContains(response, "Meta financeira")

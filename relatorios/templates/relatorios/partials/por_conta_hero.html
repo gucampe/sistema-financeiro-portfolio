@@ -4,7 +4,7 @@
   <div class="rel-hero-header">
     <div class="min-w-0 space-y-1">
       <p class="rel-hero-eyebrow">Onde está seu dinheiro</p>
-      <h2 class="rel-hero-title">Patrimônio por conta</h2>
+      <h2 class="rel-hero-title">Saldo por conta</h2>
       <p class="rel-hero-period">{{ filtros.data_inicio|date:"d/m/Y" }} — {{ filtros.data_fim|date:"d/m/Y" }}</p>
     </div>
     <div class="flex w-full shrink-0 sm:w-auto sm:justify-end">
@@ -18,7 +18,7 @@
       <p class="mt-1 truncate text-base font-semibold text-gray-900">{{ hero_contas.maior_saldo_nome }}</p>
       <p class="mt-0.5 text-sm tabular-nums text-gray-700">{{ hero_contas.maior_saldo_valor|moeda }}</p>
       {% if hero_contas.maior_saldo_pct %}
-      <p class="mt-1 text-xs font-medium text-indigo-600">{{ hero_contas.maior_saldo_pct|floatformat:0 }}% do patrimônio</p>
+      <p class="mt-1 text-xs font-medium text-indigo-600">{{ hero_contas.maior_saldo_pct|floatformat:0 }}% do saldo das contas</p>
       {% endif %}
     </article>
 
@@ -34,7 +34,7 @@
     </article>
 
     <article class="rounded-2xl border border-gray-100 bg-white/85 p-4 shadow-sm backdrop-blur-sm">
-      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Patrimônio total</p>
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Saldo das contas</p>
       <p class="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-gray-900">{{ hero_contas.patrimonio_total|moeda }}</p>
       <p class="text-xs text-gray-500">saldo acumulado em contas ativas</p>
     </article>

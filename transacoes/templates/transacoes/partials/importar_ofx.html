@@ -50,8 +50,8 @@
     </button>
 
     <div class="p-3 pb-2 sm:p-4 sm:pb-3 border-b border-gray-100 shrink-0 [@media(min-height:880px)]:sm:p-6 [@media(min-height:880px)]:sm:pb-4">
-      <h2 class="text-base sm:text-lg font-semibold text-fg pr-10 [@media(min-height:880px)]:sm:text-xl">Importar OFX</h2>
-      <p class="text-[0.7rem] leading-snug sm:text-xs text-gray-500 mt-1 break-words [@media(min-height:880px)]:sm:text-sm [@media(min-height:880px)]:leading-normal">Envie o extrato, revise as linhas e ajuste datas, valores e descrições se quiser. A categoria em cada linha é opcional; sem escolha, usa-se Diversos (despesa) ou a receita equivalente no cadastro.</p>
+      <h2 class="text-base sm:text-lg font-semibold text-fg pr-10 [@media(min-height:880px)]:sm:text-xl">Importar extrato</h2>
+      <p class="text-[0.7rem] leading-snug sm:text-xs text-gray-500 mt-1 break-words [@media(min-height:880px)]:sm:text-sm [@media(min-height:880px)]:leading-normal">Envie o arquivo do banco (OFX), revise as linhas e ajuste datas, valores e descrições se quiser. A categoria em cada linha é opcional; sem escolha, usa-se Diversos (despesa) ou a receita equivalente no cadastro.</p>
     </div>
 
     <form id="form-csrf-import-ofx" class="hidden">{% csrf_token %}</form>
@@ -97,6 +97,12 @@
           Pré-visualizar
         </button>
       </div>
+      <p class="pt-1 text-center text-sm text-gray-500">
+        Não conseguiu importar?
+        <button type="button" id="import-ofx-fallback-manual" class="font-semibold text-brand-600 hover:text-brand-700 hover:underline">
+          Lance na mão.
+        </button>
+      </p>
     </div>
 
     <div id="import-ofx-step-loading" class="import-step-loading hidden" aria-live="polite" aria-busy="true">
