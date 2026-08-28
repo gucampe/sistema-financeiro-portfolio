@@ -167,20 +167,42 @@ html.dark .hover\:text-brand-600:hover {
   color: #4ade80;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
+::view-transition-old(root) {
   animation: none;
   mix-blend-mode: normal;
-}
-::view-transition-old(root) {
   z-index: 1;
 }
 ::view-transition-new(root) {
+  mix-blend-mode: normal;
   z-index: 2147483646;
+  animation: granago-tema-reveal 1.7s cubic-bezier(0.45, 0, 0.55, 1) both;
+}
+@keyframes granago-tema-reveal {
+  from {
+    clip-path: circle(0 at var(--tema-cx, 50%) var(--tema-cy, 50%));
+  }
+  to {
+    clip-path: circle(var(--tema-r, 100vmax) at var(--tema-cx, 50%) var(--tema-cy, 50%));
+  }
+}
+
+html.tema-animando .app-header {
+  transition: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html.tema-animando [data-tema-toggle] {
+  transition: none !important;
 }
 
 html.tema-animando [data-tema-toggle] svg:not(.hidden) {
-  animation: granago-tema-icon 1s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: none;
+}
+
+@media (min-width: 768px) {
+  html.tema-animando [data-tema-toggle] svg:not(.hidden) {
+    animation: granago-tema-icon 1s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 
 @keyframes granago-tema-icon {
@@ -197,5 +219,9 @@ html.tema-animando [data-tema-toggle] svg:not(.hidden) {
 @media (prefers-reduced-motion: reduce) {
   html.tema-animando [data-tema-toggle] svg:not(.hidden) {
     animation: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }
