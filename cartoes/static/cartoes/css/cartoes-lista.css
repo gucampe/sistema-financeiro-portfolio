@@ -28,8 +28,8 @@
 
 .cartao-menu-trigger[aria-expanded="true"] {
   opacity: 1;
-  background-color: rgb(243 244 246);
-  color: rgb(51 65 85);
+  background-color: var(--color-gray-100);
+  color: var(--color-fg);
 }
 
 @media (min-width: 1024px) {

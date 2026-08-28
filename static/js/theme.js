@@ -103,7 +103,7 @@
     ].join(";");
     document.body.appendChild(overlay);
     requestAnimationFrame(() => {
-      overlay.style.transition = "clip-path 640ms cubic-bezier(0.22, 1, 0.36, 1)";
+      overlay.style.transition = "clip-path 1400ms cubic-bezier(0.22, 1, 0.36, 1)";
       overlay.style.clipPath = `circle(${r}px at ${x}px ${y}px)`;
     });
     const finish = () => {
@@ -114,7 +114,7 @@
       overlay.remove();
     };
     overlay.addEventListener("transitionend", finish);
-    window.setTimeout(finish, 780);
+    window.setTimeout(finish, 1650);
   };
 
   const aplicar = async (tema, event) => {
@@ -128,7 +128,7 @@
       syncChrome(next);
     };
     const limparAnimacao = () => {
-      window.setTimeout(() => root.classList.remove("tema-animando"), 520);
+      window.setTimeout(() => root.classList.remove("tema-animando"), 1200);
     };
 
     if (REDUCED.matches) {
@@ -147,7 +147,7 @@
             clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`],
           },
           {
-            duration: 640,
+            duration: 1400,
             easing: "cubic-bezier(0.22, 1, 0.36, 1)",
             pseudoElement: "::view-transition-new(root)",
           }

@@ -43,18 +43,18 @@
   }
 
   #flx-resumo .flx-resumo__metric--entradas {
-    background: rgb(236 253 245 / 0.65);
-    border: 1px solid rgb(167 243 208 / 0.55);
+    background: rgb(var(--rgb-success-soft) / 0.65);
+    border: 1px solid rgb(var(--rgb-brand-200) / 0.55);
   }
 
   #flx-resumo .flx-resumo__metric--saidas {
-    background: rgb(255 241 242 / 0.65);
-    border: 1px solid rgb(254 205 211 / 0.55);
+    background: rgb(var(--rgb-danger-soft) / 0.65);
+    border: 1px solid var(--color-danger-border);
   }
 
   #flx-resumo .flx-resumo__metric--resultado {
-    background: rgb(236 253 245 / 0.35);
-    border: 1px solid rgb(187 247 208 / 0.45);
+    background: rgb(var(--rgb-success-soft) / 0.35);
+    border: 1px solid rgb(var(--rgb-brand-200) / 0.45);
   }
 
   #flx-resumo .flx-resumo__label {
@@ -134,7 +134,7 @@
     padding-left: 0.875rem;
     font-size: 0.875rem;
     line-height: 1.65;
-    color: rgb(55 65 81);
+    color: var(--color-gray-700);
   }
 
   #flx-interpretacao .flx-interpretacao__item::before {
@@ -183,15 +183,15 @@
   /* ---------- Categorias ---------- */
 
   #flx-categorias .flx-categorias__tab {
-    border-color: rgb(229 231 235);
-    background: rgb(255 255 255);
-    color: rgb(107 114 128);
+    border-color: var(--color-gray-200);
+    background: var(--color-elevated);
+    color: var(--color-gray-500);
   }
 
   #flx-categorias .flx-categorias__tab--active {
-    border-color: rgb(187 247 208 / 0.8);
-    background: rgb(236 253 245 / 0.65);
-    color: rgb(21 128 61);
+    border-color: rgb(var(--rgb-brand-200) / 0.8);
+    background: rgb(var(--rgb-brand-50) / 0.65);
+    color: var(--color-brand-700);
   }
 
   #flx-categorias[data-flx-cat-active="saidas"] .flx-categorias__grupo--entradas {

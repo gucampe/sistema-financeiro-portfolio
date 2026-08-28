@@ -656,3 +656,61 @@
     border-color: #ecfdf5;
   }
 }
+
+html.dark .import-step-loading__title,
+html.dark .import-preview-toolbar__count,
+html.dark .import-feed-item__desc {
+  color: var(--color-gray-900);
+}
+html.dark .import-step-loading__hint,
+html.dark .import-preview-toolbar__check-all,
+html.dark .import-feed-item__meta,
+html.dark .import-feed-item__tag,
+html.dark .import-feed-item__edit-toggle,
+html.dark .import-feed-item__edit-panel label.field-label {
+  color: var(--color-gray-400);
+}
+html.dark .import-feed-item,
+html.dark .import-feed-item__check-mark,
+html.dark .import-feed-item__edit-panel input,
+html.dark .cat-picker,
+html.dark .import-preview-toolbar {
+  background: var(--color-elevated);
+}
+html.dark .import-feed-item:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-100);
+}
+html.dark .import-feed-item__edit-panel {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-100);
+}
+html.dark .import-feed-item__tag {
+  background: var(--color-gray-100);
+}
+html.dark .import-feed-item__tag--warn {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+html.dark .import-feed-item__meta-valor--despesa {
+  color: var(--color-danger);
+}
+html.dark .import-feed-item__meta-valor--receita,
+html.dark .import-preview-toolbar__result {
+  color: var(--color-success);
+}
+html.dark .import-step-loading__skeleton span {
+  background: linear-gradient(90deg, var(--color-gray-100) 0%, var(--color-gray-200) 45%, var(--color-gray-100) 90%);
+  background-size: 200% 100%;
+}
+html.dark .import-feed-item.is-revisado {
+  border-color: rgb(52 211 153 / 0.28);
+}
+html.dark .import-feed-item.is-reveal-brief,
+html.dark .import-feed-item.is-confianca-alta.is-reveal-brief {
+  background: rgb(99 102 241 / 0.12);
+  border-color: rgb(99 102 241 / 0.28);
+}
+html.dark .import-feed-item.is-confianca-baixa:hover {
+  background: var(--color-gray-50);
+}

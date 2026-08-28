@@ -21,7 +21,7 @@
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: rgb(156 163 175);
+    color: var(--color-gray-400);
   }
 
   .dash-mobile__summary-value {
@@ -39,7 +39,7 @@
     gap: 0.75rem;
     margin-top: 0.25rem;
     font-size: 0.75rem; /* text-xs */
-    color: rgb(107 114 128);
+    color: var(--color-gray-500);
   }
 
   .dash-mobile__summary-meta .dash-valor {
@@ -53,7 +53,7 @@
   .dash-mobile__actions {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid rgb(229 231 235 / 0.7);
+    border-top: 1px solid rgb(var(--rgb-gray-200) / 0.7);
   }
 
   .dash-mobile__action-primary {
@@ -80,7 +80,7 @@
   #dashboard-masonry .dashboard-masonry-item.card {
     padding: 0.75rem;
     border-radius: 0.75rem;
-    background: rgb(255 255 255);
+    background: var(--color-elevated);
     box-shadow: none;
     --tw-ring-shadow: 0 0 #0000;
     --tw-ring-offset-shadow: 0 0 #0000;
@@ -98,7 +98,7 @@
     font-size: 0.875rem; /* text-sm */
     font-weight: 400;
     line-height: 1.35;
-    color: rgb(107 114 128);
+    color: var(--color-gray-500);
   }
 
   #dashboard-masonry .dashboard-masonry-item .dash-section-body {
@@ -133,14 +133,14 @@
     width: 2rem;
     border: none;
     border-radius: 0.5rem;
-    background: rgb(243 244 246);
+    background: var(--color-gray-100);
   }
 
   #dashboard-masonry .dash-card-item {
     padding: 0.625rem;
     border: none;
     border-radius: 0.5rem;
-    background: rgb(249 250 251);
+    background: var(--color-gray-50);
   }
 
   #dashboard-masonry .dash-card-item p.text-xs.text-gray-500,
@@ -199,13 +199,13 @@
   #btn-toggle-valores {
     padding: 0.375rem;
     border: none;
-    color: rgb(156 163 175);
+    color: var(--color-gray-400);
     background: transparent;
   }
 
   #btn-toggle-valores:hover {
     background: transparent;
-    color: rgb(75 85 99);
+    color: var(--color-gray-600);
   }
 
   /* ---------- Empty states compactos ---------- */
@@ -215,21 +215,21 @@
     padding: 0.75rem 0.625rem;
     border: none;
     border-radius: 0.5rem;
-    background: rgb(249 250 251);
+    background: var(--color-gray-50);
     text-align: center;
   }
 
   .dash-empty-state.rel-empty-state .rel-empty-state__titulo {
     font-size: 0.875rem; /* text-sm */
     font-weight: 600;
-    color: rgb(31 41 55);
+    color: var(--color-gray-800);
   }
 
   .dash-empty-state.rel-empty-state .rel-empty-state__desc {
     margin-top: 0.25rem;
     font-size: 0.875rem; /* text-sm */
     line-height: 1.4;
-    color: rgb(107 114 128);
+    color: var(--color-gray-500);
   }
 
   .dash-empty-state .btn {
@@ -273,7 +273,7 @@
     z-index: 2;
     flex-shrink: 0;
     padding-top: 1.125rem;
-    background: rgb(255 255 255 / 0.96);
+    background: rgb(var(--rgb-elevated) / 0.96);
   }
 
   .filtros-portal__header::before {
@@ -284,7 +284,7 @@
     width: 2.25rem;
     height: 0.25rem;
     border-radius: 9999px;
-    background: rgb(209 213 219);
+    background: var(--color-gray-300);
     transform: translateX(-50%);
   }
 
@@ -310,7 +310,7 @@
     bottom: 0;
     z-index: 2;
     flex-shrink: 0;
-    background: rgb(255 255 255 / 0.96);
+    background: rgb(var(--rgb-elevated) / 0.96);
   }
 
   .filtros-portal[data-open="true"] .filtros-portal__backdrop {

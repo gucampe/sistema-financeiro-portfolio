@@ -149,7 +149,7 @@
   }
 
   .btn-primary-solid {
-    @apply btn border-transparent bg-brand-600 text-white shadow-sm hover:bg-brand-700;
+    @apply btn border-transparent bg-brand-600 text-white shadow-sm hover:brightness-110;
   }
 
   .btn-secondary {

@@ -35,13 +35,12 @@
 .rel-hero-shell {
   overflow: hidden;
   border-radius: 1.5rem;
-  border: 1px solid rgb(229 231 235 / 0.7);
+  border: 1px solid rgb(var(--rgb-gray-200) / 0.7);
   padding: 1.25rem;
   box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
 }
 
 html.dark .rel-hero-shell {
-  border-color: rgb(46 58 52 / 0.9);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
 }
 
@@ -71,11 +70,7 @@ html.dark .rel-hero-shell {
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgb(107 114 128);
-}
-
-html.dark .rel-hero-eyebrow {
-  color: var(--color-fg-muted);
+  color: var(--color-gray-500);
 }
 
 .rel-hero-title {
@@ -83,10 +78,6 @@ html.dark .rel-hero-eyebrow {
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.25;
-  color: rgb(17 24 39);
-}
-
-html.dark .rel-hero-title {
   color: var(--color-gray-900);
 }
 
@@ -100,7 +91,7 @@ html.dark .rel-hero-title {
 .rel-hero-period {
   font-size: 0.875rem;
   line-height: 1.4;
-  color: rgb(107 114 128);
+  color: var(--color-gray-500);
 }
 
 /* ---------- Seções abaixo do hero ---------- */
@@ -134,14 +125,14 @@ html.dark .rel-hero-title {
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.3;
-  color: rgb(17 24 39);
+  color: var(--color-gray-900);
 }
 
 .rel-secao-subtitulo {
   margin-top: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: rgb(107 114 128);
+  color: var(--color-gray-500);
 }
 
 .rel-subsecao-titulo {
@@ -149,15 +140,15 @@ html.dark .rel-hero-title {
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgb(107 114 128);
+  color: var(--color-gray-500);
 }
 
 /* ---------- Empty states ---------- */
 
 .rel-empty-state {
   border-radius: 1rem;
-  border: 1px dashed rgb(229 231 235);
-  background: rgb(249 250 251 / 0.5);
+  border: 1px dashed var(--color-gray-200);
+  background: rgb(var(--rgb-gray-50) / 0.5);
   padding: 3rem 1.5rem;
   text-align: center;
 }
@@ -171,7 +162,7 @@ html.dark .rel-hero-title {
 .rel-empty-state__titulo {
   font-size: 1.125rem;
   font-weight: 600;
-  color: rgb(17 24 39);
+  color: var(--color-gray-900);
 }
 
 .rel-empty-state__desc {
@@ -181,7 +172,7 @@ html.dark .rel-hero-title {
   margin-right: auto;
   font-size: 0.875rem;
   line-height: 1.45;
-  color: rgb(107 114 128);
+  color: var(--color-gray-500);
 }
 
 /* Empty states dentro do dashboard herdam o padrão global */

@@ -657,6 +657,17 @@ html {
   opacity: 1;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  --rgb-brand-50: 236 253 245;
+  --rgb-brand-100: 209 250 229;
+  --rgb-brand-500: 34 197 94;
+  --rgb-brand-600: 22 163 74;
+  --rgb-brand-700: 21 128 61;
+  --rgb-gray-100: 243 244 246;
+  --rgb-gray-200: 229 231 235;
+  --rgb-gray-500: 107 114 128;
+  --rgb-gray-800: 31 41 55;
+  --rgb-gray-900: 17 24 39;
+}
   -webkit-font-smoothing: antialiased;
   transition:
     transform 0.28s var(--lp-float-enter-ease),
@@ -1572,6 +1583,16 @@ html {
   border: 1px solid rgba(207, 230, 215, 0.9);
   background: var(--lp-white);
   box-shadow: var(--lp-shadow-mockup);
+  --rgb-brand-50: 236 253 245;
+  --rgb-brand-100: 209 250 229;
+  --rgb-brand-500: 34 197 94;
+  --rgb-brand-600: 22 163 74;
+  --rgb-brand-700: 21 128 61;
+  --rgb-gray-100: 243 244 246;
+  --rgb-gray-200: 229 231 235;
+  --rgb-gray-500: 107 114 128;
+  --rgb-gray-800: 31 41 55;
+  --rgb-gray-900: 17 24 39;
 }
 
 .lp-mockup--hero {

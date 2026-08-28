@@ -37,6 +37,14 @@ class TemaAparenciaTests(TestCase):
         self.assertIn('data-tema="escuro"', html)
         self.assertIn("Ativar modo claro", html)
 
+    def test_paginas_publicas_usam_tokens_claros_sem_tema_escuro(self):
+        for path in ("/", "/comece/"):
+            with self.subTest(path=path):
+                html = self.client.get(path).content.decode()
+                self.assertIn("css/theme-tokens.css", html)
+                self.assertNotIn("css/theme-dark.css", html)
+                self.assertNotIn('class="dark"', html)
+
     def test_anonimo_nao_altera_tema(self):
         resp = self.client.post(
             reverse("usuarios:configuracoes_tema"),
