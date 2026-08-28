@@ -51,9 +51,3 @@ def _run_recategorizacao(usuario_id: int, categoria_nome: str, limite: int):
 )
 def recategorizar_lote_task(self, usuario_id: int, categoria_nome: str = "Diversos", limite: int = 500):
     _run_recategorizacao(usuario_id, categoria_nome, limite)
-
-
-@shared_task
-def agregar_globais_task():
-    from categorizacao.services.learning import agregar_contribuicoes_globais
-    return agregar_contribuicoes_globais()

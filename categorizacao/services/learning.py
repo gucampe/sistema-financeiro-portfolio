@@ -5,7 +5,6 @@ from django.db.models import F
 from django.utils import timezone
 
 from categorizacao.models import (
-    AgregacaoMerchantGlobal,
     EventoCategorizacao,
     MemoriaMerchantUsuario,
     RegraCategorizacao,
@@ -19,8 +18,6 @@ from categorizacao.services.pix_identity import (
     is_pix_pessoa_fisica,
     merchant_keys_para_busca,
 )
-
-K_ANONIMITY = 10
 
 ORIGEM_HUMAN = "human"
 ORIGEM_LLM_PENDING = "llm_pending"
@@ -171,10 +168,6 @@ def processar_feedback_transacao(
         contexto={**ctx_extra, "learning_source": ORIGEM_HUMAN if acao != "corrigida" or fonte_llm else "corrected"},
     )
 
-    prefs = getattr(getattr(usuario, "perfil", None), "categorizacao_contribuir_globais", False)
-    if prefs and primary_key and acao in ("aceita", "corrigida") and not fonte_llm:
-        _contribuir_agregacao_global(primary_key, categoria_final)
-
 
 def _get_categoria(categoria_sugerida_id):
     if not categoria_sugerida_id:
@@ -254,59 +247,3 @@ def _talvez_criar_regra_aprendida(usuario, merchant_key: str, categoria) -> None
         ativa=True,
     )
     invalidar_cache_usuario(usuario.pk)
-
-
-def _contribuir_agregacao_global(merchant_key: str, categoria) -> None:
-    tipo = categoria.tipo if categoria.tipo in ("receita", "despesa") else "despesa"
-    obj, created = AgregacaoMerchantGlobal.objects.get_or_create(
-        merchant_key=merchant_key,
-        categoria_padrao_nome=categoria.nome,
-        tipo=tipo,
-        defaults={"ocorrencias": 1, "usuarios_distintos": 1},
-    )
-    if not created:
-        AgregacaoMerchantGlobal.objects.filter(pk=obj.pk).update(
-            ocorrencias=F("ocorrencias") + 1,
-        )
-
-
-def agregar_contribuicoes_globais(min_usuarios: int = K_ANONIMITY) -> int:
-    """Promove agregações com k-anonymity para regras globais (batch)."""
-    from categorias.models import Categoria
-
-    criadas = 0
-    agregacoes = AgregacaoMerchantGlobal.objects.filter(
-        usuarios_distintos__gte=min_usuarios,
-        ocorrencias__gte=min_usuarios,
-    )
-    for ag in agregacoes:
-        cat = Categoria.objects.filter(
-            padrao=True,
-            nome__iexact=ag.categoria_padrao_nome,
-            tipo=ag.tipo,
-            ativa=True,
-        ).first()
-        if not cat:
-            continue
-        padrao_norm = normalizar_padrao_regra(ag.merchant_key)
-        if RegraCategorizacao.objects.filter(
-            usuario__isnull=True,
-            padrao_normalizado=padrao_norm,
-            tipo_regra="merchant_exact",
-            ativa=True,
-        ).exists():
-            continue
-        RegraCategorizacao.objects.create(
-            usuario=None,
-            tipo_regra="merchant_exact",
-            padrao=ag.merchant_key,
-            padrao_normalizado=padrao_norm,
-            categoria=cat,
-            tipo_transacao=ag.tipo,
-            prioridade=10,
-            confianca_base=0.82,
-            origem="seed",
-            ativa=True,
-        )
-        criadas += 1
-    return criadas

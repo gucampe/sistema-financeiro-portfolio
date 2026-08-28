@@ -5,7 +5,6 @@ from django.shortcuts import render
 from django.conf import settings
 
 from categorizacao.models import (
-    AgregacaoMerchantGlobal,
     CategorizacaoUXEvent,
     EventoCategorizacao,
     LLMRequestLog,
@@ -94,17 +93,6 @@ class EventoCategorizacaoAdmin(admin.ModelAdmin):
 class ModeloClassificacaoUsuarioAdmin(admin.ModelAdmin):
     list_display = ("usuario", "versao", "amostras_treino", "treinado_em")
     readonly_fields = ("artefato",)
-
-
-@admin.register(AgregacaoMerchantGlobal)
-class AgregacaoMerchantGlobalAdmin(admin.ModelAdmin):
-    list_display = (
-        "merchant_key",
-        "categoria_padrao_nome",
-        "ocorrencias",
-        "usuarios_distintos",
-        "atualizado_em",
-    )
 
 
 @admin.register(CategorizacaoUXEvent)

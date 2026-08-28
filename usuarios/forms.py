@@ -103,7 +103,6 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             "ocultar_valores_dashboard",
             "categorizacao_auto_aplicar",
             "categorizacao_limiar_auto",
-            "categorizacao_contribuir_globais",
         )
         widgets = {
             "moeda": forms.Select(attrs={"class": INPUT_CONTROL_CLASSES}),
@@ -115,7 +114,6 @@ class PreferenciasFinanceirasForm(forms.ModelForm):
             "categorizacao_limiar_auto": forms.NumberInput(
                 attrs={"class": INPUT_CONTROL_CLASSES, "step": "0.01", "min": "0.5", "max": "1"}
             ),
-            "categorizacao_contribuir_globais": forms.CheckboxInput(attrs={"class": CHECKBOX_CONTROL_CLASSES}),
         }
 
     def __init__(self, *args, user=None, **kwargs):

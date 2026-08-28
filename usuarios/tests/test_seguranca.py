@@ -48,6 +48,15 @@ class TestSegurancaUnit(TestCase):
         resp = par.client_a.get(reverse("usuarios:configuracoes"))
         assert_http_200(resp)
 
+    def test_configuracoes_nao_oferece_contribuicao_anonimizada(self):
+        par = par_usuarios()
+        resp = par.client_a.get(reverse("usuarios:configuracoes"))
+        html = resp.content.decode()
+        self.assertNotIn("Contribuir com dados anonimizados", html)
+        self.assertNotIn("categorizacao_contribuir_globais", html)
+        form = PreferenciasFinanceirasForm(instance=par.perfil_a, user=par.user_a)
+        self.assertNotIn("categorizacao_contribuir_globais", form.fields)
+
     def test_unit_sec_02b_usuario_inativo_nao_autentica(self):
         user = get_user_model().objects.create_user(
             email="inativo@test.local", password="x", nome="Inativo"

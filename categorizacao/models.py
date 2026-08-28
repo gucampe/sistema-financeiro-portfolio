@@ -224,30 +224,6 @@ class ModeloClassificacaoUsuario(models.Model):
         return f"Modelo ML usuário {self.usuario_id} v{self.versao}"
 
 
-class AgregacaoMerchantGlobal(models.Model):
-    """Agregação anonimizada merchant→categoria (opt-in dos usuários)."""
-
-    merchant_key = models.CharField(max_length=120, db_index=True)
-    categoria_padrao_nome = models.CharField(max_length=100)
-    tipo = models.CharField(max_length=10, default="despesa")
-    ocorrencias = models.PositiveIntegerField(default=0)
-    usuarios_distintos = models.PositiveIntegerField(default=0)
-    atualizado_em = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Agregação merchant global"
-        verbose_name_plural = "Agregações merchant globais"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["merchant_key", "categoria_padrao_nome", "tipo"],
-                name="categorizacao_agreg_merchant_cat",
-            ),
-        ]
-
-    def __str__(self):
-        return f"{self.merchant_key} → {self.categoria_padrao_nome} ({self.ocorrencias})"
-
-
 class LLMRequestLog(models.Model):
     """Auditoria de chamadas LLM (sem descrição bruta)."""
 

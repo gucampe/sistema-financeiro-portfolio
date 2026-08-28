@@ -116,11 +116,6 @@ class Perfil(models.Model):
         _("Limiar de confiança para auto-aplicar"),
         default=0.90,
     )
-    categorizacao_contribuir_globais = models.BooleanField(
-        _("Contribuir com dados anonimizados"),
-        default=False,
-        help_text=_("Permite usar padrões agregados (sem descrições) para melhorar sugestões globais."),
-    )
 
     class Meta:
         verbose_name = _("Perfil")

@@ -71,7 +71,6 @@ class SugestaoCategorizacao:
 class PreferenciasCategorizacao:
     auto_aplicar: bool = False
     limiar_auto: float = 0.90
-    contribuir_globais: bool = False
 
     @classmethod
     def from_usuario(cls, usuario: Usuario) -> PreferenciasCategorizacao:
@@ -81,9 +80,6 @@ class PreferenciasCategorizacao:
         return cls(
             auto_aplicar=bool(getattr(perfil, "categorizacao_auto_aplicar", False)),
             limiar_auto=float(getattr(perfil, "categorizacao_limiar_auto", 0.90) or 0.90),
-            contribuir_globais=bool(
-                getattr(perfil, "categorizacao_contribuir_globais", False)
-            ),
         )
 
 
