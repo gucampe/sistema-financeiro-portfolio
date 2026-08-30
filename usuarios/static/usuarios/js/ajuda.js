@@ -42,6 +42,13 @@
     }).catch(function () {});
   }
 
+  function normalizar(texto) {
+    return String(texto || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
   function artigoPorId(id) {
     for (var i = 0; i < catalogo.length; i += 1) {
       if (catalogo[i].id === id) return catalogo[i];
@@ -49,10 +56,23 @@
     return null;
   }
 
+  function artigoCorresponde(artigo, query) {
+    var q = normalizar(query).trim();
+    if (!q) return true;
+    if (!artigo) return false;
+    var haystack = normalizar(
+      [artigo.titulo, artigo.resumo, artigo.grupo, artigo.tipo]
+        .concat(artigo.tags || [])
+        .join(" ")
+    );
+    return haystack.indexOf(q) !== -1;
+  }
+
   function mostrarHome() {
     if (home) home.classList.remove("hidden");
     if (artigoView) artigoView.classList.add("hidden");
     if (artigoCorpo) artigoCorpo.replaceChildren();
+    filtrar(busca ? busca.value : "");
   }
 
   function abrirArtigo(id, origem) {
@@ -70,23 +90,32 @@
   }
 
   function filtrar(query) {
-    var q = String(query || "").trim().toLowerCase();
-    var cards = overlay.querySelectorAll("[data-ajuda-abrir]");
+    var q = String(query || "").trim();
+    var cards = home ? home.querySelectorAll("[data-ajuda-abrir]") : [];
     var visiveis = 0;
     cards.forEach(function (card) {
       var id = card.getAttribute("data-ajuda-abrir");
-      var artigo = artigoPorId(id);
-      var haystack = artigo
-        ? [artigo.titulo, artigo.resumo].concat(artigo.tags || []).join(" ").toLowerCase()
-        : "";
-      var show = !q || haystack.indexOf(q) !== -1;
+      var show = artigoCorresponde(artigoPorId(id), q);
       card.classList.toggle("hidden", !show);
       if (show) visiveis += 1;
     });
+    if (home) {
+      home.querySelectorAll("[data-ajuda-grupo]").forEach(function (grupo) {
+        var cardsVisiveis = grupo.querySelectorAll("[data-ajuda-abrir]:not(.hidden)");
+        grupo.classList.toggle("hidden", Boolean(q) && cardsVisiveis.length === 0);
+      });
+    }
     if (buscaVazia) buscaVazia.classList.toggle("hidden", visiveis > 0 || !q);
   }
 
+  function limparBusca() {
+    if (busca) busca.value = "";
+    ultimaQuery = "";
+    filtrar("");
+  }
+
   function abrirAjuda(artigoId) {
+    if (!artigoId) limparBusca();
     mostrarHome();
     window.GranaGoModal.open(overlay);
     registrar("help_opened", { origem: artigoId ? "deep_link" : "nav" });
@@ -103,10 +132,12 @@
     }
   }
 
-  overlay.querySelectorAll("[data-ajuda-abrir]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      abrirArtigo(btn.getAttribute("data-ajuda-abrir"), "lista");
-    });
+  overlay.addEventListener("click", function (event) {
+    var btn = event.target.closest("[data-ajuda-abrir]");
+    if (!btn || !overlay.contains(btn)) return;
+    var origem =
+      artigoView && !artigoView.classList.contains("hidden") ? "relacionado" : "lista";
+    abrirArtigo(btn.getAttribute("data-ajuda-abrir"), origem);
   });
 
   var voltar = overlay.querySelector("[data-ajuda-voltar]");

@@ -30,6 +30,7 @@
     <div class="min-w-0">
       <h2 class="text-2xl font-semibold text-fg">Fatura {{ fatura.competencia|date:"F Y"|capfirst }}</h2>
       <p class="text-sm mt-1 text-fg-muted">Vencimento {{ fatura.data_vencimento|date:"d/m/Y" }} · Compras {{ fatura.data_inicio_compras|date:"d/m/Y" }} — {{ fatura.data_fim_compras|date:"d/m/Y" }}</p>
+      {% include "usuarios/ajuda/partials/link_contextual.html" with artigo_id="pagar-fatura" label="Como pagar a fatura →" extra_class="mt-2 inline-flex min-h-12 items-center text-sm font-semibold text-brand-600 hover:text-brand-700" %}
     </div>
     <div class="flex w-full flex-col gap-3 shrink-0 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-2">
       <button type="button"

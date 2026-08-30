@@ -121,7 +121,7 @@
                 <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
                   <span class="inline-flex items-center gap-1">
                     Resultado do período
-                    {% include "partials/hint.html" with hint_id="resultado-periodo-desktop" hint_label="Resultado do período" hint_text="Receitas menos despesas neste período. Não é o dinheiro que está nas contas. Transferências e ajustes não entram." %}
+                    {% include "partials/hint.html" with hint_id="resultado-periodo-desktop" hint_label="Resultado do período" hint_text="O que entrou menos o que saiu neste período. Não é o dinheiro que você tem." hint_ajuda_id="resultado" hint_ajuda_label="Entender o resultado →" %}
                   </span>
                 </p>
                 <p class="mt-2 text-2xl font-semibold tabular-nums {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
@@ -161,7 +161,7 @@
       <div class="dash-mobile__summary">
         <p class="dash-mobile__summary-label inline-flex items-center gap-1">
           Resultado do período
-          {% include "partials/hint.html" with hint_id="resultado-periodo-mobile" hint_label="Resultado do período" hint_text="Receitas menos despesas neste período. Não é o dinheiro que está nas contas. Transferências e ajustes não entram." %}
+          {% include "partials/hint.html" with hint_id="resultado-periodo-mobile" hint_label="Resultado do período" hint_text="O que entrou menos o que saiu neste período. Não é o dinheiro que você tem." hint_ajuda_id="resultado" hint_ajuda_label="Entender o resultado →" %}
         </p>
         <p class="dash-mobile__summary-value {% if resultado_mes >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
           <span class="dash-valor" data-valor="{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}">{% if ocultar_valores_dashboard %}••••••{% else %}{% if resultado_mes > 0 %}+{% endif %}{{ resultado_mes|moeda }}{% endif %}</span>
@@ -191,7 +191,7 @@
         <div class="min-w-0">
           <h2 class="rel-secao-titulo inline-flex items-center gap-1">
             Saldo das contas
-            {% include "partials/hint.html" with hint_id="saldo-contas" hint_label="Saldo das contas" hint_text="É o que há nas contas cadastradas hoje. Compras no cartão não diminuem este número até a fatura ser paga." %}
+            {% include "partials/hint.html" with hint_id="saldo-contas" hint_label="Saldo das contas" hint_text="Soma do que está nas suas contas hoje." hint_ajuda_id="mapa" hint_ajuda_label="Entender melhor →" %}
           </h2>
           <p class="rel-secao-subtitulo">Soma do que está nas contas ativas</p>
         </div>
@@ -248,7 +248,7 @@
       {% else %}
       <div class="rel-empty-state dash-empty-state mt-8">
         <p class="rel-empty-state__titulo">Nenhuma conta cadastrada</p>
-        <p class="rel-empty-state__desc">Contas são onde o dinheiro está. Cadastre a primeira para ver o saldo das contas.</p>
+        <p class="rel-empty-state__desc">Contas são onde o seu dinheiro está — assim o GranaGo calcula saldo e patrimônio.</p>
         <a href="{% url 'contas:home' %}?nova=1" class="btn btn-primary btn-sm mt-5">Cadastrar conta</a>
       </div>
       {% endif %}
@@ -316,8 +316,9 @@
       {% else %}
       <div class="rel-empty-state dash-empty-state dash-section-body mt-6">
         <p class="rel-empty-state__titulo">Nenhum cartão cadastrado</p>
-        <p class="rel-empty-state__desc">Cartão de crédito não é uma conta. Cadastre um para acompanhar a fatura — a compra não tira dinheiro da conta no dia.</p>
+        <p class="rel-empty-state__desc">A compra aparece na fatura. O dinheiro sai da conta quando você paga a fatura.</p>
         <a href="{% url 'cartoes:home' %}?nova=1" class="btn btn-primary btn-sm mt-5">Cadastrar cartão</a>
+        {% include "usuarios/ajuda/partials/link_contextual.html" with artigo_id="cartao" label="Entender cartões →" extra_class="mt-3 inline-flex min-h-12 items-center text-sm font-semibold text-brand-600 hover:text-brand-700" %}
       </div>
       {% endif %}
     </section>

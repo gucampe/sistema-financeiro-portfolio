@@ -5,11 +5,13 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 
+from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from contas.models import Conta
+from usuarios.ajuda.busca import artigo_corresponde_busca, normalizar_texto_ajuda
 from usuarios.ajuda.catalogo import ARTIGOS, artigo_por_id
 from usuarios.ajuda.dicas import DICAS, deve_mostrar_dica, marcar_dica_dispensada
 from usuarios.models import Perfil, ProdutoEvento
@@ -33,6 +35,12 @@ class VocabularioHintsTests(OnboardingTestMixin, TestCase):
         self.assertNotContains(r, "Patrimônio disponível")
         self.assertContains(r, "Soma do que está nas contas ativas")
         self.assertContains(r, "hint-panel-resultado-periodo-desktop")
+        self.assertContains(r, "O que entrou menos o que saiu neste período. Não é o dinheiro que você tem.")
+        self.assertContains(r, "?ajuda=resultado")
+        self.assertContains(r, "Entender o resultado →")
+        self.assertContains(r, "Soma do que está nas suas contas hoje.")
+        self.assertContains(r, "?ajuda=mapa")
+        self.assertContains(r, "Entender melhor →")
 
     def test_transacoes_copy_resultado_e_importar_extrato(self):
         r = self.client.get(reverse("transacoes:historico"))
@@ -44,6 +52,8 @@ class VocabularioHintsTests(OnboardingTestMixin, TestCase):
         self.assertNotContains(r, "Importar OFX")
         self.assertContains(r, "Resultado")
         self.assertContains(r, "Move dinheiro entre as suas contas")
+        self.assertContains(r, "?ajuda=transferencia")
+        self.assertContains(r, "Entender transferências →")
 
     def test_por_conta_alinha_rotulo(self):
         self.criar_conta(self.user)
@@ -67,18 +77,26 @@ class EmptyStatesTests(OnboardingTestMixin, TestCase):
         self.assertContains(r, f'{reverse("transacoes:historico")}?importar=1')
         self.assertContains(r, "Não conseguiu importar?")
         self.assertContains(r, "Lance na mão.")
+        self.assertContains(r, "?ajuda=adicionar-dados")
+        self.assertContains(r, "Como adicionar seus dados →")
+        self.assertContains(r, "?ajuda=corrigir-categoria")
+        self.assertContains(r, "Entender categorização →")
 
     def test_contas_empty_explica_porque(self):
         r = self.client.get(reverse("contas:home"))
-        self.assertContains(r, "Contas são onde o dinheiro está")
+        self.assertContains(r, "Contas são onde o seu dinheiro está")
+        self.assertContains(r, "saldo e patrimônio")
 
     def test_cartoes_empty_credito_nao_e_conta(self):
         r = self.client.get(reverse("cartoes:home"))
-        self.assertContains(r, "Cartão de crédito não é uma conta")
+        self.assertContains(r, "A compra aparece na fatura")
+        self.assertContains(r, "?ajuda=cartao")
+        self.assertContains(r, "Entender cartões →")
 
     def test_dashboard_empty_conta(self):
         r = self.client.get(reverse("relatorios:home"))
-        self.assertContains(r, "Contas são onde o dinheiro está")
+        self.assertContains(r, "Contas são onde o seu dinheiro está")
+        self.assertContains(r, "Entender cartões →")
 
 
 class PrimeirosPassosCopyTests(OnboardingTestMixin, TestCase):
@@ -197,28 +215,232 @@ class DrawerAjudaTests(OnboardingTestMixin, TestCase):
         self.user = self.criar_usuario("ajuda@test.com")
         self.client.force_login(self.user)
 
-    def test_catalogo_mvp_tem_tres_artigos(self):
-        self.assertEqual({a.id for a in ARTIGOS}, {"mapa", "adicionar-dados", "cartao"})
-        self.assertIsNotNone(artigo_por_id("cartao"))
+    def test_catalogo_tem_oito_artigos(self):
+        self.assertEqual(
+            [a.id for a in ARTIGOS],
+            [
+                "mapa",
+                "adicionar-dados",
+                "transacao",
+                "corrigir-categoria",
+                "transferencia",
+                "cartao",
+                "pagar-fatura",
+                "resultado",
+            ],
+        )
+        transacao = artigo_por_id("transacao")
+        self.assertIsNotNone(transacao)
+        self.assertEqual(transacao.titulo, "Como funciona uma transação")
+        self.assertIn("despesas registram gastos", transacao.resumo)
+        self.assertIn("transação", transacao.tags)
+        self.assertEqual(transacao.grupo, "comece")
+        self.assertEqual(transacao.tipo, "entenda")
+        self.assertIsNotNone(artigo_por_id("corrigir-categoria"))
+        self.assertIsNotNone(artigo_por_id("transferencia"))
+        self.assertIsNotNone(artigo_por_id("resultado"))
+        self.assertIsNotNone(artigo_por_id("pagar-fatura"))
         self.assertIsNone(artigo_por_id("categoria"))
+        self.assertEqual(artigo_por_id("resultado").grupo, "entenda")
+        self.assertEqual(artigo_por_id("cartao").grupo, "entenda")
+        self.assertEqual(artigo_por_id("pagar-fatura").grupo, "entenda")
+        self.assertEqual(artigo_por_id("pagar-fatura").tipo, "faca_comigo")
 
     def test_drawer_no_html_autenticado(self):
         r = self.client.get(reverse("relatorios:home"))
         self.assertContains(r, 'id="ajuda-overlay"')
         self.assertContains(r, "data-modal")
         self.assertContains(r, "Como o GranaGo organiza seu dinheiro")
+        self.assertContains(r, "O GranaGo organiza seu dinheiro de forma simples")
+        self.assertContains(r, "Ir para a Visão geral")
+        self.assertContains(r, "Lance uma transação ou importe o extrato")
+        self.assertContains(r, "Tem duas formas de adicionar seus dados ao GranaGo")
+        self.assertContains(r, "Adicionar uma transação")
+        self.assertContains(r, "Importar seu extrato")
+        self.assertContains(r, ">Organize<")
+        self.assertContains(r, "Como corrigir uma categoria")
+        self.assertContains(r, "Como funcionam as transferências")
+        self.assertContains(r, "alterá-la diretamente na transação")
+        self.assertContains(r, "não é considerada receita nem despesa")
+        self.assertContains(r, "Transferência = dinheiro de uma conta para outra.")
+        self.assertContains(r, "Ir para transações")
         self.assertContains(r, 'data-ajuda-abrir="mapa"')
         self.assertContains(r, 'data-ajuda-abrir="adicionar-dados"')
+        self.assertContains(r, 'data-ajuda-abrir="transacao"')
+        self.assertContains(r, 'data-ajuda-abrir="corrigir-categoria"')
+        self.assertContains(r, 'data-ajuda-abrir="transferencia"')
         self.assertContains(r, 'data-ajuda-abrir="cartao"')
+        self.assertContains(r, 'data-ajuda-abrir="resultado"')
+        self.assertContains(r, 'data-ajuda-abrir="pagar-fatura"')
+        self.assertContains(r, "Como funciona uma transação")
+        self.assertContains(r, "três tipos principais")
+        self.assertContains(r, "registra um gasto")
+        self.assertContains(r, "Como funciona o resultado")
+        self.assertContains(r, "Como pagar a fatura")
+        self.assertContains(r, "receitas − despesas")
+        self.assertContains(r, "conta padrão do cartão")
+        self.assertContains(r, "Ir para cartões")
+        self.assertContains(r, reverse("cartoes:home"))
+        self.assertContains(r, "Saldo das contas")
+        self.assertNotContains(r, "Patrimônio disponível")
+        self.assertNotContains(r, "Como o GranaGo funciona")
+        self.assertContains(r, "nada é gravado antes disso")
         self.assertContains(r, "Buscar na ajuda")
+        self.assertContains(r, 'id="ajuda-titulo"')
         self.assertContains(r, ">Ajuda<")
         self.assertNotContains(r, ">Tutoriais<")
+        self.assertContains(r, 'data-ajuda-grupo="organize"')
+        self.assertContains(r, "fa-chevron-right")
+        self.assertContains(r, "Leia também")
+        self.assertContains(r, "data-modal-close")
 
     def test_deep_link_query_nao_quebra_pagina(self):
         r = self.client.get(reverse("relatorios:home"), {"ajuda": "cartao"})
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'id="ajuda-overlay"')
         self.assertContains(r, 'id="ajuda-artigo-cartao"')
+        self.assertContains(r, "Como funciona o cartão de crédito")
+        self.assertContains(r, "o dinheiro ainda não sai da sua conta")
+        self.assertContains(r, "Compra → Fatura → Pagamento → Saída da conta")
+        self.assertContains(r, "conta padrão do cartão")
+
+    def test_deep_link_artigos_novos(self):
+        for artigo_id, trecho in (
+            ("corrigir-categoria", 'id="ajuda-artigo-corrigir-categoria"'),
+            ("transferencia", 'id="ajuda-artigo-transferencia"'),
+            ("resultado", 'id="ajuda-artigo-resultado"'),
+            ("pagar-fatura", 'id="ajuda-artigo-pagar-fatura"'),
+            ("transacao", 'id="ajuda-artigo-transacao"'),
+        ):
+            r = self.client.get(reverse("relatorios:home"), {"ajuda": artigo_id})
+            self.assertEqual(r.status_code, 200)
+            self.assertContains(r, trecho)
+
+    def test_artigo_resultado_cta_fecha_drawer(self):
+        r = self.client.get(reverse("relatorios:home"), {"ajuda": "resultado"})
+        self.assertContains(r, "Como funciona o resultado")
+        self.assertContains(r, "não significa")
+        self.assertContains(r, "Saldo das contas")
+        self.assertContains(r, "perguntas diferentes")
+        self.assertNotContains(r, "Patrimônio disponível")
+        self.assertContains(r, "data-modal-close")
+        self.assertContains(r, ">Entendi<")
+
+    def test_leia_tambem_declarativo(self):
+        mapa = artigo_por_id("mapa")
+        html = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": mapa},
+        )
+        self.assertIn("Leia também", html)
+        self.assertIn('data-ajuda-abrir="transacao"', html)
+        self.assertIn('data-ajuda-abrir="cartao"', html)
+        self.assertNotIn('data-ajuda-abrir="mapa"', html)
+
+        transacao = artigo_por_id("transacao")
+        html_tx = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": transacao},
+        )
+        self.assertIn('data-ajuda-abrir="adicionar-dados"', html_tx)
+        self.assertIn('data-ajuda-abrir="transferencia"', html_tx)
+        self.assertIn('data-ajuda-abrir="resultado"', html_tx)
+        self.assertNotIn('data-ajuda-abrir="transacao"', html_tx)
+
+        cartao = artigo_por_id("cartao")
+        html_cartao = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": cartao},
+        )
+        self.assertIn('data-ajuda-abrir="pagar-fatura"', html_cartao)
+        self.assertNotIn('data-ajuda-abrir="cartao"', html_cartao.split("Leia também", 1)[-1])
+
+        pagar = artigo_por_id("pagar-fatura")
+        html_pagar = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": pagar},
+        )
+        self.assertIn('data-ajuda-abrir="cartao"', html_pagar)
+        self.assertNotIn('data-ajuda-abrir="pagar-fatura"', html_pagar)
+
+        vazio = replace(mapa, relacionados=())
+        html_vazio = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": vazio},
+        )
+        self.assertNotIn("Leia também", html_vazio)
+
+        invalido = replace(mapa, relacionados=("mapa", "nao-existe", "cartao"))
+        html_invalido = render_to_string(
+            "usuarios/ajuda/partials/leia_tambem.html",
+            {"artigo": invalido},
+        )
+        self.assertIn("Leia também", html_invalido)
+        self.assertIn('data-ajuda-abrir="cartao"', html_invalido)
+        self.assertNotIn("nao-existe", html_invalido)
+        self.assertEqual(
+            [rel.id for rel in invalido.artigos_relacionados()],
+            ["cartao"],
+        )
+
+    def test_busca_normaliza_acentos(self):
+        self.assertEqual(normalizar_texto_ajuda("cartão"), "cartao")
+        self.assertEqual(normalizar_texto_ajuda("orçamento"), "orcamento")
+        casos = (
+            ("cartao", "cartao", "cartão"),
+            ("transferencia", "transferencia", "transferência"),
+            ("mapa", "orcamento", "orçamento"),
+            ("adicionar-dados", "transacao", "transação"),
+            ("resultado", "resultado", "resultado"),
+            ("pagar-fatura", "fatura", "fatura"),
+            ("pagar-fatura", "cartao", "cartão"),
+            ("transacao", "transacao", "transação"),
+            ("transacao", "receita", "receita"),
+            ("transacao", "despesa", "despesa"),
+            ("transacao", "transferencia", "transferência"),
+            ("transacao", "lancamento", "lançamento"),
+        )
+        for artigo_id, sem_acento, com_acento in casos:
+            artigo = artigo_por_id(artigo_id)
+            self.assertTrue(artigo_corresponde_busca(artigo, sem_acento), sem_acento)
+            self.assertTrue(artigo_corresponde_busca(artigo, com_acento), com_acento)
+        self.assertTrue(artigo_corresponde_busca(artigo_por_id("cartao"), "cartao"))
+        self.assertTrue(artigo_corresponde_busca(artigo_por_id("cartao"), "cartão"))
+        self.assertFalse(artigo_corresponde_busca(artigo_por_id("cartao"), "zzzz"))
+
+    def test_js_preserva_busca_ao_voltar(self):
+        from pathlib import Path
+
+        js = Path("usuarios/static/usuarios/js/ajuda.js").read_text(encoding="utf-8")
+        inicio = js.index("function mostrarHome()")
+        fim = js.index("function abrirArtigo")
+        bloco = js[inicio:fim]
+        self.assertIn('filtrar(busca ? busca.value : "")', bloco)
+        self.assertNotIn('busca.value = ""', bloco)
+        self.assertIn('.normalize("NFD")', js)
+
+    def test_fatura_detalhe_tem_link_contextual(self):
+        from datetime import date
+
+        from cartoes.models import Fatura
+
+        conta = self.criar_conta(self.user)
+        cartao = self.criar_cartao(self.user, conta)
+        fatura = Fatura.objects.create(
+            usuario=self.user,
+            cartao=cartao,
+            competencia=date(2026, 8, 1),
+            data_fechamento=date(2026, 8, 10),
+            data_vencimento=date(2026, 8, 20),
+            data_inicio_compras=date(2026, 7, 11),
+            data_fim_compras=date(2026, 8, 10),
+        )
+        r = self.client.get(
+            reverse("cartoes:fatura_detalhe", args=[cartao.id, fatura.id])
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "?ajuda=pagar-fatura")
+        self.assertContains(r, "Como pagar a fatura →")
 
 
 class DicaCartaoVersionadaTests(OnboardingTestMixin, TestCase):

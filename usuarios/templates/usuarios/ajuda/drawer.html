@@ -20,7 +20,7 @@
     <div class="modal-panel__header flex items-start justify-between gap-3 border-b border-gray-200 px-5 py-4 md:px-6">
       <div class="min-w-0">
         <p class="m-0 text-xs font-semibold uppercase tracking-wide text-gray-500">Ajuda</p>
-        <h2 id="ajuda-titulo" class="mt-1 mb-0 text-lg font-semibold text-gray-900">Como o GranaGo funciona</h2>
+        <h2 id="ajuda-titulo" class="mt-1 mb-0 text-lg font-semibold text-gray-900">Ajuda</h2>
       </div>
       <button
         type="button"
@@ -62,6 +62,22 @@
           </div>
         </section>
 
+        <section class="mt-6" data-ajuda-grupo="organize">
+          <h3 class="m-0 text-xs font-semibold uppercase tracking-wide text-gray-500">Organize</h3>
+          <div class="mt-3 grid gap-2">
+            {% for artigo in ajuda_organize %}
+            <button
+              type="button"
+              class="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left"
+              data-ajuda-abrir="{{ artigo.id }}"
+            >
+              <span class="text-sm font-semibold text-gray-900">{{ artigo.titulo }}</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-400" aria-hidden="true"></i>
+            </button>
+            {% endfor %}
+          </div>
+        </section>
+
         <section class="mt-6" data-ajuda-grupo="entenda">
           <h3 class="m-0 text-xs font-semibold uppercase tracking-wide text-gray-500">Entenda</h3>
           <div class="mt-3 grid gap-2">
@@ -97,8 +113,11 @@
 
 <script type="application/json" id="ajuda-catalogo-json">{{ ajuda_catalogo_json|safe }}</script>
 {% for artigo in ajuda_comece_aqui %}
-<template id="ajuda-artigo-{{ artigo.id }}">{% include artigo.template %}</template>
+<template id="ajuda-artigo-{{ artigo.id }}">{% include artigo.template %}{% include "usuarios/ajuda/partials/leia_tambem.html" %}</template>
+{% endfor %}
+{% for artigo in ajuda_organize %}
+<template id="ajuda-artigo-{{ artigo.id }}">{% include artigo.template %}{% include "usuarios/ajuda/partials/leia_tambem.html" %}</template>
 {% endfor %}
 {% for artigo in ajuda_entenda %}
-<template id="ajuda-artigo-{{ artigo.id }}">{% include artigo.template %}</template>
+<template id="ajuda-artigo-{{ artigo.id }}">{% include artigo.template %}{% include "usuarios/ajuda/partials/leia_tambem.html" %}</template>
 {% endfor %}
