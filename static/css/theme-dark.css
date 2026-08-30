@@ -167,15 +167,26 @@ html.dark .hover\:text-brand-600:hover {
   color: #4ade80;
 }
 
-::view-transition-old(root) {
-  animation: none;
-  mix-blend-mode: normal;
-  z-index: 1;
-}
-::view-transition-new(root) {
-  mix-blend-mode: normal;
+.tema-reveal-fade {
+  position: fixed;
+  inset: 0;
   z-index: 2147483646;
-  animation: granago-tema-reveal 1.7s cubic-bezier(0.45, 0, 0.55, 1) both;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.35s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  ::view-transition-old(root) {
+    animation: none;
+    mix-blend-mode: normal;
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    mix-blend-mode: normal;
+    z-index: 2147483646;
+    animation: granago-tema-reveal 1.7s cubic-bezier(0.45, 0, 0.55, 1) both;
+  }
 }
 @keyframes granago-tema-reveal {
   from {
@@ -183,6 +194,13 @@ html.dark .hover\:text-brand-600:hover {
   }
   to {
     clip-path: circle(var(--tema-r, 100vmax) at var(--tema-cx, 50%) var(--tema-cy, 50%));
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }
 

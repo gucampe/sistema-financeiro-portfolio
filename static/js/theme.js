@@ -115,7 +115,14 @@
   };
 
   const DURACAO_MS = 1700;
-  const EASE_REVEAL = "cubic-bezier(0.45, 0, 0.55, 1)";
+  const COR_CLARO = "#f4f5f7";
+  const COR_ESCURO = "#101614";
+
+  const ehCelular = () =>
+    window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+  const usaViewTransition = () =>
+    typeof document.startViewTransition === "function" && !ehCelular();
 
   const prepararReveal = (x, y) => {
     const root = document.documentElement;
@@ -124,33 +131,29 @@
     root.style.setProperty("--tema-r", `${Math.ceil(maxRadius(x, y))}px`);
   };
 
-  const revealFallback = (tema, apply, done) => {
+  const revelarFade = (tema, apply, done) => {
     const overlay = document.createElement("div");
-    const anterior = tema === "escuro" ? "#f4f5f7" : "#101614";
+    const anterior = tema === "escuro" ? COR_CLARO : COR_ESCURO;
     overlay.setAttribute("aria-hidden", "true");
-    overlay.style.cssText = [
-      "position:fixed",
-      "inset:0",
-      "z-index:2147483646",
-      "pointer-events:none",
-      `background:${anterior}`,
-      "opacity:1",
-    ].join(";");
+    overlay.className = "tema-reveal-fade";
+    overlay.style.background = anterior;
     document.body.appendChild(overlay);
     apply();
     requestAnimationFrame(() => {
-      overlay.style.transition = `opacity ${DURACAO_MS}ms ${EASE_REVEAL}`;
-      overlay.style.opacity = "0";
+      requestAnimationFrame(() => {
+        overlay.style.opacity = "0";
+      });
     });
     const finish = () => {
       if (overlay.dataset.done === "1") return;
       overlay.dataset.done = "1";
-      overlay.removeEventListener("transitionend", finish);
       overlay.remove();
       done();
     };
-    overlay.addEventListener("transitionend", finish);
-    window.setTimeout(finish, DURACAO_MS + 200);
+    overlay.addEventListener("transitionend", (event) => {
+      if (event.propertyName === "opacity") finish();
+    });
+    window.setTimeout(finish, 500);
   };
 
   let animando = false;
@@ -166,7 +169,7 @@
       animando = false;
     };
 
-    if (REDUCED.matches) {
+    if (REDUCED.matches || ehCelular()) {
       syncChrome(next);
       persist(next);
       return;
@@ -176,7 +179,7 @@
     root.classList.add("tema-animando");
     prepararReveal(x, y);
 
-    if (typeof document.startViewTransition === "function") {
+    if (usaViewTransition()) {
       try {
         const transition = document.startViewTransition(go);
         persist(next);
@@ -190,8 +193,10 @@
       }
     }
 
-    revealFallback(next, go, limparAnimacao);
-    persist(next);
+    revelarFade(next, go, () => {
+      limparAnimacao();
+      persist(next);
+    });
   };
 
   const onToggle = (event) => {
