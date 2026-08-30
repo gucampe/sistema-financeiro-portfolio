@@ -36,8 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(overlay);
   }
 
-  if (!btnAbrir) return;
-
   const previewUrl = overlay.dataset.previewUrl;
   const confirmUrl = overlay.dataset.confirmUrl;
   const categorizarUrl = overlay.dataset.categorizarUrl;
@@ -106,9 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
     resetModal();
   }
 
-  function abrirModal() {
+  function abrirModal(trigger) {
     resetModal();
-    globalThis.GranaGoModal?.open(overlay, { trigger: btnAbrir });
+    globalThis.GranaGoModal?.open(overlay, { trigger: trigger || btnAbrir || undefined });
   }
 
   /** Tempo do fade “leave” antes da troca de passo (alinha ao opacity ~0,65s no CSS + folga). */
@@ -385,10 +383,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  btnAbrir.addEventListener("click", () => abrirModal());
+  document.addEventListener("click", (e) => {
+    const trigger = e.target instanceof Element
+      ? e.target.closest("#btn-importar-ofx, .js-abrir-import-ofx")
+      : null;
+    if (!trigger) return;
+    if (trigger.tagName === "A") e.preventDefault();
+    abrirModal(trigger);
+  });
+
+  document.getElementById("import-ofx-fallback-manual")?.addEventListener("click", () => {
+    globalThis.GranaGoModal?.close(overlay);
+    const btnNova = document.getElementById("btn-adicionar");
+    if (btnNova) {
+      btnNova.click();
+    }
+  });
 
   if (globalThis.GranaGoModal) {
     GranaGoModal.bind(overlay, { onClose: fecharModal });
+  }
+
+  try {
+    if (new URLSearchParams(window.location.search).get("importar") === "1") {
+      abrirModal(btnAbrir);
+    }
+  } catch (_err) {
+    /* ignore */
   }
 
   btnVoltar?.addEventListener("click", irParaUpload);

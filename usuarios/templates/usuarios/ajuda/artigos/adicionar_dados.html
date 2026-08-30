@@ -1,0 +1,36 @@
+<p class="mt-0 text-[15px] leading-relaxed text-fg-muted">
+  Tem duas formas de adicionar seus dados ao GranaGo. Escolha a que fizer mais sentido para você agora — as duas deixam suas movimentações prontas para organizar e acompanhar.
+</p>
+<div class="mt-4 space-y-3">
+  <section class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+    <h3 class="m-0 text-sm font-semibold text-fg">Adicionar uma transação</h3>
+    <p class="mt-1 mb-3 text-sm leading-relaxed text-fg-muted">
+      Registre uma receita, despesa ou transferência individualmente. É a forma mais simples de começar, sem precisar de nenhum arquivo.
+    </p>
+    <a
+      href="{% url 'transacoes:historico' %}?nova=1"
+      class="btn btn-primary inline-flex min-h-12 items-center justify-center"
+    >
+      Adicionar transação
+    </a>
+  </section>
+  <section class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+    <h3 class="m-0 text-sm font-semibold text-fg">Importar seu extrato</h3>
+    <p class="mt-1 mb-3 text-sm leading-relaxed text-fg-muted">
+      Adicione várias movimentações de uma vez usando um arquivo exportado pelo seu banco, como OFX ou planilha.
+    </p>
+    <p class="mt-0 mb-2 text-sm font-semibold text-fg">Como funciona a importação</p>
+    <ol class="mt-0 mb-3 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-fg-muted">
+      <li>Escolha o arquivo do banco.</li>
+      <li>Confira as movimentações encontradas.</li>
+      <li>Revise ou corrija as categorias quando necessário.</li>
+      <li>Confirme a importação — nada é gravado antes disso.</li>
+    </ol>
+    <a
+      href="{% url 'transacoes:historico' %}?importar=1"
+      class="btn btn-secondary inline-flex min-h-12 items-center justify-center"
+    >
+      Importar extrato
+    </a>
+  </section>
+</div>

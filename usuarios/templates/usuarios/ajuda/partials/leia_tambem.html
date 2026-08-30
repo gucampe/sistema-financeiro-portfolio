@@ -1,0 +1,18 @@
+{% if artigo.artigos_relacionados %}
+<nav class="mt-6 border-t border-gray-200 pt-4" aria-label="Leia também">
+  <p class="m-0 text-xs font-semibold uppercase tracking-wide text-gray-500">Leia também</p>
+  <ul class="mt-2 mb-0 list-none space-y-1 p-0">
+    {% for rel in artigo.artigos_relacionados %}
+    <li>
+      <button
+        type="button"
+        class="inline-flex min-h-12 items-center text-sm font-semibold text-brand-600 hover:text-brand-700"
+        data-ajuda-abrir="{{ rel.id }}"
+      >
+        {{ rel.titulo }}
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}

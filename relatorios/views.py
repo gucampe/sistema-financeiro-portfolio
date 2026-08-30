@@ -12,6 +12,7 @@ from django.views.generic import TemplateView
 from categorias.models import Categoria
 from contas.models import Conta
 from usuarios.models import Perfil
+from usuarios.services.produto_eventos import registrar_evento_seguro
 
 from relatorios.forms import OrcamentoCategoriaForm
 from relatorios.models import OrcamentoCategoria
@@ -81,6 +82,8 @@ class HomeRelatorioView(RelatorioFiltrosMixin, TemplateView):
                 categorias_preloaded=ctx.get("categorias_filtro"),
             )
         )
+        if ctx.get("primeiros_passos", {}).get("essencial_completo"):
+            registrar_evento_seguro(self.request.user, "first_dashboard_view_with_data")
         return ctx
 
 

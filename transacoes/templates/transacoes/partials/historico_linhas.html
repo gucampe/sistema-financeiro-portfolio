@@ -16,7 +16,12 @@
       <i class="fa-solid fa-receipt text-gray-400"></i>
     </div>
     <p class="text-gray-600 font-medium">Nenhuma transação encontrada</p>
-    <p class="text-sm text-gray-400 mt-1">Seus lançamentos aparecerão aqui.</p>
+    <p class="text-sm text-gray-500 mt-1">Ainda não há movimentações neste recorte. Lance na mão ou importe o extrato do banco.</p>
+    <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+      <a href="{% url 'transacoes:historico' %}?nova=1" class="btn btn-primary btn-sm">Adicionar transação</a>
+      <a href="{% url 'transacoes:historico' %}?importar=1" class="js-abrir-import-ofx btn btn-secondary btn-sm">Importar extrato</a>
+    </div>
+    {% include "usuarios/ajuda/partials/link_contextual.html" with artigo_id="adicionar-dados" label="Como adicionar seus dados →" extra_class="mt-3 inline-flex min-h-12 items-center justify-center text-sm font-semibold text-brand-600 hover:text-brand-700" %}
   </div>
 </li>
 {% endfor %}

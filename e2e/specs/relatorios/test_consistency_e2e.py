@@ -147,7 +147,7 @@ def test_rel_x_05_compra_cartao_patrimonio(logged_in_card_page, app_base_url, pe
     patrimonio = verify_patrimonio_dashboard(user)
     home = RelatoriosHomePage(logged_in_card_page, app_base_url)
     home.open()
-    sec = logged_in_card_page.locator("section").filter(has_text="Patrimônio disponível")
+    sec = logged_in_card_page.locator("section").filter(has_text="Saldo das contas")
     texto = sec.locator(".dash-valor").first.inner_text()
     assert parse_moeda_ptbr(texto) == patrimonio
 

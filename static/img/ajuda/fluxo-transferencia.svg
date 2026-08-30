@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 292" width="360" height="292" fill="none">
+  <rect x="48" y="12" width="264" height="68" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="180" y="42" text-anchor="middle" fill="#334155" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Conta A</text>
+  <text x="180" y="62" text-anchor="middle" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">O dinheiro sai daqui</text>
+
+  <path d="M180 84 v28" stroke="#16a34a" stroke-width="2"/>
+  <path d="M174 108 l6 8 6-8" fill="#16a34a"/>
+  <rect x="128" y="86" width="104" height="24" rx="12" fill="#ecfdf5" stroke="#bbf7d0"/>
+  <text x="180" y="103" text-anchor="middle" fill="#15803d" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600">Só muda de lugar</text>
+
+  <rect x="48" y="124" width="264" height="68" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="180" y="154" text-anchor="middle" fill="#334155" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Conta B</text>
+  <text x="180" y="174" text-anchor="middle" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">O dinheiro chega aqui</text>
+
+  <rect x="16" y="212" width="328" height="64" rx="16" fill="#f8fafc" stroke="#e5e7eb"/>
+  <text x="180" y="240" text-anchor="middle" fill="#334155" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Não é receita nem despesa</text>
+  <text x="180" y="260" text-anchor="middle" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Seu dinheiro total continua o mesmo</text>
+</svg>

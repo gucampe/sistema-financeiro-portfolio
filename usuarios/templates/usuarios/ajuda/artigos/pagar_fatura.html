@@ -1,0 +1,29 @@
+<p class="mt-0 text-[15px] leading-relaxed text-fg-muted">
+  A compra no cartão fica na fatura. Quando você paga, o dinheiro sai da <strong class="font-semibold text-fg">conta padrão do cartão</strong>.
+</p>
+<ol class="mt-4 mb-0 list-decimal space-y-2 pl-5 text-[15px] leading-relaxed text-fg-muted">
+  <li>Abra <strong class="font-semibold text-fg">Cartões</strong>, escolha o cartão e abra a fatura.</li>
+  <li>Confira o valor que falta pagar.</li>
+  <li>Deixe o campo vazio para pagar o total restante, ou informe um valor menor para pagar só uma parte.</li>
+  <li>Toque em <strong class="font-semibold text-fg">Pagar fatura</strong> (ou <strong class="font-semibold text-fg">Pagar restante</strong>).</li>
+</ol>
+<p class="mt-4 mb-0 text-[15px] leading-relaxed text-fg-muted">
+  A conta de saída é a conta padrão cadastrada no cartão. Não é preciso escolhê-la de novo na hora do pagamento.
+</p>
+<p class="mt-3 mb-0 text-[15px] leading-relaxed text-fg-muted">
+  Depois do pagamento, o saldo dessa conta diminui e a fatura atualiza o que ainda está em aberto.
+</p>
+<div class="mt-5 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+  <p class="m-0 text-sm font-semibold text-fg">Importante</p>
+  <p class="mt-1 mb-0 text-sm leading-relaxed text-fg-muted">
+    A compra é o gasto no cartão. O pagamento é a saída do dinheiro da conta para quitar a fatura.
+  </p>
+</div>
+<div class="mt-5">
+  <a
+    href="{% url 'cartoes:home' %}"
+    class="btn btn-primary inline-flex min-h-12 items-center justify-center"
+  >
+    Ir para cartões
+  </a>
+</div>

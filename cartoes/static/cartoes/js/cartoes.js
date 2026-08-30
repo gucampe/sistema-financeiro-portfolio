@@ -94,6 +94,7 @@
   }
 
   if (btnAbrir) btnAbrir.addEventListener("click", () => abrirModal(null));
+  document.getElementById("empty-cartoes-cta")?.addEventListener("click", () => abrirModal(null));
 
   function consumirQueryNova() {
     try {

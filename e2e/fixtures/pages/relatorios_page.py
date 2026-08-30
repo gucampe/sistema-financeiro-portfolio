@@ -127,7 +127,7 @@ class PorContaPage(BasePage):
         self.goto(f"/relatorios/por-conta/{query}")
 
     def patrimonio_total(self) -> Decimal:
-        loc = self.page.locator(f'{self.HERO} article:has-text("Patrimônio total") .tabular-nums')
+        loc = self.page.locator(f'{self.HERO} article:has-text("Saldo das contas") .tabular-nums')
         return parse_moeda_ptbr(loc.inner_text())
 
     def movimento_periodo(self) -> Decimal:
@@ -191,7 +191,7 @@ class RelatoriosHomePage(BasePage):
         return self.kpis_hero()
 
     def patrimonio(self) -> Decimal:
-        sec = self.page.locator("section").filter(has_text="Patrimônio disponível")
+        sec = self.page.locator("section").filter(has_text="Saldo das contas")
         loc = sec.locator(".dash-valor").first
         expect(loc).to_be_visible()
         return parse_moeda_ptbr(loc.inner_text())

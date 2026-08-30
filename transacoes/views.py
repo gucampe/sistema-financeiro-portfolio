@@ -27,6 +27,7 @@ from cartoes.services.gestao_faturas import (
 )
 from contas.models import Conta
 from usuarios.models import Perfil
+from usuarios.services.produto_eventos import registrar_evento_seguro
 
 from relatorios.services.filtros import RelatorioFiltros, parse_relatorio_filtros
 
@@ -586,6 +587,8 @@ def adicionar_transacao(request):
                     pass
             transacao.save()
             transacao.refresh_from_db()
+            if transacao.tipo in ("receita", "despesa"):
+                registrar_evento_seguro(request.user, "first_transaction_created")
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 data_exib = transacao.data_competencia or transacao.data
@@ -941,6 +944,8 @@ def importar_ofx_preview(request):
             status=400,
         )
 
+    registrar_evento_seguro(request.user, "first_import_started")
+
     try:
         conta_pk = int(conta_id)
     except (TypeError, ValueError):
@@ -953,6 +958,7 @@ def importar_ofx_preview(request):
 
     raw = upload.read()
     if len(raw) > _MAX_OFX_BYTES:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {"status": "error", "message": "Arquivo muito grande."},
             status=400,
@@ -961,8 +967,10 @@ def importar_ofx_preview(request):
     try:
         linhas_parse = parse_ofx_bytes(raw)
     except ValueError as exc:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse({"status": "error", "message": str(exc)}, status=400)
     except OfxParserException:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {"status": "error", "message": "OFX inválido ou não suportado."},
             status=400,
@@ -992,7 +1000,9 @@ def importar_planilha_preview(request):
             {"status": "error", "message": "Envie um arquivo Excel (.xlsx)."},
             status=400,
         )
+    registrar_evento_seguro(request.user, "first_import_started")
     if not _upload_filename_is_xlsx(upload):
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {"status": "error", "message": "Envie um arquivo Excel (.xlsx)."},
             status=400,
@@ -1010,6 +1020,7 @@ def importar_planilha_preview(request):
 
     raw = upload.read()
     if len(raw) > _MAX_XLSX_BYTES:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {"status": "error", "message": "Arquivo muito grande."},
             status=400,
@@ -1018,9 +1029,11 @@ def importar_planilha_preview(request):
     try:
         linhas_parse = parse_planilha_padrao_bytes(raw)
     except ValueError as exc:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse({"status": "error", "message": str(exc)}, status=400)
 
     if len(linhas_parse) > _MAX_LINHAS_IMPORT_OFX:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {
                 "status": "error",
@@ -1029,6 +1042,7 @@ def importar_planilha_preview(request):
             status=400,
         )
     if len(linhas_parse) == 0:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {"status": "error", "message": "Nenhuma linha de lançamento na planilha."},
             status=400,
@@ -1249,6 +1263,7 @@ def importar_ofx_confirmar(request):
         })
 
     if erros_por_chave:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {
                 "status": "error",
@@ -1268,6 +1283,7 @@ def importar_ofx_confirmar(request):
             ).values_list("ofx_fitid", flat=True)
         )
         if existentes:
+            registrar_evento_seguro(request.user, "first_import_failed")
             return JsonResponse(
                 {
                     "status": "error",
@@ -1302,6 +1318,7 @@ def importar_ofx_confirmar(request):
                     merchant_key=str(meta.get("merchant_key") or ""),
                 )
     except IntegrityError:
+        registrar_evento_seguro(request.user, "first_import_failed")
         return JsonResponse(
             {
                 "status": "error",
@@ -1310,4 +1327,7 @@ def importar_ofx_confirmar(request):
             status=400,
         )
 
+    registrar_evento_seguro(request.user, "first_import_completed")
+    if any(t.tipo in ("receita", "despesa") for t in instancias):
+        registrar_evento_seguro(request.user, "first_transaction_created")
     return JsonResponse({"status": "ok", "criadas": len(instancias)})

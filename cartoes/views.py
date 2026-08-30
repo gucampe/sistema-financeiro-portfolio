@@ -15,6 +15,9 @@ from core.moeda import parse_decimal_moeda_br
 from contas.models import Conta
 from transacoes.models import Transacao
 from transacoes.views import modal_transacao_context
+from usuarios.ajuda.dicas import DICAS, deve_mostrar_dica
+from usuarios.models import Perfil
+from usuarios.services.produto_eventos import registrar_evento_seguro
 
 from .models import Cartao, Fatura
 from .services.faturas import obter_ou_criar_fatura
@@ -117,6 +120,14 @@ def cartoes_home(request):
         for s in icone_choices_instituicoes
     ]
     icon_list_genericos = [(s, icon_display_names.get(s, s), s) for s in icone_choices_genericos]
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+    dica_cartao = DICAS["cartao"] if deve_mostrar_dica(perfil, "cartao") else None
+    if dica_cartao:
+        registrar_evento_seguro(
+            request.user,
+            "context_tip_shown",
+            {"dica_id": dica_cartao.id, "versao": dica_cartao.versao},
+        )
 
     return render(
         request,
@@ -128,6 +139,7 @@ def cartoes_home(request):
             "icone_choices_genericos": icone_choices_genericos,
             "icon_list_instituicoes": icon_list_instituicoes,
             "icon_list_genericos": icon_list_genericos,
+            "dica_cartao": dica_cartao,
         },
     )
 
@@ -201,6 +213,7 @@ def salvar_cartao(request):
                 dia_vencimento=dia_vencimento,
                 conta_padrao=conta_padrao,
             )
+            registrar_evento_seguro(request.user, "first_card_created")
 
         return JsonResponse(
             {

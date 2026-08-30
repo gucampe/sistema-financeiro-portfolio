@@ -1,0 +1,12 @@
+{% load static %}
+{% if visual %}
+<figure class="my-4 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+  <img
+    src="{% static visual.src %}"
+    alt="{{ visual.alt }}"
+    class="block h-auto w-full max-w-full"
+    decoding="async"
+    {% if visual.tipo == "screenshot" %}loading="lazy"{% endif %}
+  >
+</figure>
+{% endif %}

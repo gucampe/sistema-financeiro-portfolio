@@ -122,7 +122,8 @@
             {% if etapa.cta_acao == "link_conta" %}
             <a href="{% url 'contas:home' %}?nova=1" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
             {% elif etapa.cta_acao == "link_transacoes" %}
-            <a href="{% url 'transacoes:historico' %}" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
+            <a href="{% url 'transacoes:historico' %}?nova=1" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
+            <a href="{% url 'transacoes:historico' %}?importar=1" class="btn btn-secondary btn-sm w-full sm:min-w-[10rem] sm:w-auto">Importar extrato</a>
             {% elif etapa.cta_acao == "link_cartao" %}
             <a href="{% url 'cartoes:home' %}?nova=1" class="btn btn-primary btn-sm w-full sm:min-w-[10rem] sm:w-auto">{{ etapa.cta_label }}</a>
             <button type="button" class="btn btn-secondary btn-sm w-full sm:min-w-[10rem] sm:w-auto" data-pp-skip-cartao>Não uso cartão</button>

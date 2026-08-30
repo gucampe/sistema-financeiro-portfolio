@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import AuditLog, Consentimento, LeadPrimeirosDonos, Perfil, Usuario
+from .models import AuditLog, Consentimento, LeadPrimeirosDonos, Perfil, ProdutoEvento, Usuario
 
 
 class PerfilInline(admin.StackedInline):
@@ -10,6 +10,7 @@ class PerfilInline(admin.StackedInline):
     fk_name = "usuario"
     can_delete = False
     max_num = 1
+    readonly_fields = ("dicas_dispensadas",)
 
 
 @admin.register(Usuario)
@@ -79,6 +80,21 @@ class ConsentimentoAdmin(admin.ModelAdmin):
         "aceito_em",
     )
     ordering = ("-aceito_em",)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ProdutoEvento)
+class ProdutoEventoAdmin(admin.ModelAdmin):
+    list_display = ("criado_em", "usuario", "evento")
+    list_filter = ("evento", "criado_em")
+    search_fields = ("usuario__email", "evento")
+    readonly_fields = ("usuario", "evento", "payload", "criado_em")
+    ordering = ("-criado_em",)
 
     def has_add_permission(self, request):
         return False

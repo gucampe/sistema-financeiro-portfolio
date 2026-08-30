@@ -28,6 +28,7 @@ from .views import (
     sitemap_xml,
     termos_view,
 )
+from usuarios.ajuda.views import dica_dispensar, produto_evento
 
 app_name = "usuarios"
 
@@ -88,4 +89,6 @@ urlpatterns = [
         primeiros_passos_ocultar_atalho,
         name="primeiros_passos_ocultar_atalho",
     ),
+    path("produto-evento/", produto_evento, name="produto_evento"),
+    path("dica-dispensar/", dica_dispensar, name="dica_dispensar"),
 ]

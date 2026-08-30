@@ -22,3 +22,6 @@ test-e2e-smoke:
 
 test-e2e:
 	$(PYTHON) -m pytest e2e/specs -m "not synthetic" --browser chromium
+
+ajuda-screenshots:
+	$(PYTHON) -m pytest e2e/specs/ajuda/test_gerar_screenshots.py --browser chromium -s

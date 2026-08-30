@@ -116,6 +116,12 @@ class Perfil(models.Model):
         _("Limiar de confiança para auto-aplicar"),
         default=0.90,
     )
+    dicas_dispensadas = models.JSONField(
+        _("Dicas de primeiro uso dispensadas"),
+        default=dict,
+        blank=True,
+        help_text=_('Mapa id → última versão dispensada. Ex.: {"cartao": 1}.'),
+    )
 
     class Meta:
         verbose_name = _("Perfil")
@@ -236,3 +242,45 @@ class Consentimento(models.Model):
 
     def __str__(self):
         return f"{self.email} ({self.canal} {self.aceito_em:%Y-%m-%d})"
+
+
+class ProdutoEvento(models.Model):
+    """Funil de ativação e Ajuda — sem valores financeiros nem PII."""
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="produto_eventos",
+    )
+    evento = models.CharField(max_length=48, db_index=True)
+    payload = models.JSONField(default=dict, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("Evento de produto")
+        verbose_name_plural = _("Eventos de produto")
+        ordering = ["-criado_em"]
+        indexes = [
+            models.Index(fields=["evento", "criado_em"], name="usuarios_prod_evt_dt"),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["usuario", "evento"],
+                condition=models.Q(
+                    evento__in=(
+                        "onboarding_started",
+                        "first_account_created",
+                        "first_transaction_created",
+                        "first_import_started",
+                        "first_import_failed",
+                        "first_import_completed",
+                        "first_dashboard_view_with_data",
+                        "first_card_created",
+                    )
+                ),
+                name="usuarios_produtoevento_first_uniq",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.evento} ({self.usuario_id})"
