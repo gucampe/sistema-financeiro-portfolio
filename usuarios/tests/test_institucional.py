@@ -27,7 +27,8 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("/politica-de-privacidade/", html)
         self.assertIn("/termos-de-uso/", html)
         self.assertIn("Ao garantir sua vaga, você concorda", html)
-        self.assertIn("incluindo cookies", html)
+        self.assertIn("Ao tocar no botão, você aceita nossos", html)
+        self.assertIn("incluindo cookies e envio de comunicações", html)
         self.assertNotIn("cookie-consent-banner", html)
 
     def test_landing_legacy_primeiros_donos_redireciona(self):
