@@ -27,6 +27,8 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("/politica-de-privacidade/", html)
         self.assertIn("/termos-de-uso/", html)
         self.assertIn("Ao garantir sua vaga, você concorda", html)
+        self.assertIn("incluindo cookies", html)
+        self.assertNotIn("cookie-consent-banner", html)
 
     def test_landing_legacy_primeiros_donos_redireciona(self):
         resp = self.client.get("/primeiros-donos/")
@@ -93,9 +95,11 @@ class InstitucionalSiteTests(TestCase):
         self.assertIn("Cloudflare Turnstile", priv)
         self.assertIn("turnstile-privacy-policy", priv)
         self.assertIn("Meta Platforms", priv)
+        self.assertIn("Facebook Ads", priv)
         self.assertIn("API de Conversão", priv)
         self.assertIn("facebook.com/privacy/policy", priv)
         self.assertIn("_fbp", priv)
+        self.assertIn("Publicidade e direcionamento", priv)
         self.assertIn("ola@granago.com.br", termos)
         self.assertIn("leis da República Federativa do Brasil", termos)
         self.assertIn("atividades realizadas a partir da sua conta", termos)

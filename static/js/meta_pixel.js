@@ -2,19 +2,10 @@
   var cfg = window.GRANAGO_META;
   if (!cfg || !cfg.pixelId) return;
 
-  var KEY = "granago_cookie_consent";
   var loaded = false;
 
-  function marketingOk() {
-    try {
-      return localStorage.getItem(KEY) === "marketing";
-    } catch (e) {
-      return false;
-    }
-  }
-
   function loadPixel() {
-    if (loaded || !marketingOk()) return;
+    if (loaded) return;
     loaded = true;
 
     var f = window;
@@ -59,6 +50,5 @@
     }
   }
 
-  document.addEventListener("granago:marketing-consent", loadPixel);
   loadPixel();
 })();

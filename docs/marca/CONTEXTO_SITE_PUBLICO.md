@@ -85,7 +85,7 @@ Sitemap: `/`, `/nossa-historia/`, `/como-funciona/`, `/faq/`, `/politica-de-priv
 - **FAQ** (`<details class="lp-faq">`): um aberto por vez (JS fecha os outros). Ícone “+”.
 - **Reveal** (`.lp-reveal`): fade/slide no scroll via IntersectionObserver; respeita `prefers-reduced-motion`.
 - **Header sticky**: transparente + blur; ganha borda ao scroll (`.is-scrolled`).
-- **Cookie banner**: só no base institucional. Copy: “Usamos cookies essenciais para sessão e segurança.” CTA “Entendi”. A landing `/comece/` **não** inclui o banner.
+- **Cookie banner**: só no aplicativo autenticado. Copy: “Usamos cookies essenciais para sessão e segurança.” CTA “Entendi”. Landing `/comece/`, `/obrigado/` e o site institucional **não** incluem o banner; o cadastro informa cookies (incluindo os da Meta) no formulário.
 
 ### Princípios de UX visíveis no código
 
@@ -618,7 +618,7 @@ Fatos do estado atual — não são tarefas, são tensões visíveis:
 2. **Duas histórias do fundador.** Institucional: carta em 1ª pessoa sobre abandono de apps. Captura: quote de insight (R$ 545,05 em supermercado) após importar o extrato.
 3. **CTA da captura diz “Preencha abaixo”** mas o form está no modal, não abaixo.
 4. **FAQ da landing não está montado.** O FAQ institucional é o que o visitante encontra. O partial da captura ainda fala em garantia de 7 dias e reajuste de preço — copy desalinhada da FAQ viva.
-5. **Cookie consent** só no base institucional. `/comece/` e `/obrigado/` não exibem o banner.
+5. **Cookie consent** só no aplicativo autenticado. `/comece/`, `/obrigado/` e o institucional não exibem o banner; o aviso de cookies de anúncios fica no formulário de cadastro.
 6. **Header da captura** não oferece caminho de volta ao site institucional (logo aponta para `/comece/`).
 7. **Documentos antigos** (`docs/marca/landing-copy.md`) ainda falam em R$48/ano, R$493 em compras e “50% … R$48/ano em vez de R$97”. O ar vivo da captura é R$4/mês vs R$8 e R$545,05 em supermercado.
 8. **JSON-LD da FAQ institucional** omite a 6ª pergunta.

@@ -183,13 +183,15 @@ class MetaCapiCadastroTests(TestCase):
         self.assertNotIn("meta_pixel.js", html)
         self.assertNotIn("data-marketing-choice", html)
 
-    def test_landing_com_pixel_pede_consentimento_de_anuncios(self):
+    def test_landing_com_pixel_informa_cookies_no_cadastro(self):
         with override_settings(META_PIXEL_ID="1750083062777982"):
             html = self.client.get(reverse("usuarios:landing")).content.decode()
         self.assertIn("1750083062777982", html)
         self.assertIn("meta_pixel.js", html)
-        self.assertIn("data-marketing-choice", html)
-        self.assertIn("Aceitar cookies de anúncios", html)
+        self.assertIn("incluindo cookies", html)
+        self.assertNotIn("data-marketing-choice", html)
+        self.assertNotIn("Aceitar cookies de anúncios", html)
+        self.assertNotIn("cookie-consent-banner", html)
         self.assertNotIn("EAA", html)
 
     def test_fbclid_da_landing_vira_fbc_na_capi(self):
