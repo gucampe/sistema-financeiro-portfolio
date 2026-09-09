@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class ResultadoCaptura:
     setup_url: str = ""
+    created: bool = False
+    usuario_id: int | None = None
 
 
 def _reportar_falha_email(exc: Exception) -> None:
@@ -166,4 +168,8 @@ def registrar_primeiro_dono(*, nome: str, email: str, whatsapp: str, request=Non
             _reportar_falha_email(exc)
 
     transaction.on_commit(_enviar)
-    return ResultadoCaptura(setup_url=setup_url)
+    return ResultadoCaptura(
+        setup_url=setup_url,
+        created=created,
+        usuario_id=usuario.pk,
+    )

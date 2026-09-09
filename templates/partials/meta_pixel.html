@@ -1,0 +1,16 @@
+{% load static %}
+{% if meta_pixel_id %}
+{% if meta_advanced_matching %}{{ meta_advanced_matching|json_script:"granago-meta-am" }}{% endif %}
+<script>
+  window.GRANAGO_META = {
+    pixelId: "{{ meta_pixel_id|escapejs }}",
+    completeRegistrationEventId: "{{ meta_complete_registration_event_id|default:''|escapejs }}",
+    advancedMatching: (function () {
+      var el = document.getElementById("granago-meta-am");
+      if (!el) return {};
+      try { return JSON.parse(el.textContent); } catch (e) { return {}; }
+    })()
+  };
+</script>
+<script src="{% static 'js/meta_pixel.js' %}" defer></script>
+{% endif %}

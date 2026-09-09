@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -142,6 +143,7 @@ MIDDLEWARE = [
     'config.middleware_maintenance.MaintenanceModeMiddleware',
     'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'usuarios.middleware.MetaFbclidMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -410,7 +412,7 @@ PRIMEIROS_DONOS_SIGNUP_ENABLED = config(
     cast=bool,
 )
 LEGAL_TERMS_VERSION = config("LEGAL_TERMS_VERSION", default="2026-08-25")
-LEGAL_PRIVACY_VERSION = config("LEGAL_PRIVACY_VERSION", default="2026-08-25")
+LEGAL_PRIVACY_VERSION = config("LEGAL_PRIVACY_VERSION", default="2026-09-08")
 CONTA_SETUP_TIMEOUT = config("CONTA_SETUP_TIMEOUT", default=48 * 60 * 60, cast=int)
 SETUP_EMAIL_COOLDOWN_SECONDS = config("SETUP_EMAIL_COOLDOWN_SECONDS", default=60, cast=int)
 SETUP_EMAIL_RATE_LIMIT_PER_HOUR = config("SETUP_EMAIL_RATE_LIMIT_PER_HOUR", default=5, cast=int)
@@ -427,6 +429,22 @@ if (
         "com PRIMEIROS_DONOS_SIGNUP_ENABLED=True."
     )
 
+# --- Meta Pixel / Conversions API ---
+# Pixel ID é público (HTML). Token da CAPI é secreto — nunca ir a templates.
+META_PIXEL_ID = config("META_PIXEL_ID", default="").strip()
+META_CAPI_ACCESS_TOKEN = config("META_CAPI_ACCESS_TOKEN", default="").strip()
+META_CAPI_TEST_EVENT_CODE = config("META_CAPI_TEST_EVENT_CODE", default="").strip()
+META_CAPI_API_VERSION = config("META_CAPI_API_VERSION", default="v22.0").strip() or "v22.0"
+_running_tests = (
+    bool(os.environ.get("PYTEST_VERSION"))
+    or "pytest" in sys.modules
+    or any("pytest" in (arg or "") for arg in sys.argv)
+    or (len(sys.argv) >= 2 and sys.argv[1] == "test")
+)
+if _running_tests:
+    META_CAPI_ACCESS_TOKEN = ""
+    META_CAPI_TEST_EVENT_CODE = ""
+
 # --- CSP (django-csp 3.8: usa CSP_*; CONTENT_SECURITY_POLICY é API 4.x) ---
 # Sem style-src explícito, o default-src 'self' bloqueia style="" e os floats
 # do hero colapsam todos em 10%/10%.
@@ -436,12 +454,27 @@ if (
 # massa no SaaS local. Chart.js já é vendor local; fontes da landing ainda
 # vêm do Google (liberadas abaixo para quando formos enforce).
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://challenges.cloudflare.com")
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://challenges.cloudflare.com",
+    "https://connect.facebook.net",
+)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
-CSP_IMG_SRC = ("'self'", "data:")
-CSP_CONNECT_SRC = ("'self'", "https://challenges.cloudflare.com")
-CSP_FRAME_SRC = ("'self'", "https://challenges.cloudflare.com")
+CSP_IMG_SRC = ("'self'", "data:", "https://www.facebook.com")
+CSP_CONNECT_SRC = (
+    "'self'",
+    "https://challenges.cloudflare.com",
+    "https://www.facebook.com",
+    "https://graph.facebook.com",
+    "https://connect.facebook.net",
+)
+CSP_FRAME_SRC = (
+    "'self'",
+    "https://challenges.cloudflare.com",
+    "https://www.facebook.com",
+)
 CSP_REPORT_ONLY = True
 CONTENT_SECURITY_POLICY = {
     "REPORT_ONLY": True,

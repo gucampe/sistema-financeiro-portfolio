@@ -37,9 +37,12 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
     <link rel="stylesheet" href="{% static 'landing/css/landing.css' %}" />
     {% block extra_css %}{% endblock %}
+    {% include "partials/meta_pixel.html" %}
   </head>
   <body class="min-h-screen bg-white font-sans text-fg antialiased">
     {% block body %}{% endblock %}
+    {% include "partials/cookie_consent.html" %}
+    <script src="{% static 'js/cookie_consent.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
     {% include "partials/turnstile_script.html" %}
   </body>

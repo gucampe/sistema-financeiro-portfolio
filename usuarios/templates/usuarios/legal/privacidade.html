@@ -31,7 +31,7 @@
         <span>Privacidade</span>
       </nav>
       <h1 id="legal-title" class="lp-legal-title">Política de Privacidade</h1>
-      <p class="lp-legal-meta">Última atualização: 25 de agosto de 2026</p>
+      <p class="lp-legal-meta">Última atualização: 8 de setembro de 2026</p>
       <p class="lp-legal-lead">
         Esta política explica como o <strong>GranaGo</strong> trata dados pessoais ao oferecer ferramentas de organização financeira pessoal,
         em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
@@ -147,6 +147,8 @@
           Nos formulários públicos de cadastro e login, sinais técnicos do navegador também podem ser processados
           pelo Cloudflare Turnstile para distinguir pessoas de acessos automatizados, conforme a seção
           <a href="#subprocessadores">Parceiros</a>.
+          Se você aceitar cookies de anúncios, o Pixel da Meta pode gravar identificadores de cookie
+          (<code>_fbp</code> e, quando houver clique em anúncio, <code>_fbc</code>).
         </p>
 
         <h3>3.5 Dados do programa Primeiros Donos</h3>
@@ -156,7 +158,12 @@
         <ul>
           <li>reservar sua vaga e enviar o acesso à plataforma;</li>
           <li>falar com você sobre o programa e o primeiro uso, inclusive pelo WhatsApp informado;</li>
-          <li>organizar a lista de participantes da fase experimental.</li>
+          <li>organizar a lista de participantes da fase experimental;</li>
+          <li>
+            medir se o cadastro veio de uma campanha de anúncios, enviando à Meta identificadores
+            <strong>hasheados</strong> (e-mail, telefone, primeiro nome, sobrenome e um identificador interno),
+            sem o texto em claro, via API de Conversão.
+          </li>
         </ul>
         <p>
           Não vendemos esses dados e não os usamos para disparo de spam.
@@ -175,7 +182,11 @@
           <li>prestar suporte e responder solicitações de privacidade;</li>
           <li>proteger a plataforma contra uso indevido, fraude e incidentes de segurança, inclusive com verificação automatizada contra bots no cadastro e no login;</li>
           <li>manter estabilidade, diagnosticar erros e melhorar o funcionamento do serviço;</li>
-          <li>enviar comunicações relacionadas à conta e à prestação do serviço — não usamos esses canais para spam.</li>
+          <li>enviar comunicações relacionadas à conta e à prestação do serviço — não usamos esses canais para spam;</li>
+          <li>
+            medir o desempenho de anúncios do GranaGo (Pixel no navegador, se você aceitar cookies de marketing,
+            e API de Conversão no servidor após um cadastro válido).
+          </li>
         </ul>
       </section>
 
@@ -186,7 +197,10 @@
           <li><strong>Execução de contrato</strong> — para criar e manter sua conta, processar importações, exibir relatórios e cumprir funcionalidades solicitadas por você.</li>
           <li><strong>Procedimentos preliminares ao contrato e legítimo interesse</strong> — para receber sua inscrição no programa Primeiros Donos, enviar o acesso e comunicar sobre o uso experimental.</li>
           <li><strong>Legítimo interesse</strong> — para segurança da plataforma, prevenção a fraudes e abusos, melhoria do serviço e monitoramento técnico de erros.</li>
-          <li><strong>Consentimento</strong> — quando exigido por lei, inclusive para cookies não essenciais, caso venham a ser utilizados no futuro.</li>
+          <li>
+            <strong>Consentimento</strong> — para cookies de marketing do Pixel da Meta e, no cadastro,
+            para o envio de identificadores hasheados à API de Conversão, conforme esta Política e o aviso no formulário.
+          </li>
           <li><strong>Cumprimento de obrigação legal</strong> — quando necessário para atender exigências legais ou regulatórias aplicáveis.</li>
         </ul>
       </section>
@@ -214,6 +228,22 @@
           <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer" target="_blank">Política de Privacidade da Cloudflare</a>
           e no
           <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener noreferrer" target="_blank">Turnstile Privacy Addendum</a>.
+        </p>
+        <h3>Meta (Pixel e API de Conversão)</h3>
+        <p>
+          Utilizamos a <strong>Meta Platforms, Inc.</strong> (Estados Unidos) para medir anúncios no Facebook e no Instagram.
+          O <strong>Pixel</strong> só é carregado se você aceitar cookies de anúncios; ele pode criar os cookies
+          <code>_fbp</code> e <code>_fbc</code> e registrar visitas às páginas públicas e o evento de cadastro.
+          A <strong>API de Conversão</strong> envia do nosso servidor, após um cadastro válido, o mesmo evento
+          (<code>CompleteRegistration</code>) com e-mail, telefone, primeiro nome, sobrenome e identificador interno
+          em SHA-256, além de endereço IP e user-agent do navegador, para a Meta associar a conversão à campanha.
+          Não enviamos lançamentos financeiros, senha nem o conteúdo da sua conta.
+        </p>
+        <p>
+          Saiba mais na
+          <a href="https://www.facebook.com/privacy/policy/" rel="noopener noreferrer" target="_blank">Política de Privacidade da Meta</a>.
+          Você pode recusar cookies de anúncios no aviso do site ou gerenciá-los no navegador.
+          Para o envio via API de Conversão no cadastro, a base é o aceite desta Política no formulário.
         </p>
         <h3 id="transferencia">Transferência internacional</h3>
         <p>
@@ -271,20 +301,24 @@
       <section class="lp-legal-section" id="cookies">
         <h2>{% if llm_ativo %}9{% else %}8{% endif %}. Cookies e tecnologias similares</h2>
         <p>
-          Utilizamos cookies e mecanismos equivalentes estritamente necessários ao funcionamento do GranaGo:
+          Utilizamos cookies e mecanismos equivalentes necessários ao funcionamento do GranaGo:
         </p>
         <ul>
           <li><strong>Sessão</strong> — mantém você autenticado enquanto usa a plataforma.</li>
           <li><strong>CSRF</strong> — protege formulários contra envios não autorizados.</li>
           <li><strong>Turnstile (Cloudflare)</strong> — cookies ou armazenamento local do desafio em challenges.cloudflare.com, usados só para verificar se o acesso é humano no cadastro e no login. Não são cookies de marketing.</li>
+          <li>
+            <strong>Meta Pixel</strong> (opcional) — cookies <code>_fbp</code> e <code>_fbc</code>, só depois que você
+            aceita cookies de anúncios no aviso do site. Servem para medir visitas e cadastros atribuídos a campanhas.
+          </li>
         </ul>
         <p>
-          Exibimos um aviso simplificado na primeira visita para informar sobre cookies essenciais.
+          Exibimos um aviso na primeira visita. Cookies essenciais seguem em uso para o site funcionar;
+          cookies de anúncios só entram com o seu aceite.
           O monitoramento de erros via Sentry baseia-se em legítimo interesse para estabilidade e diagnóstico técnico,
-          sem uso para publicidade ou perfilamento comercial.
+          sem uso para publicidade.
         </p>
         <p class="lp-legal-note">
-          No momento, não utilizamos cookies de marketing ou rastreamento publicitário de terceiros.
           Você pode gerenciar cookies nas configurações do navegador; bloquear cookies essenciais pode impedir o login ou o uso da plataforma.
         </p>
       </section>

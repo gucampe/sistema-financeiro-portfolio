@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="{% static 'landing/css/landing.css' %}" />
     <link rel="stylesheet" href="{% static 'institucional/css/institucional.css' %}" />
     {% block extra_css %}{% endblock %}
+    {% include "partials/meta_pixel.html" %}
   </head>
   <body class="min-h-screen bg-white font-sans text-fg antialiased">
     <a class="inst-skip" href="#conteudo">Pular para o conteúdo</a>

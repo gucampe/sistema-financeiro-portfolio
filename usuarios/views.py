@@ -18,10 +18,16 @@ from django.utils.http import urlsafe_base64_decode
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 import json
+import uuid
 
 from usuarios.audit import registrar_audit, _client_ip
 from usuarios.models import AuditLog, Perfil
 from usuarios.services.cadastro import registrar_primeiro_dono
+from usuarios.services.meta_conversions import (
+    SESSION_ADVANCED_MATCHING,
+    dados_advanced_matching,
+    enviar_complete_registration,
+)
 from usuarios.services.email_acesso import (
     WHATSAPP_SUPORTE,
     WHATSAPP_SUPORTE_DISPLAY,
@@ -65,6 +71,8 @@ def _legal_context(request=None):
         "whatsapp_suporte_display": WHATSAPP_SUPORTE_DISPLAY,
         "whatsapp_suporte_url": f"https://wa.me/55{WHATSAPP_SUPORTE}",
         "turnstile_site_key": getattr(settings, "TURNSTILE_SITE_KEY", "") or "",
+        "meta_pixel_id": getattr(settings, "META_PIXEL_ID", "") or "",
+        "meta_advanced_matching": {},
     }
 
 
@@ -182,6 +190,26 @@ def captura_lead_view(request):
         request.session["captura_lead_nome"] = form.cleaned_data["nome"]
         request.session["captura_lead_email"] = form.cleaned_data["email"]
         request.session["conta_setup_url"] = resultado.setup_url
+        if resultado.created:
+            event_id = str(uuid.uuid4())
+            request.session["meta_complete_registration_event_id"] = event_id
+            request.session[SESSION_ADVANCED_MATCHING] = dados_advanced_matching(
+                email=form.cleaned_data["email"],
+                nome=form.cleaned_data["nome"],
+                whatsapp=form.cleaned_data["whatsapp"],
+                usuario_id=resultado.usuario_id,
+            )
+            enviar_complete_registration(
+                event_id=event_id,
+                email=form.cleaned_data["email"],
+                nome=form.cleaned_data["nome"],
+                whatsapp=form.cleaned_data["whatsapp"],
+                request=request,
+                usuario_id=resultado.usuario_id,
+            )
+        else:
+            request.session.pop("meta_complete_registration_event_id", None)
+            request.session.pop(SESSION_ADVANCED_MATCHING, None)
         return redirect("usuarios:obrigado")
 
     ctx = _landing_context(request)
@@ -199,6 +227,10 @@ def obrigado_view(request):
     ctx = _landing_context(request)
     ctx["lead_nome"] = request.session.get("captura_lead_nome", "")
     ctx["lead_email"] = request.session.get("captura_lead_email", "")
+    ctx["meta_complete_registration_event_id"] = request.session.get(
+        "meta_complete_registration_event_id", ""
+    )
+    ctx["meta_advanced_matching"] = request.session.get(SESSION_ADVANCED_MATCHING) or {}
     setup_url = request.session.get("conta_setup_url") or ""
     ctx["conta_setup_url"] = setup_url or url_redefinir_senha(request=request)
     return render(request, "landing/obrigado.html", ctx)
