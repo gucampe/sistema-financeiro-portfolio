@@ -194,6 +194,18 @@ class MetaCapiCadastroTests(TestCase):
         self.assertNotIn("cookie-consent-banner", html)
         self.assertNotIn("EAA", html)
 
+    def test_landing_com_codigo_de_teste_injeta_no_pixel(self):
+        with override_settings(
+            META_PIXEL_ID="1750083062777982",
+            META_CAPI_TEST_EVENT_CODE="TEST23920",
+            META_CAPI_ACCESS_TOKEN="fake-token",
+        ):
+            html = self.client.get(reverse("usuarios:landing")).content.decode()
+        self.assertIn("TEST23920", html)
+        self.assertIn("testEventCode", html)
+        self.assertNotIn("fake-token", html)
+        self.assertNotIn("EAA", html)
+
     def test_fbclid_da_landing_vira_fbc_na_capi(self):
         cm = MagicMock()
         cm.status = 200

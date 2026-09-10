@@ -39,6 +39,9 @@
     } else {
       window.fbq("init", cfg.pixelId);
     }
+    if (cfg.testEventCode) {
+      window.fbq("set", "test_event_code", cfg.testEventCode);
+    }
     window.fbq("track", "PageView");
     if (cfg.completeRegistrationEventId) {
       window.fbq(

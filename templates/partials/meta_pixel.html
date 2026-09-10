@@ -5,6 +5,7 @@
   window.GRANAGO_META = {
     pixelId: "{{ meta_pixel_id|escapejs }}",
     completeRegistrationEventId: "{{ meta_complete_registration_event_id|default:''|escapejs }}",
+    testEventCode: "{{ meta_capi_test_event_code|default:''|escapejs }}",
     advancedMatching: (function () {
       var el = document.getElementById("granago-meta-am");
       if (!el) return {};

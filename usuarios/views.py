@@ -72,6 +72,7 @@ def _legal_context(request=None):
         "whatsapp_suporte_url": f"https://wa.me/55{WHATSAPP_SUPORTE}",
         "turnstile_site_key": getattr(settings, "TURNSTILE_SITE_KEY", "") or "",
         "meta_pixel_id": getattr(settings, "META_PIXEL_ID", "") or "",
+        "meta_capi_test_event_code": getattr(settings, "META_CAPI_TEST_EVENT_CODE", "") or "",
         "meta_advanced_matching": {},
     }
 
