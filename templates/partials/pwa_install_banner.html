@@ -1,0 +1,27 @@
+<div
+  data-pwa-banner
+  data-pwa-mode="unsupported"
+  hidden
+  class="fixed inset-x-0 z-40 mx-auto hidden w-[calc(100%-1.5rem)] max-w-md rounded-2xl border border-gray-200/80 bg-white/95 p-4 shadow-lg ring-1 ring-black/5 backdrop-blur dark:border-gray-700 dark:bg-[#101614]/95 bottom-[max(1rem,env(safe-area-inset-bottom,0px))]"
+  role="region"
+  aria-label="Instalar o GranaGo"
+>
+  <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Instalar o GranaGo</p>
+  <p data-pwa-for="chromium chromium-wait" class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+    Abra o GranaGo como aplicativo, sem a barra do navegador.
+  </p>
+  <p data-pwa-for="ios-safari" class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+    Compartilhe esta página e escolha “Adicionar à Tela de Início”.
+  </p>
+  <p data-pwa-for="ios-other" class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+    No iPhone, abra o GranaGo no Safari para adicionar à Tela de Início.
+  </p>
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <button type="button" data-pwa-install data-pwa-for="chromium" class="btn btn-primary btn-sm">
+      Instalar app
+    </button>
+    <button type="button" data-pwa-dismiss class="btn btn-secondary btn-sm">
+      Agora não
+    </button>
+  </div>
+</div>

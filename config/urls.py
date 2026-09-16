@@ -5,6 +5,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 from config.health_views import health
+from config.pwa_views import service_worker, web_manifest
 
 handler404 = "config.error_handlers.handler404"
 handler403 = "config.error_handlers.handler403"
@@ -12,6 +13,8 @@ handler500 = "config.error_handlers.handler500"
 
 urlpatterns = [
     path("health/", health, name="health"),
+    path("manifest.webmanifest", web_manifest, name="web_manifest"),
+    path("sw.js", service_worker, name="service_worker"),
     path('admin/', admin.site.urls),
 
     path('', include('usuarios.urls')),

@@ -163,6 +163,18 @@ class ProdutoEventoTests(OnboardingTestMixin, TestCase):
         )
         self.assertEqual(r.status_code, 400)
 
+    def test_post_aceita_eventos_pwa(self):
+        url = reverse("usuarios:produto_evento")
+        r = self.client.post(
+            url,
+            data=json.dumps({"evento": "pwa_opened_standalone", "payload": {"origem": "standalone"}}),
+            content_type="application/json",
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(
+            ProdutoEvento.objects.filter(usuario=self.user, evento="pwa_opened_standalone").exists()
+        )
+
     def test_hooks_conta_transacao_dashboard(self):
         self.client.post(
             reverse("contas:salvar"),

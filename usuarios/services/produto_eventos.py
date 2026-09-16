@@ -32,6 +32,11 @@ EVENTOS_RECORRENTES = frozenset(
         "context_tip_shown",
         "context_tip_opened",
         "context_tip_dismissed",
+        "pwa_install_prompt_shown",
+        "pwa_install_clicked",
+        "pwa_install_dismissed",
+        "pwa_installed",
+        "pwa_opened_standalone",
     }
 )
 

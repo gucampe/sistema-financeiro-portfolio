@@ -40,6 +40,9 @@
             <a href="#aparencia" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Aparência</a>
           </li>
           <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
+            <a href="#aplicativo" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Aplicativo</a>
+          </li>
+          <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
             <a href="#preferencias" data-nav-link class="config-nav-link block rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900 lg:w-full">Preferências</a>
           </li>
           <li class="min-w-0 flex-1 sm:flex-none lg:flex-none">
@@ -160,6 +163,37 @@
                 <span class="block text-sm font-semibold text-gray-900">Escuro</span>
                 <span class="mt-0.5 block text-xs text-gray-500">Carvão esverdeado para olhar o painel à noite.</span>
               </span>
+            </button>
+          </div>
+        </section>
+
+        <section id="aplicativo" class="scroll-mt-28 rounded-2xl bg-white/80 p-6 shadow-md ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-8">
+          <div class="border-b border-gray-100 pb-5">
+            <h2 class="text-lg font-semibold tracking-tight text-gray-900">Aplicativo</h2>
+            <p class="mt-1.5 text-sm text-gray-500">Instale o GranaGo na tela inicial. É o mesmo sistema, com internet.</p>
+          </div>
+          <div data-pwa-settings data-pwa-mode="unsupported" class="mt-6 space-y-3">
+            <p data-pwa-for="installed" class="text-sm text-gray-700">
+              O GranaGo já está instalado neste dispositivo.
+            </p>
+            <p data-pwa-for="chromium chromium-wait" class="text-sm text-gray-700">
+              Instale o app para abrir o GranaGo sem a barra do navegador. OFX e planilha Excel continuam iguais, pela opção de selecionar arquivo.
+            </p>
+            <p data-pwa-for="ios-safari" class="text-sm text-gray-700">
+              Compartilhe esta página e escolha “Adicionar à Tela de Início”.
+            </p>
+            <p data-pwa-for="ios-other" class="text-sm text-gray-700">
+              No iPhone, abra o GranaGo no Safari para adicionar à Tela de Início.
+            </p>
+            <p data-pwa-for="unsupported" class="text-sm text-gray-700">
+              Se o seu navegador oferecer “Instalar aplicativo”, use essa opção. No iPhone, o caminho confiável é o Safari.
+            </p>
+            <button
+              type="button"
+              data-pwa-install
+              class="btn btn-primary-solid hidden"
+            >
+              Instalar GranaGo
             </button>
           </div>
         </section>
@@ -348,7 +382,7 @@
 
 (function () {
   var links = document.querySelectorAll("[data-config-nav] [data-nav-link]");
-  var sections = document.querySelectorAll("section#perfil, section#aparencia, section#preferencias, section#seguranca");
+  var sections = document.querySelectorAll("section#perfil, section#aparencia, section#aplicativo, section#preferencias, section#seguranca");
   if (!links.length || !sections.length) return;
   var activeCls = ["bg-brand-50/90", "text-brand-900", "ring-1", "ring-brand-200/80"];
   function setActive(hash) {

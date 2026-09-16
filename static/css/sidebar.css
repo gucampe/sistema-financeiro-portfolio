@@ -107,6 +107,18 @@ html.sidebar-open .app-sidebar {
   transform: translateX(0);
 }
 
+@media (display-mode: standalone) {
+  .app-sidebar {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+html.pwa-standalone .app-sidebar {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @media (max-width: 767.98px) {
   html.sidebar-ready .app-sidebar {
     transition: transform var(--sidebar-transition);

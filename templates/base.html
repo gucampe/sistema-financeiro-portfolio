@@ -6,12 +6,16 @@
   lang="pt-BR"
   class="{% if tema_escuro %}dark{% endif %}"
   data-tema="{{ tema|default:'claro' }}"
-  {% if request.user.is_authenticated %}data-tema-fonte="perfil" data-tema-url="{% url 'usuarios:configuracoes_tema' %}"{% endif %}
+  {% if request.user.is_authenticated %}data-tema-fonte="perfil" data-tema-url="{% url 'usuarios:configuracoes_tema' %}" data-pwa-auth="1" data-pwa-evento-url="{% url 'usuarios:produto_evento' %}"{% endif %}
 >
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="{% if tema_escuro %}#101614{% else %}#f4f5f7{% endif %}" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="GranaGo" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>GranaGo | {% block title %}{% endblock %}</title>
     <script>
       (function () {
@@ -29,6 +33,27 @@
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="{% static 'img/icons/logo.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/icons/pwa/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% url 'web_manifest' %}">
+    <style id="pwa-standalone">
+      @media (display-mode: standalone) {
+        body {
+          padding-top: env(safe-area-inset-top, 0px);
+        }
+      }
+      html.pwa-standalone body {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      [data-pwa-banner] [data-pwa-for],
+      [data-pwa-settings] [data-pwa-for] { display: none; }
+      [data-pwa-mode="chromium"] [data-pwa-for~="chromium"],
+      [data-pwa-mode="chromium-wait"] [data-pwa-for~="chromium-wait"],
+      [data-pwa-mode="ios-safari"] [data-pwa-for~="ios-safari"],
+      [data-pwa-mode="ios-other"] [data-pwa-for~="ios-other"],
+      [data-pwa-mode="installed"] [data-pwa-for~="installed"],
+      [data-pwa-mode="unsupported"] [data-pwa-for~="unsupported"] { display: block; }
+      [data-pwa-mode="chromium"] [data-pwa-install] { display: inline-flex; }
+    </style>
     <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/fontawesome-subset.css' %}">
     <link rel="stylesheet" href="{% static 'css/theme-tokens.css' %}" />
     <link rel="stylesheet" href="{% static 'css/output.css' %}" />
@@ -127,6 +152,10 @@
     {% endif %}
     {% include "partials/cookie_consent.html" %}
     <script src="{% static 'js/cookie_consent.js' %}" defer></script>
+    {% if request.user.is_authenticated %}
+    {% include "partials/pwa_install_banner.html" %}
+    {% endif %}
+    <script src="{% static 'js/pwa.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>
