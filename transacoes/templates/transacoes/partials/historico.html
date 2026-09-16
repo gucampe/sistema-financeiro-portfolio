@@ -64,35 +64,37 @@
           Histórico recente
         </h2>
 
-        <div class="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 min-[1100px]:contents">
-          <div class="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:gap-4 min-[1100px]:col-start-2 min-[1100px]:flex-initial min-[1100px]:justify-center">
-            <a
-              href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
-              aria-label="Mês anterior"
-            >‹</a>
+        <div class="flex w-full min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 min-[1100px]:contents">
+          <div class="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 sm:gap-3 min-[1100px]:col-start-2 min-[1100px]:flex-initial min-[1100px]:justify-center">
+            <div class="flex min-w-0 max-w-full flex-nowrap items-center justify-center gap-2 sm:gap-3">
+              <a
+                href="?ano={{ ano_anterior }}&mes={{ mes_anterior }}"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-lg leading-none text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+                aria-label="Mês anterior"
+              >‹</a>
 
-            <div class="relative min-w-0 text-center">
-              <details id="dropdown-meses" class="group">
-                <summary class="inline-flex max-w-full cursor-pointer list-none items-center gap-1.5 text-base sm:text-lg font-semibold text-gray-800 transition hover:text-brand-600">
-                  <span class="truncate">{{ data_mes|date:"F Y" }}</span>
-                  <span data-field-chevron class="opacity-80 group-open:rotate-180 transition-transform" aria-hidden="true"></span>
-                </summary>
-                <div class="absolute left-1/2 top-full z-50 mt-1.5 max-h-72 min-w-[10rem] -translate-x-1/2 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg ring-1 ring-gray-200">
-                  {% for item in meses_dropdown %}
-                  <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
-                    {{ item.data_mes|date:"F Y" }}
-                  </a>
-                  {% endfor %}
-                </div>
-              </details>
+              <div class="relative min-w-0 flex-1 text-center">
+                <details id="dropdown-meses" class="group min-w-0 max-w-full">
+                  <summary class="flex min-w-0 max-w-full cursor-pointer list-none items-center justify-center gap-1.5 text-base font-semibold leading-none text-gray-800 transition hover:text-brand-600 sm:text-lg [&::-webkit-details-marker]:hidden">
+                    <span class="min-w-0 truncate">{{ data_mes|date:"F Y" }}</span>
+                    <span data-field-chevron class="shrink-0 opacity-80 transition-transform group-open:rotate-180" aria-hidden="true"></span>
+                  </summary>
+                  <div class="absolute left-1/2 top-full z-50 mt-1.5 max-h-72 min-w-[10rem] -translate-x-1/2 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1.5 shadow-lg ring-1 ring-gray-200">
+                    {% for item in meses_dropdown %}
+                    <a href="?ano={{ item.ano }}&mes={{ item.mes }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if item.ano == ano and item.mes == mes %}bg-brand-50 font-medium text-brand-700{% endif %}">
+                      {{ item.data_mes|date:"F Y" }}
+                    </a>
+                    {% endfor %}
+                  </div>
+                </details>
+              </div>
+
+              <a
+                href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-lg leading-none text-gray-800 transition hover:scale-105 hover:bg-gray-300"
+                aria-label="Próximo mês"
+              >›</a>
             </div>
-
-            <a
-              href="?ano={{ ano_proximo }}&mes={{ mes_proximo }}"
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-800 transition hover:scale-105 hover:bg-gray-300"
-              aria-label="Próximo mês"
-            >›</a>
 
             {% if ano != ano_hoje or mes != mes_hoje %}
             <a
