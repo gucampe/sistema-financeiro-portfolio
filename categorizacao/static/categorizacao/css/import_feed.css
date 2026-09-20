@@ -305,6 +305,28 @@
   text-overflow: ellipsis;
 }
 
+@media (max-width: 639px) {
+  .import-preview-toolbar__inner {
+    flex-wrap: wrap;
+  }
+
+  .import-preview-toolbar__left {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .import-preview-toolbar__count {
+    order: -1;
+    overflow: visible;
+    text-overflow: unset;
+    flex-shrink: 0;
+  }
+
+  .import-preview-toolbar__cta {
+    margin-left: auto;
+  }
+}
+
 .import-preview-toolbar__cta {
   display: inline-flex;
   align-items: center;
@@ -312,25 +334,38 @@
   gap: 0.35rem;
   flex-shrink: 0;
   padding: 0.4rem 0.75rem;
-  border: 0;
+  border: 1px solid #a7f3d0;
   border-radius: 0.5rem;
-  background: #4f46e5;
-  color: #fff;
+  background: #ecfdf5;
+  color: #047857;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
   white-space: nowrap;
 }
 
 .import-preview-toolbar__cta:hover:not(:disabled) {
-  background: #4338ca;
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.import-preview-toolbar__cta:focus-visible {
+  outline: 2px solid #047857;
+  outline-offset: 2px;
 }
 
 .import-preview-toolbar__cta:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  border-color: #6b7280;
   background: #6b7280;
+  color: #fff;
 }
 
 .import-preview-toolbar__cta[hidden] {
