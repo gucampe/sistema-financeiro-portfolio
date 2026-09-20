@@ -41,9 +41,9 @@
     const addLine = (text, highlight) => {
       const line = document.createElement("div");
       line.className = `flex items-center gap-2 text-xs transition-all duration-500 ${
-        highlight ? "text-violet-700 font-medium" : "text-gray-500"
+        highlight ? "text-emerald-700 font-medium" : "text-gray-500"
       }`;
-      line.innerHTML = `<span class="text-violet-400">✦</span><span>${text}</span>`;
+      line.innerHTML = `<span class="text-emerald-600">✦</span><span>${text}</span>`;
       microEl.appendChild(line);
       while (microEl.children.length > 4) {
         microEl.removeChild(microEl.firstChild);

@@ -308,6 +308,7 @@
 @media (max-width: 639px) {
   .import-preview-toolbar__inner {
     flex-wrap: wrap;
+    justify-content: flex-start;
   }
 
   .import-preview-toolbar__left {
@@ -323,7 +324,7 @@
   }
 
   .import-preview-toolbar__cta {
-    margin-left: auto;
+    margin-left: 0;
   }
 }
 
