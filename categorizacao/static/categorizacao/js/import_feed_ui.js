@@ -96,22 +96,22 @@
   function setFeedCategorizado(container, value) {
     if (!container) return;
     container.dataset.categorizado = value ? "true" : "false";
-    if (!value) {
-      getItems(container).forEach((item) => {
-        item.dataset.confiancaNivel = "";
-        const badgesSlot = item.querySelector("[data-cat-badges]");
-        const hintSlot = item.querySelector("[data-cat-hint]");
-        if (badgesSlot) {
-          badgesSlot.innerHTML = "";
-          badgesSlot.hidden = true;
-        }
-        if (hintSlot) {
-          hintSlot.innerHTML = "";
-          hintSlot.hidden = true;
-        }
-        aplicarEstadoVisualItem(item);
-      });
-    }
+    getItems(container).forEach((item) => {
+      delete item.dataset.revisaoManual;
+      if (value) return;
+      item.dataset.confiancaNivel = "";
+      const badgesSlot = item.querySelector("[data-cat-badges]");
+      const hintSlot = item.querySelector("[data-cat-hint]");
+      if (badgesSlot) {
+        badgesSlot.innerHTML = "";
+        badgesSlot.hidden = true;
+      }
+      if (hintSlot) {
+        hintSlot.innerHTML = "";
+        hintSlot.hidden = true;
+      }
+      aplicarEstadoVisualItem(item);
+    });
   }
 
   function criarComboboxCategoria(linha, listaCat, prefix) {
@@ -239,6 +239,7 @@
       });
       root?._feedCombobox?.sync?.();
     }
+    sel.dataset.valorRegistrado = sel.value;
 
     if (opts.animate && linha?.categoria_sugerida_id) {
       itemEl.classList.add("is-reveal-brief");
@@ -442,8 +443,17 @@
       const sel = item.querySelector(`select.${prefix}-categoria`);
       const root = sel?.closest("[data-combobox-root]");
       sel?.addEventListener("change", () => {
+        const anterior = sel.dataset.valorRegistrado ?? "";
+        const nivelAtual = item.dataset.confiancaNivel;
+        const mudou = sel.value !== anterior;
         marcarRevisado(item);
         root?._feedCombobox?.sync?.();
+        if (
+          mudou &&
+          (nivelAtual === NIVEL.MEDIA || nivelAtual === NIVEL.BAIXA)
+        ) {
+          item.dataset.revisaoManual = "1";
+        }
         if (!isCategorizado(container)) return;
         const linhaParcial = {
           categoria_sugerida_id: sel.value ? Number(sel.value) : null,
@@ -514,6 +524,7 @@
     getItems(container).forEach((item) => {
       const cb = item.querySelector(`.${prefix}-incluir`);
       if (!cb?.checked) return;
+      if (item.dataset.revisaoManual === "1") return;
 
       const nivel = item.dataset.confiancaNivel;
       const sel = item.querySelector(`select.${prefix}-categoria`);
