@@ -14,11 +14,15 @@ def write_pdf_from_template(template_name: str, context: dict, nome_arquivo: str
 
   try:
     from weasyprint import HTML
+
+    content = HTML(string=html).write_pdf()
   except ImportError as exc:
     raise RuntimeError("WeasyPrint não está instalado.") from exc
-
-  try:
-    content = HTML(string=html).write_pdf()
+  except OSError as exc:
+    # Libs nativas (Pango/GObject) ausentes — comum em Windows de desenvolvimento.
+    raise RuntimeError(
+      "WeasyPrint instalado, mas bibliotecas nativas não estão disponíveis neste ambiente."
+    ) from exc
   except Exception as exc:
     raise RuntimeError(f"Erro ao gerar o PDF: {exc}") from exc
   nome = nome_arquivo if nome_arquivo.endswith(".pdf") else f"{nome_arquivo}.pdf"

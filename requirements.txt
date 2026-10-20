@@ -1,10 +1,10 @@
 asgiref==3.8.1
 openpyxl==3.1.5
-Django==5.2.15
+Django==5.2.18
 Pillow>=12.0.0
 django-tailwind==4.0.1
 ofxparse==0.21
-sqlparse==0.5.4
+sqlparse==0.6.0
 psycopg2-binary==2.9.12
 python-decouple==3.8
 gunicorn==23.0.0
@@ -12,7 +12,7 @@ whitenoise[brotli]==6.9.0
 dj-database-url==2.3.0
 celery==5.4.0
 redis==5.2.1
-weasyprint==68.0
+weasyprint==70.0
 lxml>=6.1.0
 django-minify-html==1.5.0
 django-htmx==1.21.0
