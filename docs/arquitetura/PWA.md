@@ -90,7 +90,7 @@ Eventos: `pwa_install_prompt_shown`, `pwa_install_clicked`, `pwa_install_dismiss
 
 ## Infra
 
-[`deploy/nginx/financeiro.conf`](../../deploy/nginx/financeiro.conf): `location = /sw.js` e `= /manifest.webmanifest` no server do app, com `Cache-Control: no-cache` e `CDN-Cache-Control: no-store` (Cloudflare). WhiteNoise segue nos static.
+Configuração do proxy reverso (não versionada): `location = /sw.js` e `= /manifest.webmanifest` no server do app, com `Cache-Control: no-cache` e `CDN-Cache-Control: no-store` (Cloudflare). WhiteNoise segue nos static.
 
 Não há Cache Rule de Cloudflare versionada neste repositório. Após o deploy, conferir no painel se `/sw.js` não está em cache longo. Se o bloco HTTPS tiver sido gerado pelo Certbot, copiar os dois `location =` para o server 443.
 

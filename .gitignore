@@ -62,3 +62,11 @@ pytest_cache/
 
 # Git bundles (bootstrap deploy, não versionar)
 *.bundle
+
+# Arquivos sensíveis / operacionais
+*.py[cod]
+*.pem
+*.key
+*.sql
+*.dump
+backups/

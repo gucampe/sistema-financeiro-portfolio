@@ -225,7 +225,7 @@ Itens que já existem no projeto e fazem parte do mesmo pilar:
 | Redação PII para LLM | Feito (código) | `redact_pii_for_llm`; depende de política/DPIA se IA for GA |
 | Backup offsite R2 | Feito | Parte da continuidade |
 | CSRF failure brandada | Feito | `CSRF_FAILURE_VIEW` |
-| Separação user deploy (P2) | Falta | Documentado em `deploy/docs/USER_SEPARATION_P2.md` |
+| Separação user deploy (P2) | Falta | Documentado fora do repositório |
 
 ---
 

@@ -550,7 +550,7 @@ Validação adicional em `Transacao.clean()` e forms (`PreferenciasFinanceirasFo
 | **Subprocessador** | Google LLC — API Gemini (`generativelanguage.googleapis.com`) |
 | **Finalidade** | Sugestão de categoria em transações de baixa confiança do pipeline híbrido |
 | **Base legal** | Legítimo interesse / execução de contrato — habilitado exclusivamente pelo admin (`ENABLE_CATEGORIZACAO_LLM`) |
-| **Controle** | Admin via deploy/env; usuário final **não** opta por usar IA |
+| **Controle** | Admin via variáveis de ambiente; usuário final **não** opta por usar IA |
 | **Dados enviados** | Descrição normalizada, merchant_key anonimizado, tipo receita/despesa, faixa de valor, lista de slugs de categorias |
 | **Dados não enviados** | Nome, e-mail, CPF, valor exato, conta bancária, histórico completo |
 | **Redação PIX** | `redact_pii_for_llm()` substitui nomes por `[PESSOA]` antes do prompt |

@@ -164,7 +164,7 @@ Hoje o CSP está em `REPORT_ONLY=True`; mesmo assim vale alinhar as listas para 
 3. Sem opt-in de marketing, o script da Meta não carrega
 4. Política de Privacidade e banner descrevem o que o código faz
 5. Cadastro continua funcionando se a Meta estiver fora do ar
-6. Secrets só em env; `.env.example` e `deploy/env.production.example` documentados
+6. Secrets só em env; `.env.example` documentado
 
 ## Próximo passo de implementação
 
